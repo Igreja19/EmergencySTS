@@ -125,7 +125,7 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
                 <div class="card border-success shadow-sm">
                     <div class="card-body">
                         <h5 class="text-primary fw-bold">Prioridade Azul</h5>
-                        <p>Situação não urgente. Tempo máximo: indefinido.</p>
+                        <p>Situação não urgente. Tempo máximo: 240 minutos.</p>
                     </div>
                 </div>
             </div>

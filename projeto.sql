@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Oct 25, 2025 at 04:25 PM
+-- Generation Time: Oct 25, 2025 at 07:18 PM
 -- Server version: 9.1.0
 -- PHP Version: 8.3.14
 
@@ -130,7 +130,7 @@ CREATE TABLE IF NOT EXISTS `consulta` (
   KEY `fk_consulta_diagnostico1_idx` (`diagnostico_id`),
   KEY `fk_consulta_paciente1_idx` (`paciente_id`),
   KEY `fk_consulta_utilizador1_idx` (`utilizador_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -148,7 +148,7 @@ CREATE TABLE IF NOT EXISTS `notificacao` (
   `paciente_id` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_notificacao_paciente1_idx` (`paciente_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -165,7 +165,7 @@ CREATE TABLE IF NOT EXISTS `observacao` (
   `consulta_id` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_diagnostico_consulta1_idx` (`consulta_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -175,18 +175,16 @@ CREATE TABLE IF NOT EXISTS `observacao` (
 
 DROP TABLE IF EXISTS `paciente`;
 CREATE TABLE IF NOT EXISTS `paciente` (
-  `id` int NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
   `nome` varchar(100) NOT NULL,
   `nif` varchar(9) NOT NULL,
   `data_nascimento` date NOT NULL,
   `genero` enum('Masculino','Feminino','Outro') NOT NULL,
   `telefone` varchar(15) NOT NULL,
   `morada` varchar(255) NOT NULL,
-  `pulseira_id` int NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `nif_UNIQUE` (`nif`),
-  KEY `fk_paciente_pulseira1_idx` (`pulseira_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  UNIQUE KEY `nif_UNIQUE` (`nif`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -205,7 +203,7 @@ CREATE TABLE IF NOT EXISTS `prescricao` (
   `consulta_id` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_prescricao_consulta1_idx` (`consulta_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -215,14 +213,23 @@ CREATE TABLE IF NOT EXISTS `prescricao` (
 
 DROP TABLE IF EXISTS `pulseira`;
 CREATE TABLE IF NOT EXISTS `pulseira` (
-  `id` int NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
   `codigo` varchar(10) NOT NULL,
   `prioridade` enum('Vermelho','Laranja','Amarelo','Verde','Azul') NOT NULL,
   `tempoentrada` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `triagem_id` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_pulseira_triagem1_idx` (`triagem_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `pulseira`
+--
+
+INSERT INTO `pulseira` (`id`, `codigo`, `prioridade`, `tempoentrada`, `triagem_id`) VALUES
+(1, 'AF2A8A37', '', '2025-10-25 19:02:56', 3),
+(2, 'BDAFB908', '', '2025-10-25 19:05:58', 6),
+(3, '8F5B69FB', '', '2025-10-25 19:06:06', 7);
 
 -- --------------------------------------------------------
 
@@ -232,16 +239,42 @@ CREATE TABLE IF NOT EXISTS `pulseira` (
 
 DROP TABLE IF EXISTS `triagem`;
 CREATE TABLE IF NOT EXISTS `triagem` (
-  `id` int NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `nomecompleto` varchar(100) DEFAULT NULL,
+  `datanascimento` date DEFAULT NULL,
+  `sns` varchar(20) DEFAULT NULL,
+  `telefone` varchar(20) DEFAULT NULL,
+  `motivoconsulta` varchar(255) DEFAULT NULL,
+  `queixaprincipal` text,
+  `descricaosintomas` text,
+  `iniciosintomas` datetime DEFAULT NULL,
+  `intensidadedor` int DEFAULT NULL,
+  `condicoes` text,
+  `alergias` text,
+  `medicacao` text,
   `motivo` text NOT NULL,
   `prioridadeatribuida` enum('Vermelho','Laranja','Amarelo','Verde','Azul') NOT NULL,
   `datatriagem` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `discriminacaoprincipal` varchar(255) DEFAULT NULL,
   `paciente_id` int NOT NULL,
   `utilizador_id` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_triagem_paciente1_idx` (`paciente_id`),
   KEY `fk_triagem_utilizador1_idx` (`utilizador_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `triagem`
+--
+
+INSERT INTO `triagem` (`id`, `nomecompleto`, `datanascimento`, `sns`, `telefone`, `motivoconsulta`, `queixaprincipal`, `descricaosintomas`, `iniciosintomas`, `intensidadedor`, `condicoes`, `alergias`, `medicacao`, `motivo`, `prioridadeatribuida`, `datatriagem`, `discriminacaoprincipal`, `paciente_id`, `utilizador_id`) VALUES
+(1, 'Miguel', '2005-07-25', '2345678', '234567', 'garganta', 'Dor e tosse', 'Dor', '2025-10-25 17:00:00', 8, 'Dor', 'N', 'N', '', '', '2025-10-25 18:00:00', 'Dor', 0, 0),
+(2, 'Miguel', '2005-07-25', '2345678', '234567', 'garganta', 'Dor e tosse', 'Dor', '2025-10-25 17:00:00', 8, 'Dor', 'N', 'N', '', '', '2025-10-25 18:00:00', 'Dor', 0, 0),
+(3, 'Miguel', '2005-07-25', '256776857', '912881282', 'garganta', 'Dor', 'dor', '2025-07-25 11:11:00', 6, 'dor', 'nenhuma', 'nenhuma', '', '', '2025-10-25 11:11:00', 'Dor', 0, 0),
+(4, 'Miguel', '2005-07-25', '256775857', '912881282', 'garganta', 'dor', 'dor', '2025-10-25 11:11:00', 8, 'dor', 'n', 'N', '', '', '2025-10-25 11:11:00', 'DOR', 0, 0),
+(5, 'Afonso', '2005-07-25', '12346', '912881282', 'garganta', 'dor', 'dor', '2025-10-25 11:11:00', 8, 'dor', 'n', 'N', '', '', '2025-10-25 11:11:00', 'DOR', 0, 0),
+(6, 'Afonso', '2005-07-25', '12346', '912881282', 'garganta', 'dor', 'dor', '2025-10-25 11:11:00', 8, 'dor', 'n', 'N', '', '', '2025-10-25 11:11:00', 'DOR', 0, 0),
+(7, 'Afonso', '2005-07-25', '12346', '912881282', 'garganta', 'dor', 'dor', '2025-10-25 11:11:00', 8, 'dor', 'n', 'N', '', '', '2025-10-25 11:11:00', 'DOR', 0, 0);
 
 -- --------------------------------------------------------
 
@@ -293,7 +326,7 @@ CREATE TABLE IF NOT EXISTS `userprofile` (
   UNIQUE KEY `email` (`email`),
   KEY `fk_utilizador_consulta1_idx` (`consulta_id`),
   KEY `fk_utilizador_triagem1_idx` (`triagem_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Constraints for dumped tables

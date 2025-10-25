@@ -1,7 +1,7 @@
 <?php
-namespace frontend\models;
+namespace common\models;
 
-use Yii;
+use frontend\models\Paciente;
 use yii\db\ActiveRecord;
 
 class Pulseira extends ActiveRecord

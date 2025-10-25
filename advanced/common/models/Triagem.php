@@ -1,8 +1,8 @@
 <?php
 
-namespace frontend\models;
+namespace common\models;
 
-use Yii;
+use frontend\models\Paciente;
 use yii\db\ActiveRecord;
 
 class Triagem extends ActiveRecord
@@ -57,5 +57,9 @@ class Triagem extends ActiveRecord
             'paciente_id' => 'Paciente',
             'utilizador_id' => 'Utilizador Responsável',
         ];
+    }
+    public function getPaciente()
+    {
+        return $this->hasOne(Paciente::class, ['id' => 'paciente_id']);
     }
 }

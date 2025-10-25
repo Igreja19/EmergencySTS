@@ -1,103 +1,190 @@
 <?php
 use yii\helpers\Html;
 
-$this->title = 'Pulseira de Triagem - EmergencySTS';
+$this->title = 'Painel de Triagem - EmergencySTS';
 
-// 🔹 Verifica se existe pulseira antes de tentar aceder
 if (!$pulseira) {
     echo '<div class="container py-5 text-center">
             <div class="alert alert-warning rounded-4 shadow-sm p-4">
                 <i class="bi bi-exclamation-triangle me-2"></i>
                 Nenhuma pulseira encontrada.
-            </div>
-            ' . Html::a('<i class="bi bi-arrow-left-circle me-2"></i> Voltar à Triagem', ['triagem/formulario'], [
+            </div>'
+            . Html::a('<i class="bi bi-arrow-left-circle me-2"></i> Voltar à Triagem', ['triagem/formulario'], [
                     'class' => 'btn btn-success mt-3 px-4 py-2'
-            ]) . '
-          </div>';
+            ]) .
+            '</div>';
     return;
 }
 
-// 🔹 Define cores de acordo com a prioridade
+// Cores das prioridades
 $cores = [
         'Vermelha' => '#dc3545',
-        'Laranja' => '#fd7e14',
-        'Amarela' => '#ffc107',
-        'Verde' => '#198754',
-        'Azul' => '#0d6efd',
+        'Laranja'  => '#fd7e14',
+        'Amarela'  => '#ffc107',
+        'Verde'    => '#198754',
+        'Azul'     => '#0d6efd',
 ];
 $cor = $cores[$pulseira->prioridade] ?? '#198754';
+
+// Ajuste do tempo estimado
+if ($tempoEstimadoMin <= 0 && $position > 1) {
+    $tempoEstimadoMin = max(5, $position * 5);
+}
+
+// Corrige progresso: se posição 1 => 100%, senão proporcional
+if ($position > 1 && $totalAguardar > 0) {
+    $progressPct = max(0, 100 - (($position - 1) / $totalAguardar) * 100);
+} else {
+    $progressPct = 100;
+}
 ?>
 
 <div class="container py-5">
-    <div class="text-center mb-5">
-        <h4 class="fw-bold text-success">Pulseira de Triagem</h4>
-        <p class="text-muted">Protocolo de Manchester</p>
+    <h5 class="fw-bold text-success mb-2">Tempo de Espera Estimado</h5>
+    <p class="text-muted">Consulta do seu estado na fila de atendimento</p>
+
+    <!-- CARD PRINCIPAL -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 main-status-card position-relative">
+
+        <!-- Cabeçalho com número e selo -->
+        <div class="d-flex justify-content-between align-items-start position-relative">
+            <div>
+                <small class="text-muted">O seu número de triagem</small>
+                <h2 class="fw-bold m-0"><?= Html::encode($pulseira->codigo) ?></h2>
+            </div>
+
+            <!-- Selo da cor (com texto) -->
+            <div class="position-absolute top-0 end-0 mt-2 me-3 d-flex align-items-center justify-content-center fw-bold text-uppercase"
+                 style="
+                         background-color: <?= $cor ?>;
+                         color: #fff;
+                         font-size: 0.9rem;
+                         padding: 0.4rem 1rem;
+                         border-radius: 6px;
+                         min-width: 90px;
+                         height: 30px;
+                         letter-spacing: .5px;
+                         box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+                         ">
+                <?= strtoupper(Html::encode($pulseira->prioridade)) ?>
+            </div>
+        </div>
+
+        <hr class="my-3">
+
+        <!-- Informações principais -->
+        <div class="row text-center g-3">
+            <div class="col-md-4">
+                <p class="text-muted mb-1">Tempo Decorrido</p>
+                <h6 class="fw-semibold"><?= (int)$tempoDecorridoMin ?> min</h6>
+            </div>
+            <div class="col-md-4">
+                <p class="text-muted mb-1">Tempo Estimado</p>
+                <h6 class="fw-semibold">~<?= (int)$tempoEstimadoMin ?> min</h6>
+            </div>
+            <div class="col-md-4">
+                <p class="text-muted mb-1">Posição na Fila</p>
+                <h6 class="fw-semibold"><?= (int)$position ?>º</h6>
+            </div>
+        </div>
+
+        <!-- Barra de progresso -->
+        <div class="mt-3 position-relative">
+            <div class="progress rounded-pill triage-track" style="height: 12px;">
+                <div class="progress-bar progress-bar-striped progress-bar-animated"
+                     style="width: <?= min(100, (int)$progressPct) ?>%; background-color: <?= $cor ?>;">
+                </div>
+            </div>
+            <div class="small text-muted text-end mt-1"><?= (int)$progressPct ?>%</div>
+        </div>
+
+        <!-- Texto de progresso -->
+        <div class="small text-muted mb-1 mt-3">
+            Progresso do tempo máximo (<?= isset($maxByPriority[$pulseira->prioridade]) ? (int)$maxByPriority[$pulseira->prioridade] : 60 ?> min)
+        </div>
+
+        <!-- Nome do paciente -->
+        <div class="mt-3">
+            <span class="text-muted">Paciente:</span>
+            <span class="fw-semibold <?= $pacienteNome === 'Desconhecido' ? 'text-secondary' : 'text-dark' ?>">
+        <?= Html::encode($pacienteNome ?? 'Desconhecido') ?>
+    </span>
+        </div>
     </div>
 
-    <div class="card shadow-sm border-0 rounded-4 p-4 mb-4" id="pulseira-card">
-        <div class="border-3 rounded-3 p-4 position-relative" id="pulseiraBox">
+    <!-- FILA -->
+    <h6 class="fw-bold text-success mb-3">
+        <i class="bi bi-people me-2"></i>Fila de Atendimento
+    </h6>
 
-            <div class="border-2 p-4 rounded-4" style="border:2px solid <?= $cor ?>;">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h6 class="text-muted mb-0">Número de Triagem</h6>
-                    <span class="badge text-dark fw-semibold px-3 py-2"
-                          style="background-color: <?= $cor ?>33; border: 1px solid <?= $cor ?>; color: <?= $cor ?>;">
-                        <?= strtoupper(Html::encode($pulseira->prioridade)) ?>
-                    </span>
-                </div>
-                <h2 class="fw-bold mb-4"><?= Html::encode($pulseira->codigo) ?></h2>
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <p class="mb-1 fw-semibold text-dark">Paciente</p>
-                        <p class="text-muted"><?= Html::encode($pacienteNome ?? 'Desconhecido') ?></p>
-                    </div>
-                    <div class="col-md-6">
-                        <p class="mb-1 fw-semibold text-dark">Data</p>
-                        <p class="text-muted">
-                            <?= date('d/m/Y H:i', strtotime($pulseira->tempoentrada ?? date('Y-m-d H:i:s'))) ?>
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="alert mt-4 rounded-4 d-flex align-items-start"
-                 style="background-color: <?= $cor ?>15; border-left: 5px solid <?= $cor ?>;">
-                <i class="bi bi-info-circle-fill me-3 fs-4" style="color: <?= $cor ?>"></i>
+    <div class="list-group mb-4">
+        <?php foreach ($fila as $item): ?>
+            <?php
+            $isMe   = ($item->id === $pulseira->id);
+            $corItem= $cores[$item->prioridade] ?? '#6c757d';
+            $bgMe   = $isMe ? 'background:#e9f2ff; border:1.5px solid #0d6efd;' : 'background:#f8f9fa;';
+            ?>
+            <div class="list-group-item d-flex justify-content-between align-items-center rounded-3 mb-2"
+                 style="border-left:6px solid <?= $corItem ?>; <?= $bgMe ?>">
                 <div>
-                    <h6 class="fw-bold mb-1" style="color: <?= $cor ?>">
-                        Prioridade: <?= Html::encode($pulseira->prioridade) ?>
-                    </h6>
-                    <p class="mb-0 small text-muted">
-                        O seu caso foi classificado como <strong><?= strtolower($pulseira->prioridade) ?></strong>.
-                        Aguarde na sala de espera até ser chamado.
-                    </p>
+                    <span class="fw-semibold" style="color: <?= $corItem ?>;">
+                        <?= Html::encode($item->codigo) ?>
+                    </span>
+                    <?php if ($isMe): ?>
+                        <span class="ms-1 small text-primary fw-semibold">(Você)</span>
+                    <?php endif; ?>
+                    <div class="small text-muted"><?= date('H:i', strtotime($item->tempoentrada)) ?></div>
                 </div>
-            </div>
 
-            <div class="text-center mt-4">
-                <button class="btn btn-success" id="downloadPDF">
-                    <i class="bi bi-download me-2"></i> Guardar Pulseira
-                </button>
+                <?php if (strcasecmp($item->status, 'Em atendimento') === 0): ?>
+                    <span class="badge bg-success-subtle text-success border border-success px-3 py-2">Em atendimento</span>
+                <?php elseif (strcasecmp($item->status, 'Aguardando') === 0): ?>
+                    <span class="badge bg-warning-subtle text-dark border border-warning px-3 py-2">Aguardando</span>
+                <?php else: ?>
+                    <span class="badge bg-secondary-subtle text-secondary border border-secondary px-3 py-2">Atendido</span>
+                <?php endif; ?>
+            </div>
+        <?php endforeach; ?>
+    </div>
+
+    <!-- ESTATÍSTICAS -->
+    <div class="row g-3 text-center">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 py-3">
+                <div class="fw-bold fs-4"><?= (int)$totalAguardar ?></div>
+                <div class="text-muted small">Pacientes a Aguardar</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 py-3">
+                <div class="fw-bold fs-4"><?= (int)$tempoMedio ?> min</div>
+                <div class="text-muted small">Tempo Médio de Espera</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 py-3">
+                <div class="fw-bold fs-5"><?= Html::encode($afluencia) ?></div>
+                <div class="text-muted small">Nível de Afluência</div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- 🔹 JS para gerar PDF -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<script>
-    document.getElementById('downloadPDF').addEventListener('click', function () {
-        const element = document.getElementById('pulseiraBox');
-        const opt = {
-            margin: 0.5,
-            filename: 'pulseira-triagem.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2 },
-            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-        };
-        html2pdf().from(element).set(opt).save();
-    });
-</script>
-
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+    body {
+        background: linear-gradient(180deg, #f7fff9 0%, #f6f9ff 100%);
+        font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    .main-status-card { background: #eef6ff; border: 1px solid #dbe9ff; }
+    .triage-track {
+        background: linear-gradient(90deg, rgba(25,135,84,.15) 0%, rgba(25,135,84,0) 100%);
+    }
+    .progress-bar { transition: width .8s ease; }
+    .list-group-item { transition: all .2s ease; }
+    .list-group-item:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,.06); }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
