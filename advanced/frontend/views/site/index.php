@@ -16,10 +16,12 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
 
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto align-items-lg-center mb-2 mb-lg-0">
-                <li class="nav-item"><a href="index.php" class="nav-link">Início</a></li>
-                <li class="nav-item"><a href="#triagem" class="nav-link">Triagem</a></li>
+                <li class="nav-item"><a href="<?= Yii::$app->urlManager->createUrl(['site/index']) ?>" class="nav-link">Inicio</a></li>
+                <li class="nav-item"><a href="<?= Yii::$app->urlManager->createUrl(['triagem/index']) ?>" class="nav-link">Triagem</a></li>
                 <li class="nav-item"><a href="<?= Yii::$app->urlManager->createUrl(['site/about']) ?>" class="nav-link">Sobre</a></li>
-                <li class="nav-item"><a href="<?= Yii::$app->urlManager->createUrl(['site/contact']) ?>" class="nav-link">Contactos</a></li>
+                <li class="nav-item"><a href="<?= Yii::$app->urlManager->createUrl(['contact/index']) ?>" class="nav-link">Contactos</a></li>
+                <li class="nav-item"><a href="<?= Yii::$app->urlManager->createUrl(['pulseira/index']) ?>" class="nav-link">Pulseira Details</a></li>
+
             </ul>
 
             <div class="d-flex align-items-center ms-lg-3 mt-3 mt-lg-0">
@@ -312,56 +314,97 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
 </div>
 
 <!-- ====== FOOTER ====== -->
-<footer class="bg-dark text-light pt-5 pb-3">
+<footer class="bg-dark text-light pt-5 pb-4 mt-5">
     <div class="container">
-        <div class="row g-4">
+        <div class="row gy-4">
 
-            <!-- Address -->
-            <div class="col-md-3">
+            <!-- Endereço -->
+            <div class="col-lg-4 col-md-6">
                 <h5 class="fw-bold mb-3 text-success">Endereço</h5>
                 <p class="mb-2"><i class="bi bi-geo-alt-fill text-success me-2"></i> 123 Rua Central, Lisboa, Portugal</p>
                 <p class="mb-2"><i class="bi bi-telephone-fill text-success me-2"></i> +351 987 654 321</p>
                 <p class="mb-3"><i class="bi bi-envelope-fill text-success me-2"></i> suporte@emergencysts.pt</p>
-                <div>
-                    <a href="#" class="btn btn-sm btn-outline-success rounded-circle me-2"><i class="bi bi-facebook"></i></a>
-                    <a href="#" class="btn btn-sm btn-outline-success rounded-circle me-2"><i class="bi bi-twitter"></i></a>
-                    <a href="#" class="btn btn-sm btn-outline-success rounded-circle me-2"><i class="bi bi-youtube"></i></a>
-                    <a href="#" class="btn btn-sm btn-outline-success rounded-circle"><i class="bi bi-linkedin"></i></a>
+
+                <div class="d-flex mt-3">
+                    <a href="#" class="btn btn-outline-success btn-sm rounded-circle me-2"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="btn btn-outline-success btn-sm rounded-circle me-2"><i class="bi bi-twitter"></i></a>
+                    <a href="#" class="btn btn-outline-success btn-sm rounded-circle me-2"><i class="bi bi-youtube"></i></a>
+                    <a href="#" class="btn btn-outline-success btn-sm rounded-circle"><i class="bi bi-linkedin"></i></a>
                 </div>
             </div>
 
-            <!-- Services -->
-            <div class="col-md-3">
+            <!-- Serviços -->
+            <div class="col-lg-3 col-md-6">
                 <h5 class="fw-bold mb-3 text-success">Serviços</h5>
                 <ul class="list-unstyled">
-                    <li><a href="<?= Yii::$app->urlManager->createUrl(['site/triagem']) ?>" class="text-light text-decoration-none"><i class="bi bi-chevron-right me-2"></i>Triagem</a></li>
+                    <li class="mb-2">
+                        <a href="<?= Yii::$app->urlManager->createUrl(['triagem/index']) ?>" class="text-light text-decoration-none">
+                            <i class="bi bi-chevron-right me-2 text-success"></i>Triagem
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="#" class="text-light text-decoration-none">
+                            <i class="bi bi-chevron-right me-2 text-success"></i>Histórico de Pacientes
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="#" class="text-light text-decoration-none">
+                            <i class="bi bi-chevron-right me-2 text-success"></i>Documentação
+                        </a>
+                    </li>
                 </ul>
             </div>
 
-            <!-- Quick Links -->
-            <div class="col-md-3">
+            <!-- Links Rápidos -->
+            <div class="col-lg-3 col-md-6">
                 <h5 class="fw-bold mb-3 text-success">Links Rápidos</h5>
                 <ul class="list-unstyled">
-                    <li><a href="<?= Yii::$app->urlManager->createUrl(['site/about']) ?>" class="text-light text-decoration-none"><i class="bi bi-chevron-right me-2"></i>Sobre Nós</a></li>
-                    <li><a href="<?= Yii::$app->urlManager->createUrl(['site/contact']) ?>" class="text-light text-decoration-none"><i class="bi bi-chevron-right me-2"></i>Contactos</a></li>
-                    <li><a href="<?= Yii::$app->urlManager->createUrl(['site/terms']) ?>" class="text-light text-decoration-none"><i class="bi bi-chevron-right me-2"></i>Termos e Condições</a></li>
+                    <li class="mb-2">
+                        <a href="<?= Yii::$app->urlManager->createUrl(['site/about']) ?>" class="text-light text-decoration-none">
+                            <i class="bi bi-chevron-right me-2 text-success"></i>Sobre Nós
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="<?= Yii::$app->urlManager->createUrl(['site/contact']) ?>" class="text-light text-decoration-none">
+                            <i class="bi bi-chevron-right me-2 text-success"></i>Contactos
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="<?= Yii::$app->urlManager->createUrl(['terms/index']) ?>" class="text-light text-decoration-none">
+                            <i class="bi bi-chevron-right me-2 text-success"></i>Termos e Condições
+                        </a>
+                    </li>
                 </ul>
             </div>
-        </div>
 
-        <!-- Linha separadora -->
+            <!-- Newsletter -->
+            <!--
+            <div class="col-lg-2 col-md-6">
+                <h5 class="fw-bold mb-3 text-success">Newsletter</h5>
+                <p class="small">Subscreve para receber as últimas novidades e atualizações.</p>
+                <form class="d-flex">
+                    <input type="email" class="form-control form-control-sm me-2" placeholder="O teu email">
+                    <button class="btn btn-success btn-sm">OK</button>
+                </form>
+            </div>
+        </div>
+        -->
+
+        <!-- Separador -->
         <hr class="border-secondary my-4">
+
         <!-- Copyright -->
         <div class="row">
             <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
-                <small>© <span class="text-success fw-semibold">EmergencySTS</span>. Todos os direitos reservados.</small>
+                <small>© <span class="text-success fw-semibold">EmergencySTS</span> <?= date('Y') ?>. Todos os direitos reservados.</small>
             </div>
             <div class="col-md-6 text-center text-md-end">
-                <small>Desenvolvido por <a href="#" class="text-success text-decoration-none fw-semibold">EmergencySTS Dev Team</a></small>
+                <small>Desenvolvido por <a href="<?= Yii::$app->urlManager->createUrl(['team/index']) ?>" class="text-success text-decoration-none fw-semibold">EmergencySTS Dev Team</a></small>
             </div>
         </div>
     </div>
 </footer>
+
 
 <!-- Bootstrap Icons -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">

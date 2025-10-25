@@ -299,3 +299,56 @@ footer {
 .social-icons a:hover {
     color: #c6f3dc;
 }
+
+.team-card {
+    border-radius: 12px;
+    position: relative;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.team-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.team-card img {
+    height: 320px;
+    object-fit: cover;
+}
+
+/* Redes sociais - escondidas inicialmente */
+.social-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transform: translateY(100%);
+    opacity: 0;
+    transition: all 0.4s ease;
+}
+
+/* Aparecem quando o rato está sobre o card */
+.team-card:hover .social-footer {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.social-footer a {
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    display: inline-block;
+}
+
+.social-footer a:hover {
+    transform: scale(1.2);
+    opacity: 0.85;
+}
+
+.team-card .card-body {
+    background-color: rgba(25, 135, 84, 0.05); /* verde translúcido */
+    transition: background-color 0.3s ease;
+}
+
+/* quando passar o rato, intensifica ligeiramente o tom */
+.team-card:hover .card-body {
+    background-color: rgba(25, 135, 84, 0.1);
+}

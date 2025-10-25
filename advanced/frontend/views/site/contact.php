@@ -14,7 +14,7 @@ $this->params['breadcrumbs'][] = $this->title;
 <!-- ============================= -->
 <!-- SEÇÃO HERO -->
 <!-- ============================= -->
-<section class="bg-success text-white text-center py-5 mt-5">
+<section class="bg-success text-white text-center rounded-circle py-5 mt-5">
     <div class="container">
         <h1 class="display-5 fw-bold">Contacta-nos</h1>
         <p class="lead mt-3 mb-0">Estamos disponíveis para ajudar-te em qualquer momento.</p>

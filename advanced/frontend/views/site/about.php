@@ -8,7 +8,7 @@ $this->title = 'Sobre Nós';
 <!-- ============================= -->
 <!-- SEÇÃO HERO -->
 <!-- ============================= -->
-<section class="bg-success text-white text-center py-5 mt-5">
+<section class="bg-success text-white text-center rounded-circle py-5 mt-5">
     <div class="container">
         <h1 class="display-5 fw-bold">Sobre o EmergencySTS</h1>
         <p class="lead mt-3 mb-0">Eficiência, Prioridade e Cuidado — o futuro do atendimento hospitalar.</p>
@@ -94,7 +94,7 @@ $this->title = 'Sobre Nós';
 <!-- ============================= -->
 <!-- SEÇÃO EQUIPA -->
 <!-- ============================= -->
-<section class="py-5 bg-success text-white">
+<section class="py-5 bg-success text-white rounded-4">
     <div class="container text-center">
         <h2 class="fw-bold mb-4">A Nossa Equipa</h2>
         <p class="lead mb-5">Unidos pela inovação e pela vontade de salvar vidas.</p>

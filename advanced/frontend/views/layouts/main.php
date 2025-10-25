@@ -7,8 +7,6 @@ use common\widgets\Alert;
 use frontend\assets\AppAsset;
 use yii\bootstrap5\Breadcrumbs;
 use yii\bootstrap5\Html;
-use yii\bootstrap5\Nav;
-use yii\bootstrap5\NavBar;
 
 AppAsset::register($this);
 ?>
@@ -34,107 +32,132 @@ AppAsset::register($this);
     <?php $this->head() ?>
 </head>
 <body class="d-flex flex-column h-100 bg-light">
-    <?php $this->beginBody() ?>
+<?php $this->beginBody() ?>
 
-    <?php if (Yii::$app->controller->action->id !== 'index'): ?>
-        <header>
-            <nav class="navbar navbar-expand-lg bg-dark navbar-dark py-3 fixed-top shadow-sm">
-                <div class="container">
-                    <!-- Logo -->
-                    <a class="navbar-brand d-flex align-items-center fw-bold text-success" href="<?= Yii::$app->homeUrl ?>">
-                        <img src="<?= Yii::$app->request->baseUrl ?>/img/logo.png" alt="Logo EmergencySTS" style="height:50px; margin-right:10px;">EmergencySTS
-                    </a>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
+<?php
+// Só esconde navbar e footer na página inicial do site
+$isHomePage = (Yii::$app->controller->id === 'site' && Yii::$app->controller->action->id === 'index');
+?>
 
-                    <!-- Links -->
-                    <div class="collapse navbar-collapse" id="navbarNav">
-                        <ul class="navbar-nav ms-auto align-items-lg-center mb-2 mb-lg-0">
-                            <li class="nav-item"><a href="<?= Yii::$app->urlManager->createUrl(['site/index']) ?>" class="nav-link">Início</a></li>
-                            <li class="nav-item"><a href="#triagem" class="nav-link">Triagem</a></li>
-                            <li class="nav-item"><a href="<?= Yii::$app->urlManager->createUrl(['site/about']) ?>" class="nav-link">Sobre</a></li>
-                            <li class="nav-item"><a href="<?= Yii::$app->urlManager->createUrl(['site/contact']) ?>" class="nav-link">Contactos</a></li>
-                        </ul>
+<?php if (!$isHomePage): ?>
+    <header>
+        <nav class="navbar navbar-expand-lg bg-dark navbar-dark py-3 fixed-top shadow-sm">
+            <div class="container">
+                <!-- Logo -->
+                <a class="navbar-brand d-flex align-items-center fw-bold text-success" href="<?= Yii::$app->homeUrl ?>">
+                    <img src="<?= Yii::$app->request->baseUrl ?>/img/logo.png" alt="Logo EmergencySTS" style="height:50px; margin-right:10px;">EmergencySTS
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
 
-                        <!-- Login / Utilizador -->
-                        <?php if (Yii::$app->user->isGuest): ?>
-                            <a href="<?= Yii::$app->urlManager->createUrl(['site/login']) ?>" class="btn btn-success btn-sm ms-2">Login</a>
-                        <?php else: ?>
-                            <div class="dropdown ms-2">
-                                <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <?= Html::encode(Yii::$app->user->identity->username) ?>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li>
-                                        <?= Html::beginForm(['/site/logout'], 'post', ['class' => 'dropdown-item']) ?>
-                                        <?= Html::submitButton('Logout', ['class' => 'btn btn-link text-danger p-0 m-0']) ?>
-                                        <?= Html::endForm() ?>
-                                    </li>
-                                </ul>
-                            </div>
-                        <?php endif; ?>
+                <!-- Links -->
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto align-items-lg-center mb-2 mb-lg-0">
+                        <li class="nav-item"><a href="<?= Yii::$app->urlManager->createUrl(['site/index']) ?>" class="nav-link">Início</a></li>
+                        <li class="nav-item"><a href="<?= Yii::$app->urlManager->createUrl(['triagem/index']) ?>" class="nav-link">Triagem</a></li>
+                        <li class="nav-item"><a href="<?= Yii::$app->urlManager->createUrl(['site/about']) ?>" class="nav-link">Sobre</a></li>
+                        <li class="nav-item"><a href="<?= Yii::$app->urlManager->createUrl(['site/contact']) ?>" class="nav-link">Contactos</a></li>
+                    </ul>
+
+                    <!-- Search -->
+                    <div class="d-flex align-items-center ms-lg-3 mt-3 mt-lg-0">
+                        <form class="d-flex" role="search">
+                            <input class="form-control me-2" type="search" placeholder="Pesquisar" aria-label="Search">
+                            <button class="btn btn-outline-success btn-sm" type="submit">Search</button>
+                        </form>
                     </div>
+
+                    <!-- Login / Utilizador -->
+                    <?php if (Yii::$app->user->isGuest): ?>
+                        <a href="<?= Yii::$app->urlManager->createUrl(['site/login']) ?>" class="btn btn-success btn-sm ms-2">Login</a>
+                    <?php else: ?>
+                        <div class="dropdown ms-2">
+                            <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <?= Html::encode(Yii::$app->user->identity->username) ?>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <?= Html::beginForm(['/site/logout'], 'post', ['class' => 'dropdown-item']) ?>
+                                    <?= Html::submitButton('Logout', ['class' => 'btn btn-link text-danger p-0 m-0']) ?>
+                                    <?= Html::endForm() ?>
+                                </li>
+                            </ul>
+                        </div>
+                    <?php endif; ?>
                 </div>
-            </nav>
-        </header>
-    <?php endif; ?>
-
-    <main role="main" class="flex-shrink-0">
-        <?php
-        $action = Yii::$app->controller->action->id;
-        ?>
-
-        <?php if (in_array($action, ['index', 'login', 'signup', 'request-password-reset'])): ?>
-            <!-- Páginas full-screen (sem container Bootstrap) -->
-            <?= $content ?>
-        <?php else: ?>
-            <!-- Restantes páginas com container -->
-            <div class="container mt-5 pt-4">
-                <?= Breadcrumbs::widget([
-                        'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [],
-                ]) ?>
-                <?= Alert::widget() ?>
-                <?= $content ?>
             </div>
-        <?php endif; ?>
-    </main>
+        </nav>
+    </header>
+<?php endif; ?>
 
-
-    <?php if (Yii::$app->controller->action->id !== 'index'): ?>
-        <footer class="footer mt-auto py-3 text-muted bg-dark text-white-50 border-top">
-            <div class="container text-center">
-                <p class="mb-0">&copy; EmergencySTS <?= date('Y') ?> — Sistema de Triagem de Urgências</p>
-            </div>
-        </footer>
-    <?php endif; ?>
-
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
+<main role="main" class="flex-shrink-0">
     <?php
-    // Carregar Owl Carousel com dependência do jQuery do Yii
-    $this->registerJsFile(
-            'https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js',
-            ['depends' => [\yii\web\JqueryAsset::class]]
-    );
-
-    // Inicializar o Owl Carousel
-    $this->registerJs(<<<JS
-    console.log("🟢 Owl Carousel iniciado");
-    $(".header-carousel").owlCarousel({
-      autoplay: true,
-      smartSpeed: 800,
-      items: 1,
-      loop: true,
-      dots: true,
-      nav: false
-    });
-    JS);
+    $controller = Yii::$app->controller->id;
+    $action = Yii::$app->controller->action->id;
+    $isAuthPage = ($controller === 'site' && in_array($action, ['login', 'signup', 'request-password-reset']));
     ?>
 
-    <?php $this->endBody() ?>
+    <?php if ($isHomePage || $isAuthPage): ?>
+        <!-- Páginas full-screen (sem container Bootstrap) -->
+        <?= $content ?>
+    <?php else: ?>
+        <!-- Restantes páginas com container -->
+        <div class="container mt-5 pt-4">
+            <?= Breadcrumbs::widget([
+                    'links' => $this->params['breadcrumbs'] ?? [],
+            ]) ?>
+            <?= Alert::widget() ?>
+            <?= $content ?>
+        </div>
+    <?php endif; ?>
+</main>
+
+<?php if (!$isHomePage): ?>
+    <footer class="bg-dark text-light py-3 mt-5 border-top">
+        <div class="container text-center">
+            <p class="mb-1 small">
+                <img src="<?= Yii::$app->request->baseUrl ?>/img/logo.png" alt="Logo EmergencySTS" style="height:30px; margin-right:10px;">
+                <span class="text-success fw-semibold">EmergencySTS</span> <?= date('Y') ?>.
+                Todos os direitos reservados.
+            </p>
+            <p class="mb-0 small">
+                Desenvolvido por
+                <a href="<?= Yii::$app->urlManager->createUrl(['team/index']) ?>"
+                   class="text-success text-decoration-none fw-semibold">
+                    EmergencySTS Dev Team
+                </a>
+            </p>
+        </div>
+    </footer>
+<?php endif; ?>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<?php
+// Carregar Owl Carousel com dependência do jQuery do Yii
+$this->registerJsFile(
+        'https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js',
+        ['depends' => [\yii\web\JqueryAsset::class]]
+);
+
+// Inicializar o Owl Carousel
+$this->registerJs(<<<JS
+console.log("🟢 Owl Carousel iniciado");
+$(".header-carousel").owlCarousel({
+  autoplay: true,
+  smartSpeed: 800,
+  items: 1,
+  loop: true,
+  dots: true,
+  nav: false
+});
+JS);
+?>
+
+<?php $this->endBody() ?>
 </body>
 </html>
-    <?php $this->endPage() ?>
+<?php $this->endPage() ?>

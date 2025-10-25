@@ -63,7 +63,7 @@ $this->title = 'Termos e Condições - EmergencySTS';
         </p>
 
         <div class="mt-5 text-center">
-            <a href="index.php?r=site/index" class="btn btn-success px-4">
+            <a href="../site/index.php?r=site/index" class="btn btn-success px-4">
                 Voltar à Página Inicial
             </a>
         </div>

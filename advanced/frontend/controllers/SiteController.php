@@ -15,6 +15,9 @@ use frontend\models\PasswordResetRequestForm;
 use frontend\models\ResetPasswordForm;
 use frontend\models\SignupForm;
 use frontend\models\ContactForm;
+use frontend\models\Triagem;
+use frontend\models\Pulseira;
+use frontend\models\Paciente; // Se tiveres a tabela paciente ligada
 
 /**
  * Site controller
@@ -255,13 +258,5 @@ class SiteController extends Controller
         return $this->render('resendVerificationEmail', [
             'model' => $model
         ]);
-    }
-    public function actionTerms()
-    {
-        return $this->render('terms');
-    }
-    public function actionTriagem()
-    {
-        return $this->render('triagem');
     }
 }
