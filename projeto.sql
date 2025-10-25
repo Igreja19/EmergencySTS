@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Oct 25, 2025 at 07:18 PM
+-- Generation Time: Oct 25, 2025 at 10:34 PM
 -- Server version: 9.1.0
 -- PHP Version: 8.3.14
 
@@ -176,15 +176,26 @@ CREATE TABLE IF NOT EXISTS `observacao` (
 DROP TABLE IF EXISTS `paciente`;
 CREATE TABLE IF NOT EXISTS `paciente` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `nome` varchar(100) NOT NULL,
+  `nomecompleto` varchar(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
   `nif` varchar(9) NOT NULL,
-  `data_nascimento` date NOT NULL,
+  `datanascimento` date NOT NULL,
+  `sns` varchar(20) DEFAULT NULL,
   `genero` enum('Masculino','Feminino','Outro') NOT NULL,
   `telefone` varchar(15) NOT NULL,
+  `email` varchar(255) DEFAULT NULL,
   `morada` varchar(255) NOT NULL,
+  `observacoes` text,
   PRIMARY KEY (`id`),
   UNIQUE KEY `nif_UNIQUE` (`nif`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `paciente`
+--
+
+INSERT INTO `paciente` (`id`, `nomecompleto`, `nif`, `datanascimento`, `sns`, `genero`, `telefone`, `email`, `morada`, `observacoes`) VALUES
+(1, 'Miguel', '256776857', '2005-07-25', '234', 'Masculino', '912881282', 'miguelctobias@gmail.com', 'Leiria', 'Nenhuma'),
+(2, 'Catia', '853', '2004-03-12', '123', 'Feminino', '987654321', 'catia@gmail.com', 'Leiria', 'Nenhuma');
 
 -- --------------------------------------------------------
 
@@ -216,20 +227,23 @@ CREATE TABLE IF NOT EXISTS `pulseira` (
   `id` int NOT NULL AUTO_INCREMENT,
   `codigo` varchar(10) NOT NULL,
   `prioridade` enum('Vermelho','Laranja','Amarelo','Verde','Azul') NOT NULL,
+  `status` enum('Aguardando','Em atendimento','Atendido') CHARACTER SET latin1 COLLATE latin1_swedish_ci DEFAULT 'Aguardando',
   `tempoentrada` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `triagem_id` int NOT NULL,
+  `paciente_id` int DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_pulseira_triagem1_idx` (`triagem_id`)
+  KEY `fk_pulseira_triagem1_idx` (`triagem_id`),
+  KEY `paciente_id` (`paciente_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `pulseira`
 --
 
-INSERT INTO `pulseira` (`id`, `codigo`, `prioridade`, `tempoentrada`, `triagem_id`) VALUES
-(1, 'AF2A8A37', '', '2025-10-25 19:02:56', 3),
-(2, 'BDAFB908', '', '2025-10-25 19:05:58', 6),
-(3, '8F5B69FB', '', '2025-10-25 19:06:06', 7);
+INSERT INTO `pulseira` (`id`, `codigo`, `prioridade`, `status`, `tempoentrada`, `triagem_id`, `paciente_id`) VALUES
+(1, 'AF2A8A37', '', 'Aguardando', '2025-10-25 19:02:56', 3, NULL),
+(2, 'BDAFB908', '', 'Aguardando', '2025-10-25 19:05:58', 6, NULL),
+(3, '8F5B69FB', '', 'Aguardando', '2025-10-25 19:06:06', 7, NULL);
 
 -- --------------------------------------------------------
 
@@ -350,6 +364,12 @@ ALTER TABLE `auth_item`
 ALTER TABLE `auth_item_child`
   ADD CONSTRAINT `auth_item_child_ibfk_1` FOREIGN KEY (`parent`) REFERENCES `auth_item` (`name`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `auth_item_child_ibfk_2` FOREIGN KEY (`child`) REFERENCES `auth_item` (`name`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `pulseira`
+--
+ALTER TABLE `pulseira`
+  ADD CONSTRAINT `pulseira_ibfk_1` FOREIGN KEY (`paciente_id`) REFERENCES `paciente` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
