@@ -130,6 +130,7 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
         </div>
     </div>
 </section>
+
 <!-- SOBRE -->
 <section id="sobre-nos" class="py-5">
     <div class="container">
@@ -162,18 +163,205 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
         </div>
     </div>
 </section>
+<!-- Secção: Porque Escolher-nos -->
+<div class="container-fluid1" style="background-color: #198754  ;">
+    <div class="container py-4">
+        <div class="row g-5 align-items-center">
+            <!-- Texto -->
+            <div class="col-lg-6 text-white">
+                <div class="mb-3">
+                    <span class="badge bg-light text-success px-3 py-2 fw-semibold">Funcionalidades</span>
+                </div>
+                <h1 class="fw-bold mb-4">Porque Escolher-nos</h1>
+                <p class="mb-4">
+                    O nosso sistema de triagem hospitalar foi desenvolvido para otimizar o atendimento nas urgências,
+                    garantindo rapidez, segurança e prioridade aos casos mais críticos. Com uma equipa experiente e
+                    tecnologia inovadora, asseguramos uma resposta eficaz e humanizada em cada atendimento.
+                </p>
 
-<!-- CONTACTOS -->
-<section id="contactos" class="text-center py-5 bg-white">
-    <div class="container">
-        <h2 class="text-success mb-4">Contactos</h2>
-        <p class="lead">Entre em contacto com a equipa de suporte do hospital:</p>
-        <p><strong>Email:</strong> suporte@emergencysts.pt</p>
-        <p><strong>Telefone:</strong> +351 900 123 456</p>
+                <div class="row gy-4">
+                    <div class="col-6 d-flex align-items-center">
+                        <div class="bg-light rounded-circle p-3 me-3 shadow-sm">
+                            <i class="bi bi-person-fill text-success fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1 text-light">Profissionais</h6>
+                            <h5 class="fw-bold mb-0 text-white">Experientes</h5>
+                        </div>
+                    </div>
+
+                    <div class="col-6 d-flex align-items-center">
+                        <div class="bg-light rounded-circle p-3 me-3 shadow-sm">
+                            <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1 text-light">Serviços</h6>
+                            <h5 class="fw-bold mb-0 text-white">De Qualidade</h5>
+                        </div>
+                    </div>
+
+                    <div class="col-6 d-flex align-items-center">
+                        <div class="bg-light rounded-circle p-3 me-3 shadow-sm">
+                            <i class="bi bi-chat-dots-fill text-success fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1 text-light">Atendimento</h6>
+                            <h5 class="fw-bold mb-0 text-white">Personalizado</h5>
+                        </div>
+                    </div>
+
+                    <div class="col-6 d-flex align-items-center">
+                        <div class="bg-light rounded-circle p-3 me-3 shadow-sm">
+                            <i class="bi bi-headset text-success fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1 text-light">Suporte</h6>
+                            <h5 class="fw-bold mb-0 text-white">24 Horas</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Imagem -->
+            <div class="col-lg-6 text-center">
+                <img src="img/feature.jpg" class="img-fluid rounded-3 shadow-lg" alt="Equipa médica em triagem hospitalar">
+            </div>
+        </div>
     </div>
-</section>
+</div>
 
-<!-- FOOTER -->
-<footer class="bg-dark text-white text-center py-3">
-    <p class="mb-0">© <?= date('Y') ?> EmergencySTS — Sistema de Triagem de Urgências</p>
+<!-- Médicos Experientes -->
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <span class="border border-secondary text-secondary px-3 py-1 rounded-pill fw-semibold">Médicos</span>
+        <h1 class="fw-bold mt-3">Os Nossos Médicos Experientes</h1>
+    </div>
+
+    <div class="row g-4">
+        <!-- Card Médico -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm doctor-card">
+                <div class="position-relative overflow-hidden">
+                    <img src="img/doctor1.jpg" class="card-img-top" alt="Dr. João Silva">
+                    <div class="social-icons position-absolute bottom-0 start-0 end-0 text-center bg-success py-2">
+                        <a href="#" class="text-white px-2"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="text-white px-2"><i class="bi bi-twitter"></i></a>
+                        <a href="#" class="text-white px-2"><i class="bi bi-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="card-body text-center">
+                    <h5 class="card-title fw-bold mb-1">Dr. João Silva</h5>
+                    <p class="text-muted mb-0">Emergências</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm doctor-card">
+                <div class="position-relative overflow-hidden">
+                    <img src="img/doctor2.jpg" class="card-img-top" alt="Dra. Marta Costa">
+                    <div class="social-icons position-absolute bottom-0 start-0 end-0 text-center bg-success py-2">
+                        <a href="#" class="text-white px-2"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="text-white px-2"><i class="bi bi-twitter"></i></a>
+                        <a href="#" class="text-white px-2"><i class="bi bi-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="card-body text-center">
+                    <h5 class="card-title fw-bold mb-1">Dra. Marta Costa</h5>
+                    <p class="text-muted mb-0">Pediatria</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm doctor-card">
+                <div class="position-relative overflow-hidden">
+                    <img src="img/doctor3.jpg" class="card-img-top" alt="Dra. Inês Duarte">
+                    <div class="social-icons position-absolute bottom-0 start-0 end-0 text-center bg-success py-2">
+                        <a href="#" class="text-white px-2"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="text-white px-2"><i class="bi bi-twitter"></i></a>
+                        <a href="#" class="text-white px-2"><i class="bi bi-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="card-body text-center">
+                    <h5 class="card-title fw-bold mb-1">Dra. Inês Duarte</h5>
+                    <p class="text-muted mb-0">Cardiologia</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm doctor-card">
+                <div class="position-relative overflow-hidden">
+                    <img src="img/doctor4.jpg" class="card-img-top" alt="Dr. Ricardo Matos">
+                    <div class="social-icons position-absolute bottom-0 start-0 end-0 text-center bg-success py-2">
+                        <a href="#" class="text-white px-2"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="text-white px-2"><i class="bi bi-twitter"></i></a>
+                        <a href="#" class="text-white px-2"><i class="bi bi-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="card-body text-center">
+                    <h5 class="card-title fw-bold mb-1">Dr. Ricardo Matos</h5>
+                    <p class="text-muted mb-0">Neurologia</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ====== FOOTER ====== -->
+<footer class="bg-dark text-light pt-5 pb-3">
+    <div class="container">
+        <div class="row g-4">
+
+            <!-- Address -->
+            <div class="col-md-3">
+                <h5 class="fw-bold mb-3 text-success">Endereço</h5>
+                <p class="mb-2"><i class="bi bi-geo-alt-fill text-success me-2"></i> 123 Rua Central, Lisboa, Portugal</p>
+                <p class="mb-2"><i class="bi bi-telephone-fill text-success me-2"></i> +351 987 654 321</p>
+                <p class="mb-3"><i class="bi bi-envelope-fill text-success me-2"></i> suporte@emergencysts.pt</p>
+                <div>
+                    <a href="#" class="btn btn-sm btn-outline-success rounded-circle me-2"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="btn btn-sm btn-outline-success rounded-circle me-2"><i class="bi bi-twitter"></i></a>
+                    <a href="#" class="btn btn-sm btn-outline-success rounded-circle me-2"><i class="bi bi-youtube"></i></a>
+                    <a href="#" class="btn btn-sm btn-outline-success rounded-circle"><i class="bi bi-linkedin"></i></a>
+                </div>
+            </div>
+
+            <!-- Services -->
+            <div class="col-md-3">
+                <h5 class="fw-bold mb-3 text-success">Serviços</h5>
+                <ul class="list-unstyled">
+                    <li><a href="<?= Yii::$app->urlManager->createUrl(['site/triagem']) ?>" class="text-light text-decoration-none"><i class="bi bi-chevron-right me-2"></i>Triagem</a></li>
+                </ul>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="col-md-3">
+                <h5 class="fw-bold mb-3 text-success">Links Rápidos</h5>
+                <ul class="list-unstyled">
+                    <li><a href="<?= Yii::$app->urlManager->createUrl(['site/about']) ?>" class="text-light text-decoration-none"><i class="bi bi-chevron-right me-2"></i>Sobre Nós</a></li>
+                    <li><a href="<?= Yii::$app->urlManager->createUrl(['site/contact']) ?>" class="text-light text-decoration-none"><i class="bi bi-chevron-right me-2"></i>Contactos</a></li>
+                    <li><a href="<?= Yii::$app->urlManager->createUrl(['site/terms']) ?>" class="text-light text-decoration-none"><i class="bi bi-chevron-right me-2"></i>Termos e Condições</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Linha separadora -->
+        <hr class="border-secondary my-4">
+        <!-- Copyright -->
+        <div class="row">
+            <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
+                <small>© <span class="text-success fw-semibold">EmergencySTS</span>. Todos os direitos reservados.</small>
+            </div>
+            <div class="col-md-6 text-center text-md-end">
+                <small>Desenvolvido por <a href="#" class="text-success text-decoration-none fw-semibold">EmergencySTS Dev Team</a></small>
+            </div>
+        </div>
+    </div>
 </footer>
+
+<!-- Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">

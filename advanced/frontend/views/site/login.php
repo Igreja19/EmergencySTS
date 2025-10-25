@@ -23,9 +23,9 @@ $this->params['breadcrumbs'][] = $this->title;
 
                     <?= $form->field($model, 'username')->textInput([
                             'autofocus' => true,
-                            'placeholder' => 'exemplo@email.pt',
+                            'placeholder' => 'username',
                             'class' => 'form-control form-control-lg rounded-3 mb-3'
-                    ])->label('Email') ?>
+                    ])->label('Nome de utilizador') ?>
 
                     <?= $form->field($model, 'password')->passwordInput([
                             'placeholder' => '••••••••',

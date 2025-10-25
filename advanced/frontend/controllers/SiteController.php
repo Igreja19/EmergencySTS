@@ -256,4 +256,12 @@ class SiteController extends Controller
             'model' => $model
         ]);
     }
+    public function actionTerms()
+    {
+        return $this->render('terms');
+    }
+    public function actionTriagem()
+    {
+        return $this->render('triagem');
+    }
 }

@@ -248,3 +248,54 @@ footer {
     z-index: 1;
 }
 
+.bg-light.rounded-circle {
+    width: 60px;          /* altura e largura iguais */
+    height: 60px;
+    padding: 0;           /* remove o padding que esticava */
+    display: flex;        /* centraliza o ícone */
+    align-items: center;
+    justify-content: center;
+}
+
+/* Animação de levantar o card */
+.doctor-card {
+    transition: all 0.4s ease;
+}
+
+.doctor-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Esconde as redes sociais inicialmente */
+.doctor-card .social-icons {
+    position: absolute;
+    left: 0;
+    right: 0;
+    background-color: #009970; /* verde do tema */
+    text-align: center;
+    padding: 10px 0;
+    transform: translateY(100%); /* começa fora da imagem */
+    transition: transform 0.4s ease-in-out;
+}
+
+/* Ao passar o rato no card, a barra sobe */
+.doctor-card:hover .social-icons {
+    transform: translateY(0%);
+}
+
+/* Garante que a imagem corta o conteúdo que sai */
+.doctor-card .position-relative {
+    overflow: hidden;
+}
+
+.social-icons a {
+    color: #fff;
+    margin: 0 8px;
+    font-size: 18px;
+    transition: color 0.3s;
+}
+
+.social-icons a:hover {
+    color: #c6f3dc;
+}
