@@ -7,29 +7,54 @@
 use yii\bootstrap5\Html;
 use yii\bootstrap5\ActiveForm;
 
-$this->title = 'Signup';
+$this->title = 'Criar Conta';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="site-signup">
-    <h1><?= Html::encode($this->title) ?></h1>
 
-    <p>Please fill out the following fields to signup:</p>
+<section class="min-vh-100 d-flex align-items-center justify-content-center login-bg">
+    <div class="card shadow-sm border-0 w-100 mx-3" style="max-width: 600px; border-radius: 16px;">
+        <div class="card-body p-5">
 
-    <div class="row">
-        <div class="col-lg-5">
-            <?php $form = ActiveForm::begin(['id' => 'form-signup']); ?>
+            <h3 class="text-center fw-bold mb-3 text-dark"><?= Html::encode($this->title) ?></h3>
+            <p class="text-center text-muted mb-4">Crie a sua conta de paciente</p>
 
-                <?= $form->field($model, 'username')->textInput(['autofocus' => true]) ?>
+            <div class="row justify-content-center">
+                <div class="col-lg-12">
+                    <?php $form = ActiveForm::begin(['id' => 'form-signup']); ?>
 
-                <?= $form->field($model, 'email') ?>
+                    <?= $form->field($model, 'username')->textInput([
+                            'autofocus' => true,
+                            'placeholder' => 'Nome de utilizador',
+                            'class' => 'form-control form-control-lg rounded-3 mb-3'
+                    ])->label('Nome de utilizador') ?>
 
-                <?= $form->field($model, 'password')->passwordInput() ?>
+                    <?= $form->field($model, 'email')->textInput([
+                            'placeholder' => 'exemplo@email.pt',
+                            'class' => 'form-control form-control-lg rounded-3 mb-3'
+                    ])->label('Email') ?>
 
-                <div class="form-group">
-                    <?= Html::submitButton('Signup', ['class' => 'btn btn-primary', 'name' => 'signup-button']) ?>
+                    <?= $form->field($model, 'password')->passwordInput([
+                            'placeholder' => '••••••••',
+                            'class' => 'form-control form-control-lg rounded-3 mb-4'
+                    ])->label('Palavra-passe') ?>
+
+                    <div class="d-grid mb-3">
+                        <?= Html::submitButton('<i class="bi bi-person-plus-fill me-2"></i>Criar Conta', [
+                                'class' => 'btn btn-success btn-lg fw-semibold rounded-3',
+                                'name' => 'signup-button'
+                        ]) ?>
+                    </div>
+
+                    <div class="text-center small">
+                        <span class="text-muted">Já tem conta?</span>
+                        <a href="<?= Yii::$app->urlManager->createUrl(['site/login']) ?>" class="text-primary fw-semibold text-decoration-none">
+                            Iniciar sessão
+                        </a>
+                    </div>
+
+                    <?php ActiveForm::end(); ?>
                 </div>
-
-            <?php ActiveForm::end(); ?>
+            </div>
         </div>
     </div>
-</div>
+</section>
