@@ -62,4 +62,8 @@ class Triagem extends ActiveRecord
     {
         return $this->hasOne(Paciente::class, ['id' => 'paciente_id']);
     }
+    public function getConsulta()
+    {
+        return $this->hasOne(\common\models\Consulta::class, ['triagem_id' => 'id']);
+    }
 }

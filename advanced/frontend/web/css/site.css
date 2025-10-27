@@ -222,6 +222,9 @@ footer {
 .laranja {
     color: #FF8C00;
 }
+.text-amarelo {
+    color: #FFFF00 !important;
+}
 
 .login-bg {
     background: url('../img/login.avif') center center / cover no-repeat fixed;

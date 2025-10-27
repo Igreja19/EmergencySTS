@@ -2,27 +2,13 @@
 
 namespace common\models;
 
-/**
- * This is the model class for table "consulta".
- *
- * @property int $id
- * @property string $data_consulta
- * @property string $estado
- * @property int $diagnostico_id
- * @property int $paciente_id
- * @property int $utilizador_id
- */
-class Consulta extends \yii\db\ActiveRecord
+use Yii;
+use yii\db\ActiveRecord;
+
+class Consulta extends ActiveRecord
 {
-
     /**
-     * ENUM field values
-     */
-    const ESTADO_ABERTA = 'Aberta';
-    const ESTADO_ENCERRADA = 'Encerrada';
-
-    /**
-     * {@inheritdoc}
+     * Nome da tabela
      */
     public static function tableName()
     {
@@ -30,80 +16,57 @@ class Consulta extends \yii\db\ActiveRecord
     }
 
     /**
-     * {@inheritdoc}
+     * Regras de validação
      */
     public function rules()
     {
         return [
-            [['estado'], 'default', 'value' => 'Aberta'],
-            [['id', 'diagnostico_id', 'paciente_id', 'utilizador_id'], 'required'],
-            [['id', 'diagnostico_id', 'paciente_id', 'utilizador_id'], 'integer'],
-            [['data_consulta'], 'safe'],
-            [['estado'], 'string'],
-            ['estado', 'in', 'range' => array_keys(self::optsEstado())],
-            [['id'], 'unique'],
+            [['data_consulta', 'estado', 'paciente_id', 'utilizador_id', 'triagem_id'], 'required'],
+            [['data_consulta', 'data_encerramento'], 'safe'],
+            [['diagnostico_id', 'paciente_id', 'utilizador_id', 'triagem_id'], 'integer'],
+            [['estado', 'prioridade'], 'string'],
+            [['motivo', 'tempo_consulta', 'relatorio_pdf'], 'string', 'max' => 255],
+            [['observacoes'], 'string'],
         ];
     }
 
     /**
-     * {@inheritdoc}
+     * Rótulos (labels) usados nas views
      */
     public function attributeLabels()
     {
         return [
             'id' => 'ID',
-            'data_consulta' => 'Data Consulta',
+            'data_consulta' => 'Data da Consulta',
             'estado' => 'Estado',
-            'diagnostico_id' => 'Diagnostico ID',
-            'paciente_id' => 'Paciente ID',
-            'utilizador_id' => 'Utilizador ID',
+            'prioridade' => 'Prioridade',
+            'motivo' => 'Motivo da Consulta',
+            'observacoes' => 'Observações',
+            'paciente_id' => 'Paciente',
+            'utilizador_id' => 'Utilizador',
+            'triagem_id' => 'Triagem',
+            'diagnostico_id' => 'Diagnóstico',
+            'data_encerramento' => 'Data de Encerramento',
+            'tempo_consulta' => 'Tempo de Consulta',
+            'relatorio_pdf' => 'Relatório PDF',
         ];
     }
 
-
-    /**
-     * column estado ENUM value labels
-     * @return string[]
-     */
-    public static function optsEstado()
+    // 🔹 Relação com a triagem
+    public function getTriagem()
     {
-        return [
-            self::ESTADO_ABERTA => 'Aberta',
-            self::ESTADO_ENCERRADA => 'Encerrada',
-        ];
+        return $this->hasOne(Triagem::class, ['id' => 'triagem_id']);
     }
 
-    /**
-     * @return string
-     */
-    public function displayEstado()
+    // 🔹 Relação com o paciente
+    public function getPaciente()
     {
-        return self::optsEstado()[$this->estado];
+        return $this->hasOne(\common\models\Paciente::class, ['id' => 'paciente_id']);
     }
 
-    /**
-     * @return bool
-     */
-    public function isEstadoAberta()
+    // 🔹 Relação com o utilizador (médico/enfermeiro)
+    public function getUtilizador()
     {
-        return $this->estado === self::ESTADO_ABERTA;
-    }
-
-    public function setEstadoToAberta()
-    {
-        $this->estado = self::ESTADO_ABERTA;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isEstadoEncerrada()
-    {
-        return $this->estado === self::ESTADO_ENCERRADA;
-    }
-
-    public function setEstadoToEncerrada()
-    {
-        $this->estado = self::ESTADO_ENCERRADA;
+        return $this->hasOne(\common\models\User::class, ['id' => 'utilizador_id']);
     }
 }

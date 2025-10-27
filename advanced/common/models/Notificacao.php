@@ -2,124 +2,35 @@
 
 namespace common\models;
 
-/**
- * This is the model class for table "notificacao".
- *
- * @property int $id
- * @property string $mensagem
- * @property string $tipo
- * @property string $dataenvio
- * @property int $lida
- * @property int $paciente_id
- */
-class Notificacao extends \yii\db\ActiveRecord
-{
+use Yii;
+use yii\db\ActiveRecord;
 
-    /**
-     * ENUM field values
-     */
+class Notificacao extends ActiveRecord
+{
     const TIPO_CONSULTA = 'Consulta';
     const TIPO_PRIORIDADE = 'Prioridade';
     const TIPO_GERAL = 'Geral';
 
-    /**
-     * {@inheritdoc}
-     */
     public static function tableName()
     {
         return 'notificacao';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
+    // 🔹 Contadores (KPI)
+    public static function countNaoLidas()
     {
-        return [
-            [['tipo'], 'default', 'value' => 'Geral'],
-            [['lida'], 'default', 'value' => 0],
-            [['id', 'mensagem', 'paciente_id'], 'required'],
-            [['id', 'lida', 'paciente_id'], 'integer'],
-            [['mensagem', 'tipo'], 'string'],
-            [['dataenvio'], 'safe'],
-            ['tipo', 'in', 'range' => array_keys(self::optsTipo())],
-            [['id'], 'unique'],
-        ];
+        return self::find()->where(['lida' => 0])->count();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
+    public static function countHoje()
     {
-        return [
-            'id' => 'ID',
-            'mensagem' => 'Mensagem',
-            'tipo' => 'Tipo',
-            'dataenvio' => 'Dataenvio',
-            'lida' => 'Lida',
-            'paciente_id' => 'Paciente ID',
-        ];
+        return self::find()
+            ->where(['>=', 'dataenvio', date('Y-m-d 00:00:00')])
+            ->count();
     }
 
-
-    /**
-     * column tipo ENUM value labels
-     * @return string[]
-     */
-    public static function optsTipo()
+    public static function countTotal()
     {
-        return [
-            self::TIPO_CONSULTA => 'Consulta',
-            self::TIPO_PRIORIDADE => 'Prioridade',
-            self::TIPO_GERAL => 'Geral',
-        ];
-    }
-
-    /**
-     * @return string
-     */
-    public function displayTipo()
-    {
-        return self::optsTipo()[$this->tipo];
-    }
-
-    /**
-     * @return bool
-     */
-    public function isTipoConsulta()
-    {
-        return $this->tipo === self::TIPO_CONSULTA;
-    }
-
-    public function setTipoToConsulta()
-    {
-        $this->tipo = self::TIPO_CONSULTA;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isTipoPrioridade()
-    {
-        return $this->tipo === self::TIPO_PRIORIDADE;
-    }
-
-    public function setTipoToPrioridade()
-    {
-        $this->tipo = self::TIPO_PRIORIDADE;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isTipoGeral()
-    {
-        return $this->tipo === self::TIPO_GERAL;
-    }
-
-    public function setTipoToGeral()
-    {
-        $this->tipo = self::TIPO_GERAL;
+        return self::find()->count();
     }
 }

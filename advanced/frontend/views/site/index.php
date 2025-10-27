@@ -19,9 +19,7 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
                 <li class="nav-item"><a href="<?= Yii::$app->urlManager->createUrl(['site/index']) ?>" class="nav-link">Inicio</a></li>
                 <li class="nav-item"><a href="<?= Yii::$app->urlManager->createUrl(['triagem/index']) ?>" class="nav-link">Triagem</a></li>
                 <li class="nav-item"><a href="<?= Yii::$app->urlManager->createUrl(['site/about']) ?>" class="nav-link">Sobre</a></li>
-                <li class="nav-item"><a href="<?= Yii::$app->urlManager->createUrl(['contact/index']) ?>" class="nav-link">Contactos</a></li>
-                <li class="nav-item"><a href="<?= Yii::$app->urlManager->createUrl(['pulseira/index']) ?>" class="nav-link">Pulseira Details</a></li>
-
+                <li class="nav-item"><a href="<?= Yii::$app->urlManager->createUrl(['site/contact']) ?>" class="nav-link">Contactos</a></li>
             </ul>
 
             <div class="d-flex align-items-center ms-lg-3 mt-3 mt-lg-0">
@@ -108,7 +106,7 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
             <div class="col-md-4">
                 <div class="card border-warning shadow-sm">
                     <div class="card-body">
-                        <h5 class="text-warning fw-bold">Prioridade Amarela</h5>
+                        <h5 class="text-amarelo fw-bold">Prioridade Amarela</h5>
                         <p>Caso urgente, mas estável. Tempo máximo: 60 minutos.</p>
                     </div>
                 </div>
@@ -343,13 +341,13 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
                         </a>
                     </li>
                     <li class="mb-2">
-                        <a href="#" class="text-light text-decoration-none">
+                        <a href="<?= Yii::$app->urlManager->createUrl(['consulta/historico']) ?>" class="text-light text-decoration-none">
                             <i class="bi bi-chevron-right me-2 text-success"></i>Histórico de Pacientes
                         </a>
                     </li>
                     <li class="mb-2">
-                        <a href="#" class="text-light text-decoration-none">
-                            <i class="bi bi-chevron-right me-2 text-success"></i>Documentação
+                        <a href="<?= Yii::$app->urlManager->createUrl(['pulseira/index']) ?>" class="text-light text-decoration-none">
+                            <i class="bi bi-chevron-right me-2 text-success"></i>Tempo de Espera
                         </a>
                     </li>
                 </ul>
