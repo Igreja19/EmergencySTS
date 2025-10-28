@@ -1,73 +1,75 @@
 <?php
-
 namespace common\models;
 
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use common\models\Paciente;
 
-/**
- * PacienteSearch represents the model behind the search form of `frontend\models\Paciente`.
- */
 class PacienteSearch extends Paciente
 {
-    /**
-     * {@inheritdoc}
-     */
+    public $q; // pesquisa global opcional
+
     public function rules()
     {
         return [
             [['id'], 'integer'],
-            [['nomecompleto', 'nif', 'datanascimento', 'genero', 'telefone', 'morada'], 'safe'],
+            [['nomecompleto','nif','telefone','email','morada','genero','sns','q'], 'safe'],
+            [['datanascimento'], 'safe'],
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function scenarios()
     {
-        // bypass scenarios() implementation in the parent class
         return Model::scenarios();
     }
 
-    /**
-     * Creates data provider instance with search query applied
-     *
-     * @param array $params
-     * @param string|null $formName Form name to be used into `->load()` method.
-     *
-     * @return ActiveDataProvider
-     */
-    public function search($params, $formName = null)
+    public function search($params)
     {
-        $query = Paciente::find();
-
-        // add conditions that should always apply here
+        $query = Paciente::find()->orderBy(['id' => SORT_DESC]);
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'pagination' => ['pageSize' => 10],
+            'sort' => [
+                'defaultOrder' => ['id' => SORT_DESC],
+                'attributes' => ['id','nomecompleto','nif','datanascimento','genero','telefone','email']
+            ]
         ]);
 
-        $this->load($params, $formName);
+        $this->load($params);
 
         if (!$this->validate()) {
-            // uncomment the following line if you do not want to return any records when validation fails
-            // $query->where('0=1');
+            $query->where('0=1');
             return $dataProvider;
         }
 
-        // grid filtering conditions
-        $query->andFilterWhere([
-            'id' => $this->id,
-            'datanascimento' => $this->datanascimento,
-        ]);
+        // Filtros específicos
+        $query->andFilterWhere(['id' => $this->id]);
+        $query->andFilterWhere(['genero' => $this->genero]);
 
-        $query->andFilterWhere(['like', 'nomecompleto', $this->nomecompleto])
+        if (!empty($this->datanascimento)) {
+            // permite filtrar por YYYY-MM-DD
+            $query->andFilterWhere(['datanascimento' => $this->datanascimento]);
+        }
+
+        $query
+            ->andFilterWhere(['like', 'nomecompleto', $this->nomecompleto])
             ->andFilterWhere(['like', 'nif', $this->nif])
-            ->andFilterWhere(['like', 'genero', $this->genero])
             ->andFilterWhere(['like', 'telefone', $this->telefone])
-            ->andFilterWhere(['like', 'morada', $this->morada]);
+            ->andFilterWhere(['like', 'email', $this->email])
+            ->andFilterWhere(['like', 'morada', $this->morada])
+            ->andFilterWhere(['like', 'sns', $this->sns]);
+
+        // Pesquisa global opcional (?q=texto)
+        if ($this->q) {
+            $query->andWhere([
+                'or',
+                ['like', 'nomecompleto', $this->q],
+                ['like', 'nif', $this->q],
+                ['like', 'telefone', $this->q],
+                ['like', 'email', $this->q],
+                ['like', 'morada', $this->q],
+            ]);
+        }
 
         return $dataProvider;
     }
