@@ -1,39 +1,38 @@
 <?php
-
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
-/** @var yii\web\View $this */
-/** @var \common\models\PacienteSearch $model */
-/** @var yii\widgets\ActiveForm $form */
+/** @var common\models\PacienteSearch $model */
 ?>
+<div class="card bg-light mb-0">
+    <div class="card-body py-2">
+        <?php $form = ActiveForm::begin([
+                'action' => ['index'],
+                'method' => 'get',
+                'options' => ['data-pjax' => 1],
+        ]); ?>
 
-<div class="paciente-search">
+        <div class="form-row">
+            <div class="col-md-3 mb-2">
+                <?= $form->field($model, 'q')->textInput(['placeholder'=>'Nome, NIF, Email, Telefone'])->label(false) ?>
+            </div>
+            <div class="col-md-3 mb-2">
+                <?= $form->field($model, 'genero')->dropDownList([
+                        '' => 'Género',
+                        'Masculino' => 'Masculino',
+                        'Feminino' => 'Feminino',
+                        'Outro' => 'Outro',
+                ], ['class'=>'form-control'])->label(false) ?>
+            </div>
+            <div class="col-md-3 mb-2">
+                <?= $form->field($model, 'datanascimento')->input('date')->label(false) ?>
+            </div>
+            <div class="col-md-3 mb-2 d-flex">
+                <?= Html::submitButton('<i class="fas fa-search mr-1"></i> Procurar', ['class' => 'btn btn-outline-secondary mr-2']) ?>
+                <?= Html::a('<i class="fas fa-times mr-1"></i> Limpar', ['index'], ['class' => 'btn btn-light']) ?>
+            </div>
+        </div>
 
-    <?php $form = ActiveForm::begin([
-        'action' => ['index'],
-        'method' => 'get',
-    ]); ?>
-
-    <?= $form->field($model, 'id') ?>
-
-    <?= $form->field($model, 'nomecompleto') ?>
-
-    <?= $form->field($model, 'nif') ?>
-
-    <?= $form->field($model, 'datanascimento') ?>
-
-    <?= $form->field($model, 'genero') ?>
-
-    <?php  echo $form->field($model, 'telefone') ?>
-
-    <?php  echo $form->field($model, 'morada') ?>
-
-    <div class="form-group">
-        <?= Html::submitButton('Search', ['class' => 'btn btn-primary']) ?>
-        <?= Html::resetButton('Reset', ['class' => 'btn btn-outline-secondary']) ?>
+        <?php ActiveForm::end(); ?>
     </div>
-
-    <?php ActiveForm::end(); ?>
-
 </div>

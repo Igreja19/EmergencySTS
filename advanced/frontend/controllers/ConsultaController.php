@@ -89,4 +89,28 @@ class ConsultaController extends Controller
 
         throw new NotFoundHttpException('A consulta solicitada não foi encontrada.');
     }
+    public function actionPdf($id)
+    {
+        $consulta = $this->findModel($id);
+        $triagem = $consulta->triagem;
+
+        // Renderizar o conteúdo em HTML
+        $html = $this->renderPartial('relatorio', [
+            'consulta' => $consulta,
+            'triagem' => $triagem,
+        ]);
+
+        // Carregar o mPDF
+        $mpdf = new \Mpdf\Mpdf([
+            'mode' => 'utf-8',
+            'format' => 'A4',
+            'orientation' => 'P',
+        ]);
+
+        $mpdf->SetTitle('Relatório da Consulta #' . $consulta->id);
+        $mpdf->WriteHTML($html);
+        $mpdf->SetHTMLFooter('<div style="text-align:center;color:#6b7280;font-size:10px;">Página {PAGENO} de {nbpg}</div>');
+        $mpdf->Output('Relatorio_Consulta_' . $consulta->id . '.pdf', 'D');
+        Yii::$app->end();
+    }
 }
