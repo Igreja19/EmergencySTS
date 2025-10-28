@@ -3,7 +3,7 @@
 namespace common\models;
 
 /**
- * This is the model class for table "userprofile".
+ * This is the model class for table "paciente".
  *
  * @property int $id
  * @property string $nome
@@ -22,7 +22,7 @@ class Userprofile extends \yii\db\ActiveRecord
      */
     public static function tableName()
     {
-        return 'userprofile';
+        return 'paciente';
     }
 
     /**

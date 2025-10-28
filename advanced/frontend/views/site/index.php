@@ -1,14 +1,17 @@
+<!-- Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 <?php
 use yii\bootstrap5\Html;
 
 /** @var yii\web\View $this */
 $this->title = 'EmergencySTS | Sistema de Triagem';
+
 ?>
 
 <nav class="navbar navbar-expand-lg bg-dark navbar-dark py-3">
     <div class="container">
         <a class="navbar-brand d-flex align-items-center fw-bold text-success" href="<?= Yii::$app->homeUrl ?>">
-            <img src="<?= Yii::$app->request->baseUrl ?>/img/logo.png" alt="Logo EmergencySTS" style="height:50px; margin-right:10px;">EmergencySTS
+            <img src="<?= Yii::$app->request->baseUrl ?>/img/logo.png" alt="Logo EmergencySTS" style="height:50px; margin-right:10px;">
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
@@ -22,13 +25,6 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
                 <li class="nav-item"><a href="<?= Yii::$app->urlManager->createUrl(['site/contact']) ?>" class="nav-link">Contactos</a></li>
             </ul>
 
-            <div class="d-flex align-items-center ms-lg-3 mt-3 mt-lg-0">
-                <form class="d-flex" role="search">
-                    <input class="form-control me-2" type="search" placeholder="Pesquisar" aria-label="Search">
-                    <button class="btn btn-outline-success btn-sm" type="submit">Search</button>
-                </form>
-            </div>
-
             <?php if (Yii::$app->user->isGuest): ?>
                 <!-- Mostra o botão de login se o utilizador NÃO estiver autenticado -->
                 <a href="<?= Yii::$app->urlManager->createUrl(['site/login']) ?>" class="btn btn-success btn-sm ms-2">Login</a>
@@ -39,6 +35,11 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
                         <?= Html::encode(Yii::$app->user->identity->username) ?>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item" href="<?= Yii::$app->urlManager->createUrl(['paciente/view', 'id' => Yii::$app->user->id]) ?>">
+                                <i class="bi bi-person-circle me-2"></i> Perfil
+                            </a>
+                        </li>
                         <li>
                             <?= Html::beginForm(['/site/logout'], 'post', ['class' => 'dropdown-item']) ?>
                             <?= Html::submitButton('Logout', ['class' => 'btn btn-link text-danger p-0 m-0']) ?>
@@ -239,74 +240,62 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
     <div class="row g-4">
         <!-- Card Médico -->
         <div class="col-md-3">
-            <div class="card border-0 shadow-sm doctor-card">
-                <div class="position-relative overflow-hidden">
-                    <img src="img/doctor1.jpg" class="card-img-top" alt="Dr. João Silva">
-                    <div class="social-icons position-absolute bottom-0 start-0 end-0 text-center bg-success py-2">
-                        <a href="#" class="text-white px-2"><i class="bi bi-facebook"></i></a>
-                        <a href="#" class="text-white px-2"><i class="bi bi-twitter"></i></a>
-                        <a href="#" class="text-white px-2"><i class="bi bi-instagram"></i></a>
+            <a href="<?= Yii::$app->urlManager->createUrl(['doutor/view', 'id' => 1]) ?>" class="text-decoration-none text-dark">
+                <div class="card border-0 shadow-sm doctor-card">
+                    <div class="position-relative overflow-hidden">
+                        <img src="img/doctor1.jpg" class="card-img-top" alt="Dr. João Silva">
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="card-title fw-bold mb-1">Dr. João Silva</h5>
+                        <p class="text-muted mb-0">Emergências</p>
                     </div>
                 </div>
-                <div class="card-body text-center">
-                    <h5 class="card-title fw-bold mb-1">Dr. João Silva</h5>
-                    <p class="text-muted mb-0">Emergências</p>
-                </div>
-            </div>
+            </a>
         </div>
 
         <!-- Card 2 -->
         <div class="col-md-3">
-            <div class="card border-0 shadow-sm doctor-card">
-                <div class="position-relative overflow-hidden">
-                    <img src="img/doctor2.jpg" class="card-img-top" alt="Dra. Marta Costa">
-                    <div class="social-icons position-absolute bottom-0 start-0 end-0 text-center bg-success py-2">
-                        <a href="#" class="text-white px-2"><i class="bi bi-facebook"></i></a>
-                        <a href="#" class="text-white px-2"><i class="bi bi-twitter"></i></a>
-                        <a href="#" class="text-white px-2"><i class="bi bi-instagram"></i></a>
+            <a href="<?= Yii::$app->urlManager->createUrl(['doutor/view', 'id' => 2]) ?>" class="text-decoration-none text-dark">
+                <div class="card border-0 shadow-sm doctor-card">
+                    <div class="position-relative overflow-hidden">
+                        <img src="img/doctor2.jpg" class="card-img-top" alt="Dra. Marta Costa">
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="card-title fw-bold mb-1">Dra. Marta Costa</h5>
+                        <p class="text-muted mb-0">Pediatria</p>
                     </div>
                 </div>
-                <div class="card-body text-center">
-                    <h5 class="card-title fw-bold mb-1">Dra. Marta Costa</h5>
-                    <p class="text-muted mb-0">Pediatria</p>
-                </div>
-            </div>
+            </a>
         </div>
 
         <!-- Card 3 -->
         <div class="col-md-3">
-            <div class="card border-0 shadow-sm doctor-card">
-                <div class="position-relative overflow-hidden">
-                    <img src="img/doctor3.jpg" class="card-img-top" alt="Dra. Inês Duarte">
-                    <div class="social-icons position-absolute bottom-0 start-0 end-0 text-center bg-success py-2">
-                        <a href="#" class="text-white px-2"><i class="bi bi-facebook"></i></a>
-                        <a href="#" class="text-white px-2"><i class="bi bi-twitter"></i></a>
-                        <a href="#" class="text-white px-2"><i class="bi bi-instagram"></i></a>
+            <a href="<?= Yii::$app->urlManager->createUrl(['doutor/view', 'id' => 3]) ?>" class="text-decoration-none text-dark">
+                <div class="card border-0 shadow-sm doctor-card">
+                    <div class="position-relative overflow-hidden">
+                        <img src="img/doctor3.jpg" class="card-img-top" alt="Dra. Inês Duarte">
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="card-title fw-bold mb-1">Dra. Inês Duarte</h5>
+                        <p class="text-muted mb-0">Cardiologia</p>
                     </div>
                 </div>
-                <div class="card-body text-center">
-                    <h5 class="card-title fw-bold mb-1">Dra. Inês Duarte</h5>
-                    <p class="text-muted mb-0">Cardiologia</p>
-                </div>
-            </div>
+            </a>
         </div>
 
         <!-- Card 4 -->
         <div class="col-md-3">
-            <div class="card border-0 shadow-sm doctor-card">
-                <div class="position-relative overflow-hidden">
-                    <img src="img/doctor4.jpg" class="card-img-top" alt="Dr. Ricardo Matos">
-                    <div class="social-icons position-absolute bottom-0 start-0 end-0 text-center bg-success py-2">
-                        <a href="#" class="text-white px-2"><i class="bi bi-facebook"></i></a>
-                        <a href="#" class="text-white px-2"><i class="bi bi-twitter"></i></a>
-                        <a href="#" class="text-white px-2"><i class="bi bi-instagram"></i></a>
+            <a href="<?= Yii::$app->urlManager->createUrl(['doutor/view', 'id' => 4]) ?>" class="text-decoration-none text-dark">
+                <div class="card border-0 shadow-sm doctor-card hover-shadow">
+                    <div class="position-relative overflow-hidden">
+                        <img src="img/doctor4.jpg" class="card-img-top" alt="Dr. Ricardo Matos">
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="card-title fw-bold mb-1">Dr. Ricardo Matos</h5>
+                        <p class="text-muted mb-0">Neurologia</p>
                     </div>
                 </div>
-                <div class="card-body text-center">
-                    <h5 class="card-title fw-bold mb-1">Dr. Ricardo Matos</h5>
-                    <p class="text-muted mb-0">Neurologia</p>
-                </div>
-            </div>
+            </a>
         </div>
     </div>
 </div>
@@ -404,5 +393,4 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
 </footer>
 
 
-<!-- Bootstrap Icons -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+

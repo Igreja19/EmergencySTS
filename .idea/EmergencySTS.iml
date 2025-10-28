@@ -2,7 +2,6 @@
 <module type="WEB_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
-      <sourceFolder url="file://$MODULE_DIR$/advanced" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/advanced/backend/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/advanced/backend/tests" isTestSource="true" packagePrefix="backend\tests\" />
       <sourceFolder url="file://$MODULE_DIR$/advanced/backend/tests/_support" isTestSource="true" packagePrefix="backend\tests\" />
@@ -98,8 +97,12 @@
       <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/yiisoft/yii2-faker" />
       <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/yiisoft/yii2-gii" />
       <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/yiisoft/yii2-symfonymailer" />
+      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/paragonie/random_compat" />
+      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/hail812/yii2-adminlte-widgets" />
+      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/hail812/yii2-adminlte3" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="bootstrap-icons" level="application" />
   </component>
 </module>

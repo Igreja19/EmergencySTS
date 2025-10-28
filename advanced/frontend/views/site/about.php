@@ -91,32 +91,3 @@ $this->title = 'Sobre Nós';
     </div>
 </section>
 
-<!-- ============================= -->
-<!-- SEÇÃO EQUIPA -->
-<!-- ============================= -->
-<section class="py-5 bg-success text-white rounded-4">
-    <div class="container text-center">
-        <h2 class="fw-bold mb-4">A Nossa Equipa</h2>
-        <p class="lead mb-5">Unidos pela inovação e pela vontade de salvar vidas.</p>
-
-        <div class="row g-4">
-            <div class="col-md-4">
-                <img src="<?= Yii::$app->request->baseUrl ?>/img/about-2.jpg" class="rounded-circle mb-3 shadow" width="160" height="160" alt="Médico">
-                <h5 class="fw-bold">Dr. João Mendes</h5>
-                <p class="text-white-50">Coordenador Médico</p>
-            </div>
-
-            <div class="col-md-4">
-                <img src="<?= Yii::$app->request->baseUrl ?>/img/carousel-1.jpg" class="rounded-circle mb-3 shadow" width="160" height="160" alt="Desenvolvedora">
-                <h5 class="fw-bold">Ana Silva</h5>
-                <p class="text-white-50">Engenheira de Software</p>
-            </div>
-
-            <div class="col-md-4">
-                <img src="<?= Yii::$app->request->baseUrl ?>/img/carousel-2.jpg" class="rounded-circle mb-3 shadow" width="160" height="160" alt="Enfermeiro">
-                <h5 class="fw-bold">Miguel Costa</h5>
-                <p class="text-white-50">Enfermeiro Especialista</p>
-            </div>
-        </div>
-    </div>
-</section>

@@ -17,6 +17,10 @@ class TriagemController extends Controller
     {
         $model = new Triagem();
 
+        if (!Yii::$app->user->isGuest) {
+            $model->nomecompleto = Yii::$app->user->identity->username;
+        }
+
         if (Yii::$app->request->isPost) {
             if ($model->load(Yii::$app->request->post()) && $model->save()) {
 

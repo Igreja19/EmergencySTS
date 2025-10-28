@@ -1,3 +1,5 @@
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
 <?php
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
@@ -13,14 +15,14 @@ $this->title = 'Formulário Clínico - EmergencySTS';
     </div>
 
     <div class="mx-auto card shadow-sm border-0 rounded-4 p-4" style="max-width: 850px;">
-        <!-- ✅ FORMULÁRIO -->
+        <!-- FORMULÁRIO -->
         <?php $form = ActiveForm::begin([
                 'id' => 'form-triagem',
                 'action' => ['triagem/formulario'], // rota do controller
                 'method' => 'post'
         ]); ?>
 
-        <!-- 🔹 DADOS PESSOAIS -->
+        <!-- DADOS PESSOAIS -->
         <h6 class="fw-bold text-success mt-2 mb-3">Dados Pessoais</h6>
         <div class="row g-3 mb-3">
             <div class="col-md-6">
@@ -178,4 +180,3 @@ $this->title = 'Formulário Clínico - EmergencySTS';
 </style>
 
 <!-- Bootstrap Icons -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">

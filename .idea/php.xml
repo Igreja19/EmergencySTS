@@ -97,6 +97,9 @@
       <path value="$PROJECT_DIR$/advanced/vendor/codeception/verify" />
       <path value="$PROJECT_DIR$/advanced/vendor/codeception/stub" />
       <path value="$PROJECT_DIR$/advanced/vendor/masterminds/html5" />
+      <path value="$PROJECT_DIR$/advanced/vendor/paragonie/random_compat" />
+      <path value="$PROJECT_DIR$/advanced/vendor/hail812/yii2-adminlte-widgets" />
+      <path value="$PROJECT_DIR$/advanced/vendor/hail812/yii2-adminlte3" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="7.4">

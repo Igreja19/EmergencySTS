@@ -9,18 +9,22 @@ $this->title = 'EmergencySTS - Serviço de Urgências';
         <p class="text-muted mb-4">Sistema de Triagem - Protocolo EmergencySTS</p>
 
         <div class="d-flex flex-column align-items-center gap-3">
-            <a href="<?= Yii::$app->urlManager->createUrl(['triagem/formulario']) ?>" class="btn btn-success btn-lg fw-semibold px-5 py-3 shadow-sm">
-                <i class="bi bi-file-earmark-text me-2"></i> Preencher Formulário Clínico
-            </a>
+            <?php if (!Yii::$app->user->isGuest): ?>
+                <a href="<?= Yii::$app->urlManager->createUrl(['triagem/formulario']) ?>" class="btn btn-success btn-lg fw-semibold px-5 py-3 shadow-sm">
+                    <i class="bi bi-file-earmark-text me-2"></i> Preencher Formulário Clínico
+                </a>
+            <?php endif; ?>
 
-            <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-3">
-                <a href="<?= Yii::$app->urlManager->createUrl(['site/login']) ?>" class="btn btn-outline-success px-4 py-2 fw-semibold">
-                    <i class="bi bi-box-arrow-in-right me-2"></i> Login
-                </a>
-                <a href="<?= Yii::$app->urlManager->createUrl(['site/login']) ?>" class="btn btn-outline-success px-4 py-2 fw-semibold">
-                    <i class="bi bi-person me-2"></i> Entrar como Convidado
-                </a>
-            </div>
+            <?php if (Yii::$app->user->isGuest): ?>
+                <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-3">
+                    <a href="<?= Yii::$app->urlManager->createUrl(['site/login']) ?>" class="btn btn-outline-success px-4 py-2 fw-semibold">
+                        <i class="bi bi-box-arrow-in-right me-2"></i> Login
+                    </a>
+                    <a href="<?= Yii::$app->urlManager->createUrl(['site/login']) ?>" class="btn btn-outline-success px-4 py-2 fw-semibold">
+                        <i class="bi bi-person me-2"></i> Entrar como Convidado
+                    </a>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -63,7 +67,7 @@ $this->title = 'EmergencySTS - Serviço de Urgências';
             O sistema de triagem classifica os pacientes em 5 níveis de prioridade, garantindo que casos mais urgentes sejam atendidos primeiro.
         </p>
 
-        <div class="row g-3 text-center">
+        <div class="row g-3 text-center justify-content-center">
             <div class="col-md-2 col-6">
                 <div class="card border-start border-4 border-danger shadow-sm rounded-4 p-3">
                     <p class="fw-bold text-danger mb-1">Emergente</p>

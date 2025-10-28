@@ -61,14 +61,6 @@ $isHomePage = (Yii::$app->controller->id === 'site' && Yii::$app->controller->ac
                         <li class="nav-item"><a href="<?= Yii::$app->urlManager->createUrl(['site/contact']) ?>" class="nav-link">Contactos</a></li>
                     </ul>
 
-                    <!-- Search -->
-                    <div class="d-flex align-items-center ms-lg-3 mt-3 mt-lg-0">
-                        <form class="d-flex" role="search">
-                            <input class="form-control me-2" type="search" placeholder="Pesquisar" aria-label="Search">
-                            <button class="btn btn-outline-success btn-sm" type="submit">Search</button>
-                        </form>
-                    </div>
-
                     <!-- Login / Utilizador -->
                     <?php if (Yii::$app->user->isGuest): ?>
                         <a href="<?= Yii::$app->urlManager->createUrl(['site/login']) ?>" class="btn btn-success btn-sm ms-2">Login</a>
@@ -78,6 +70,11 @@ $isHomePage = (Yii::$app->controller->id === 'site' && Yii::$app->controller->ac
                                 <?= Html::encode(Yii::$app->user->identity->username) ?>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a class="dropdown-item" href="<?= Yii::$app->urlManager->createUrl(['paciente/view', 'id' => Yii::$app->user->id]) ?>">
+                                        <i class="bi bi-person-circle me-2"></i> Perfil
+                                    </a>
+                                </li>
                                 <li>
                                     <?= Html::beginForm(['/site/logout'], 'post', ['class' => 'dropdown-item']) ?>
                                     <?= Html::submitButton('Logout', ['class' => 'btn btn-link text-danger p-0 m-0']) ?>
