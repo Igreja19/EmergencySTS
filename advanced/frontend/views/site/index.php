@@ -8,53 +8,6 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
 
 ?>
 
-<nav class="navbar navbar-expand-lg bg-dark navbar-dark py-3">
-    <div class="container">
-        <a class="navbar-brand d-flex align-items-center fw-bold text-success" href="<?= Yii::$app->homeUrl ?>">
-            <img src="<?= Yii::$app->request->baseUrl ?>/img/logo.png" alt="Logo EmergencySTS" style="height:50px; margin-right:10px;">
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto align-items-lg-center mb-2 mb-lg-0">
-                <li class="nav-item"><a href="<?= Yii::$app->urlManager->createUrl(['site/index']) ?>" class="nav-link">Inicio</a></li>
-                <li class="nav-item"><a href="<?= Yii::$app->urlManager->createUrl(['triagem/index']) ?>" class="nav-link">Triagem</a></li>
-                <li class="nav-item"><a href="<?= Yii::$app->urlManager->createUrl(['site/about']) ?>" class="nav-link">Sobre</a></li>
-                <li class="nav-item"><a href="<?= Yii::$app->urlManager->createUrl(['site/contact']) ?>" class="nav-link">Contactos</a></li>
-            </ul>
-
-            <?php if (Yii::$app->user->isGuest): ?>
-                <!-- Mostra o botão de login se o utilizador NÃO estiver autenticado -->
-                <a href="<?= Yii::$app->urlManager->createUrl(['site/login']) ?>" class="btn btn-success btn-sm ms-2">Login</a>
-            <?php else: ?>
-                <!-- Mostra o nome do utilizador e botão de logout se estiver autenticado -->
-                <div class="dropdown ms-2">
-                    <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <?= Html::encode(Yii::$app->user->identity->username) ?>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <?php if (Yii::$app->user->identity && Yii::$app->user->identity->userprofile): ?>
-                            <a class="dropdown-item"
-                               href="<?= Yii::$app->urlManager->createUrl(['user-profile/view', 'id' => Yii::$app->user->identity->userprofile->id]) ?>">
-                                Perfil
-                            </a>
-                        <?php else: ?>
-                            <a class="dropdown-item disabled" href="#">Perfil indisponível</a>
-                        <?php endif; ?>
-                        <li>
-                            <?= Html::beginForm(['/site/logout'], 'post', ['class' => 'dropdown-item']) ?>
-                            <?= Html::submitButton('Logout', ['class' => 'btn btn-link text-danger p-0 m-0']) ?>
-                            <?= Html::endForm() ?>
-                        </li>
-                    </ul>
-                </div>
-            <?php endif; ?>
-        </div>
-    </div>
-</nav>
-
 <!-- HERO SECTION -->
 <section class="hero">
     <div class="hero-left">
