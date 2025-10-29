@@ -85,7 +85,6 @@ AppAsset::register($this);
         <a class="navbar-brand d-flex align-items-center fw-bold text-success" href="<?= Yii::$app->homeUrl ?>">
             <img src="<?= Yii::$app->request->baseUrl ?>/img/logo.png"
                  alt="Logo EmergencySTS" style="height:50px; margin-right:10px;">
-            EmergencySTS
         </a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
@@ -143,7 +142,6 @@ AppAsset::register($this);
 <!-- 🔹 CONTEÚDO PRINCIPAL -->
 <main role="main" class="flex-shrink-0">
     <div class="container-fluid px-0">
-        <?= Alert::widget() ?>
         <?= $content ?>
     </div>
 </main>
