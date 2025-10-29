@@ -19,15 +19,15 @@ class ConsultaController extends Controller
 
         // Buscar todas as consultas ligadas ao paciente autenticado
         $consultas = Consulta::find()
-            ->where(['paciente_id' => $userId])
+            ->where(['userprofile_id' => $userId])
             ->orderBy(['data_consulta' => SORT_DESC])
             ->all();
 
         // KPIs
-        $total = Consulta::find()->where(['paciente_id' => $userId])->count();
+        $total = Consulta::find()->where(['userprofile_id' => $userId])->count();
 
         $ultimaConsulta = Consulta::find()
-            ->where(['paciente_id' => $userId])
+            ->where(['userprofile_id' => $userId])
             ->orderBy(['data_consulta' => SORT_DESC])
             ->one();
 
@@ -37,7 +37,7 @@ class ConsultaController extends Controller
 
         $prioridadeMaisComum = Consulta::find()
             ->select(['prioridade', 'COUNT(*) AS total'])
-            ->where(['paciente_id' => $userId])
+            ->where(['userprofile_id' => $userId])
             ->groupBy('prioridade')
             ->orderBy(['total' => SORT_DESC])
             ->asArray()

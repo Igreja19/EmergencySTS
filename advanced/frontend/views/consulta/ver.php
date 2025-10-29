@@ -66,7 +66,7 @@ $badgeClass = match ($prio) {
                 <div class="col-md-4">
                     <div class="small text-muted">Paciente</div>
                     <div class="fw-semibold">
-                        <?= Html::encode($consulta->paciente->nomecompleto ?? ('ID '.$consulta->paciente_id)) ?>
+                        <?= Html::encode($consulta->paciente->nomecompleto ?? ('ID '.$consulta->userprofile_id)) ?>
                     </div>
                 </div>
 

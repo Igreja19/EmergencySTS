@@ -76,7 +76,7 @@ $prioColor = match ($prio) {
     <div class="row">
         <div class="col">
             <div class="k">Paciente</div>
-            <div class="v"><?= Html::encode($consulta->paciente->nomecompleto ?? ('ID '.$consulta->paciente_id)) ?></div>
+            <div class="v"><?= Html::encode($consulta->paciente->nomecompleto ?? ('ID '.$consulta->userprofile_id)) ?></div>
         </div>
         <div class="col">
             <div class="k">Profissional</div>
