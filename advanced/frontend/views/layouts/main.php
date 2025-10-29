@@ -71,8 +71,9 @@ $isHomePage = (Yii::$app->controller->id === 'site' && Yii::$app->controller->ac
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li>
-                                    <a class="dropdown-item" href="<?= Yii::$app->urlManager->createUrl(['paciente/view', 'id' => Yii::$app->user->id]) ?>">
-                                        <i class="bi bi-person-circle me-2"></i> Perfil
+                                    <a class="dropdown-item"
+                                       href="<?= Yii::$app->urlManager->createUrl(['user-profile/view', 'id' => Yii::$app->user->identity->userprofile->id]) ?>">
+                                        Perfil
                                     </a>
                                 </li>
                                 <li>
