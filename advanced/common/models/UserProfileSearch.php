@@ -17,8 +17,8 @@ class UserProfileSearch extends Userprofile
     public function rules()
     {
         return [
-            [['id', 'ativo', 'consulta_id', 'triagem_id', 'user_id'], 'integer'],
-            [['nome', 'email', 'nif', 'sns', 'datanascimento', 'genero', 'telefone', 'password_hash'], 'safe'],
+            [['id', 'consulta_id', 'triagem_id', 'user_id'], 'integer'],
+            [['nome', 'email', 'nif', 'sns', 'datanascimento', 'genero', 'telefone', 'password'], 'safe'],
         ];
     }
 
@@ -60,7 +60,6 @@ class UserProfileSearch extends Userprofile
         $query->andFilterWhere([
             'id' => $this->id,
             'datanascimento' => $this->datanascimento,
-            'ativo' => $this->ativo,
             'consulta_id' => $this->consulta_id,
             'triagem_id' => $this->triagem_id,
             'user_id' => $this->user_id,
@@ -71,9 +70,7 @@ class UserProfileSearch extends Userprofile
             ->andFilterWhere(['like', 'nif', $this->nif])
             ->andFilterWhere(['like', 'sns', $this->sns])
             ->andFilterWhere(['like', 'genero', $this->genero])
-            ->andFilterWhere(['like', 'telefone', $this->telefone])
-            ->andFilterWhere(['like', 'password_hash', $this->password_hash]);
-
+            ->andFilterWhere(['like', 'telefone', $this->telefone]);
         return $dataProvider;
     }
 }

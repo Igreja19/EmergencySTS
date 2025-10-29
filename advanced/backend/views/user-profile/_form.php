@@ -43,9 +43,9 @@ foreach ($roles as $name => $role) {
         <div class="row g-3 mt-2">
             <div class="col-md-3">
                 <?= $form->field($model, 'genero')->dropDownList([
-                        'Masculino' => 'Masculino',
-                        'Feminino' => 'Feminino',
-                        'Outro' => 'Outro'
+                        'M' => 'Masculino',
+                        'F' => 'Feminino',
+                        'O' => 'Outro'
                 ], ['prompt' => 'Selecione...', 'class' => 'form-select'])->label('Género') ?>
             </div>
             <div class="col-md-3">

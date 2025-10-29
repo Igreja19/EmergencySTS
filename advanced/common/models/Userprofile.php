@@ -40,8 +40,8 @@ class Userprofile extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id', 'nome', 'email', 'nif', 'sns', 'datanascimento', 'genero', 'telefone', 'password_hash', 'consulta_id', 'triagem_id', 'user_id'], 'required'],
-            [['id', 'ativo', 'consulta_id', 'triagem_id', 'user_id'], 'integer'],
+            [['id', 'nome', 'email', 'nif', 'sns', 'datanascimento', 'genero', 'telefone', 'consulta_id', 'triagem_id', 'user_id'], 'required'],
+            [['id', 'consulta_id', 'triagem_id', 'user_id'], 'integer'],
             [['datanascimento'], 'safe'],
             [['nome', 'email'], 'string', 'max' => 100],
             [['nif', 'sns'], 'string', 'max' => 9],
