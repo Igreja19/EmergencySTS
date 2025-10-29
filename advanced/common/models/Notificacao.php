@@ -33,4 +33,8 @@ class Notificacao extends ActiveRecord
     {
         return self::find()->count();
     }
+    public function getUserprofile()
+    {
+        return $this->hasOne(Userprofile::class, ['id' => 'userprofile_id']);
+    }
 }

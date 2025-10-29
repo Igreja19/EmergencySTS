@@ -2,7 +2,7 @@
 
 namespace common\models;
 
-use frontend\models\Paciente;
+// REMOVE: use frontend\models\Paciente;
 use yii\db\ActiveRecord;
 
 class Triagem extends ActiveRecord
@@ -15,24 +15,14 @@ class Triagem extends ActiveRecord
     public function rules()
     {
         return [
-            // 🔹 Campos obrigatórios no formulário
-            [['nomecompleto', 'datanascimento', 'sns', 'telefone', 'motivoconsulta', 'queixaprincipal', 'prioridadeatribuida', 'datatriagem'], 'required'],
-
-            // 🔹 Campos do tipo texto
-            [['descricaosintomas', 'condicoes', 'alergias', 'medicacao', 'queixaprincipal'], 'string'],
-
-            // 🔹 Campos de data/hora
+            [['nomecompleto', 'motivoconsulta', 'prioridadeatribuida'], 'required'],
+            [['queixaprincipal', 'descricaosintomas', 'condicoes', 'alergias', 'medicacao', 'motivo'], 'string'],
             [['datatriagem', 'datanascimento', 'iniciosintomas'], 'safe'],
-
-            // 🔹 Campos numéricos
             [['intensidadedor', 'utilizador_id', 'paciente_id'], 'integer'],
-
-            // 🔹 Comprimentos máximos
             [['nomecompleto', 'motivoconsulta', 'discriminacaoprincipal'], 'string', 'max' => 100],
             [['sns', 'telefone'], 'string', 'max' => 20],
-
-            // 🔹 Lista de prioridades válidas
-            [['prioridadeatribuida'], 'in', 'range' => ['Vermelha', 'Laranja', 'Amarela', 'Verde', 'Azul']],
+            // CORRIGIDO: 'Vermelha' -> 'Vermelho'
+            [['prioridadeatribuida'], 'in', 'range' => ['Vermelho','Laranja','Amarelo','Verde','Azul']],
         ];
     }
 
@@ -54,16 +44,17 @@ class Triagem extends ActiveRecord
             'discriminacaoprincipal' => 'Discriminação Principal',
             'prioridadeatribuida' => 'Prioridade Atribuída',
             'datatriagem' => 'Data da Triagem',
-            'paciente_id' => 'Paciente',
+            'paciente_id' => 'User (antigo paciente)',
             'utilizador_id' => 'Utilizador Responsável',
         ];
     }
-    public function getPaciente()
-    {
-        return $this->hasOne(Paciente::class, ['id' => 'paciente_id']);
-    }
+
     public function getConsulta()
     {
         return $this->hasOne(\common\models\Consulta::class, ['triagem_id' => 'id']);
+    }
+    public function getUserprofile()
+    {
+        return $this->hasOne(Userprofile::class, ['id' => 'paciente_id']);
     }
 }

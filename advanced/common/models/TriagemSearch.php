@@ -2,7 +2,7 @@
 
 namespace common\models;
 
-use backend\models\Triagem;
+use common\models\Triagem;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 

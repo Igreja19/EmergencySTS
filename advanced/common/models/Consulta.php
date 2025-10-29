@@ -59,9 +59,9 @@ class Consulta extends ActiveRecord
     }
 
     // 🔹 Relação com o paciente
-    public function getPaciente()
+    public function getUserprofile()
     {
-        return $this->hasOne(\common\models\Paciente::class, ['id' => 'paciente_id']);
+        return $this->hasOne(Userprofile::class, ['id' => 'userprofile_id']);
     }
 
     // 🔹 Relação com o utilizador (médico/enfermeiro)
