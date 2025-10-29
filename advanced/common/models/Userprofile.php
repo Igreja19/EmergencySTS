@@ -25,6 +25,7 @@ use Yii;
  */
 class Userprofile extends \yii\db\ActiveRecord
 {
+    public $role;
     /**
      * {@inheritdoc}
      */
@@ -46,7 +47,6 @@ class Userprofile extends \yii\db\ActiveRecord
             [['nif', 'sns'], 'string', 'max' => 9],
             [['genero'], 'string', 'max' => 1],
             [['telefone'], 'string', 'max' => 30],
-            [['password_hash'], 'string', 'max' => 255],
             [['email'], 'unique'],
             [['id'], 'unique'],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['user_id' => 'id']],
@@ -67,11 +67,10 @@ class Userprofile extends \yii\db\ActiveRecord
             'datanascimento' => 'Datanascimento',
             'genero' => 'Genero',
             'telefone' => 'Telefone',
-            'password_hash' => 'Password Hash',
-            'ativo' => 'Ativo',
             'consulta_id' => 'Consulta ID',
             'triagem_id' => 'Triagem ID',
             'user_id' => 'User ID',
+            'role' => 'Função / Role',
         ];
     }
 
@@ -83,5 +82,10 @@ class Userprofile extends \yii\db\ActiveRecord
     public function getUser()
     {
         return $this->hasOne(User::class, ['id' => 'user_id']);
+    }
+    public function getRoleName()
+    {
+        $roles = Yii::$app->authManager->getRolesByUser($this->user_id);
+        return !empty($roles) ? array_keys($roles)[0] : '(sem role)';
     }
 }

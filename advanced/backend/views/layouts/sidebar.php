@@ -21,7 +21,7 @@ use yii\helpers\Url;
                     ],
                     'items' => [
                             ['label' => 'Dashboard',     'icon' => 'tachometer-alt',          'url' => ['/site/index']],
-                            ['label' => 'Pacientes',     'icon' => 'users',                    'url' => ['/paciente/index']],
+                            ['label' => 'Utilizadores',     'icon' => 'users',                    'url' => ['/user-profile/index']],
                             ['label' => 'Triagem',       'icon' => 'stethoscope',              'url' => ['/triagem/index']],
                             ['label' => 'Pulseiras',     'icon' => 'id-card',                  'url' => ['/pulseira/index']],
                             ['label' => 'Consultas',     'icon' => 'notes-medical',            'url' => ['/consulta/index']],

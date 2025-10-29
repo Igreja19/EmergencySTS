@@ -58,7 +58,7 @@ class Consulta extends ActiveRecord
         return $this->hasOne(Triagem::class, ['id' => 'triagem_id']);
     }
 
-    // 🔹 Relação com o paciente
+    // 🔹 Relação com o user-profile
     public function getPaciente()
     {
         return $this->hasOne(\common\models\Paciente::class, ['id' => 'paciente_id']);

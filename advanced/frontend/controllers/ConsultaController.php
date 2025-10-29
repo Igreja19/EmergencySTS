@@ -11,13 +11,13 @@ use common\models\Triagem;
 class ConsultaController extends Controller
 {
     /**
-     * Histórico de consultas do paciente autenticado
+     * Histórico de consultas do user-profile autenticado
      */
     public function actionHistorico()
     {
         $userId = Yii::$app->user->id;
 
-        // Buscar todas as consultas ligadas ao paciente autenticado
+        // Buscar todas as consultas ligadas ao user-profile autenticado
         $consultas = Consulta::find()
             ->where(['userprofile_id' => $userId])
             ->orderBy(['data_consulta' => SORT_DESC])

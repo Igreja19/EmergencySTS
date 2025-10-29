@@ -1,10 +1,10 @@
 <?php
 use yii\helpers\Html;
 
-/** @var common\models\Paciente $model */
+/** @var common\models\Userprofile $model */
 
-$this->title = $model->isNewRecord ? 'Novo Paciente' : 'Atualizar Paciente';
-$this->params['breadcrumbs'][] = ['label' => 'Pacientes', 'url' => ['index']];
+$this->title = $model->isNewRecord ? 'Novo Utilizador' : 'Atualizar Utilizador';
+$this->params['breadcrumbs'][] = ['label' => 'Utilizador', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="paciente-create">

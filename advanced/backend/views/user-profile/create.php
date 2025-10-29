@@ -3,9 +3,9 @@
 use yii\helpers\Html;
 
 /** @var yii\web\View $this */
-/** @var frontend\models\Paciente $model */
+/** @var common\models\Userprofile $model */
 
-$this->title = 'Create Paciente';
+$this->title = 'Create Utilizador';
 $this->params['breadcrumbs'][] = ['label' => 'Pacientes', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>

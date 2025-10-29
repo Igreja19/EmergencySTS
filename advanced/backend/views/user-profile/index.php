@@ -4,10 +4,10 @@ use yii\grid\GridView;
 use yii\widgets\Pjax;
 
 /** @var yii\web\View $this */
-/** @var common\models\PacienteSearch $searchModel */
+/** @var common\models\UserProfileSearch $searchModel */
 /** @var yii\data\ActiveDataProvider $dataProvider */
 
-$this->title = 'Pacientes';
+$this->title = 'Utilizadores';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="paciente-index">
@@ -37,7 +37,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         'columns' => [
                                 ['class' => 'yii\grid\SerialColumn'],
 
-                                'nomecompleto',
+                                'nome',
                                 [
                                         'attribute' => 'nif',
                                         'contentOptions'=>['style'=>'white-space:nowrap;']

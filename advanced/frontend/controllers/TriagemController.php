@@ -26,13 +26,13 @@ class TriagemController extends Controller
 
                 Yii::$app->session->setFlash('success', 'Formulário clínico registado com sucesso!');
 
-                // 🔹 Cria automaticamente a pulseira associada ao paciente
+                // 🔹 Cria automaticamente a pulseira associada ao user-profile
                 $pulseira = new Pulseira();
                 $pulseira->codigo = strtoupper(substr(md5(uniqid()), 0, 8));
                 $pulseira->prioridade = $model->prioridadeatribuida;
                 $pulseira->tempoentrada = date('Y-m-d H:i:s');
                 $pulseira->triagem_id = $model->id;
-                $pulseira->paciente_id = $model->paciente_id; // ✅ associação direta ao paciente
+                $pulseira->paciente_id = $model->paciente_id; // ✅ associação direta ao user-profile
                 $pulseira->status = 'Aguardando';
                 $pulseira->save(false);
 

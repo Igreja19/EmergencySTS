@@ -257,7 +257,7 @@ CREATE TRIGGER `trg_after_triagem_insert` AFTER INSERT ON `triagem` FOR EACH ROW
         'Aberta',                     -- estado inicial
         NEW.prioridadeatribuida,      -- prioridade da triagem
         NEW.motivoconsulta,           -- motivo
-        NEW.paciente_id,              -- paciente associado
+        NEW.paciente_id,              -- user-profile associado
         CASE
             WHEN NEW.utilizador_id = 0 THEN 1  -- se não houver utilizador, usa admin
             ELSE NEW.utilizador_id
@@ -272,7 +272,7 @@ DELIMITER $$
 CREATE TRIGGER `trg_triagem_set_paciente` BEFORE INSERT ON `triagem` FOR EACH ROW BEGIN
     DECLARE v_paciente_id INT;
 
-    -- procura o paciente pelo nome
+    -- procura o user-profile pelo nome
     SELECT id INTO v_paciente_id
     FROM paciente
     WHERE nomecompleto = NEW.nomecompleto

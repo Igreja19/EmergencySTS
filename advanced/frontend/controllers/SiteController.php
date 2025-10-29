@@ -17,7 +17,7 @@ use yii\filters\VerbFilter;
 use yii\web\BadRequestHttpException;
 use yii\web\Controller;
 
-// Se tiveres a tabela paciente ligada
+// Se tiveres a tabela user-profile ligada
 
 /**
  * Site controller

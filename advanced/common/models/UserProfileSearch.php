@@ -4,8 +4,6 @@ namespace common\models;
 
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use common\models\Userprofile;
-
 /**
  * UserProfileSearch represents the model behind the search form of `common\models\Userprofile`.
  */
@@ -14,6 +12,8 @@ class UserProfileSearch extends Userprofile
     /**
      * {@inheritdoc}
      */
+    public $q; // <-- Campo de pesquisa geral (Nome, NIF, Email, Telefone)
+
     public function rules()
     {
         return [

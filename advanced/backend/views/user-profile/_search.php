@@ -2,7 +2,7 @@
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
-/** @var common\models\PacienteSearch $model */
+/** @var common\models\UserProfileSearch $model */
 ?>
 <div class="card bg-light mb-0">
     <div class="card-body py-2">

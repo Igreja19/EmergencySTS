@@ -18,7 +18,7 @@ class PulseiraController extends Controller
             return $this->render('index', ['pulseira' => null]);
         }
 
-        // 🔹 Nome do paciente (se existir)
+        // 🔹 Nome do user-profile (se existir)
         $pacienteNome = 'Desconhecido';
         if (class_exists('\frontend\models\Paciente')) {
             $paciente = Paciente::findOne($pulseira->paciente_id);

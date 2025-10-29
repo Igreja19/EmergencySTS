@@ -47,7 +47,7 @@ class Pulseira extends ActiveRecord
         return $this->hasOne(Triagem::class, ['id' => 'triagem_id']);
     }
 
-    // 🔹 Relação com o paciente (se existir tabela paciente)
+    // 🔹 Relação com o user-profile (se existir tabela user-profile)
     public function getPaciente()
     {
         return $this->hasOne(Paciente::class, ['id' => 'paciente_id']);

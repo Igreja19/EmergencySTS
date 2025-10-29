@@ -2,9 +2,9 @@
 use yii\helpers\Html;
 use yii\widgets\DetailView;
 
-/** @var common\models\Paciente $model */
-$this->title = $model->nomecompleto;
-$this->params['breadcrumbs'][] = ['label' => 'Pacientes', 'url' => ['index']];
+/** @var common\models\Userprofile $model */
+$this->title = $model->nome;
+$this->params['breadcrumbs'][] = ['label' => 'Utilizadores', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="card">
@@ -25,7 +25,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'model' => $model,
                 'options' => ['class'=>'table table-striped'],
                 'attributes' => [
-                        'nomecompleto',
+                        'nome',
                         'nif',
                         ['attribute'=>'datanascimento','format'=>['date','php:d/m/Y'],'label'=>'Data de nascimento'],
                         'genero',
