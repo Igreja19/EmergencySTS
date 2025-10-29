@@ -4,7 +4,6 @@ namespace frontend\controllers;
 
 use common\models\LoginForm;
 use frontend\models\ContactForm;
-use frontend\models\Paciente;
 use frontend\models\PasswordResetRequestForm;
 use frontend\models\ResendVerificationEmailForm;
 use frontend\models\ResetPasswordForm;
@@ -93,7 +92,9 @@ class SiteController extends Controller
         }
 
         $model = new LoginForm();
+
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
+            Yii::$app->session->set('firstLogin', true);
             return $this->goBack();
         }
 

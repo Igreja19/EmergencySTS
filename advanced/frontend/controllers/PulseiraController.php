@@ -1,10 +1,11 @@
 <?php
+
 namespace frontend\controllers;
 
-use common\models\Pulseira;
-use frontend\models\Paciente;
 use Yii;
 use yii\web\Controller;
+use common\models\Pulseira;
+use common\models\UserProfile;
 
 class PulseiraController extends Controller
 {
@@ -18,14 +19,15 @@ class PulseiraController extends Controller
             return $this->render('index', ['pulseira' => null]);
         }
 
-        // 🔹 Nome do paciente (se existir)
-        $pacienteNome = 'Desconhecido';
-        if (class_exists('\frontend\models\Paciente')) {
-            $paciente = Paciente::findOne($pulseira->paciente_id);
-            if ($paciente) {
-                $pacienteNome = $paciente->nome ?? $paciente->nomecompleto ?? 'Paciente';
+        // 🔹 Nome do utilizador (ligado ao perfil)
+        $utilizadorNome = 'Desconhecido';
+        if ($pulseira->userprofile_id) {
+            $userProfile = UserProfile::findOne($pulseira->userprofile_id);
+            if ($userProfile) {
+                $utilizadorNome = $userProfile->nome ?? $userProfile->nomecompleto ?? 'Utilizador';
             }
         }
+
 
         // 🔹 Valores base
         $priority = $pulseira->prioridade;
@@ -55,10 +57,7 @@ class PulseiraController extends Controller
         ")->queryOne();
 
         if (!$hasStatus) {
-            // Garante que o campo status existe (sem quebrar)
-            Yii::$app->db->createCommand("
-                ALTER TABLE pulseira ADD COLUMN status ENUM('Aguardando','Em Atendimento','Concluído') DEFAULT 'Aguardando';
-            ")->execute();
+            Yii::$app->db->createCommand("ALTER TABLE pulseira ADD COLUMN status ENUM('Aguardando','Em Atendimento','Concluído') DEFAULT 'Aguardando';")->execute();
         }
 
         // 🔹 Posição na fila (mesma prioridade)
@@ -88,14 +87,13 @@ class PulseiraController extends Controller
             ->limit(10)
             ->all();
 
-        // 🔹 Cálculo simples do tempo médio de espera
+        // 🔹 Tempo médio de espera
         $tempoMedio = 0;
         if (!empty($fila)) {
             $totalTempo = 0;
             $count = 0;
 
             foreach ($fila as $item) {
-                // Se tiver campo tempoentrada, calcula minutos desde entrada
                 if (!empty($item->tempoentrada)) {
                     $totalTempo += floor(($agora - strtotime($item->tempoentrada)) / 60);
                     $count++;
@@ -109,7 +107,7 @@ class PulseiraController extends Controller
 
         return $this->render('index', [
             'pulseira'          => $pulseira,
-            'pacienteNome'      => $pacienteNome,
+            'utilizadorNome'    => $utilizadorNome,
             'tempoDecorridoMin' => $tempoDecorridoMin,
             'tempoEstimadoMin'  => $tempoEstimadoMin,
             'position'          => $position,
@@ -119,5 +117,6 @@ class PulseiraController extends Controller
             'fila'              => $fila,
             'tempoMedio'        => $tempoMedio ?? 0,
         ]);
+
     }
 }

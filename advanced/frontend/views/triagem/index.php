@@ -9,11 +9,37 @@ $this->title = 'EmergencySTS - Serviço de Urgências';
         <p class="text-muted mb-4">Sistema de Triagem - Protocolo EmergencySTS</p>
 
         <div class="d-flex flex-column align-items-center gap-3">
-            <?php if (!Yii::$app->user->isGuest): ?>
-                <a href="<?= Yii::$app->urlManager->createUrl(['triagem/formulario']) ?>" class="btn btn-success btn-lg fw-semibold px-5 py-3 shadow-sm">
-                    <i class="bi bi-file-earmark-text me-2"></i> Preencher Formulário Clínico
-                </a>
-            <?php endif; ?>
+            <div class="text-center">
+                <?php if (!Yii::$app->user->isGuest): ?>
+                    <?php
+                    $userProfile = Yii::$app->user->identity->userprofile ?? null;
+
+                    // Verifica se todos os campos essenciais estão preenchidos
+                    $perfilCompleto = $userProfile &&
+                            !empty($userProfile->nome) &&
+                            !empty($userProfile->email) &&
+                            !empty($userProfile->nif) &&
+                            !empty($userProfile->sns) &&
+                            !empty($userProfile->telefone) &&
+                            !empty($userProfile->datanascimento);
+                    ?>
+
+                    <?php if ($perfilCompleto): ?>
+                        <!-- ✅ Botão visível se o perfil estiver completo -->
+                        <a href="<?= Yii::$app->urlManager->createUrl(['triagem/formulario']) ?>"
+                           class="btn btn-success btn-lg fw-semibold px-5 py-3 shadow-sm">
+                            <i class="bi bi-file-earmark-text me-2"></i> Preencher Formulário Clínico
+                        </a>
+                    <?php else: ?>
+                        <!-- ⚠️ Caixa de aviso se o perfil estiver incompleto -->
+                        <div class="alert alert-warning d-inline-block fw-semibold px-4 py-3 rounded-3 shadow-sm mt-3" style="max-width:600px;">
+                            <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>
+                            Por favor, preencha o seu <a href="<?= Yii::$app->urlManager->createUrl(['user-profile/view', 'id' => $userProfile->id ?? 0]) ?>"
+                                                         class="alert-link text-success fw-bold">perfil</a> antes de preencher o formulário clínico.
+                        </div>
+                    <?php endif; ?>
+                <?php endif; ?>
+            </div>
 
             <?php if (Yii::$app->user->isGuest): ?>
                 <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-3">

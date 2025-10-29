@@ -7,7 +7,28 @@ use yii\bootstrap5\Html;
 $this->title = 'EmergencySTS | Sistema de Triagem';
 
 ?>
-
+<?php if (Yii::$app->session->get('firstLogin')): ?>
+    <?php
+    Yii::$app->session->remove('firstLogin'); // só aparece uma vez
+    ?>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            Swal.fire({
+                title: 'Bem-vindo!',
+                text: 'Antes de iniciar, por favor preencha o seu perfil para continuar.',
+                icon: 'info',
+                confirmButtonText: 'Ok, preencher agora',
+                allowOutsideClick: false,
+                allowEscapeKey: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "<?= \yii\helpers\Url::to(['user-profile/view', 'id' => Yii::$app->user->identity->userprofile->id]) ?>";
+                }
+            });
+        });
+    </script>
+<?php endif; ?>
 <!-- HERO SECTION -->
 <section class="hero">
     <div class="hero-left">

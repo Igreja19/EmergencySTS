@@ -5,15 +5,17 @@ namespace common\models;
 use Yii;
 
 /**
- * This is the model class for table "pulseira".
+ * Esta é a classe modelo para a tabela "pulseira".
  *
  * @property int $id
  * @property string $codigo
  * @property string $prioridade
  * @property string|null $status
  * @property string $tempoentrada
+ * @property int $userprofile_id
  *
- * @property Triagem[] $triagems
+ * @property UserProfile $userProfile
+ * @property Triagem $triagem
  */
 class Pulseira extends \yii\db\ActiveRecord
 {
@@ -31,10 +33,15 @@ class Pulseira extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['codigo', 'prioridade'], 'required'],
-            [['prioridade', 'status'], 'string'],
+            [['codigo', 'prioridade', 'tempoentrada', 'userprofile_id'], 'required'],
             [['tempoentrada'], 'safe'],
+            [['userprofile_id'], 'integer'],
+            [['prioridade'], 'in', 'range' => ['Vermelha', 'Laranja', 'Amarela', 'Verde', 'Azul']],
+            [['status'], 'in', 'range' => ['Aguardando', 'Em atendimento', 'Atendido']],
             [['codigo'], 'string', 'max' => 10],
+            [['codigo'], 'unique'],
+            [['userprofile_id'], 'exist', 'skipOnError' => true,
+                'targetClass' => UserProfile::class, 'targetAttribute' => ['userprofile_id' => 'id']],
         ];
     }
 
@@ -45,20 +52,42 @@ class Pulseira extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'codigo' => 'Codigo',
+            'codigo' => 'Código da Pulseira',
             'prioridade' => 'Prioridade',
-            'status' => 'Status',
-            'tempoentrada' => 'Tempoentrada',
+            'status' => 'Estado',
+            'tempoentrada' => 'Tempo de Entrada',
+            'userprofile_id' => 'Utilizador',
         ];
     }
 
     /**
-     * Gets query for [[Triagems]].
-     *
-     * @return \yii\db\ActiveQuery
+     * 🔹 Relação com o perfil do utilizador
      */
-    public function getTriagems()
+    public function getUserProfile()
     {
-        return $this->hasMany(Triagem::class, ['pulseira_id' => 'id']);
+        return $this->hasOne(\common\models\UserProfile::class, ['id' => 'userprofile_id']);
+    }
+
+    /**
+     * 🔹 Relação com a triagem (uma triagem cria uma pulseira)
+     */
+    public function getTriagem()
+    {
+        return $this->hasOne(\common\models\Triagem::class, ['pulseira_id' => 'id']);
+    }
+
+    /**
+     * 🔹 Texto formatado da prioridade com ícone
+     */
+    public function getPrioridadeComCor()
+    {
+        $cores = [
+            'Vermelha' => '🔴 Vermelha - Emergente',
+            'Laranja'  => '🟠 Laranja - Muito Urgente',
+            'Amarela'  => '🟡 Amarela - Urgente',
+            'Verde'    => '🟢 Verde - Pouco Urgente',
+            'Azul'     => '🔵 Azul - Não Urgente',
+        ];
+        return $cores[$this->prioridade] ?? $this->prioridade;
     }
 }

@@ -11,23 +11,23 @@ use common\models\Triagem;
 class ConsultaController extends Controller
 {
     /**
-     * Histórico de consultas do paciente autenticado
+     * Histórico de consultas do utilizador autenticado
      */
     public function actionHistorico()
     {
-        $userId = Yii::$app->user->id;
+        $userProfileId = Yii::$app->user->identity->userProfile->id;
 
-        // Buscar todas as consultas ligadas ao paciente autenticado
+        // Buscar todas as consultas ligadas ao utilizador autenticado
         $consultas = Consulta::find()
-            ->where(['paciente_id' => $userId])
+            ->where(['userprofile_id' => $userProfileId])
             ->orderBy(['data_consulta' => SORT_DESC])
             ->all();
 
         // KPIs
-        $total = Consulta::find()->where(['paciente_id' => $userId])->count();
+        $total = Consulta::find()->where(['userprofile_id' => $userProfileId])->count();
 
         $ultimaConsulta = Consulta::find()
-            ->where(['paciente_id' => $userId])
+            ->where(['userprofile_id' => $userProfileId])
             ->orderBy(['data_consulta' => SORT_DESC])
             ->one();
 
@@ -37,7 +37,7 @@ class ConsultaController extends Controller
 
         $prioridadeMaisComum = Consulta::find()
             ->select(['prioridade', 'COUNT(*) AS total'])
-            ->where(['paciente_id' => $userId])
+            ->where(['userprofile_id' => $userProfileId])
             ->groupBy('prioridade')
             ->orderBy(['total' => SORT_DESC])
             ->asArray()
@@ -89,6 +89,10 @@ class ConsultaController extends Controller
 
         throw new NotFoundHttpException('A consulta solicitada não foi encontrada.');
     }
+
+    /**
+     * Gerar PDF da consulta
+     */
     public function actionPdf($id)
     {
         $consulta = $this->findModel($id);
@@ -100,7 +104,6 @@ class ConsultaController extends Controller
             'triagem' => $triagem,
         ]);
 
-        // Carregar o mPDF
         $mpdf = new \Mpdf\Mpdf([
             'mode' => 'utf-8',
             'format' => 'A4',

@@ -8,6 +8,10 @@
       <sourceFolder url="file://$MODULE_DIR$/advanced/common/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/advanced/common/tests" isTestSource="true" packagePrefix="common\tests\" />
       <sourceFolder url="file://$MODULE_DIR$/advanced/common/tests/_support" isTestSource="true" packagePrefix="common\tests\" />
+      <sourceFolder url="file://$MODULE_DIR$/advanced/backend" isTestSource="false" packagePrefix="backend\" />
+      <sourceFolder url="file://$MODULE_DIR$/advanced/common" isTestSource="false" packagePrefix="common\" />
+      <sourceFolder url="file://$MODULE_DIR$/advanced/console" isTestSource="false" packagePrefix="console\" />
+      <sourceFolder url="file://$MODULE_DIR$/advanced/frontend" isTestSource="false" packagePrefix="frontend\" />
       <sourceFolder url="file://$MODULE_DIR$/advanced/frontend/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/advanced/frontend/tests" isTestSource="true" packagePrefix="frontend\tests\" />
       <sourceFolder url="file://$MODULE_DIR$/advanced/frontend/tests/_support" isTestSource="true" packagePrefix="frontend\tests\" />
@@ -104,5 +108,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="bootstrap-icons" level="application" />
+    <orderEntry type="library" name="sweetalert2" level="application" />
+    <orderEntry type="library" name="bootstrap" level="application" />
   </component>
 </module>

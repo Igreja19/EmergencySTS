@@ -3,20 +3,24 @@ use yii\helpers\Html;
 
 $this->title = 'Painel de Triagem - EmergencySTS';
 
+$this->registerCssFile('https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css');
+$this->registerCssFile('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css');
+$this->registerJsFile('https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js', ['position' => \yii\web\View::POS_END]);
+
 if (!$pulseira) {
     echo '<div class="container py-5 text-center">
             <div class="alert alert-warning rounded-4 shadow-sm p-4">
                 <i class="bi bi-exclamation-triangle me-2"></i>
                 Nenhuma pulseira encontrada.
-            </div>'
-            . Html::a('<i class="bi bi-arrow-left-circle me-2"></i> Voltar à Triagem', ['triagem/formulario'], [
+            </div>' .
+            Html::a('<i class="bi bi-arrow-left-circle me-2"></i> Voltar à Triagem', ['triagem/formulario'], [
                     'class' => 'btn btn-success mt-3 px-4 py-2'
             ]) .
             '</div>';
     return;
 }
 
-// Cores das prioridades
+// 🔹 Cores das prioridades
 $cores = [
         'Vermelha' => '#dc3545',
         'Laranja'  => '#fd7e14',
@@ -26,12 +30,12 @@ $cores = [
 ];
 $cor = $cores[$pulseira->prioridade] ?? '#198754';
 
-// Ajuste do tempo estimado
+// 🔹 Ajuste do tempo estimado
 if ($tempoEstimadoMin <= 0 && $position > 1) {
     $tempoEstimadoMin = max(5, $position * 5);
 }
 
-// Corrige progresso: se posição 1 => 100%, senão proporcional
+// 🔹 Corrige progresso
 if ($position > 1 && $totalAguardar > 0) {
     $progressPct = max(0, 100 - (($position - 1) / $totalAguardar) * 100);
 } else {
@@ -53,7 +57,7 @@ if ($position > 1 && $totalAguardar > 0) {
                 <h2 class="fw-bold m-0"><?= Html::encode($pulseira->codigo) ?></h2>
             </div>
 
-            <!-- Selo da cor (com texto) -->
+            <!-- Selo da cor -->
             <div class="position-absolute top-0 end-0 mt-2 me-3 d-flex align-items-center justify-content-center fw-bold text-uppercase"
                  style="
                          background-color: <?= $cor ?>;
@@ -98,17 +102,16 @@ if ($position > 1 && $totalAguardar > 0) {
             <div class="small text-muted text-end mt-1"><?= (int)$progressPct ?>%</div>
         </div>
 
-        <!-- Texto de progresso -->
         <div class="small text-muted mb-1 mt-3">
             Progresso do tempo máximo (<?= isset($maxByPriority[$pulseira->prioridade]) ? (int)$maxByPriority[$pulseira->prioridade] : 60 ?> min)
         </div>
 
-        <!-- Nome do paciente -->
+        <!-- Nome do utilizador -->
         <div class="mt-3">
-            <span class="text-muted">Paciente:</span>
-            <span class="fw-semibold <?= $pacienteNome === 'Desconhecido' ? 'text-secondary' : 'text-dark' ?>">
-        <?= Html::encode($pacienteNome ?? 'Desconhecido') ?>
-    </span>
+            <span class="text-muted">Utilizador:</span>
+            <span class="fw-semibold <?= $utilizadorNome === 'Desconhecido' ? 'text-secondary' : 'text-dark' ?>">
+                <?= Html::encode($utilizadorNome ?? 'Desconhecido') ?>
+            </span>
         </div>
     </div>
 
@@ -152,7 +155,7 @@ if ($position > 1 && $totalAguardar > 0) {
         <div class="col-md-4">
             <div class="card border-0 shadow-sm rounded-4 py-3">
                 <div class="fw-bold fs-4"><?= (int)$totalAguardar ?></div>
-                <div class="text-muted small">Pacientes a Aguardar</div>
+                <div class="text-muted small">Utilizadores a Aguardar</div>
             </div>
         </div>
         <div class="col-md-4">
@@ -170,21 +173,24 @@ if ($position > 1 && $totalAguardar > 0) {
     </div>
 </div>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-
-<style>
+<?php
+    $this->registerCss(<<<CSS
     body {
         background: linear-gradient(180deg, #f7fff9 0%, #f6f9ff 100%);
         font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif;
     }
-    .main-status-card { background: #eef6ff; border: 1px solid #dbe9ff; }
+    .main-status-card {
+        background: #eef6ff;
+        border: 1px solid #dbe9ff;
+    }
     .triage-track {
         background: linear-gradient(90deg, rgba(25,135,84,.15) 0%, rgba(25,135,84,0) 100%);
     }
     .progress-bar { transition: width .8s ease; }
     .list-group-item { transition: all .2s ease; }
-    .list-group-item:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,.06); }
-</style>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    .list-group-item:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(0,0,0,.06);
+    }
+    CSS);
+?>

@@ -5,49 +5,70 @@ use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
 $this->title = 'Formulário Clínico - EmergencySTS';
+$userProfile = Yii::$app->user->identity->userprofile;
 ?>
 
 <div class="container py-5">
     <div class="text-center mb-5">
         <span class="badge bg-light text-success px-3 py-2 fw-semibold">Triagem Hospitalar</span>
         <h3 class="fw-bold text-success mt-3">Formulário Clínico</h3>
-        <p class="text-muted">Preencha os dados do paciente para proceder à avaliação de prioridade.</p>
+        <p class="text-muted">Os seus dados foram preenchidos automaticamente com base no seu perfil.</p>
     </div>
 
     <div class="mx-auto card shadow-sm border-0 rounded-4 p-4" style="max-width: 850px;">
-        <!-- FORMULÁRIO -->
         <?php $form = ActiveForm::begin([
                 'id' => 'form-triagem',
-                'action' => ['triagem/formulario'], // rota do controller
+                'action' => ['triagem/formulario'],
                 'method' => 'post'
         ]); ?>
 
-        <!-- DADOS PESSOAIS -->
+        <!-- 🔹 DADOS PESSOAIS -->
         <h6 class="fw-bold text-success mt-2 mb-3">Dados Pessoais</h6>
         <div class="row g-3 mb-3">
+
+            <!-- Nome -->
             <div class="col-md-6">
-                <?= $form->field($model, 'nomecompleto')
-                        ->textInput(['placeholder' => 'Nome completo'])
-                        ->label('<i class="bi bi-person me-2"></i> Nome Completo') ?>
+                <label class="form-label fw-semibold text-success">
+                    <i class="bi bi-person me-2"></i> Nome Completo
+                </label>
+                <input type="text" class="form-control"
+                       value="<?= Html::encode($userProfile->nome ?? '') ?>"
+                       readonly>
             </div>
+
+            <!-- Data de Nascimento -->
             <div class="col-md-3">
-                <?= $form->field($model, 'datanascimento')
-                        ->input('date')
-                        ->label('<i class="bi bi-calendar me-2"></i> Data de Nascimento') ?>
+                <label class="form-label fw-semibold text-success">
+                    <i class="bi bi-calendar me-2"></i> Data de Nascimento
+                </label>
+                <input type="date" class="form-control"
+                       value="<?= Html::encode($userProfile->datanascimento ?? '') ?>"
+                       readonly>
             </div>
+
+            <!-- SNS -->
             <div class="col-md-3">
-                <?= $form->field($model, 'sns')
-                        ->textInput(['placeholder' => 'Número SNS'])
-                        ->label('<i class="bi bi-hospital me-2"></i> Número de Utente (SNS)') ?>
+                <label class="form-label fw-semibold text-success">
+                    <i class="bi bi-hospital me-2"></i> Número de Utente (SNS)
+                </label>
+                <input type="text" class="form-control"
+                       value="<?= Html::encode($userProfile->sns ?? '') ?>"
+                       readonly>
             </div>
         </div>
 
         <div class="row g-3 mb-3">
+            <!-- Telefone -->
             <div class="col-md-6">
-                <?= $form->field($model, 'telefone')
-                        ->textInput(['placeholder' => 'Telefone'])
-                        ->label('<i class="bi bi-telephone me-2"></i> Telefone') ?>
+                <label class="form-label fw-semibold text-success">
+                    <i class="bi bi-telephone me-2"></i> Telefone
+                </label>
+                <input type="text" class="form-control"
+                       value="<?= Html::encode($userProfile->telefone ?? '') ?>"
+                       readonly>
             </div>
+
+            <!-- Motivo da Consulta -->
             <div class="col-md-6">
                 <?= $form->field($model, 'motivoconsulta')
                         ->textInput(['placeholder' => 'Motivo da consulta'])
@@ -56,7 +77,7 @@ $this->title = 'Formulário Clínico - EmergencySTS';
         </div>
 
         <!-- 🔹 SINTOMAS E QUEIXAS -->
-        <h6 class="fw-bold text-success mt-4 mb-3">Sintomas e Queixas</h6>
+        <h6 class="fw-bold text-success section-spacing">Sintomas e Queixas</h6>
         <?= $form->field($model, 'queixaprincipal')
                 ->textarea(['rows' => 3, 'placeholder' => 'Descreva a queixa principal...'])
                 ->label('<i class="bi bi-clipboard2-pulse me-2"></i> Queixa Principal') ?>
@@ -73,17 +94,19 @@ $this->title = 'Formulário Clínico - EmergencySTS';
             </div>
             <div class="col-md-6">
                 <?= $form->field($model, 'intensidadedor')
-                        ->input('number', ['min' => 0, 'max' => 10, 'placeholder' => '0 a 10'])
+                        ->input('number', [
+                                'min' => 0,
+                                'max' => 10,
+                                'step' => 1,
+                                'oninput' => 'this.value = Math.max(0, Math.min(10, this.value))',
+                                'placeholder' => '0 a 10'
+                        ])
                         ->label('<i class="bi bi-emoji-expressionless me-2"></i> Intensidade da Dor (0-10)') ?>
             </div>
         </div>
 
         <!-- 🔹 CONDIÇÕES, ALERGIAS E MEDICAÇÃO -->
-        <h6 class="fw-bold text-success mt-4 mb-3">Informações Adicionais</h6>
-        <?= $form->field($model, 'condicoes')
-                ->textarea(['rows' => 2, 'placeholder' => 'Condições médicas conhecidas...'])
-                ->label('<i class="bi bi-heart-pulse me-2"></i> Condições Médicas Conhecidas') ?>
-
+        <h6 class="fw-bold text-success section-spacing">Informações Adicionais</h6>
         <?= $form->field($model, 'alergias')
                 ->textarea(['rows' => 2, 'placeholder' => 'Alergias conhecidas...'])
                 ->label('<i class="bi bi-exclamation-triangle me-2"></i> Alergias Conhecidas') ?>
@@ -96,28 +119,23 @@ $this->title = 'Formulário Clínico - EmergencySTS';
         <h6 class="fw-bold text-success mt-4 mb-3">Prioridade e Triagem</h6>
         <div class="row g-3 mb-3">
             <div class="col-md-6">
-                <?= $form->field($model, 'prioridadeatribuida')
-                        ->dropDownList([
-                                'Vermelha' => '🔴 Vermelha - Emergente',
-                                'Laranja' => '🟠 Laranja - Muito Urgente',
-                                'Amarela' => '🟡 Amarela - Urgente',
-                                'Verde' => '🟢 Verde - Pouco Urgente',
-                                'Azul' => '🔵 Azul - Não Urgente',
-                        ], ['prompt' => 'Selecione a prioridade'])
-                        ->label('<i class="bi bi-flag me-2"></i> Prioridade Atribuída') ?>
-            </div>
-            <div class="col-md-6">
-                <?= $form->field($model, 'datatriagem')
-                        ->input('datetime-local')
-                        ->label('<i class="bi bi-calendar-event me-2"></i> Data da Triagem') ?>
+                <label class="form-label fw-semibold text-success">
+                    <i class="bi bi-flag me-2"></i> Prioridade Atribuída
+                </label>
+                <?= Html::hiddenInput('Triagem[datatriagem]', date('Y-m-d H:i:s')) ?>
+                <select name="Pulseira[prioridade]" class="form-select rounded-3">
+                    <option value="">Selecione a prioridade</option>
+                    <option value="Vermelha" <?= isset($model->pulseira) && $model->pulseira->prioridade == 'Vermelha' ? 'selected' : '' ?>>🔴 Vermelha - Emergente</option>
+                    <option value="Laranja" <?= isset($model->pulseira) && $model->pulseira->prioridade == 'Laranja' ? 'selected' : '' ?>>🟠 Laranja - Muito Urgente</option>
+                    <option value="Amarela" <?= isset($model->pulseira) && $model->pulseira->prioridade == 'Amarela' ? 'selected' : '' ?>>🟡 Amarela - Urgente</option>
+                    <option value="Verde" <?= isset($model->pulseira) && $model->pulseira->prioridade == 'Verde' ? 'selected' : '' ?>>🟢 Verde - Pouco Urgente</option>
+                    <option value="Azul" <?= isset($model->pulseira) && $model->pulseira->prioridade == 'Azul' ? 'selected' : '' ?>>🔵 Azul - Não Urgente</option>
+                </select>
             </div>
         </div>
 
-        <?= $form->field($model, 'discriminacaoprincipal')
-                ->textInput(['placeholder' => 'Discriminação / Motivo principal'])
-                ->label('<i class="bi bi-journal-text me-2"></i> Discriminação Principal') ?>
-
         <!-- 🔹 BOTÃO -->
+        <?= Html::hiddenInput('Triagem[userprofile_id]', $userProfile->id) ?>
         <div class="text-center mt-4">
             <?= Html::submitButton('<i class="bi bi-save me-2"></i> Submeter Formulário', [
                     'class' => 'btn btn-success btn-lg px-5 py-3 fw-semibold shadow-sm submit-btn'
@@ -126,6 +144,13 @@ $this->title = 'Formulário Clínico - EmergencySTS';
 
         <?php ActiveForm::end(); ?>
     </div>
+    <script>
+        document.querySelector('#form-triagem').addEventListener('submit', function() {
+            const btn = document.querySelector('.submit-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i> A enviar...';
+        });
+    </script>
 </div>
 
 <!-- 🔹 CSS -->
@@ -145,26 +170,43 @@ $this->title = 'Formulário Clínico - EmergencySTS';
         box-shadow: 0 8px 28px rgba(0, 0, 0, 0.1);
     }
 
-    .form-control, select {
+    /* Inputs e selects uniformes */
+    .form-control, .form-select, select {
         border-radius: 10px !important;
         padding: 10px 14px;
+        height: 44px;
     }
 
     textarea.form-control {
         resize: none;
+        height: auto;
     }
 
-    label {
+    /* ✅ Labels com espaçamento e cor */
+    .form-label, label {
         font-weight: 600;
-        color: #198754;
+        color: #198754; /* verde original */
+        margin-top: 6px; /* pequeno espaço entre a caixa anterior e o label */
+        margin-bottom: 6px; /* espaço entre o label e o input abaixo */
+        display: block;
     }
 
+    /* Alinhamento visual consistente */
+    .row.g-3 > [class*="col-"] {
+        margin-bottom: 10px;
+    }
+
+    /* Secções principais */
     h6 {
         text-transform: uppercase;
         font-size: 0.85rem;
         letter-spacing: 0.5px;
+        color: #198754;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
     }
 
+    /* Botões */
     .btn-success {
         background-color: #198754 !important;
         border: none;
@@ -177,6 +219,13 @@ $this->title = 'Formulário Clínico - EmergencySTS';
         box-shadow: 0 4px 15px rgba(22, 163, 74, 0.4);
         transform: translateY(-2px);
     }
+    /* 🔹 Corrige desalinhamento de colunas com labels longas */
+    .row.g-3 .col-md-3,
+    .row.g-3 .col-md-6 {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end; /* alinha todas as caixas pela base */
+    }
 </style>
 
-<!-- Bootstrap Icons -->
+
