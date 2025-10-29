@@ -17,8 +17,8 @@ class ConsultaSearch extends Consulta
     public function rules()
     {
         return [
-            [['id', 'diagnostico_id', 'paciente_id', 'utilizador_id'], 'integer'],
-            [['data_consulta', 'estado'], 'safe'],
+            [['id', 'userprofile_id', 'triagem_id', 'prescricao_id'], 'integer'],
+            [['data_consulta', 'estado', 'prioridade', 'motivo', 'observacoes', 'data_encerramento', 'tempo_consulta', 'relatorio_pdf'], 'safe'],
         ];
     }
 
@@ -35,11 +35,10 @@ class ConsultaSearch extends Consulta
      * Creates data provider instance with search query applied
      *
      * @param array $params
-     * @param string|null $formName Form name to be used into `->load()` method.
      *
      * @return ActiveDataProvider
      */
-    public function search($params, $formName = null)
+    public function search($params)
     {
         $query = Consulta::find();
 
@@ -49,7 +48,7 @@ class ConsultaSearch extends Consulta
             'query' => $query,
         ]);
 
-        $this->load($params, $formName);
+        $this->load($params);
 
         if (!$this->validate()) {
             // uncomment the following line if you do not want to return any records when validation fails
@@ -61,12 +60,18 @@ class ConsultaSearch extends Consulta
         $query->andFilterWhere([
             'id' => $this->id,
             'data_consulta' => $this->data_consulta,
-            'diagnostico_id' => $this->diagnostico_id,
-            'paciente_id' => $this->paciente_id,
-            'utilizador_id' => $this->utilizador_id,
+            'userprofile_id' => $this->userprofile_id,
+            'triagem_id' => $this->triagem_id,
+            'prescricao_id' => $this->prescricao_id,
+            'data_encerramento' => $this->data_encerramento,
         ]);
 
-        $query->andFilterWhere(['like', 'estado', $this->estado]);
+        $query->andFilterWhere(['like', 'estado', $this->estado])
+            ->andFilterWhere(['like', 'prioridade', $this->prioridade])
+            ->andFilterWhere(['like', 'motivo', $this->motivo])
+            ->andFilterWhere(['like', 'observacoes', $this->observacoes])
+            ->andFilterWhere(['like', 'tempo_consulta', $this->tempo_consulta])
+            ->andFilterWhere(['like', 'relatorio_pdf', $this->relatorio_pdf]);
 
         return $dataProvider;
     }

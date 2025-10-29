@@ -17,25 +17,15 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'id') ?>
 
-    <?= $form->field($model, 'nomecompleto') ?>
+    <?= $form->field($model, 'motivoconsulta') ?>
 
-    <?= $form->field($model, 'datanascimento') ?>
+    <?= $form->field($model, 'queixaprincipal') ?>
 
-    <?= $form->field($model, 'sns') ?>
+    <?= $form->field($model, 'descricaosintomas') ?>
 
-    <?= $form->field($model, 'telefone') ?>
-
-    <?php // echo $form->field($model, 'motivoconsulta') ?>
-
-    <?php // echo $form->field($model, 'queixaprincipal') ?>
-
-    <?php // echo $form->field($model, 'descricaosintomas') ?>
-
-    <?php // echo $form->field($model, 'iniciosintomas') ?>
+    <?= $form->field($model, 'iniciosintomas') ?>
 
     <?php // echo $form->field($model, 'intensidadedor') ?>
-
-    <?php // echo $form->field($model, 'condicoes') ?>
 
     <?php // echo $form->field($model, 'alergias') ?>
 
@@ -43,15 +33,11 @@ use yii\widgets\ActiveForm;
 
     <?php // echo $form->field($model, 'motivo') ?>
 
-    <?php // echo $form->field($model, 'prioridadeatribuida') ?>
-
     <?php // echo $form->field($model, 'datatriagem') ?>
 
-    <?php // echo $form->field($model, 'discriminacaoprincipal') ?>
+    <?php // echo $form->field($model, 'userprofile_id') ?>
 
-    <?php // echo $form->field($model, 'paciente_id') ?>
-
-    <?php // echo $form->field($model, 'utilizador_id') ?>
+    <?php // echo $form->field($model, 'pulseira_id') ?>
 
     <div class="form-group">
         <?= Html::submitButton('Search', ['class' => 'btn btn-primary']) ?>

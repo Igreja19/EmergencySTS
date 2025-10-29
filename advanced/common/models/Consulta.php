@@ -3,12 +3,31 @@
 namespace common\models;
 
 use Yii;
-use yii\db\ActiveRecord;
 
-class Consulta extends ActiveRecord
+/**
+ * This is the model class for table "consulta".
+ *
+ * @property int $id
+ * @property string $data_consulta
+ * @property string $estado
+ * @property string|null $prioridade
+ * @property string|null $motivo
+ * @property string|null $observacoes
+ * @property int $userprofile_id
+ * @property int $triagem_id
+ * @property int $prescricao_id
+ * @property string|null $data_encerramento
+ * @property string|null $tempo_consulta
+ * @property string|null $relatorio_pdf
+ *
+ * @property Prescricao $prescricao
+ * @property Triagem $triagem
+ * @property User $userprofile
+ */
+class Consulta extends \yii\db\ActiveRecord
 {
     /**
-     * Nome da tabela
+     * {@inheritdoc}
      */
     public static function tableName()
     {
@@ -16,57 +35,71 @@ class Consulta extends ActiveRecord
     }
 
     /**
-     * Regras de validação
+     * {@inheritdoc}
      */
     public function rules()
     {
         return [
-            [['data_consulta', 'estado', 'paciente_id', 'utilizador_id', 'triagem_id'], 'required'],
             [['data_consulta', 'data_encerramento'], 'safe'],
-            [['diagnostico_id', 'paciente_id', 'utilizador_id', 'triagem_id'], 'integer'],
-            [['estado', 'prioridade'], 'string'],
-            [['motivo', 'tempo_consulta', 'relatorio_pdf'], 'string', 'max' => 255],
-            [['observacoes'], 'string'],
+            [['estado', 'prioridade', 'observacoes'], 'string'],
+            [['userprofile_id', 'triagem_id', 'prescricao_id'], 'required'],
+            [['userprofile_id', 'triagem_id', 'prescricao_id'], 'integer'],
+            [['motivo', 'relatorio_pdf'], 'string', 'max' => 255],
+            [['tempo_consulta'], 'string', 'max' => 50],
+            [['triagem_id'], 'exist', 'skipOnError' => true, 'targetClass' => Triagem::class, 'targetAttribute' => ['triagem_id' => 'id']],
+            [['userprofile_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['userprofile_id' => 'id']],
+            [['prescricao_id'], 'exist', 'skipOnError' => true, 'targetClass' => Prescricao::class, 'targetAttribute' => ['prescricao_id' => 'id']],
         ];
     }
 
     /**
-     * Rótulos (labels) usados nas views
+     * {@inheritdoc}
      */
     public function attributeLabels()
     {
         return [
             'id' => 'ID',
-            'data_consulta' => 'Data da Consulta',
+            'data_consulta' => 'Data Consulta',
             'estado' => 'Estado',
             'prioridade' => 'Prioridade',
-            'motivo' => 'Motivo da Consulta',
-            'observacoes' => 'Observações',
-            'paciente_id' => 'Paciente',
-            'utilizador_id' => 'Utilizador',
-            'triagem_id' => 'Triagem',
-            'diagnostico_id' => 'Diagnóstico',
-            'data_encerramento' => 'Data de Encerramento',
-            'tempo_consulta' => 'Tempo de Consulta',
-            'relatorio_pdf' => 'Relatório PDF',
+            'motivo' => 'Motivo',
+            'observacoes' => 'Observacoes',
+            'userprofile_id' => 'Userprofile ID',
+            'triagem_id' => 'Triagem ID',
+            'prescricao_id' => 'Prescricao ID',
+            'data_encerramento' => 'Data Encerramento',
+            'tempo_consulta' => 'Tempo Consulta',
+            'relatorio_pdf' => 'Relatorio Pdf',
         ];
     }
 
-    // 🔹 Relação com a triagem
+    /**
+     * Gets query for [[Prescricao]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPrescricao()
+    {
+        return $this->hasOne(Prescricao::class, ['id' => 'prescricao_id']);
+    }
+
+    /**
+     * Gets query for [[Triagem]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
     public function getTriagem()
     {
         return $this->hasOne(Triagem::class, ['id' => 'triagem_id']);
     }
 
-    // 🔹 Relação com o paciente
-    public function getPaciente()
+    /**
+     * Gets query for [[Userprofile]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUserprofile()
     {
-        return $this->hasOne(\common\models\Paciente::class, ['id' => 'paciente_id']);
-    }
-
-    // 🔹 Relação com o utilizador (médico/enfermeiro)
-    public function getUtilizador()
-    {
-        return $this->hasOne(\common\models\User::class, ['id' => 'utilizador_id']);
+        return $this->hasOne(User::class, ['id' => 'userprofile_id']);
     }
 }

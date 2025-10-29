@@ -4,14 +4,14 @@ use yii\helpers\Html;
 use yii\widgets\DetailView;
 
 /** @var yii\web\View $this */
-/** @var common\models\Prescricao $model */
+/** @var common\models\Userprofile $model */
 
 $this->title = $model->id;
-$this->params['breadcrumbs'][] = ['label' => 'Prescricaos', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => 'Userprofiles', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 \yii\web\YiiAsset::register($this);
 ?>
-<div class="prescricao-view">
+<div class="userprofile-view">
 
     <h1><?= Html::encode($this->title) ?></h1>
 
@@ -30,11 +30,16 @@ $this->params['breadcrumbs'][] = $this->title;
         'model' => $model,
         'attributes' => [
             'id',
-            'medicamento',
-            'dosagem',
-            'frequencia',
-            'observacoes:ntext',
-            'dataprescricao',
+            'nome',
+            'email:email',
+            'nif',
+            'sns',
+            'datanascimento',
+            'genero',
+            'telefone',
+            'consulta_id',
+            'triagem_id',
+            'user_id',
         ],
     ]) ?>
 

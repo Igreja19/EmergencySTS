@@ -17,7 +17,7 @@ class PulseiraSearch extends Pulseira
     public function rules()
     {
         return [
-            [['id', 'triagem_id', 'paciente_id'], 'integer'],
+            [['id'], 'integer'],
             [['codigo', 'prioridade', 'status', 'tempoentrada'], 'safe'],
         ];
     }
@@ -35,11 +35,10 @@ class PulseiraSearch extends Pulseira
      * Creates data provider instance with search query applied
      *
      * @param array $params
-     * @param string|null $formName Form name to be used into `->load()` method.
      *
      * @return ActiveDataProvider
      */
-    public function search($params, $formName = null)
+    public function search($params)
     {
         $query = Pulseira::find();
 
@@ -49,7 +48,7 @@ class PulseiraSearch extends Pulseira
             'query' => $query,
         ]);
 
-        $this->load($params, $formName);
+        $this->load($params);
 
         if (!$this->validate()) {
             // uncomment the following line if you do not want to return any records when validation fails
@@ -61,8 +60,6 @@ class PulseiraSearch extends Pulseira
         $query->andFilterWhere([
             'id' => $this->id,
             'tempoentrada' => $this->tempoentrada,
-            'triagem_id' => $this->triagem_id,
-            'paciente_id' => $this->paciente_id,
         ]);
 
         $query->andFilterWhere(['like', 'codigo', $this->codigo])

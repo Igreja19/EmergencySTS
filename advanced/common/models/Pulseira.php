@@ -1,55 +1,64 @@
 <?php
+
 namespace common\models;
 
-use frontend\models\Paciente;
-use yii\db\ActiveRecord;
+use Yii;
 
-class Pulseira extends ActiveRecord
+/**
+ * This is the model class for table "pulseira".
+ *
+ * @property int $id
+ * @property string $codigo
+ * @property string $prioridade
+ * @property string|null $status
+ * @property string $tempoentrada
+ *
+ * @property Triagem[] $triagems
+ */
+class Pulseira extends \yii\db\ActiveRecord
 {
+    /**
+     * {@inheritdoc}
+     */
     public static function tableName()
     {
         return 'pulseira';
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function rules()
     {
         return [
-            // 🔹 Campos obrigatórios
-            [['codigo', 'prioridade', 'triagem_id'], 'required'],
-
-            // 🔹 Campos seguros
+            [['codigo', 'prioridade'], 'required'],
+            [['prioridade', 'status'], 'string'],
             [['tempoentrada'], 'safe'],
-
-            // 🔹 Inteiros
-            [['triagem_id', 'paciente_id'], 'integer'],
-
-            // 🔹 Comprimentos máximos
             [['codigo'], 'string', 'max' => 10],
-            [['prioridade'], 'in', 'range' => ['Vermelho', 'Laranja', 'Amarelo', 'Verde', 'Azul']],
         ];
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function attributeLabels()
     {
         return [
             'id' => 'ID',
-            'codigo' => 'Código da Pulseira',
-            'prioridade' => 'Cor da Prioridade',
-            'tempoentrada' => 'Hora de Entrada',
-            'triagem_id' => 'Triagem Associada',
-            'paciente_id' => 'Paciente',
+            'codigo' => 'Codigo',
+            'prioridade' => 'Prioridade',
+            'status' => 'Status',
+            'tempoentrada' => 'Tempoentrada',
         ];
     }
 
-    // 🔹 Relação com a triagem
-    public function getTriagem()
+    /**
+     * Gets query for [[Triagems]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTriagems()
     {
-        return $this->hasOne(Triagem::class, ['id' => 'triagem_id']);
-    }
-
-    // 🔹 Relação com o paciente (se existir tabela paciente)
-    public function getPaciente()
-    {
-        return $this->hasOne(Paciente::class, ['id' => 'paciente_id']);
+        return $this->hasMany(Triagem::class, ['pulseira_id' => 'id']);
     }
 }

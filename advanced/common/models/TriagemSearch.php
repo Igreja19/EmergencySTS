@@ -2,12 +2,12 @@
 
 namespace common\models;
 
-use backend\models\Triagem;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
+use common\models\Triagem;
 
 /**
- * TriagemSearch represents the model behind the search form of `backend\models\Triagem`.
+ * TriagemSearch represents the model behind the search form of `common\models\Triagem`.
  */
 class TriagemSearch extends Triagem
 {
@@ -17,8 +17,8 @@ class TriagemSearch extends Triagem
     public function rules()
     {
         return [
-            [['id', 'intensidadedor', 'paciente_id', 'utilizador_id'], 'integer'],
-            [['nomecompleto', 'datanascimento', 'sns', 'telefone', 'motivoconsulta', 'queixaprincipal', 'descricaosintomas', 'iniciosintomas', 'condicoes', 'alergias', 'medicacao', 'motivo', 'prioridadeatribuida', 'datatriagem', 'discriminacaoprincipal'], 'safe'],
+            [['id', 'intensidadedor', 'userprofile_id', 'pulseira_id'], 'integer'],
+            [['motivoconsulta', 'queixaprincipal', 'descricaosintomas', 'iniciosintomas', 'alergias', 'medicacao', 'motivo', 'datatriagem'], 'safe'],
         ];
     }
 
@@ -35,11 +35,10 @@ class TriagemSearch extends Triagem
      * Creates data provider instance with search query applied
      *
      * @param array $params
-     * @param string|null $formName Form name to be used into `->load()` method.
      *
      * @return ActiveDataProvider
      */
-    public function search($params, $formName = null)
+    public function search($params)
     {
         $query = Triagem::find();
 
@@ -49,7 +48,7 @@ class TriagemSearch extends Triagem
             'query' => $query,
         ]);
 
-        $this->load($params, $formName);
+        $this->load($params);
 
         if (!$this->validate()) {
             // uncomment the following line if you do not want to return any records when validation fails
@@ -60,26 +59,19 @@ class TriagemSearch extends Triagem
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
-            'datanascimento' => $this->datanascimento,
             'iniciosintomas' => $this->iniciosintomas,
             'intensidadedor' => $this->intensidadedor,
             'datatriagem' => $this->datatriagem,
-            'paciente_id' => $this->paciente_id,
-            'utilizador_id' => $this->utilizador_id,
+            'userprofile_id' => $this->userprofile_id,
+            'pulseira_id' => $this->pulseira_id,
         ]);
 
-        $query->andFilterWhere(['like', 'nomecompleto', $this->nomecompleto])
-            ->andFilterWhere(['like', 'sns', $this->sns])
-            ->andFilterWhere(['like', 'telefone', $this->telefone])
-            ->andFilterWhere(['like', 'motivoconsulta', $this->motivoconsulta])
+        $query->andFilterWhere(['like', 'motivoconsulta', $this->motivoconsulta])
             ->andFilterWhere(['like', 'queixaprincipal', $this->queixaprincipal])
             ->andFilterWhere(['like', 'descricaosintomas', $this->descricaosintomas])
-            ->andFilterWhere(['like', 'condicoes', $this->condicoes])
             ->andFilterWhere(['like', 'alergias', $this->alergias])
             ->andFilterWhere(['like', 'medicacao', $this->medicacao])
-            ->andFilterWhere(['like', 'motivo', $this->motivo])
-            ->andFilterWhere(['like', 'prioridadeatribuida', $this->prioridadeatribuida])
-            ->andFilterWhere(['like', 'discriminacaoprincipal', $this->discriminacaoprincipal]);
+            ->andFilterWhere(['like', 'motivo', $this->motivo]);
 
         return $dataProvider;
     }

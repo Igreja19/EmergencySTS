@@ -34,8 +34,6 @@ $this->params['breadcrumbs'][] = $this->title;
             'prioridade',
             'status',
             'tempoentrada',
-            'triagem_id',
-            'paciente_id',
         ],
     ]) ?>
 

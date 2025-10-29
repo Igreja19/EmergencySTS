@@ -16,11 +16,9 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'prioridade')->dropDownList([ 'Vermelho' => 'Vermelho', 'Laranja' => 'Laranja', 'Amarelo' => 'Amarelo', 'Verde' => 'Verde', 'Azul' => 'Azul', ], ['prompt' => '']) ?>
 
+    <?= $form->field($model, 'status')->dropDownList([ 'Aguardando' => 'Aguardando', 'Em atendimento' => 'Em atendimento', 'Atendido' => 'Atendido', ], ['prompt' => '']) ?>
+
     <?= $form->field($model, 'tempoentrada')->textInput() ?>
-
-    <?= $form->field($model, 'triagem_id')->textInput() ?>
-
-    <?= $form->field($model, 'paciente_id')->textInput() ?>
 
     <div class="form-group">
         <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>

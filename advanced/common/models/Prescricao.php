@@ -2,6 +2,8 @@
 
 namespace common\models;
 
+use Yii;
+
 /**
  * This is the model class for table "prescricao".
  *
@@ -11,12 +13,11 @@ namespace common\models;
  * @property string $frequencia
  * @property string $observacoes
  * @property string $dataprescricao
- * @property int $consulta_id
+ *
+ * @property Consulta[] $consultas
  */
 class Prescricao extends \yii\db\ActiveRecord
 {
-
-
     /**
      * {@inheritdoc}
      */
@@ -31,8 +32,8 @@ class Prescricao extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id', 'medicamento', 'dosagem', 'frequencia', 'observacoes', 'consulta_id'], 'required'],
-            [['id', 'consulta_id'], 'integer'],
+            [['id', 'medicamento', 'dosagem', 'frequencia', 'observacoes'], 'required'],
+            [['id'], 'integer'],
             [['observacoes'], 'string'],
             [['dataprescricao'], 'safe'],
             [['medicamento', 'dosagem', 'frequencia'], 'string', 'max' => 100],
@@ -52,8 +53,16 @@ class Prescricao extends \yii\db\ActiveRecord
             'frequencia' => 'Frequencia',
             'observacoes' => 'Observacoes',
             'dataprescricao' => 'Dataprescricao',
-            'consulta_id' => 'Consulta ID',
         ];
     }
 
+    /**
+     * Gets query for [[Consultas]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getConsultas()
+    {
+        return $this->hasMany(Consulta::class, ['prescricao_id' => 'id']);
+    }
 }

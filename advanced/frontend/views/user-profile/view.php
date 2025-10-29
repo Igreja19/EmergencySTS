@@ -40,7 +40,7 @@ $this->title = 'Perfil do Utilizador';
                 'options' => ['class' => 'table table-borderless align-middle'],
                 'attributes' => [
                         [
-                                'attribute' => 'nomecompleto',
+                                'attribute' => 'nome',
                                 'label' => '<i class="bi bi-person-fill me-2"></i> Nome Completo',
                                 'format' => 'raw',
                         ],
@@ -73,12 +73,6 @@ $this->title = 'Perfil do Utilizador';
                         [
                                 'attribute' => 'morada',
                                 'label' => '<i class="bi bi-geo-alt-fill me-2"></i> Morada',
-                        ],
-                        [
-                                'attribute' => 'ativo',
-                                'label' => '<i class="bi bi-person-check-fill me-2"></i> Estado da Conta',
-                                'value' => $model->ativo ? 'Ativo' : 'Inativo',
-                                'format' => 'raw',
                         ],
                 ],
         ]) ?>

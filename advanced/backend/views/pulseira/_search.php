@@ -25,10 +25,6 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'tempoentrada') ?>
 
-    <?php // echo $form->field($model, 'triagem_id') ?>
-
-    <?php // echo $form->field($model, 'paciente_id') ?>
-
     <div class="form-group">
         <?= Html::submitButton('Search', ['class' => 'btn btn-primary']) ?>
         <?= Html::resetButton('Reset', ['class' => 'btn btn-outline-secondary']) ?>

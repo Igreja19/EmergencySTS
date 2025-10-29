@@ -32,9 +32,15 @@ $this->params['breadcrumbs'][] = $this->title;
             'id',
             'data_consulta',
             'estado',
-            'diagnostico_id',
-            'paciente_id',
-            'utilizador_id',
+            'prioridade',
+            'motivo',
+            'observacoes:ntext',
+            'userprofile_id',
+            'triagem_id',
+            'prescricao_id',
+            'data_encerramento',
+            'tempo_consulta',
+            'relatorio_pdf',
         ],
     ]) ?>
 

@@ -12,14 +12,6 @@ use yii\widgets\ActiveForm;
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'nomecompleto')->textInput(['maxlength' => true]) ?>
-
-    <?= $form->field($model, 'datanascimento')->textInput() ?>
-
-    <?= $form->field($model, 'sns')->textInput(['maxlength' => true]) ?>
-
-    <?= $form->field($model, 'telefone')->textInput(['maxlength' => true]) ?>
-
     <?= $form->field($model, 'motivoconsulta')->textInput(['maxlength' => true]) ?>
 
     <?= $form->field($model, 'queixaprincipal')->textarea(['rows' => 6]) ?>
@@ -30,21 +22,17 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'intensidadedor')->textInput() ?>
 
-    <?= $form->field($model, 'condicoes')->textarea(['rows' => 6]) ?>
-
     <?= $form->field($model, 'alergias')->textarea(['rows' => 6]) ?>
 
     <?= $form->field($model, 'medicacao')->textarea(['rows' => 6]) ?>
 
-    <?= $form->field($model, 'prioridadeatribuida')->dropDownList([ 'Vermelho' => 'Vermelho', 'Laranja' => 'Laranja', 'Amarelo' => 'Amarelo', 'Verde' => 'Verde', 'Azul' => 'Azul', ], ['prompt' => '']) ?>
+    <?= $form->field($model, 'motivo')->textarea(['rows' => 6]) ?>
 
     <?= $form->field($model, 'datatriagem')->textInput() ?>
 
-    <?= $form->field($model, 'discriminacaoprincipal')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'userprofile_id')->textInput() ?>
 
-    <?= $form->field($model, 'paciente_id')->textInput() ?>
-
-    <?= $form->field($model, 'utilizador_id')->textInput() ?>
+    <?= $form->field($model, 'pulseira_id')->textInput() ?>
 
     <div class="form-group">
         <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>

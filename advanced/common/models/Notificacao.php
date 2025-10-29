@@ -3,34 +3,68 @@
 namespace common\models;
 
 use Yii;
-use yii\db\ActiveRecord;
 
-class Notificacao extends ActiveRecord
+/**
+ * This is the model class for table "notificacao".
+ *
+ * @property int $id
+ * @property string|null $titulo
+ * @property string $mensagem
+ * @property string $tipo
+ * @property string $dataenvio
+ * @property int $lida
+ * @property int $userprofile_id
+ *
+ * @property Userprofile $userprofile
+ */
+class Notificacao extends \yii\db\ActiveRecord
 {
-    const TIPO_CONSULTA = 'Consulta';
-    const TIPO_PRIORIDADE = 'Prioridade';
-    const TIPO_GERAL = 'Geral';
-
+    /**
+     * {@inheritdoc}
+     */
     public static function tableName()
     {
         return 'notificacao';
     }
 
-    // 🔹 Contadores (KPI)
-    public static function countNaoLidas()
+    /**
+     * {@inheritdoc}
+     */
+    public function rules()
     {
-        return self::find()->where(['lida' => 0])->count();
+        return [
+            [['mensagem', 'userprofile_id'], 'required'],
+            [['mensagem', 'tipo'], 'string'],
+            [['dataenvio'], 'safe'],
+            [['lida', 'userprofile_id'], 'integer'],
+            [['titulo'], 'string', 'max' => 150],
+            [['userprofile_id'], 'exist', 'skipOnError' => true, 'targetClass' => Userprofile::class, 'targetAttribute' => ['userprofile_id' => 'id']],
+        ];
     }
 
-    public static function countHoje()
+    /**
+     * {@inheritdoc}
+     */
+    public function attributeLabels()
     {
-        return self::find()
-            ->where(['>=', 'dataenvio', date('Y-m-d 00:00:00')])
-            ->count();
+        return [
+            'id' => 'ID',
+            'titulo' => 'Titulo',
+            'mensagem' => 'Mensagem',
+            'tipo' => 'Tipo',
+            'dataenvio' => 'Dataenvio',
+            'lida' => 'Lida',
+            'userprofile_id' => 'Userprofile ID',
+        ];
     }
 
-    public static function countTotal()
+    /**
+     * Gets query for [[Userprofile]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUserprofile()
     {
-        return self::find()->count();
+        return $this->hasOne(Userprofile::class, ['id' => 'userprofile_id']);
     }
 }

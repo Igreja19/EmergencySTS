@@ -2,11 +2,11 @@
 
 namespace backend\controllers;
 
-use backend\models\Triagem;
+use common\models\Triagem;
 use common\models\TriagemSearch;
-use yii\filters\VerbFilter;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
+use yii\filters\VerbFilter;
 
 /**
  * TriagemController implements the CRUD actions for Triagem model.

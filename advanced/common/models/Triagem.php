@@ -2,68 +2,102 @@
 
 namespace common\models;
 
-use frontend\models\Paciente;
-use yii\db\ActiveRecord;
+use Yii;
 
-class Triagem extends ActiveRecord
+/**
+ * This is the model class for table "triagem".
+ *
+ * @property int $id
+ * @property string|null $motivoconsulta
+ * @property string|null $queixaprincipal
+ * @property string|null $descricaosintomas
+ * @property string|null $iniciosintomas
+ * @property int|null $intensidadedor
+ * @property string|null $alergias
+ * @property string|null $medicacao
+ * @property string $motivo
+ * @property string $datatriagem
+ * @property int $userprofile_id
+ * @property int $pulseira_id
+ *
+ * @property Consulta[] $consultas
+ * @property Pulseira $pulseira
+ * @property Userprofile $userprofile
+ */
+class Triagem extends \yii\db\ActiveRecord
 {
+    /**
+     * {@inheritdoc}
+     */
     public static function tableName()
     {
         return 'triagem';
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function rules()
     {
         return [
-            // 🔹 Campos obrigatórios no formulário
-            [['nomecompleto', 'datanascimento', 'sns', 'telefone', 'motivoconsulta', 'queixaprincipal', 'prioridadeatribuida', 'datatriagem'], 'required'],
-
-            // 🔹 Campos do tipo texto
-            [['descricaosintomas', 'condicoes', 'alergias', 'medicacao', 'queixaprincipal'], 'string'],
-
-            // 🔹 Campos de data/hora
-            [['datatriagem', 'datanascimento', 'iniciosintomas'], 'safe'],
-
-            // 🔹 Campos numéricos
-            [['intensidadedor', 'utilizador_id', 'paciente_id'], 'integer'],
-
-            // 🔹 Comprimentos máximos
-            [['nomecompleto', 'motivoconsulta', 'discriminacaoprincipal'], 'string', 'max' => 100],
-            [['sns', 'telefone'], 'string', 'max' => 20],
-
-            // 🔹 Lista de prioridades válidas
-            [['prioridadeatribuida'], 'in', 'range' => ['Vermelha', 'Laranja', 'Amarela', 'Verde', 'Azul']],
+            [['queixaprincipal', 'descricaosintomas', 'alergias', 'medicacao', 'motivo'], 'string'],
+            [['iniciosintomas', 'datatriagem'], 'safe'],
+            [['intensidadedor', 'userprofile_id', 'pulseira_id'], 'integer'],
+            [['motivo', 'userprofile_id', 'pulseira_id'], 'required'],
+            [['motivoconsulta'], 'string', 'max' => 255],
+            [['pulseira_id'], 'exist', 'skipOnError' => true, 'targetClass' => Pulseira::class, 'targetAttribute' => ['pulseira_id' => 'id']],
+            [['userprofile_id'], 'exist', 'skipOnError' => true, 'targetClass' => Userprofile::class, 'targetAttribute' => ['userprofile_id' => 'id']],
         ];
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function attributeLabels()
     {
         return [
-            'nomecompleto' => 'Nome Completo',
-            'datanascimento' => 'Data de Nascimento',
-            'sns' => 'Número de Utente (SNS)',
-            'telefone' => 'Telefone',
-            'motivoconsulta' => 'Motivo da Consulta',
-            'queixaprincipal' => 'Queixa Principal',
-            'descricaosintomas' => 'Descrição dos Sintomas',
-            'iniciosintomas' => 'Início dos Sintomas',
-            'intensidadedor' => 'Intensidade da Dor (0-10)',
-            'condicoes' => 'Condições Médicas Conhecidas',
-            'alergias' => 'Alergias Conhecidas',
-            'medicacao' => 'Medicação Atual',
-            'discriminacaoprincipal' => 'Discriminação Principal',
-            'prioridadeatribuida' => 'Prioridade Atribuída',
-            'datatriagem' => 'Data da Triagem',
-            'paciente_id' => 'Paciente',
-            'utilizador_id' => 'Utilizador Responsável',
+            'id' => 'ID',
+            'motivoconsulta' => 'Motivoconsulta',
+            'queixaprincipal' => 'Queixaprincipal',
+            'descricaosintomas' => 'Descricaosintomas',
+            'iniciosintomas' => 'Iniciosintomas',
+            'intensidadedor' => 'Intensidadedor',
+            'alergias' => 'Alergias',
+            'medicacao' => 'Medicacao',
+            'motivo' => 'Motivo',
+            'datatriagem' => 'Datatriagem',
+            'userprofile_id' => 'Userprofile ID',
+            'pulseira_id' => 'Pulseira ID',
         ];
     }
-    public function getPaciente()
+
+    /**
+     * Gets query for [[Consultas]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getConsultas()
     {
-        return $this->hasOne(Paciente::class, ['id' => 'paciente_id']);
+        return $this->hasMany(Consulta::class, ['triagem_id' => 'id']);
     }
-    public function getConsulta()
+
+    /**
+     * Gets query for [[Pulseira]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPulseira()
     {
-        return $this->hasOne(\common\models\Consulta::class, ['triagem_id' => 'id']);
+        return $this->hasOne(Pulseira::class, ['id' => 'pulseira_id']);
+    }
+
+    /**
+     * Gets query for [[Userprofile]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUserprofile()
+    {
+        return $this->hasOne(Userprofile::class, ['id' => 'userprofile_id']);
     }
 }
