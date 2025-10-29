@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.2
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Tempo de geração: 29-Out-2025 às 14:36
+-- Tempo de geração: 29-Out-2025 às 15:54
 -- Versão do servidor: 9.1.0
--- versão do PHP: 8.2.26
+-- versão do PHP: 8.3.14
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Banco de dados: `projeto`
+-- Base de dados: `projeto`
 --
 
 -- --------------------------------------------------------
@@ -29,12 +29,12 @@ SET time_zone = "+00:00";
 
 DROP TABLE IF EXISTS `auth_assignment`;
 CREATE TABLE IF NOT EXISTS `auth_assignment` (
-  `item_name` varchar(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
-  `user_id` varchar(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+  `item_name` varchar(64) COLLATE utf8mb4_general_ci NOT NULL,
+  `user_id` varchar(64) COLLATE utf8mb4_general_ci NOT NULL,
   `created_at` int DEFAULT NULL,
   PRIMARY KEY (`item_name`,`user_id`),
   KEY `idx-auth_assignment-user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Extraindo dados da tabela `auth_assignment`
@@ -42,9 +42,7 @@ CREATE TABLE IF NOT EXISTS `auth_assignment` (
 
 INSERT INTO `auth_assignment` (`item_name`, `user_id`, `created_at`) VALUES
 ('admin', '1', 1761233604),
-('author', '10', 1761748330),
-('author', '4', 1761736523),
-('author', '9', 1761737418);
+('author', '11', 1761752826);
 
 -- --------------------------------------------------------
 
@@ -72,9 +70,16 @@ CREATE TABLE IF NOT EXISTS `auth_item` (
 
 INSERT INTO `auth_item` (`name`, `type`, `description`, `rule_name`, `data`, `created_at`, `updated_at`) VALUES
 ('admin', 1, NULL, NULL, NULL, 1761233604, 1761233604),
+('atualizarRegisto', 2, 'Atualizar registo existente', NULL, NULL, 1761233604, 1761233604),
 ('author', 1, NULL, NULL, NULL, 1761233604, 1761233604),
 ('createPost', 2, 'Create a post', NULL, NULL, 1761233604, 1761233604),
-('updatePost', 2, 'Update post', NULL, NULL, 1761233604, 1761233604);
+('criarRegisto', 2, 'Criar novo registo', NULL, NULL, 1761233604, 1761233604),
+('editarRegisto', 2, 'Editar registo existente', NULL, NULL, 1761233604, 1761233604),
+('eliminarRegisto', 2, 'Eliminar registo existente', NULL, NULL, 1761233604, 1761233604),
+('enfermeiro', 1, 'Acesso a triagem e pacientes', NULL, NULL, 1761233604, 1761233604),
+('medico', 1, 'Acesso a consultas e relatórios', NULL, NULL, 1761233604, 1761233604),
+('updatePost', 2, 'Update post', NULL, NULL, 1761233604, 1761233604),
+('verRegisto', 2, 'Visualizar registos', NULL, NULL, 1761233604, 1761233604);
 
 -- --------------------------------------------------------
 
@@ -237,58 +242,6 @@ CREATE TABLE IF NOT EXISTS `triagem` (
   KEY `fk_triagem_userprofile_id` (`userprofile_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
 
---
--- Acionadores `triagem`
---
-DROP TRIGGER IF EXISTS `trg_after_triagem_insert`;
-DELIMITER $$
-CREATE TRIGGER `trg_after_triagem_insert` AFTER INSERT ON `triagem` FOR EACH ROW BEGIN
-    INSERT INTO consulta (
-        data_consulta,
-        estado,
-        prioridade,
-        motivo,
-        paciente_id,
-        userprofile_id,
-        triagem_id
-    )
-    VALUES (
-        NEW.datatriagem,              -- vem da triagem
-        'Aberta',                     -- estado inicial
-        NEW.prioridadeatribuida,      -- prioridade da triagem
-        NEW.motivoconsulta,           -- motivo
-        NEW.paciente_id,              -- user-profile associado
-        CASE
-            WHEN NEW.utilizador_id = 0 THEN 1  -- se não houver utilizador, usa admin
-            ELSE NEW.utilizador_id
-        END,
-        NEW.id                        -- triagem → consulta
-    );
-END
-$$
-DELIMITER ;
-DROP TRIGGER IF EXISTS `trg_triagem_set_paciente`;
-DELIMITER $$
-CREATE TRIGGER `trg_triagem_set_paciente` BEFORE INSERT ON `triagem` FOR EACH ROW BEGIN
-    DECLARE v_paciente_id INT;
-
-    -- procura o user-profile pelo nome
-    SELECT id INTO v_paciente_id
-    FROM paciente
-    WHERE nomecompleto = NEW.nomecompleto
-    LIMIT 1;
-
-    -- se encontrar, atualiza o paciente_id automaticamente
-    IF v_paciente_id IS NOT NULL THEN
-        SET NEW.paciente_id = v_paciente_id;
-    ELSE
-        -- se não encontrar, define paciente_id como NULL ou 0
-        SET NEW.paciente_id = NULL;
-    END IF;
-END
-$$
-DELIMITER ;
-
 -- --------------------------------------------------------
 
 --
@@ -311,15 +264,15 @@ CREATE TABLE IF NOT EXISTS `user` (
   UNIQUE KEY `username` (`username`),
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `password_reset_token` (`password_reset_token`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 --
 -- Extraindo dados da tabela `user`
 --
 
 INSERT INTO `user` (`id`, `username`, `auth_key`, `password_hash`, `password_reset_token`, `email`, `status`, `created_at`, `updated_at`, `verification_token`) VALUES
-(1, 'admin', 'wF3wFkGpMxcqjhdrmS3WJvWNEdYB2WaT', '$2y$13$EIvoQKhEciV2r1hAF3AJauyr5nuyHYnJ7X/S9d9nV4WR4dYUxUWfG', NULL, 'admin@gmail.com', 10, 1761233560, 1761233560, NULL),
-(10, 'henrique', 'KYauC7LSedyBCgnLURqZKgMimZlgdZ7M', '$2y$13$UCMDXzqQYxsMNmbpXTfoV.d7IGxyTGMtqBBi/XnzNCC24vDBNX5pW', NULL, 'henrique@admin.com', 10, 1761748330, 1761748330, NULL);
+(10, 'henrique', 'KYauC7LSedyBCgnLURqZKgMimZlgdZ7M', '$2y$13$UCMDXzqQYxsMNmbpXTfoV.d7IGxyTGMtqBBi/XnzNCC24vDBNX5pW', NULL, 'henrique@admin.com', 10, 1761748330, 1761748330, NULL),
+(11, 'admin', 'bDh62jAAbYVC6tRH31GZ2DV-k5VAprw2', '$2y$13$Lv.JwB4FXXPCX0xzry8KS.WeFlTuP99CqeLYuZEKotsqzWudJ5qay', NULL, 'admin@gmail.com', 10, 1761752826, 1761752826, NULL);
 
 -- --------------------------------------------------------
 
@@ -332,6 +285,7 @@ CREATE TABLE IF NOT EXISTS `userprofile` (
   `id` int NOT NULL AUTO_INCREMENT,
   `nome` varchar(100) NOT NULL,
   `email` varchar(100) NOT NULL,
+  `morada` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci DEFAULT NULL,
   `nif` varchar(9) NOT NULL,
   `sns` varchar(9) NOT NULL,
   `datanascimento` date NOT NULL,
@@ -345,24 +299,19 @@ CREATE TABLE IF NOT EXISTS `userprofile` (
   KEY `fk_utilizador_consulta1_idx` (`consulta_id`),
   KEY `fk_utilizador_triagem1_idx` (`triagem_id`),
   KEY `fk_userprofile_user` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
 
 --
 -- Extraindo dados da tabela `userprofile`
 --
 
-INSERT INTO `userprofile` (`id`, `nome`, `email`, `nif`, `sns`, `datanascimento`, `genero`, `telefone`, `consulta_id`, `triagem_id`, `user_id`) VALUES
-(6, 'henrique', 'henrique@admin.com', '', '', '0000-00-00', '', '', 0, 0, 10);
+INSERT INTO `userprofile` (`id`, `nome`, `email`, `morada`, `nif`, `sns`, `datanascimento`, `genero`, `telefone`, `consulta_id`, `triagem_id`, `user_id`) VALUES
+(6, 'henrique', 'henrique@admin.com', '', '', '', '0000-00-00', '', '', 0, 0, 10),
+(7, 'admin', 'admin@gmail.com', NULL, '', '', '0000-00-00', '', '', 0, 0, 11);
 
 --
 -- Restrições para despejos de tabelas
 --
-
---
--- Limitadores para a tabela `auth_assignment`
---
-ALTER TABLE `auth_assignment`
-  ADD CONSTRAINT `auth_assignment_ibfk_1` FOREIGN KEY (`item_name`) REFERENCES `auth_item` (`name`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Limitadores para a tabela `auth_item`
