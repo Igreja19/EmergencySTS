@@ -70,12 +70,14 @@ $isHomePage = (Yii::$app->controller->id === 'site' && Yii::$app->controller->ac
                                 <?= Html::encode(Yii::$app->user->identity->username) ?>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li>
+                                <?php if (Yii::$app->user->identity && Yii::$app->user->identity->userprofile): ?>
                                     <a class="dropdown-item"
                                        href="<?= Yii::$app->urlManager->createUrl(['user-profile/view', 'id' => Yii::$app->user->identity->userprofile->id]) ?>">
                                         Perfil
                                     </a>
-                                </li>
+                                <?php else: ?>
+                                    <a class="dropdown-item disabled" href="#">Perfil indisponível</a>
+                                <?php endif; ?>
                                 <li>
                                     <?= Html::beginForm(['/site/logout'], 'post', ['class' => 'dropdown-item']) ?>
                                     <?= Html::submitButton('Logout', ['class' => 'btn btn-link text-danger p-0 m-0']) ?>
