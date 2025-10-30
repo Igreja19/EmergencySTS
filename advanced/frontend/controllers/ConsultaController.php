@@ -15,21 +15,31 @@ class ConsultaController extends Controller
      */
     public function actionHistorico()
     {
-        $userProfileId = Yii::$app->user->identity->userprofile->id;
+        // 🔹 Verifica se o utilizador está autenticado
+        if (Yii::$app->user->isGuest) {
+            return $this->redirect(['site/login']);
+        }
 
-        // Buscar todas as consultas ligadas ao utilizador autenticado
+        $user = Yii::$app->user->identity;
+
+        // 🔹 Verifica se o utilizador tem um perfil associado
+        if (!$user->userprofile) {
+            Yii::$app->session->setFlash('warning', 'Ainda não tem um perfil de paciente associado.');
+            return $this->redirect(['site/index']);
+        }
+
+        $userProfileId = $user->userprofile->id;
+
+        // 🔹 Buscar todas as consultas do utilizador autenticado
         $consultas = Consulta::find()
             ->where(['userprofile_id' => $userProfileId])
             ->orderBy(['data_consulta' => SORT_DESC])
             ->all();
 
-        // KPIs
-        $total = Consulta::find()->where(['userprofile_id' => $userProfileId])->count();
+        // 🔹 KPIs (estatísticas)
+        $total = count($consultas);
 
-        $ultimaConsulta = Consulta::find()
-            ->where(['userprofile_id' => $userProfileId])
-            ->orderBy(['data_consulta' => SORT_DESC])
-            ->one();
+        $ultimaConsulta = !empty($consultas) ? $consultas[0] : null;
 
         $ultimaVisita = $ultimaConsulta
             ? Yii::$app->formatter->asDatetime($ultimaConsulta->data_consulta, 'php:d/m/Y H:i')
@@ -44,6 +54,7 @@ class ConsultaController extends Controller
             ->one();
         $prioridadeMaisComum = $prioridadeMaisComum['prioridade'] ?? '-';
 
+        // 🔹 Renderizar view
         return $this->render('historico', [
             'consultas' => $consultas,
             'total' => $total,
@@ -58,6 +69,7 @@ class ConsultaController extends Controller
     public function actionVer($id)
     {
         $consulta = $this->findModel($id);
+
         return $this->render('ver', [
             'consulta' => $consulta,
             'triagem' => $consulta->triagem ?? null,
@@ -70,6 +82,7 @@ class ConsultaController extends Controller
     public function actionEncerrar($id)
     {
         $consulta = $this->findModel($id);
+
         $consulta->estado = 'Encerrada';
         $consulta->data_encerramento = date('Y-m-d H:i:s');
         $consulta->save(false);
@@ -96,7 +109,7 @@ class ConsultaController extends Controller
     public function actionPdf($id)
     {
         $consulta = $this->findModel($id);
-        $triagem = $consulta->triagem;
+        $triagem = $consulta->triagem ?? null;
 
         // Renderizar o conteúdo em HTML
         $html = $this->renderPartial('relatorio', [

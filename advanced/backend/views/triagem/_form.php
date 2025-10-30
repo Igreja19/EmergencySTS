@@ -26,7 +26,7 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'medicacao')->textarea(['rows' => 6]) ?>
 
-    <?= $form->field($model, 'motivo')->textarea(['rows' => 6]) ?>
+    <?= $form->field($model, 'motivoconsulta')->textarea(['rows' => 6]) ?>
 
     <?= $form->field($model, 'datatriagem')->textInput() ?>
 

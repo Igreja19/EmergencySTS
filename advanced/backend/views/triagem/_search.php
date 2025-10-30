@@ -9,41 +9,29 @@ use yii\widgets\ActiveForm;
 ?>
 
 <div class="triagem-search">
-
     <?php $form = ActiveForm::begin([
-        'action' => ['index'],
-        'method' => 'get',
+            'action' => ['index'],
+            'method' => 'get',
+            'options' => ['data-pjax' => 1, 'class' => 'row g-2 align-items-center justify-content-center']
     ]); ?>
 
-    <?= $form->field($model, 'id') ?>
+    <div class="col-md-4">
+        <?= $form->field($model, 'motivoconsulta')->textInput([
+                'placeholder' => 'Pesquisar por motivo da consulta...',
+                'class' => 'form-control rounded-pill shadow-sm border-success'
+        ])->label(false) ?>
+    </div>
 
-    <?= $form->field($model, 'motivoconsulta') ?>
+    <div class="col-md-3">
+        <?= $form->field($model, 'datatriagem')->input('date', [
+                'class' => 'form-control rounded-pill shadow-sm border-success'
+        ])->label(false) ?>
+    </div>
 
-    <?= $form->field($model, 'queixaprincipal') ?>
-
-    <?= $form->field($model, 'descricaosintomas') ?>
-
-    <?= $form->field($model, 'iniciosintomas') ?>
-
-    <?php // echo $form->field($model, 'intensidadedor') ?>
-
-    <?php // echo $form->field($model, 'alergias') ?>
-
-    <?php // echo $form->field($model, 'medicacao') ?>
-
-    <?php // echo $form->field($model, 'motivo') ?>
-
-    <?php // echo $form->field($model, 'datatriagem') ?>
-
-    <?php // echo $form->field($model, 'userprofile_id') ?>
-
-    <?php // echo $form->field($model, 'pulseira_id') ?>
-
-    <div class="form-group">
-        <?= Html::submitButton('Search', ['class' => 'btn btn-primary']) ?>
-        <?= Html::resetButton('Reset', ['class' => 'btn btn-outline-secondary']) ?>
+    <div class="col-md-3">
+        <?= Html::submitButton('<i class="bi bi-search"></i> Pesquisar', ['class' => 'btn btn-success rounded-pill px-4 fw-semibold shadow-sm']) ?>
+        <?= Html::a('<i class="bi bi-x-circle"></i> Limpar', ['index'], ['class' => 'btn btn-outline-secondary rounded-pill px-3 fw-semibold shadow-sm']) ?>
     </div>
 
     <?php ActiveForm::end(); ?>
-
 </div>
