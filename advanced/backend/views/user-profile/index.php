@@ -168,7 +168,7 @@ $this->registerCss("
                         'summary' => false,
                         'tableOptions' => ['class' => 'table table-hover align-middle mb-0'],
                         'columns' => [
-                                ['class' => 'yii\grid\SerialColumn', 'header' => '#'],
+                                ['class' => 'yii\grid\SerialColumn', 'header' => 'id'],
 
                                 [
                                         'attribute' => 'nome',
