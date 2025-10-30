@@ -78,6 +78,7 @@ body {
 
 $this->registerJsFile('https://cdn.jsdelivr.net/npm/chart.js', ['position' => \yii\web\View::POS_END]);
 
+/* ===== JS atualizado com eixo Y inteiro e animação ===== */
 $this->registerJs('
 const root=document.documentElement;
 const key="emergencysts-theme";
@@ -89,28 +90,87 @@ document.getElementById("toggle-dark")?.addEventListener("click",()=>{
 
 const donut=document.getElementById("chartManchester");
 if(donut){
-  new Chart(donut,{type:"doughnut",data:{
-    labels:["Vermelho","Laranja","Amarelo","Verde","Azul"],
-    datasets:[{data:[
-      '.$manchester['vermelho'].',
-      '.$manchester['laranja'].',
-      '.$manchester['amarelo'].',
-      '.$manchester['verde'].',
-      '.$manchester['azul'].'
-    ], backgroundColor:["#dc3545","#fd7e14","#ffc107","#198754","#0d6efd"]}]
-  },options:{responsive:true,plugins:{legend:{position:"bottom"}},cutout:"65%"}});
+  new Chart(donut,{
+    type:"doughnut",
+    data:{
+      labels:["Vermelho","Laranja","Amarelo","Verde","Azul"],
+      datasets:[{
+        data:[
+          '.$manchester['vermelho'].',
+          '.$manchester['laranja'].',
+          '.$manchester['amarelo'].',
+          '.$manchester['verde'].',
+          '.$manchester['azul'].'
+        ],
+        backgroundColor:["#dc3545","#fd7e14","#ffc107","#198754","#0d6efd"]
+      }]
+    },
+    options:{
+      responsive:true,
+      plugins:{ legend:{ position:"bottom" } },
+      cutout:"65%",
+      animation:{
+        animateScale:true,
+        animateRotate:true,
+        duration:1200
+      }
+    }
+  });
 }
 
 const line=document.getElementById("chartEvolucao");
 if(line){
-  new Chart(line,{type:"line",data:{
-    labels:'.json_encode($evolucaoLabels).',
-    datasets:[{label:"Triagens",data:'.json_encode($evolucaoData).',tension:.35,borderColor:"#198754",fill:false}]
-  },options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+  new Chart(line,{
+    type:"line",
+    data:{
+      labels:'.json_encode($evolucaoLabels).',
+      datasets:[{
+        label:"Triagens",
+        data:'.json_encode($evolucaoData).',
+        tension:.35,
+        borderColor:"#198754",
+        backgroundColor:"rgba(25,135,84,0.1)",
+        fill:true,
+        pointRadius:4,
+        pointBackgroundColor:"#198754"
+      }]
+    },
+    options:{
+      responsive:true,
+      plugins:{ legend:{ display:false } },
+      scales:{
+        y:{
+          beginAtZero:true,
+          ticks:{
+            stepSize:1,
+            precision:0
+          },
+          title:{
+            display:true,
+            text:"Número de Triagens"
+          }
+        },
+        x:{
+          title:{
+            display:true,
+            text:"Dias"
+          }
+        }
+      },
+      elements:{
+        line:{ borderWidth:2 },
+        point:{ radius:4 }
+      },
+      animation:{
+        duration:1500,
+        easing:"easeOutQuart"
+      }
+    }
+  });
 }
 ', \yii\web\View::POS_END);
 
-/* Helper */
+/* Helper para badges de prioridade */
 function badgePrio(string $prio): string {
     $map = [
             'Vermelho'=>'badge-vermelho', 'Laranja'=>'badge-laranja', 'Amarelo'=>'badge-amarelo',
@@ -130,6 +190,7 @@ function badgePrio(string $prio): string {
             <span>EmergencySTS</span>
         </div>
         <div class="actions d-flex gap-3">
+            <button id="toggle-dark" class="btn-ghost" title="Modo escuro/claro"><i class="bi bi-moon"></i></button>
             <div class="dropdown position-relative">
                 <button class="btn-ghost position-relative notif-dot" data-bs-toggle="dropdown"><i class="bi bi-bell"></i></button>
                 <ul class="dropdown-menu dropdown-menu-end shadow-sm">
@@ -145,7 +206,7 @@ function badgePrio(string $prio): string {
     </div>
 
     <!-- 🔹 KPIs -->
-    <div class="row g-3 mb-4">
+    <div class="row g-3 mb-4 justify-content-center">
         <div class="col-12 col-sm-6 col-lg-3 transition">
             <div class="card card-kpi red text-center">
                 <div class="icon"><i class="bi bi-people-fill"></i></div>
@@ -165,13 +226,6 @@ function badgePrio(string $prio): string {
                 <div class="icon"><i class="bi bi-heart-pulse"></i></div>
                 <div class="value"><?= (int)$stats["atendidosHoje"] ?></div>
                 <div class="label">Atendidos hoje</div>
-            </div>
-        </div>
-        <div class="col-12 col-sm-6 col-lg-3 transition">
-            <div class="card card-kpi blue text-center">
-                <div class="icon"><i class="bi bi-hospital"></i></div>
-                <div class="value"><?= (int)$stats["salasDisponiveis"] ?>/<?= (int)$stats["salasTotal"] ?></div>
-                <div class="label">Salas disponíveis</div>
             </div>
         </div>
     </div>
