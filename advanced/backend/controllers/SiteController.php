@@ -24,8 +24,9 @@ class SiteController extends Controller
                 'class' => AccessControl::class,
                 'rules' => [
                     [
-                        'actions' => ['login', 'error'],
+                        'actions' => ['login', 'error', 'request-password-reset'], // <--- ADICIONA AQUI
                         'allow' => true,
+                        'roles' => ['?'], // Garante que isto é só para GUESTS
                     ],
                     [
                         'actions' => ['logout', 'index'],
@@ -166,6 +167,26 @@ class SiteController extends Controller
         Yii::$app->user->logout();
 
         return $this->goHome();
+    }
+
+    public function actionRequestPasswordReset()
+    {
+        $model = new \common\models\ForgotPasswordForm();
+
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+            if ($model->sendEmail()) {
+                Yii::$app->session->setFlash('success', 'Verifique o seu email para mais instruções.');
+                return $this->goHome();
+            }
+
+            Yii::$app->session->setFlash('error', 'Pedimos desculpa, não foi possível enviar o email de recuperação para o endereço fornecido.');
+        }
+
+        $this->layout = 'main-login';
+
+        return $this->render('request-password-reset', [
+            'model' => $model,
+        ]);
     }
 
 }
