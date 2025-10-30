@@ -15,7 +15,7 @@ class ConsultaController extends Controller
      */
     public function actionHistorico()
     {
-        $userProfileId = Yii::$app->user->identity->userProfile->id;
+        $userProfileId = Yii::$app->user->identity->userprofile->id;
 
         // Buscar todas as consultas ligadas ao utilizador autenticado
         $consultas = Consulta::find()

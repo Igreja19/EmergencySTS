@@ -5,16 +5,16 @@ use yii\helpers\Html;
 /** @var yii\web\View $this */
 /** @var common\models\Userprofile $model */
 
-$this->title = 'Create Userprofile';
-$this->params['breadcrumbs'][] = ['label' => 'Userprofiles', 'url' => ['index']];
+$this->title = 'Criar Perfil de Utilizador';
+$this->params['breadcrumbs'][] = ['label' => 'Perfis de Utilizador', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="userprofile-create">
 
-    <h1><?= Html::encode($this->title) ?></h1>
+    <?php // Removido o título visível no frontend ?>
 
     <?= $this->render('_form', [
-        'model' => $model,
+            'model' => $model,
     ]) ?>
 
 </div>

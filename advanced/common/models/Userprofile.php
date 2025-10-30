@@ -16,9 +16,9 @@ use Yii;
  * @property string $datanascimento
  * @property string $genero
  * @property string $telefone
- * @property int $consulta_id
- * @property int $triagem_id
- * @property int $user_id
+ * @property int|null $consulta_id
+ * @property int|null $triagem_id
+ * @property int|null $user_id
  *
  * @property Notificacao[] $notificacaos
  * @property Triagem[] $triagems
@@ -26,6 +26,8 @@ use Yii;
  */
 class Userprofile extends \yii\db\ActiveRecord
 {
+    public $role;
+
     /**
      * {@inheritdoc}
      */
@@ -40,16 +42,26 @@ class Userprofile extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['nome', 'email', 'nif', 'sns', 'datanascimento', 'genero', 'telefone', 'consulta_id', 'triagem_id', 'user_id'], 'required'],
+            // 🔹 Campos obrigatórios básicos
+            [['nome', 'email', 'nif', 'sns', 'datanascimento', 'genero', 'telefone'], 'required'],
+
+            // 🔹 Campos opcionais ou automáticos
             [['datanascimento'], 'safe'],
             [['consulta_id', 'triagem_id', 'user_id'], 'integer'],
+
+            // 🔹 Limites de tamanho e formato
             [['nome', 'email'], 'string', 'max' => 100],
             [['morada'], 'string', 'max' => 255],
             [['nif', 'sns'], 'string', 'max' => 9],
             [['genero'], 'string', 'max' => 1],
             [['telefone'], 'string', 'max' => 30],
+
+            // 🔹 Validações adicionais
             [['email'], 'unique'],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['user_id' => 'id']],
+
+            // 🔹 Campo virtual "role" (não existe na BD, mas vem do form)
+            [['role'], 'safe'],
         ];
     }
 
@@ -63,14 +75,14 @@ class Userprofile extends \yii\db\ActiveRecord
             'nome' => 'Nome',
             'email' => 'Email',
             'morada' => 'Morada',
-            'nif' => 'Nif',
-            'sns' => 'Sns',
-            'datanascimento' => 'Datanascimento',
-            'genero' => 'Genero',
+            'nif' => 'NIF',
+            'sns' => 'Número SNS',
+            'datanascimento' => 'Data de Nascimento',
+            'genero' => 'Género',
             'telefone' => 'Telefone',
             'consulta_id' => 'Consulta ID',
             'triagem_id' => 'Triagem ID',
-            'user_id' => 'User ID',
+            'user_id' => 'Utilizador',
         ];
     }
 

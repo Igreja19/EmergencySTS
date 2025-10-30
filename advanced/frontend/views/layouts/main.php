@@ -1,5 +1,4 @@
 <?php
-
 /** @var \yii\web\View $this */
 /** @var string $content */
 
@@ -39,7 +38,7 @@ AppAsset::register($this);
 
         .navbar.scrolled {
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-            background-color: #212529 !important; /* reforço escuro ao rolar */
+            background-color: #212529 !important;
         }
 
         /* 🔹 Botões */
@@ -112,6 +111,13 @@ AppAsset::register($this);
                 <a href="<?= Yii::$app->urlManager->createUrl(['site/login']) ?>"
                    class="btn btn-success btn-sm ms-2">Login</a>
             <?php else: ?>
+                <?php
+                // ✅ Safe handling of user profile link
+                $userProfile = Yii::$app->user->identity->userprofile ?? null;
+                $profileUrl = $userProfile
+                        ? Yii::$app->urlManager->createUrl(['user-profile/view', 'id' => $userProfile->id])
+                        : Yii::$app->urlManager->createUrl(['user-profile/create']);
+                ?>
                 <div class="dropdown ms-2">
                     <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"
                             aria-expanded="false">
@@ -119,9 +125,7 @@ AppAsset::register($this);
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li>
-                            <a class="dropdown-item"
-                               href="<?= Yii::$app->urlManager->createUrl(['user-profile/view',
-                                       'id' => Yii::$app->user->identity->userprofile->id]) ?>">
+                            <a class="dropdown-item" href="<?= $profileUrl ?>">
                                 <i class="bi bi-person-circle me-2"></i>Perfil
                             </a>
                         </li>
@@ -152,8 +156,7 @@ AppAsset::register($this);
         <p class="mb-1 small">
             <img src="<?= Yii::$app->request->baseUrl ?>/img/logo.png"
                  alt="Logo EmergencySTS" style="height:30px; margin-right:10px;">
-            <span class="text-success fw-semibold">EmergencySTS</span> <?= date('Y') ?> —
-            Todos os direitos reservados.
+            <span class="text-success fw-semibold">EmergencySTS</span> <?= date('Y') ?> — Todos os direitos reservados.
         </p>
         <p class="mb-0 small">
             Desenvolvido por
@@ -172,7 +175,6 @@ $this->registerJsFile(
         ['depends' => [\yii\web\JqueryAsset::class]]
 );
 
-// JS extra: navbar sticky + carousel
 $this->registerJs(<<<JS
 // Navbar muda estilo ao rolar
 window.addEventListener('scroll', function() {

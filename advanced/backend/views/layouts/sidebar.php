@@ -20,17 +20,55 @@ use yii\helpers\Url;
                             'data-accordion' => 'false'
                     ],
                     'items' => [
-                            ['label' => 'Dashboard',     'icon' => 'tachometer-alt',          'url' => ['/site/index']],
-                            ['label' => 'Pacientes',     'icon' => 'users',                    'url' => ['/paciente/index']],
-                            ['label' => 'Triagem',       'icon' => 'stethoscope',              'url' => ['/triagem/index']],
-                            ['label' => 'Pulseiras',     'icon' => 'id-card',                  'url' => ['/pulseira/index']],
-                            ['label' => 'Consultas',     'icon' => 'notes-medical',            'url' => ['/consulta/index']],
-                            ['label' => 'Prescrições',   'icon' => 'prescription-bottle-alt',  'url' => ['/prescricao/index']],
-                            ['label' => 'Notificações',  'icon' => 'bell',                     'url' => ['/notificacao/index']],
-                            ['label' => 'Perfil',        'icon' => 'user-cog',                 'url' => ['/user-profile/index']],
-                            ['label' => 'Sair',          'icon' => 'sign-out-alt',             'url' => ['/site/logout'],
+                            [
+                                    'label' => 'Dashboard',
+                                    'icon' => 'tachometer-alt',
+                                    'url' => ['/site/index']
+                            ],
+                            [
+                                    'label' => 'Utilizadores',
+                                    'icon' => 'users',
+                                    'url' => ['/user-profile/index']
+                            ],
+                            [
+                                    'label' => 'Triagem',
+                                    'icon' => 'stethoscope',
+                                    'url' => ['/triagem/index']
+                            ],
+                            [
+                                    'label' => 'Pulseiras',
+                                    'icon' => 'id-card',
+                                    'url' => ['/pulseira/index']
+                            ],
+                            [
+                                    'label' => 'Consultas',
+                                    'icon' => 'notes-medical',
+                                    'url' => ['/consulta/index']
+                            ],
+                            [
+                                    'label' => 'Prescrições',
+                                    'icon' => 'prescription-bottle-alt',
+                                    'url' => ['/prescricao/index']
+                            ],
+                            [
+                                    'label' => 'Notificações',
+                                    'icon' => 'bell',
+                                    'url' => ['/notificacao/index']
+                            ],
+                        // 🔹 ALTERADO: Agora abre o perfil do utilizador autenticado
+                            [
+                                    'label' => 'Perfil',
+                                    'icon' => 'user-cog',
+                                    'url' => ['/user-profile/meu-perfil'],
+                                    'visible' => !Yii::$app->user->isGuest
+                            ],
+                            [
+                                    'label' => 'Sair',
+                                    'icon' => 'sign-out-alt',
+                                    'url' => ['/site/logout'],
                                     'visible' => !Yii::$app->user->isGuest,
-                                    'template' => '<a href="{url}" data-method="post">{icon}{label}</a>'],
+                                    'template' => '<a href="{url}" data-method="post">{icon}{label}</a>',
+                            ],
                     ],
             ]);
             ?>
