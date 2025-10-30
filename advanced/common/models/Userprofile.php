@@ -42,26 +42,17 @@ class Userprofile extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            // 🔹 Campos obrigatórios básicos
             [['nome', 'email', 'nif', 'sns', 'datanascimento', 'genero', 'telefone'], 'required'],
-
-            // 🔹 Campos opcionais ou automáticos
             [['datanascimento'], 'safe'],
             [['consulta_id', 'triagem_id', 'user_id'], 'integer'],
-
-            // 🔹 Limites de tamanho e formato
             [['nome', 'email'], 'string', 'max' => 100],
             [['morada'], 'string', 'max' => 255],
             [['nif', 'sns'], 'string', 'max' => 9],
             [['genero'], 'string', 'max' => 1],
             [['telefone'], 'string', 'max' => 30],
-
-            // 🔹 Validações adicionais
             [['email'], 'unique'],
+            [['role'], 'safe'], // 🔹 Permitir o uso no formulário
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['user_id' => 'id']],
-
-            // 🔹 Campo virtual "role" (não existe na BD, mas vem do form)
-            [['role'], 'safe'],
         ];
     }
 
@@ -71,18 +62,15 @@ class Userprofile extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
             'nome' => 'Nome',
             'email' => 'Email',
             'morada' => 'Morada',
             'nif' => 'NIF',
-            'sns' => 'Número SNS',
+            'sns' => 'SNS',
             'datanascimento' => 'Data de Nascimento',
             'genero' => 'Género',
             'telefone' => 'Telefone',
-            'consulta_id' => 'Consulta ID',
-            'triagem_id' => 'Triagem ID',
-            'user_id' => 'Utilizador',
+            'role' => 'Função / Role',
         ];
     }
 

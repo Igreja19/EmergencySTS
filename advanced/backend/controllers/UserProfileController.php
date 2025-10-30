@@ -107,8 +107,8 @@ class UserProfileController extends Controller
 
             if ($model->save()) {
 
-                // ✅ Se uma role for selecionada, atribui manualmente
                 if (!empty($model->role)) {
+                    $auth = Yii::$app->authManager;
                     $auth->revokeAll($model->user_id); // limpa roles anteriores
                     $role = $auth->getRole($model->role);
                     if ($role) {
@@ -116,7 +116,7 @@ class UserProfileController extends Controller
                     }
                 }
 
-                Yii::$app->session->setFlash('success', 'Perfil criado com sucesso e função atribuída.');
+                Yii::$app->session->setFlash('success', 'Perfil criado/atualizado com sucesso.');
                 return $this->redirect(['view', 'id' => $model->id]);
             }
 

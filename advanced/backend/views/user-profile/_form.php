@@ -67,18 +67,17 @@ foreach ($roles as $name => $role) {
                 <i class="bi bi-shield-lock-fill text-success me-1"></i> Função / Role
             </h6>
 
-            <div class="p-3 border rounded-3 bg-light shadow-sm">
-                <?= $form->field($model, 'role')->dropDownList(
-                        $roleOptions,
-                        [
-                                'prompt' => 'Selecione uma função...',
-                                'class' => 'form-select form-select-lg border-success shadow-sm',
-                                'style' => 'font-weight:500; color:#2e7d32; background-color:#f8fff9;'
-                        ]
-                )->label(false) ?>
-                <small class="text-muted">
-                    Escolha o tipo de acesso que este utilizador terá no sistema.
-                </small>
+            <div class="card border-success mt-4">
+                <div class="card-body">
+                    <h6 class="fw-bold text-success mb-3"><i class="bi bi-shield-lock-fill me-1"></i> Função / Role</h6>
+                    <?= $form->field($model, 'role')->dropDownList(
+                            $roleOptions,
+                            [
+                                    'prompt' => 'Selecione uma função...',
+                                    'class' => 'form-select border-success shadow-sm'
+                            ]
+                    )->label(false) ?>
+                </div>
             </div>
         </div>
     <?php endif; ?>
