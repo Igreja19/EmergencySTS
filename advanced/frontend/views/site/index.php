@@ -7,12 +7,20 @@ use yii\bootstrap5\Html;
 /** @var yii\web\View $this */
 
 $this->title = 'EmergencySTS | Sistema de Triagem';
-
 ?>
 
 <?php if (Yii::$app->session->get('firstLogin')): ?>
     <?php
-    Yii::$app->session->remove('firstLogin'); // só aparece uma vez
+    // ⚙️ Só mostra o alerta uma vez
+    Yii::$app->session->remove('firstLogin');
+
+    // ✅ Verifica se o utilizador tem um perfil associado
+    $userProfile = Yii::$app->user->identity->userprofile ?? null;
+
+    // Se existir perfil → vai para view, se não → para create
+    $profileUrl = $userProfile
+            ? \yii\helpers\Url::to(['user-profile/view', 'id' => $userProfile->id])
+            : \yii\helpers\Url::to(['user-profile/create']);
     ?>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
@@ -26,12 +34,13 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
                 allowEscapeKey: false
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = "<?= \yii\helpers\Url::to(['user-profile/view', 'id' => Yii::$app->user->identity->userprofile->id]) ?>";
+                    window.location.href = "<?= $profileUrl ?>";
                 }
             });
         });
     </script>
 <?php endif; ?>
+
 <!-- HERO SECTION -->
 <section class="hero">
     <div class="hero-left">
@@ -116,7 +125,6 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
 <section id="sobre-nos" class="py-5">
     <div class="container">
         <div class="row align-items-center g-5">
-            <!-- IMAGENS À ESQUERDA -->
             <div class="col-lg-6 position-relative text-center">
                 <div class="img-box">
                     <img src="<?= Yii::getAlias('@web') ?>/img/about-2.jpg" alt="Equipa médica" class="img-fluid rounded shadow-sm main-img">
@@ -124,7 +132,6 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
                 </div>
             </div>
 
-            <!-- TEXTO À DIREITA -->
             <div class="col-lg-6">
                 <span class="badge rounded-pill bg-light text-success border border-success px-3 py-2 mb-3">Sobre Nós</span>
                 <h2 class="fw-bold text-dark mb-3">Por que confiar em nós? <br> Conheça a nossa equipa!</h2>
@@ -144,11 +151,11 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
         </div>
     </div>
 </section>
-<!-- Secção: Porque Escolher-nos -->
-<div class="container-fluid1" style="background-color: #198754  ;">
+
+<!-- PORQUE ESCOLHER-NOS -->
+<div class="container-fluid1" style="background-color: #198754;">
     <div class="container py-4">
         <div class="row g-5 align-items-center">
-            <!-- Texto -->
             <div class="col-lg-6 text-white">
                 <div class="mb-3">
                     <span class="badge bg-light text-success px-3 py-2 fw-semibold">Funcionalidades</span>
@@ -156,8 +163,7 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
                 <h1 class="fw-bold mb-4">Porque Escolher-nos</h1>
                 <p class="mb-4">
                     O nosso sistema de triagem hospitalar foi desenvolvido para otimizar o atendimento nas urgências,
-                    garantindo rapidez, segurança e prioridade aos casos mais críticos. Com uma equipa experiente e
-                    tecnologia inovadora, asseguramos uma resposta eficaz e humanizada em cada atendimento.
+                    garantindo rapidez, segurança e prioridade aos casos mais críticos.
                 </p>
 
                 <div class="row gy-4">
@@ -202,7 +208,7 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
                     </div>
                 </div>
             </div>
-            <!-- Imagem -->
+
             <div class="col-lg-6 text-center">
                 <img src="img/feature.jpg" class="img-fluid rounded-3 shadow-lg" alt="Equipa médica em triagem hospitalar">
             </div>
@@ -210,7 +216,7 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
     </div>
 </div>
 
-<!-- Médicos Experientes -->
+<!-- MÉDICOS -->
 <div class="container py-5">
     <div class="text-center mb-5">
         <span class="border border-secondary text-secondary px-3 py-1 rounded-pill fw-semibold">Médicos</span>
@@ -218,7 +224,6 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
     </div>
 
     <div class="row g-4">
-        <!-- Card Médico -->
         <div class="col-md-3">
             <a href="<?= Yii::$app->urlManager->createUrl(['doutor/view', 'id' => 1]) ?>" class="text-decoration-none text-dark">
                 <div class="card border-0 shadow-sm doctor-card">
@@ -233,7 +238,6 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
             </a>
         </div>
 
-        <!-- Card 2 -->
         <div class="col-md-3">
             <a href="<?= Yii::$app->urlManager->createUrl(['doutor/view', 'id' => 2]) ?>" class="text-decoration-none text-dark">
                 <div class="card border-0 shadow-sm doctor-card">
@@ -248,7 +252,6 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
             </a>
         </div>
 
-        <!-- Card 3 -->
         <div class="col-md-3">
             <a href="<?= Yii::$app->urlManager->createUrl(['doutor/view', 'id' => 3]) ?>" class="text-decoration-none text-dark">
                 <div class="card border-0 shadow-sm doctor-card">
@@ -263,10 +266,9 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
             </a>
         </div>
 
-        <!-- Card 4 -->
         <div class="col-md-3">
             <a href="<?= Yii::$app->urlManager->createUrl(['doutor/view', 'id' => 4]) ?>" class="text-decoration-none text-dark">
-                <div class="card border-0 shadow-sm doctor-card hover-shadow">
+                <div class="card border-0 shadow-sm doctor-card">
                     <div class="position-relative overflow-hidden">
                         <img src="img/doctor4.jpg" class="card-img-top" alt="Dr. Ricardo Matos">
                     </div>
@@ -280,18 +282,15 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
     </div>
 </div>
 
-<!-- ====== FOOTER ====== -->
+<!-- FOOTER -->
 <footer class="bg-dark text-light pt-5 pb-4 mt-5">
     <div class="container">
         <div class="row gy-4">
-
-            <!-- Endereço -->
             <div class="col-lg-4 col-md-6">
                 <h5 class="fw-bold mb-3 text-success">Endereço</h5>
                 <p class="mb-2"><i class="bi bi-geo-alt-fill text-success me-2"></i> 123 Rua Central, Lisboa, Portugal</p>
                 <p class="mb-2"><i class="bi bi-telephone-fill text-success me-2"></i> +351 987 654 321</p>
                 <p class="mb-3"><i class="bi bi-envelope-fill text-success me-2"></i> suporte@emergencysts.pt</p>
-
                 <div class="d-flex mt-3">
                     <a href="#" class="btn btn-outline-success btn-sm rounded-circle me-2"><i class="bi bi-facebook"></i></a>
                     <a href="#" class="btn btn-outline-success btn-sm rounded-circle me-2"><i class="bi bi-twitter"></i></a>
@@ -300,67 +299,27 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
                 </div>
             </div>
 
-            <!-- Serviços -->
             <div class="col-lg-3 col-md-6">
                 <h5 class="fw-bold mb-3 text-success">Serviços</h5>
                 <ul class="list-unstyled">
-                    <li class="mb-2">
-                        <a href="<?= Yii::$app->urlManager->createUrl(['triagem/index']) ?>" class="text-light text-decoration-none">
-                            <i class="bi bi-chevron-right me-2 text-success"></i>Triagem
-                        </a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="<?= Yii::$app->urlManager->createUrl(['consulta/historico']) ?>" class="text-light text-decoration-none">
-                            <i class="bi bi-chevron-right me-2 text-success"></i>Histórico de Pacientes
-                        </a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="<?= Yii::$app->urlManager->createUrl(['pulseira/index']) ?>" class="text-light text-decoration-none">
-                            <i class="bi bi-chevron-right me-2 text-success"></i>Tempo de Espera
-                        </a>
-                    </li>
+                    <li><a href="<?= Yii::$app->urlManager->createUrl(['triagem/index']) ?>" class="text-light text-decoration-none"><i class="bi bi-chevron-right me-2 text-success"></i>Triagem</a></li>
+                    <li><a href="<?= Yii::$app->urlManager->createUrl(['consulta/historico']) ?>" class="text-light text-decoration-none"><i class="bi bi-chevron-right me-2 text-success"></i>Histórico de Pacientes</a></li>
+                    <li><a href="<?= Yii::$app->urlManager->createUrl(['pulseira/index']) ?>" class="text-light text-decoration-none"><i class="bi bi-chevron-right me-2 text-success"></i>Tempo de Espera</a></li>
                 </ul>
             </div>
 
-            <!-- Links Rápidos -->
             <div class="col-lg-3 col-md-6">
                 <h5 class="fw-bold mb-3 text-success">Links Rápidos</h5>
                 <ul class="list-unstyled">
-                    <li class="mb-2">
-                        <a href="<?= Yii::$app->urlManager->createUrl(['site/about']) ?>" class="text-light text-decoration-none">
-                            <i class="bi bi-chevron-right me-2 text-success"></i>Sobre Nós
-                        </a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="<?= Yii::$app->urlManager->createUrl(['site/contact']) ?>" class="text-light text-decoration-none">
-                            <i class="bi bi-chevron-right me-2 text-success"></i>Contactos
-                        </a>
-                    </li>
-                    <li class="mb-2">
-                        <a href="<?= Yii::$app->urlManager->createUrl(['terms/index']) ?>" class="text-light text-decoration-none">
-                            <i class="bi bi-chevron-right me-2 text-success"></i>Termos e Condições
-                        </a>
-                    </li>
+                    <li><a href="<?= Yii::$app->urlManager->createUrl(['site/about']) ?>" class="text-light text-decoration-none"><i class="bi bi-chevron-right me-2 text-success"></i>Sobre Nós</a></li>
+                    <li><a href="<?= Yii::$app->urlManager->createUrl(['site/contact']) ?>" class="text-light text-decoration-none"><i class="bi bi-chevron-right me-2 text-success"></i>Contactos</a></li>
+                    <li><a href="<?= Yii::$app->urlManager->createUrl(['terms/index']) ?>" class="text-light text-decoration-none"><i class="bi bi-chevron-right me-2 text-success"></i>Termos e Condições</a></li>
                 </ul>
             </div>
-
-            <!-- Newsletter -->
-            <!--
-            <div class="col-lg-2 col-md-6">
-                <h5 class="fw-bold mb-3 text-success">Newsletter</h5>
-                <p class="small">Subscreve para receber as últimas novidades e atualizações.</p>
-                <form class="d-flex">
-                    <input type="email" class="form-control form-control-sm me-2" placeholder="O teu email">
-                    <button class="btn btn-success btn-sm">OK</button>
-                </form>
-            </div>
         </div>
-        -->
 
-        <!-- Separador -->
         <hr class="border-secondary my-4">
 
-        <!-- Copyright -->
         <div class="row">
             <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
                 <small>© <span class="text-success fw-semibold">EmergencySTS</span> <?= date('Y') ?>. Todos os direitos reservados.</small>
@@ -371,6 +330,3 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
         </div>
     </div>
 </footer>
-
-
-

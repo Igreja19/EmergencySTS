@@ -5,9 +5,10 @@ namespace common\models;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use common\models\Triagem;
+use yii\db\Expression;
 
 /**
- * TriagemSearch represents the model behind the search form of `common\models\Triagem`.
+ * TriagemSearch representa o modelo de pesquisa para `common\models\Triagem`.
  */
 class TriagemSearch extends Triagem
 {
@@ -18,7 +19,7 @@ class TriagemSearch extends Triagem
     {
         return [
             [['id', 'intensidadedor', 'userprofile_id', 'pulseira_id'], 'integer'],
-            [['motivoconsulta', 'queixaprincipal', 'descricaosintomas', 'iniciosintomas', 'alergias', 'medicacao', 'motivo', 'datatriagem'], 'safe'],
+            [['motivoconsulta', 'queixaprincipal', 'descricaosintomas', 'iniciosintomas', 'alergias', 'medicacao', 'datatriagem'], 'safe'],
         ];
     }
 
@@ -27,51 +28,61 @@ class TriagemSearch extends Triagem
      */
     public function scenarios()
     {
-        // bypass scenarios() implementation in the parent class
         return Model::scenarios();
     }
 
     /**
-     * Creates data provider instance with search query applied
+     * Cria um DataProvider com a query de pesquisa aplicada.
      *
      * @param array $params
-     *
      * @return ActiveDataProvider
      */
     public function search($params)
     {
-        $query = Triagem::find();
+        // Faz join com as tabelas relacionadas
+        $query = Triagem::find()->joinWith(['userprofile', 'pulseira']);
 
-        // add conditions that should always apply here
-
+        // DataProvider padrão
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+        ]);
+
+        // === Ordenação personalizada ===
+        $dataProvider->sort->attributes['prioridade'] = [
+            'asc' => [new Expression("FIELD(pulseira.prioridade, 'Azul', 'Verde', 'Amarelo', 'Laranja', 'Vermelho') ASC")],
+            'desc' => [new Expression("FIELD(pulseira.prioridade, 'Vermelho', 'Laranja', 'Amarelo', 'Verde', 'Azul') ASC")],
+        ];
+
+        // Ordenação padrão (últimos primeiro)
+        $dataProvider->setSort([
+            'defaultOrder' => ['id' => SORT_DESC],
         ]);
 
         $this->load($params);
 
         if (!$this->validate()) {
-            // uncomment the following line if you do not want to return any records when validation fails
-            // $query->where('0=1');
             return $dataProvider;
         }
 
-        // grid filtering conditions
+        // === Filtros ===
         $query->andFilterWhere([
             'id' => $this->id,
-            'iniciosintomas' => $this->iniciosintomas,
             'intensidadedor' => $this->intensidadedor,
-            'datatriagem' => $this->datatriagem,
             'userprofile_id' => $this->userprofile_id,
             'pulseira_id' => $this->pulseira_id,
         ]);
 
+        // Filtros textuais
         $query->andFilterWhere(['like', 'motivoconsulta', $this->motivoconsulta])
             ->andFilterWhere(['like', 'queixaprincipal', $this->queixaprincipal])
             ->andFilterWhere(['like', 'descricaosintomas', $this->descricaosintomas])
             ->andFilterWhere(['like', 'alergias', $this->alergias])
-            ->andFilterWhere(['like', 'medicacao', $this->medicacao])
-            ->andFilterWhere(['like', 'motivo', $this->motivo]);
+            ->andFilterWhere(['like', 'medicacao', $this->medicacao]);
+
+        // Filtro por data
+        if (!empty($this->datatriagem)) {
+            $query->andFilterWhere(['like', 'datatriagem', $this->datatriagem]);
+        }
 
         return $dataProvider;
     }

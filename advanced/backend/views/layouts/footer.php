@@ -1,7 +1,10 @@
-<footer class="main-footer">
-    <strong>Copyright &copy; 2014-2021 <a href="https://adminlte.io">AdminLTE.io</a>.</strong>
-    All rights reserved.
-    <div class="float-right d-none d-sm-inline-block">
-        <b>Version</b> 3.1.0
+<footer class="main-footer dark">
+    <div class="row">
+        <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
+            <small>© <span class="text-success fw-semibold">EmergencySTS</span> <?= date('Y') ?>. Todos os direitos reservados.</small>
+        </div>
+        <div class="col-md-6 text-center text-md-end">
+            <small>Desenvolvido por <a href="<?= Yii::$app->urlManager->createUrl(['team/index']) ?>" class="text-success text-decoration-none fw-semibold">EmergencySTS Dev Team</a></small>
+        </div>
     </div>
 </footer>

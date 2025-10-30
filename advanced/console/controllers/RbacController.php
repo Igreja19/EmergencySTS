@@ -5,38 +5,83 @@ namespace console\controllers;
 use Yii;
 use yii\console\Controller;
 
+/**
+ * Controlador responsável pela configuração inicial do RBAC (Roles e Permissões).
+ * Executar com: php yii rbac/init
+ */
 class RbacController extends Controller
 {
+    /**
+     * Inicializa todas as permissões e roles do sistema.
+     */
     public function actionInit()
     {
         $auth = Yii::$app->authManager;
-        $auth->removeAll();
+        $auth->removeAll(); // limpa todas as roles e permissões existentes
 
-        // add "createPost" permission
-        $createPost = $auth->createPermission('createPost');
-        $createPost->description = 'Create a post';
-        $auth->add($createPost);
+        // =========================================================
+        // 🔐 PERMISSÕES CRUD
+        // =========================================================
 
-        // add "updatePost" permission
-        $updatePost = $auth->createPermission('updatePost');
-        $updatePost->description = 'Update post';
-        $auth->add($updatePost);
+        $criarRegisto = $auth->createPermission('criarRegisto');
+        $criarRegisto->description = 'Criar novo registo';
+        $auth->add($criarRegisto);
 
-        // add "author" role and give this role the "createPost" permission
-        $author = $auth->createRole('author');
-        $auth->add($author);
-        $auth->addChild($author, $createPost);
+        $editarRegisto = $auth->createPermission('editarRegisto');
+        $editarRegisto->description = 'Editar registo existente';
+        $auth->add($editarRegisto);
 
-        // add "admin" role and give this role the "updatePost" permission
-        // as well as the permissions of the "author" role
+        $atualizarRegisto = $auth->createPermission('atualizarRegisto');
+        $atualizarRegisto->description = 'Atualizar registo existente';
+        $auth->add($atualizarRegisto);
+
+        $eliminarRegisto = $auth->createPermission('eliminarRegisto');
+        $eliminarRegisto->description = 'Eliminar registo existente';
+        $auth->add($eliminarRegisto);
+
+        $verRegisto = $auth->createPermission('verRegisto');
+        $verRegisto->description = 'Visualizar registos';
+        $auth->add($verRegisto);
+
+        // =========================================================
+        // 🧑‍⚕️ ROLES
+        // =========================================================
+
+        // ENFERMEIRO → pode criar, editar e visualizar
+        $enfermeiro = $auth->createRole('enfermeiro');
+        $auth->add($enfermeiro);
+        $auth->addChild($enfermeiro, $criarRegisto);
+        $auth->addChild($enfermeiro, $editarRegisto);
+        $auth->addChild($enfermeiro, $verRegisto);
+
+        // MÉDICO → pode visualizar, editar, atualizar e eliminar
+        $medico = $auth->createRole('medico');
+        $auth->add($medico);
+        $auth->addChild($medico, $verRegisto);
+        $auth->addChild($medico, $editarRegisto);
+        $auth->addChild($medico, $atualizarRegisto);
+        $auth->addChild($medico, $eliminarRegisto);
+
+        // ADMIN → tem acesso a tudo
         $admin = $auth->createRole('admin');
         $auth->add($admin);
-        $auth->addChild($admin, $updatePost);
-        $auth->addChild($admin, $author);
+        $auth->addChild($admin, $criarRegisto);
+        $auth->addChild($admin, $editarRegisto);
+        $auth->addChild($admin, $atualizarRegisto);
+        $auth->addChild($admin, $eliminarRegisto);
+        $auth->addChild($admin, $verRegisto);
+        $auth->addChild($admin, $enfermeiro);
+        $auth->addChild($admin, $medico);
 
-        // Assign roles to users. 1 and 2 are IDs returned by IdentityInterface::getId()
-        // usually implemented in your User model.
-        $auth->assign($author, 2);
-        $auth->assign($admin, 1);
+        // =========================================================
+        // 👤 ATRIBUIR ROLES A UTILIZADORES (por ID)
+        // =========================================================
+        // ⚠️ Altera estes IDs conforme os IDs reais da tabela `user`
+      // utilizador com ID 15 -> Admin
+        $auth->assign($admin, 11);       // utilizador com ID 15 -> Admin
+        $auth->assign($medico, 2);      // utilizador com ID 2 -> Médico
+        $auth->assign($enfermeiro, 3);  // utilizador com ID 3 -> Enfermeiro
+
+        echo "✅ RBAC inicializado com sucesso! Roles e permissões criadas.\n";
     }
 }

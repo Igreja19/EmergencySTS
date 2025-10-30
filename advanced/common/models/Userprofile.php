@@ -24,6 +24,8 @@ use Yii;
  */
 class Userprofile extends \yii\db\ActiveRecord
 {
+    public $role;
+
     /**
      * {@inheritdoc}
      */
@@ -47,6 +49,7 @@ class Userprofile extends \yii\db\ActiveRecord
             [['genero'], 'string', 'max' => 1],
             [['telefone'], 'string', 'max' => 30],
             [['email'], 'unique'],
+            [['role'], 'safe'], // 🔹 Permitir o uso no formulário
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['user_id' => 'id']],
         ];
     }
@@ -61,11 +64,12 @@ class Userprofile extends \yii\db\ActiveRecord
             'nome' => 'Nome',
             'email' => 'Email',
             'morada' => 'Morada',
-            'nif' => 'Nif',
-            'sns' => 'Sns',
-            'datanascimento' => 'Datanascimento',
-            'genero' => 'Genero',
+            'nif' => 'NIF',
+            'sns' => 'SNS',
+            'datanascimento' => 'Data de Nascimento',
+            'genero' => 'Género',
             'telefone' => 'Telefone',
+            'role' => 'Função / Role',
             'user_id' => 'User ID',
         ];
     }

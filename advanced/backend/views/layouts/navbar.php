@@ -17,25 +17,23 @@ $user = Yii::$app->user->identity ?? null;
             </a>
         </li>
 
-        <!-- Home -->
+        <!-- Dashboard -->
         <li class="nav-item d-none d-sm-inline-block">
-            <a href="<?= Url::home() ?>" class="nav-link">Home</a>
-
-
+            <a href="<?= Url::home() ?>" class="nav-link">Dashboard</a>
+        </li>
+        <li class="nav-item d-none d-sm-inline-block">
+            <a href="<?= Url::to(['/user-profile/index']) ?>"class="nav-link">Utilizadores
+            </a>
+        </li>
+        <li class="nav-item d-none d-sm-inline-block">
+            <a href="<?= Url::to(['/triagem/index']) ?>"class="nav-link">Triagem
+            </a>
+        </li>
+        <li class="nav-item d-none d-sm-inline-block">
+            <a href="<?= Url::to(['/pulseira/index']) ?>"class="nav-link">Pulseira
+            </a>
         </li>
     </ul>
-
-    <!-- SEARCH FORM -->
-    <form class="form-inline ml-3" method="get" action="<?= Url::to(['/site/index']) ?>">
-        <div class="input-group input-group-sm">
-            <input class="form-control form-control-navbar" type="search" name="q" placeholder="Pesquisar..." aria-label="Search">
-            <div class="input-group-append">
-                <button class="btn btn-navbar" type="submit">
-                    <i class="fas fa-search"></i>
-                </button>
-            </div>
-        </div>
-    </form>
 
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
@@ -47,7 +45,7 @@ $user = Yii::$app->user->identity ?? null;
                 <?= $user ? Html::encode($user->username) : 'Conta' ?>
             </a>
             <div class="dropdown-menu dropdown-menu-right">
-                <a href="<?= Url::to(['/user-profile/index']) ?>" class="dropdown-item">
+                <a href="<?= Url::to(['/user-profile/meu-perfil']) ?>" class="dropdown-item">
                     <i class="fas fa-id-badge mr-2"></i> Perfil
                 </a>
                 <div class="dropdown-divider"></div>

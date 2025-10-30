@@ -1,47 +1,59 @@
 <?php
-
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
 /** @var yii\web\View $this */
 /** @var common\models\UserProfileSearch $model */
-/** @var yii\widgets\ActiveForm $form */
 ?>
 
-<div class="userprofile-search">
+<div class="card border-0 shadow-sm mb-3 rounded-4">
+    <div class="card-body py-3">
+        <?php $form = ActiveForm::begin([
+                'action' => ['index'],
+                'method' => 'get',
+                'options' => ['data-pjax' => 1],
+        ]); ?>
 
-    <?php $form = ActiveForm::begin([
-        'action' => ['index'],
-        'method' => 'get',
-    ]); ?>
+        <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <?= $form->field($model, 'q')->textInput([
+                        'placeholder' => '🔍 Pesquisar por nome, email, NIF ou telefone...',
+                        'class' => 'form-control shadow-sm border border-success rounded-3 px-3'
+                ])->label(false) ?>
+            </div>
 
-    <?= $form->field($model, 'id') ?>
+            <div class="col-md-3">
+                <?= $form->field($model, 'genero')->dropDownList([
+                        '' => 'Todos os géneros',
+                        'M' => 'Masculino',
+                        'F' => 'Feminino',
+                        'O' => 'Outro',
+                ], [
+                        'class' => 'form-select shadow-sm border border-success rounded-3',
+                ])->label(false) ?>
+            </div>
 
-    <?= $form->field($model, 'nome') ?>
+            <div class="col-md-3">
+                <?= $form->field($model, 'ativo')->dropDownList([
+                        '' => 'Estado',
+                        'ativo' => 'Ativo',
+                        'inativo' => 'Inativo',
+                ], [
+                        'class' => 'form-select shadow-sm border border-success rounded-3',
+                ])->label(false) ?>
+            </div>
 
-    <?= $form->field($model, 'email') ?>
+            <div class="col-md-2 text-end">
+                <?= Html::submitButton('<i class="bi bi-search me-1"></i> Procurar', [
+                        'class' => 'btn btn-success px-4 py-2 shadow-sm rounded-3'
+                ]) ?>
+                <?= Html::a('<i class="bi bi-x-circle me-1"></i>', ['index'], [
+                        'class' => 'btn btn-outline-secondary px-3 py-2 shadow-sm rounded-3',
+                        'title' => 'Limpar filtros'
+                ]) ?>
+            </div>
+        </div>
 
-    <?= $form->field($model, 'nif') ?>
-
-    <?= $form->field($model, 'sns') ?>
-
-    <?php // echo $form->field($model, 'datanascimento') ?>
-
-    <?php // echo $form->field($model, 'genero') ?>
-
-    <?php // echo $form->field($model, 'telefone') ?>
-
-    <?php // echo $form->field($model, 'consulta_id') ?>
-
-    <?php // echo $form->field($model, 'triagem_id') ?>
-
-    <?php // echo $form->field($model, 'user_id') ?>
-
-    <div class="form-group">
-        <?= Html::submitButton('Search', ['class' => 'btn btn-primary']) ?>
-        <?= Html::resetButton('Reset', ['class' => 'btn btn-outline-secondary']) ?>
+        <?php ActiveForm::end(); ?>
     </div>
-
-    <?php ActiveForm::end(); ?>
-
 </div>

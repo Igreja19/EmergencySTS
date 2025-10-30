@@ -1,64 +1,55 @@
 <?php
 use yii\helpers\Html;
+// Certifica-te que estás a usar o ActiveForm do Bootstrap 4
+use yii\bootstrap4\ActiveForm;
 ?>
 <div class="card">
     <div class="card-body login-card-body">
-        <p class="login-box-msg">Sign in to start your session</p>
 
-        <?php $form = \yii\bootstrap4\ActiveForm::begin(['id' => 'login-form']) ?>
+        <div class="text-center mb-4">
+            <span class="fas fa-shield-alt fa-3x text-muted"></span>
+            <h4 class="mt-3 mb-1">Back-Office - Acesso Restrito</h4>
+            <p class="text-muted">Área exclusiva para funcionários do hospital</p>
+        </div>
 
-        <?= $form->field($model,'username', [
-            'options' => ['class' => 'form-group has-feedback'],
-            'inputTemplate' => '{input}<div class="input-group-append"><div class="input-group-text"><span class="fas fa-envelope"></span></div></div>',
-            'template' => '{beginWrapper}{input}{error}{endWrapper}',
-            'wrapperOptions' => ['class' => 'input-group mb-3']
-        ])
-            ->label(false)
-            ->textInput(['placeholder' => $model->getAttributeLabel('username')]) ?>
+        <?php $form = ActiveForm::begin([
+            'id' => 'login-form',
+            // Removemos as classes de form-horizontal para um layout standard
+            'layout' => 'default',
+        ]); ?>
 
-        <?= $form->field($model, 'password', [
-            'options' => ['class' => 'form-group has-feedback'],
-            'inputTemplate' => '{input}<div class="input-group-append"><div class="input-group-text"><span class="fas fa-lock"></span></div></div>',
-            'template' => '{beginWrapper}{input}{error}{endWrapper}',
-            'wrapperOptions' => ['class' => 'input-group mb-3']
-        ])
-            ->label(false)
-            ->passwordInput(['placeholder' => $model->getAttributeLabel('password')]) ?>
 
-        <div class="row">
-            <div class="col-8">
-                <?= $form->field($model, 'rememberMe')->checkbox([
-                    'template' => '<div class="icheck-primary">{input}{label}</div>',
-                    'labelOptions' => [
-                        'class' => ''
-                    ],
-                    'uncheck' => null
-                ]) ?>
-            </div>
-            <div class="col-4">
-                <?= Html::submitButton('Sign In', ['class' => 'btn btn-primary btn-block']) ?>
+        <?= $form->field($model, 'username')
+            ->textInput(['placeholder' => 'USERNAME'])
+            ->label('Username') // O label que aparece na imagem
+        ?>
+
+        <?= $form->field($model, 'password')
+            ->passwordInput(['placeholder' => '********'])
+            ->label('Palavra-passe') // O label que aparece na imagem
+        ?>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <?= Html::submitButton('Iniciar Sessão &rarr;', ['class' => 'btn btn-dark btn-block']) ?>
             </div>
         </div>
 
-        <?php \yii\bootstrap4\ActiveForm::end(); ?>
+        <?php ActiveForm::end(); ?>
 
-        <div class="social-auth-links text-center mb-3">
-            <p>- OR -</p>
-            <a href="#" class="btn btn-block btn-primary">
-                <i class="fab fa-facebook mr-2"></i> Sign in using Facebook
-            </a>
-            <a href="#" class="btn btn-block btn-danger">
-                <i class="fab fa-google-plus mr-2"></i> Sign in using Google+
-            </a>
+        <div class="alert alert-warning mt-4" role="alert">
+            <p class="mb-1">
+                <span class="fas fa-info-circle mr-2"></span>
+                <strong>Acesso Seguro</strong>
+            </p>
+            <p class="mb-0" style="font-size: 0.9em;">
+                Esta área é protegida. Apenas funcionários autorizados podem aceder.
+            </p>
         </div>
-        <!-- /.social-auth-links -->
 
-        <p class="mb-1">
-            <a href="forgot-password.html">I forgot my password</a>
+        <p class="mb-1 text-center mt-3">
+            <?= Html::a('Esqueceu-se da palavra-passe?', ['site/request-password-reset']) ?>
         </p>
-        <p class="mb-0">
-            <a href="register.html" class="text-center">Register a new membership</a>
-        </p>
+
     </div>
-    <!-- /.login-card-body -->
 </div>
