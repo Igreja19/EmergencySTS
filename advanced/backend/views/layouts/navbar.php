@@ -25,6 +25,14 @@ $user = Yii::$app->user->identity ?? null;
             <a href="<?= Url::to(['/user-profile/index']) ?>"class="nav-link">Utilizadores
             </a>
         </li>
+        <li class="nav-item d-none d-sm-inline-block">
+            <a href="<?= Url::to(['/triagem/index']) ?>"class="nav-link">Triagem
+            </a>
+        </li>
+        <li class="nav-item d-none d-sm-inline-block">
+            <a href="<?= Url::to(['/pulseira/index']) ?>"class="nav-link">Pulseira
+            </a>
+        </li>
     </ul>
 
     <!-- Right navbar links -->
