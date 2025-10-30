@@ -5,6 +5,7 @@ namespace common\models;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use common\models\Triagem;
+use yii\db\Expression;
 
 /**
  * TriagemSearch representa o modelo de pesquisa para `common\models\Triagem`.
@@ -27,7 +28,6 @@ class TriagemSearch extends Triagem
      */
     public function scenarios()
     {
-        // bypass scenarios() implementation in the parent class
         return Model::scenarios();
     }
 
@@ -35,11 +35,11 @@ class TriagemSearch extends Triagem
      * Cria um DataProvider com a query de pesquisa aplicada.
      *
      * @param array $params
-     *
      * @return ActiveDataProvider
      */
     public function search($params)
     {
+        // Faz join com as tabelas relacionadas
         $query = Triagem::find()->joinWith(['userprofile', 'pulseira']);
 
         // DataProvider padrão
@@ -47,7 +47,13 @@ class TriagemSearch extends Triagem
             'query' => $query,
         ]);
 
-        // Ordenação padrão (opcional)
+        // === Ordenação personalizada ===
+        $dataProvider->sort->attributes['prioridade'] = [
+            'asc' => [new Expression("FIELD(pulseira.prioridade, 'Azul', 'Verde', 'Amarelo', 'Laranja', 'Vermelho') ASC")],
+            'desc' => [new Expression("FIELD(pulseira.prioridade, 'Vermelho', 'Laranja', 'Amarelo', 'Verde', 'Azul') ASC")],
+        ];
+
+        // Ordenação padrão (últimos primeiro)
         $dataProvider->setSort([
             'defaultOrder' => ['id' => SORT_DESC],
         ]);

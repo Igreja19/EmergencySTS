@@ -5,9 +5,10 @@ namespace common\models;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use common\models\Pulseira;
+use yii\db\Expression;
 
 /**
- * PulseiraSearch represents the model behind the search form of `common\models\Pulseira`.
+ * PulseiraSearch representa o modelo de pesquisa para `common\models\Pulseira`.
  */
 class PulseiraSearch extends Pulseira
 {
@@ -18,7 +19,7 @@ class PulseiraSearch extends Pulseira
     {
         return [
             [['id'], 'integer'],
-            [['codigo', 'prioridade', 'status', 'tempoentrada'], 'safe'],
+            [['codigo', 'prioridade', 'tempoentrada', 'status'], 'safe'],
         ];
     }
 
@@ -27,44 +28,55 @@ class PulseiraSearch extends Pulseira
      */
     public function scenarios()
     {
-        // bypass scenarios() implementation in the parent class
+        // Ignora os cenários definidos na classe pai
         return Model::scenarios();
     }
 
     /**
-     * Creates data provider instance with search query applied
+     * Cria um DataProvider com a query de pesquisa aplicada.
      *
      * @param array $params
-     *
      * @return ActiveDataProvider
      */
     public function search($params)
     {
-        $query = Pulseira::find();
+        // Query base
+        $query = Pulseira::find()->joinWith(['userprofile', 'triagem']);
 
-        // add conditions that should always apply here
-
+        // DataProvider
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+        ]);
+
+        // 🔹 Ordenação personalizada Manchester
+        $dataProvider->sort->attributes['prioridade'] = [
+            'asc' => [new Expression("FIELD(pulseira.prioridade, 'Azul', 'Verde', 'Amarelo', 'Laranja', 'Vermelho') ASC")],
+            'desc' => [new Expression("FIELD(pulseira.prioridade, 'Vermelho', 'Laranja', 'Amarelo', 'Verde', 'Azul') ASC")],
+        ];
+
+        // 🔹 Ordenação padrão (mais recentes primeiro)
+        $dataProvider->setSort([
+            'defaultOrder' => ['id' => SORT_DESC],
         ]);
 
         $this->load($params);
 
         if (!$this->validate()) {
-            // uncomment the following line if you do not want to return any records when validation fails
-            // $query->where('0=1');
             return $dataProvider;
         }
 
-        // grid filtering conditions
+        // === Filtros ===
         $query->andFilterWhere([
             'id' => $this->id,
-            'tempoentrada' => $this->tempoentrada,
         ]);
 
         $query->andFilterWhere(['like', 'codigo', $this->codigo])
             ->andFilterWhere(['like', 'prioridade', $this->prioridade])
             ->andFilterWhere(['like', 'status', $this->status]);
+
+        if (!empty($this->tempoentrada)) {
+            $query->andFilterWhere(['like', 'tempoentrada', $this->tempoentrada]);
+        }
 
         return $dataProvider;
     }
