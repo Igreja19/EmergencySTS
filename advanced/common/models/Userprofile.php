@@ -16,8 +16,6 @@ use Yii;
  * @property string $datanascimento
  * @property string $genero
  * @property string $telefone
- * @property int $consulta_id
- * @property int $triagem_id
  * @property int $user_id
  *
  * @property Notificacao[] $notificacaos
@@ -40,9 +38,9 @@ class Userprofile extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['nome', 'email', 'nif', 'sns', 'datanascimento', 'genero', 'telefone', 'consulta_id', 'triagem_id', 'user_id'], 'required'],
+            [['nome', 'email', 'nif', 'sns', 'datanascimento', 'genero', 'telefone', 'user_id'], 'required'],
             [['datanascimento'], 'safe'],
-            [['consulta_id', 'triagem_id', 'user_id'], 'integer'],
+            [['user_id'], 'integer'],
             [['nome', 'email'], 'string', 'max' => 100],
             [['morada'], 'string', 'max' => 255],
             [['nif', 'sns'], 'string', 'max' => 9],
@@ -68,8 +66,6 @@ class Userprofile extends \yii\db\ActiveRecord
             'datanascimento' => 'Datanascimento',
             'genero' => 'Genero',
             'telefone' => 'Telefone',
-            'consulta_id' => 'Consulta ID',
-            'triagem_id' => 'Triagem ID',
             'user_id' => 'User ID',
         ];
     }

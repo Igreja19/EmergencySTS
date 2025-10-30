@@ -140,7 +140,7 @@ AppAsset::register($this);
 </nav>
 
 <!-- 🔹 CONTEÚDO PRINCIPAL -->
-<main role="main" class="flex-shrink-0">
+<main role="main" class="flex-fill">
     <div class="container-fluid px-0">
         <?= $content ?>
     </div>
@@ -166,6 +166,7 @@ AppAsset::register($this);
 
 <!-- 🔹 Bootstrap e Owl Carousel -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 <?php
 $this->registerJsFile(
         'https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js',

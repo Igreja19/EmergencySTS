@@ -1,12 +1,15 @@
 <!-- Bootstrap Icons -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
 <?php
 use yii\bootstrap5\Html;
 
 /** @var yii\web\View $this */
+
 $this->title = 'EmergencySTS | Sistema de Triagem';
 
 ?>
+
 <?php if (Yii::$app->session->get('firstLogin')): ?>
     <?php
     Yii::$app->session->remove('firstLogin'); // só aparece uma vez
@@ -220,7 +223,7 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
             <a href="<?= Yii::$app->urlManager->createUrl(['doutor/view', 'id' => 1]) ?>" class="text-decoration-none text-dark">
                 <div class="card border-0 shadow-sm doctor-card">
                     <div class="position-relative overflow-hidden">
-                        <img src="img/doctor1.jpg" class="card-img-top" alt="Dr. João Silva">
+                        <img src="img/doctor2.jpg" class="card-img-top" alt="Dr. João Silva">
                     </div>
                     <div class="card-body text-center">
                         <h5 class="card-title fw-bold mb-1">Dr. João Silva</h5>
@@ -235,7 +238,7 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
             <a href="<?= Yii::$app->urlManager->createUrl(['doutor/view', 'id' => 2]) ?>" class="text-decoration-none text-dark">
                 <div class="card border-0 shadow-sm doctor-card">
                     <div class="position-relative overflow-hidden">
-                        <img src="img/doctor2.jpg" class="card-img-top" alt="Dra. Marta Costa">
+                        <img src="img/doctor1.jpg" class="card-img-top" alt="Dra. Marta Costa">
                     </div>
                     <div class="card-body text-center">
                         <h5 class="card-title fw-bold mb-1">Dra. Marta Costa</h5>

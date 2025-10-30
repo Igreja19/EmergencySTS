@@ -104,6 +104,8 @@
       <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/paragonie/random_compat" />
       <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/hail812/yii2-adminlte-widgets" />
       <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/hail812/yii2-adminlte3" />
+      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/swiftmailer/swiftmailer" />
+      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/yiisoft/yii2-swiftmailer" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

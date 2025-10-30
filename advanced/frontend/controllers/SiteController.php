@@ -94,7 +94,14 @@ class SiteController extends Controller
         $model = new LoginForm();
 
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            Yii::$app->session->set('firstLogin', true);
+            $user = Yii::$app->user->identity;
+
+            if ($user->primeiro_login) {
+                Yii::$app->session->set('firstLogin', true);
+                $user->primeiro_login = 0;
+                $user->save(false);
+            }
+
             return $this->goBack();
         }
 
@@ -125,14 +132,13 @@ class SiteController extends Controller
     public function actionContact()
     {
         $model = new ContactForm();
-        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-            if ($model->sendEmail(Yii::$app->params['adminEmail'])) {
-                Yii::$app->session->setFlash('success', 'Thank you for contacting us. We will respond to you as soon as possible.');
-            } else {
-                Yii::$app->session->setFlash('error', 'There was an error sending your message.');
-            }
 
-            return $this->refresh();
+        if ($model->load(Yii::$app->request->post())) {
+            // 🔹 Simulação de envio do email (nenhum email real é enviado)
+            Yii::$app->session->setFlash('success', 'O email foi enviado, iremos contactá-lo o mais brevemente possível.');
+
+            // Redireciona para a página inicial (onde aparecerá o modal)
+            return $this->redirect(['site/index']);
         }
 
         return $this->render('contact', [

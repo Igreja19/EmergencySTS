@@ -10,7 +10,6 @@ $userProfile = Yii::$app->user->identity->userprofile;
 
 <div class="container py-5">
     <div class="text-center mb-5">
-        <span class="badge bg-light text-success px-3 py-2 fw-semibold">Triagem Hospitalar</span>
         <h3 class="fw-bold text-success mt-3">Formulário Clínico</h3>
         <p class="text-muted">Os seus dados foram preenchidos automaticamente com base no seu perfil.</p>
     </div>
@@ -115,7 +114,7 @@ $userProfile = Yii::$app->user->identity->userprofile;
                 ->textarea(['rows' => 2, 'placeholder' => 'Medicação atual...'])
                 ->label('<i class="bi bi-capsule me-2"></i> Medicação Atual') ?>
 
-        <!-- 🔹 TRIAGEM -->
+        <!-- 🔹 TRIAGEM
         <h6 class="fw-bold text-success mt-4 mb-3">Prioridade e Triagem</h6>
         <div class="row g-3 mb-3">
             <div class="col-md-6">
@@ -132,7 +131,7 @@ $userProfile = Yii::$app->user->identity->userprofile;
                     <option value="Azul" <?= isset($model->pulseira) && $model->pulseira->prioridade == 'Azul' ? 'selected' : '' ?>>🔵 Azul - Não Urgente</option>
                 </select>
             </div>
-        </div>
+        </div>-->
 
         <!-- 🔹 BOTÃO -->
         <?= Html::hiddenInput('Triagem[userprofile_id]', $userProfile->id) ?>

@@ -2,7 +2,7 @@
 
 namespace common\models;
 
-use common\models\UserProfile;
+use common\models\Userprofile;
 use Yii;
 use yii\base\NotSupportedException;
 use yii\behaviors\TimestampBehavior;
@@ -23,7 +23,8 @@ use yii\web\IdentityInterface;
  * @property integer $created_at
  * @property integer $updated_at
  * @property string $password write-only password
- * @property \common\models\UserProfile $userprofile
+ * @property int $primeiro_login
+ * @property \common\models\Userprofile $userprofile
  */
 class User extends ActiveRecord implements IdentityInterface
 {
@@ -58,7 +59,16 @@ class User extends ActiveRecord implements IdentityInterface
         return [
             ['status', 'default', 'value' => self::STATUS_INACTIVE],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_INACTIVE, self::STATUS_DELETED]],
+            [['primeiro_login'], 'boolean'],
         ];
+    }
+
+    public function init()
+    {
+        parent::init();
+        if ($this->isNewRecord) {
+            $this->primeiro_login = 1;
+        }
     }
 
     /**

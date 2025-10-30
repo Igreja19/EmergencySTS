@@ -14,7 +14,7 @@ $this->params['breadcrumbs'][] = $this->title;
         <div class="row g-0">
             <div class="col-md-4">
                 <?= Html::img(
-                    $model->photo ? Yii::getAlias('@web/uploads/doctors/' . $model->photo) : '@web/img/default-doctor.jpg',
+                        $model->photo ? Yii::getAlias('@web/' . $model->photo) : Yii::getAlias('@web/img/default-doctor.jpg'),
                     ['class' => 'img-fluid h-100 w-100 object-fit-cover', 'alt' => $model->name]
                 ) ?>
             </div>

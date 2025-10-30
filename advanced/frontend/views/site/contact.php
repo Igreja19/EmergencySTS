@@ -6,6 +6,7 @@
 
 use yii\bootstrap5\Html;
 use yii\bootstrap5\ActiveForm;
+use yii\helpers\Url;
 
 $this->title = 'Contactos';
 $this->params['breadcrumbs'][] = $this->title;
@@ -37,10 +38,12 @@ $this->params['breadcrumbs'][] = $this->title;
 
                         <div class="row">
                             <div class="col-lg-12">
-                                <?php $form = ActiveForm::begin(['id' => 'contact-form']); ?>
+                                <?php $form = ActiveForm::begin([
+                                        'id' => 'contact-form',
+                                        'action' => Url::to(['site/index']) // vai para uma ação que simula envio
+                                ]); ?>
 
                                 <?= $form->field($model, 'name')->textInput([
-                                        'autofocus' => true,
                                         'placeholder' => 'O teu nome completo',
                                         'class' => 'form-control mb-3'
                                 ]) ?>
@@ -61,8 +64,8 @@ $this->params['breadcrumbs'][] = $this->title;
                                         'class' => 'form-control mb-3'
                                 ]) ?>
 
-                                <div class="form-group mt-3">
-                                    <?= Html::submitButton('Enviar Mensagem', [
+                                <div class="form-group mt-3 text-center">
+                                    <?= Html::submitButton('<i class="bi bi-send me-2"></i> Enviar Mensagem', [
                                             'class' => 'btn btn-success px-4 py-2 rounded-pill',
                                             'name' => 'contact-button'
                                     ]) ?>
@@ -108,7 +111,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     <iframe
                             class="rounded w-100 shadow-sm"
                             height="250"
-                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3146.516514316235!2d-8.808034484678568!3d39.74438007944716!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd2286be8f7c0dfd%3A0x400ebbde49036d0!2sLeiria!5e0!3m2!1spt-PT!2spt!4v1674139012345!5m2!1spt-PT!2spt"
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3098.730962901092!2d-8.806410624273393!3d39.7364299966326!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd2287f8b73a3a01%3A0x9dc2e28595e5ef4!2sRua%20Central%20da%20Sa%C3%BAde%2C%202450-100%20Leiria%2C%20Portugal!5e0!3m2!1spt-PT!2spt!4v1730302012345!5m2!1spt-PT!2spt"
                             allowfullscreen=""
                             loading="lazy"
                             referrerpolicy="no-referrer-when-downgrade">

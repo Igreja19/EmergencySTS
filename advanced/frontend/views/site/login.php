@@ -49,17 +49,6 @@ $this->params['breadcrumbs'][] = $this->title;
                         ]) ?>
                     </div>
 
-                    <div class="position-relative text-center my-3">
-                        <hr class="text-muted">
-                        <span class="bg-light px-3 position-absolute top-50 start-50 translate-middle text-muted small">ou</span>
-                    </div>
-
-                    <div class="d-grid mb-4">
-                        <a href="#" class="btn btn-outline-secondary btn-lg fw-semibold rounded-3">
-                            <i class="bi bi-person me-2"></i>Entrar como Convidado (Guest)
-                        </a>
-                    </div>
-
                     <div class="text-center small">
                         <span class="text-muted">Não tem conta?</span>
                         <a href="<?= Yii::$app->urlManager->createUrl(['site/signup']) ?>" class="text-primary fw-semibold text-decoration-none">Criar conta</a>

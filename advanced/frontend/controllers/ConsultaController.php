@@ -15,19 +15,19 @@ class ConsultaController extends Controller
      */
     public function actionHistorico()
     {
-        $userProfileId = Yii::$app->user->identity->userProfile->id;
+        $userprofileId = Yii::$app->user->identity->userprofile->id;
 
         // Buscar todas as consultas ligadas ao utilizador autenticado
         $consultas = Consulta::find()
-            ->where(['userprofile_id' => $userProfileId])
+            ->where(['userprofile_id' => $userprofileId])
             ->orderBy(['data_consulta' => SORT_DESC])
             ->all();
 
         // KPIs
-        $total = Consulta::find()->where(['userprofile_id' => $userProfileId])->count();
+        $total = Consulta::find()->where(['userprofile_id' => $userprofileId])->count();
 
         $ultimaConsulta = Consulta::find()
-            ->where(['userprofile_id' => $userProfileId])
+            ->where(['userprofile_id' => $userprofileId])
             ->orderBy(['data_consulta' => SORT_DESC])
             ->one();
 
@@ -37,7 +37,7 @@ class ConsultaController extends Controller
 
         $prioridadeMaisComum = Consulta::find()
             ->select(['prioridade', 'COUNT(*) AS total'])
-            ->where(['userprofile_id' => $userProfileId])
+            ->where(['userprofile_id' => $userprofileId])
             ->groupBy('prioridade')
             ->orderBy(['total' => SORT_DESC])
             ->asArray()
