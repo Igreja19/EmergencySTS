@@ -37,16 +37,24 @@ $this->registerCss('
   overflow: hidden;
 }
 
+/* Cabeçalho verde */
 .table-modern thead tr {
   background: linear-gradient(90deg, #198754 0%, #28a745 100%);
   color: #fff;
   text-align: center;
 }
 
+/* Links no cabeçalho */
 .table-modern th a {
   color: #fff !important;
   text-decoration: none;
   font-weight: 600;
+}
+
+/* 🔹 Texto preto nas células */
+.table-modern td,
+.table-modern th {
+  color: #212529 !important;
 }
 
 .table-modern td {
@@ -54,32 +62,32 @@ $this->registerCss('
   vertical-align: middle;
 }
 
+/* Badges de prioridade */
 .badge-prio {
   padding: 6px 10px;
   border-radius: 8px;
   font-weight: 600;
   color: #fff;
 }
-
 .badge-Vermelho { background-color: #dc3545; }
 .badge-Laranja  { background-color: #fd7e14; }
 .badge-Amarelo  { background-color: #ffc107; color:#000; }
 .badge-Verde    { background-color: #198754; }
 .badge-Azul     { background-color: #0d6efd; }
 
+/* Botões de ação */
 .btn-action {
   border-radius: 10px;
   padding: 6px 10px;
   margin: 0 2px;
   font-size: 14px;
 }
-
 .btn-view { background:#0d6efd; color:#fff; }
 .btn-edit { background:#198754; color:#fff; }
 .btn-delete { background:#dc3545; color:#fff; }
-
 .btn-action:hover { opacity: .85; }
 
+/* Botão Nova Triagem */
 .btn-new {
   background: linear-gradient(90deg, #198754 0%, #28a745 100%);
   color: #fff;
@@ -133,28 +141,25 @@ $this->registerCss('
                                 'label' => 'Motivo da Consulta',
                         ],
                         [
-                                'label' => 'Prioridade',
-                                'format' => 'raw',
-                                'value' => function ($model) {
-                                    $cor = $model->pulseira->prioridade ?? null;
-                                    return $cor ? "<span class='badge-prio badge-{$cor}'>{$cor}</span>" : '-';
-                                },
-                        ],
-                        [
                                 'attribute' => 'datatriagem',
                                 'label' => 'Data da Triagem',
                                 'format' => ['datetime', 'php:d/m/Y H:i'],
                                 'headerOptions' => ['style' => 'min-width:160px;'],
                         ],
-
                         [
                                 'class' => 'yii\grid\ActionColumn',
                                 'header' => 'Ações',
                                 'template' => '{view} {update} {delete}',
                                 'contentOptions' => ['style' => 'white-space:nowrap; text-align:center;'],
                                 'buttons' => [
-                                        'view' => fn($url) => Html::a('<i class="bi bi-eye"></i>', $url, ['class' => 'btn-action btn-view', 'title' => 'Ver']),
-                                        'update' => fn($url) => Html::a('<i class="bi bi-pencil"></i>', $url, ['class' => 'btn-action btn-edit', 'title' => 'Editar']),
+                                        'view' => fn($url) => Html::a('<i class="bi bi-eye"></i>', $url, [
+                                                'class' => 'btn-action btn-view',
+                                                'title' => 'Ver'
+                                        ]),
+                                        'update' => fn($url) => Html::a('<i class="bi bi-pencil"></i>', $url, [
+                                                'class' => 'btn-action btn-edit',
+                                                'title' => 'Editar'
+                                        ]),
                                         'delete' => fn($url) => Html::a('<i class="bi bi-trash"></i>', $url, [
                                                 'class' => 'btn-action btn-delete',
                                                 'title' => 'Eliminar',

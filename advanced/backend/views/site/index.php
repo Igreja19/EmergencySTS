@@ -248,7 +248,7 @@ function badgePrio(string $prio): string {
 
     <!-- 🔹 Tabela -->
     <div class="card shadow-sm p-3 table-modern mb-4" style="border-radius:16px;">
-        <h6 class="mb-3"><i class="bi bi-list-check me-1"></i> Pacientes em Triagem</h6>
+        <h6 class="mb-3"><i class="bi bi-list-check me-1"></i> Pacientes em Espera</h6>
         <div class="table-responsive">
             <table class="table align-middle mb-0">
                 <thead>
@@ -256,7 +256,6 @@ function badgePrio(string $prio): string {
                     <th>Código</th>
                     <th>Nome</th>
                     <th>Motivo</th>
-                    <th>Prioridade</th>
                     <th>Estado</th>
                 </tr>
                 </thead>
@@ -268,7 +267,6 @@ function badgePrio(string $prio): string {
                         <td><?= Html::encode($p["pulseira"]["codigo"] ?? "-") ?></td>
                         <td><?= Html::encode($p["userprofile"]["nome"] ?? "-") ?></td>
                         <td><?= Html::encode($p["motivoconsulta"] ?? "-") ?></td>
-                        <td><?= badgePrio($p["pulseira"]["prioridade"] ?? "-") ?></td>
                         <td><?= Html::encode($p["pulseira"]["status"] ?? "-") ?></td>
                     </tr>
                 <?php endforeach; endif; ?>

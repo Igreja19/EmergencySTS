@@ -15,7 +15,7 @@ class UserProfileSearch extends Userprofile
     public function rules()
     {
         return [
-            [['id', 'consulta_id', 'triagem_id', 'user_id'], 'integer'],
+            [['id', 'user_id'], 'integer'],
             [['nome', 'email', 'morada', 'nif', 'sns', 'datanascimento', 'genero', 'telefone', 'q'], 'safe'],
         ];
     }
