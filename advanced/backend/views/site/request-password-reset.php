@@ -26,7 +26,7 @@ $this->title = 'Recuperar Palavra-passe';
 
         <div class="row mt-4">
             <div class="col-12">
-                <?= Html::submitButton('Enviar Pedido &rarr;', ['class' => 'btn btn-dark btn-block']) ?>
+                <?= Html::submitButton('Enviar Pedido &rarr;', ['class' => 'btn btn-success btn-block']) ?>
             </div>
         </div>
 

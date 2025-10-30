@@ -31,7 +31,7 @@ use yii\bootstrap4\ActiveForm;
 
         <div class="row mt-4">
             <div class="col-12">
-                <?= Html::submitButton('Iniciar Sessão &rarr;', ['class' => 'btn btn-dark btn-block']) ?>
+                <?= Html::submitButton('Iniciar Sessão &rarr;', ['class' => 'btn btn-success btn-block']) ?>
             </div>
         </div>
 

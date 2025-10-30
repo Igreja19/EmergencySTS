@@ -68,19 +68,3 @@ a, .btn-link { color: var(--brand); }
 
 /* Inputs da top-search */
 .main-header .form-control { border-radius: .75rem; }
-
-:root {
-    --brand: #198754;
-    --brand-2: #22c55e;
-    --radius: 1rem;
-}
-
-.navbar-white.navbar-light {
-    border-bottom: 1px solid rgba(0,0,0,.05);
-}
-.main-header .form-control {
-    border-radius: .75rem;
-}
-.nav-link:hover {
-    color: var(--brand) !important;
-}

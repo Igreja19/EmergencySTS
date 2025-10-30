@@ -17,8 +17,7 @@ if (class_exists(\hail812\adminlte3\assets\ICheckBootstrapAsset::class)) {
 
 // 3) Fonts + CSS customizado
 $this->registerCssFile('https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback');
-$this->registerCssFile('/css/adminlte-custom.css', ['depends' => [\yii\web\JqueryAsset::class]]);
-
+$this->registerCssFile(Yii::getAlias('@web') . '/css/adminlte-custom.css?v=1.1', ['depends' => [\yii\web\JqueryAsset::class]]);
 // 4) Diretório base AdminLTE
 $assetDir = Yii::$app->assetManager->getPublishedUrl('@vendor/almasaeed2010/adminlte/dist');
 
@@ -100,7 +99,7 @@ $this->registerJsFile($publishedRes[1] . '/control_sidebar.js', [
 
 </div>
 
-<!-- ✅ Tooltips Bootstrap -->
+<!--  Tooltips Bootstrap -->
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
