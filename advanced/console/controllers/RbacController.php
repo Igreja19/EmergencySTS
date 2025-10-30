@@ -77,8 +77,8 @@ class RbacController extends Controller
         // 👤 ATRIBUIR ROLES A UTILIZADORES (por ID)
         // =========================================================
         // ⚠️ Altera estes IDs conforme os IDs reais da tabela `user`
-      // utilizador com ID 14 -> Admin
-        $auth->assign($admin, 15);       // utilizador com ID 15 -> Admin
+      // utilizador com ID 15 -> Admin
+        $auth->assign($admin, 11);       // utilizador com ID 15 -> Admin
         $auth->assign($medico, 2);      // utilizador com ID 2 -> Médico
         $auth->assign($enfermeiro, 3);  // utilizador com ID 3 -> Enfermeiro
 
