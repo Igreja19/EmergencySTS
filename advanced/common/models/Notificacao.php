@@ -15,7 +15,7 @@ use Yii;
  * @property int $lida
  * @property int $userprofile_id
  *
- * @property Userprofile $userprofile
+ * @property UserProfile $userprofile
  */
 class Notificacao extends \yii\db\ActiveRecord
 {
@@ -42,7 +42,7 @@ class Notificacao extends \yii\db\ActiveRecord
                 ['userprofile_id'],
                 'exist',
                 'skipOnError' => true,
-                'targetClass' => Userprofile::class,
+                'targetClass' => UserProfile::class,
                 'targetAttribute' => ['userprofile_id' => 'id']
             ],
         ];
@@ -65,13 +65,13 @@ class Notificacao extends \yii\db\ActiveRecord
     }
 
     /**
-     * Relação com Userprofile.
+     * Relação com UserProfile.
      *
      * @return \yii\db\ActiveQuery
      */
     public function getUserprofile()
     {
-        return $this->hasOne(Userprofile::class, ['id' => 'userprofile_id']);
+        return $this->hasOne(UserProfile::class, ['id' => 'userprofile_id']);
     }
 
     /**

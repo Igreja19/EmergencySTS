@@ -2,7 +2,7 @@
 
 namespace backend\controllers;
 
-use common\models\Userprofile;
+use common\models\UserProfile;
 use common\models\UserProfileSearch;
 use Yii;
 use yii\web\Controller;
@@ -10,7 +10,7 @@ use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
- * UserProfileController implementa as ações CRUD para o modelo Userprofile.
+ * UserProfileController implementa as ações CRUD para o modelo UserProfile.
  */
 class UserProfileController extends Controller
 {
@@ -58,7 +58,7 @@ class UserProfileController extends Controller
             return $this->redirect(['site/login']);
         }
 
-        $perfil = Userprofile::findOne(['user_id' => $userId]);
+        $perfil = UserProfile::findOne(['user_id' => $userId]);
 
         if (!$perfil) {
             Yii::$app->session->setFlash('warning', 'Nenhum perfil encontrado para este utilizador.');
@@ -91,41 +91,52 @@ class UserProfileController extends Controller
      */
     public function actionCreate()
     {
-        $model = new Userprofile();
+        $model = new \common\models\UserProfile();
         $auth = Yii::$app->authManager;
 
-        if (Yii::$app->request->isPost && $model->load(Yii::$app->request->post())) {
+        if ($model->load(Yii::$app->request->post())) {
 
-            // Se não houver user_id explícito, associa ao user autenticado
-            if (!Yii::$app->user->isGuest && empty($model->user_id)) {
-                $model->user_id = Yii::$app->user->id;
+            // 🔹 Verifica se já existe user com este email
+            $existingUser = \common\models\User::findOne(['email' => $model->email]);
+
+            if (!$existingUser) {
+                // 🔹 Cria novo utilizador base
+                $user = new \common\models\User();
+                $user->username = $model->email;
+                $user->email = $model->email;
+                $user->setPassword('123456'); // ⚠️ Password padrão (podes mudar depois)
+                $user->generateAuthKey();
+
+                if ($user->save()) {
+                    $model->user_id = $user->id;
+                } else {
+                    Yii::$app->session->setFlash('error', 'Erro ao criar utilizador base: ' . json_encode($user->getErrors()));
+                    return $this->render('create', ['model' => $model]);
+                }
+            } else {
+                $model->user_id = $existingUser->id;
             }
 
-            // IDs default para evitar erro de FK
-            $model->consulta_id = $model->consulta_id ?? 1;
-            $model->triagem_id = $model->triagem_id ?? 1;
-
+            // 🔹 Guarda o perfil
             if ($model->save()) {
 
+                // 🔹 Atribui role, se selecionado
                 if (!empty($model->role)) {
-                    $auth = Yii::$app->authManager;
-                    $auth->revokeAll($model->user_id); // limpa roles anteriores
+                    $auth->revokeAll($model->user_id);
                     $role = $auth->getRole($model->role);
                     if ($role) {
                         $auth->assign($role, $model->user_id);
                     }
                 }
 
-                Yii::$app->session->setFlash('success', 'Perfil criado/atualizado com sucesso.');
+                Yii::$app->session->setFlash('success', 'Utilizador criado com sucesso!');
                 return $this->redirect(['view', 'id' => $model->id]);
             }
 
-            Yii::$app->session->setFlash('error', 'Erro ao criar o perfil.');
+            Yii::$app->session->setFlash('error', 'Erro ao guardar o perfil: ' . json_encode($model->getErrors()));
         }
 
-        return $this->render('create', [
-            'model' => $model,
-        ]);
+        return $this->render('create', ['model' => $model]);
     }
 
     /**
@@ -184,11 +195,11 @@ class UserProfileController extends Controller
     }
 
     /**
-     * Procura o modelo Userprofile pelo ID.
+     * Procura o modelo UserProfile pelo ID.
      */
     protected function findModel($id)
     {
-        if (($model = Userprofile::findOne(['id' => $id])) !== null) {
+        if (($model = UserProfile::findOne(['id' => $id])) !== null) {
             return $model;
         }
 

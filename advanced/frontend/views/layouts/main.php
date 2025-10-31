@@ -27,9 +27,6 @@ AppAsset::register($this);
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
 
-    <!-- CSS personalizado -->
-    <link rel="stylesheet" href="/css/style.css">
-
     <style>
         /* 🔹 Navbar */
         .navbar {

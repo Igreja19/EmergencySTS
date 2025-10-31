@@ -1,6 +1,6 @@
 <?php
 
-use common\models\Userprofile;
+use common\models\UserProfile;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\grid\ActionColumn;
@@ -18,7 +18,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a('Create Userprofile', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('Create UserProfile', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
@@ -44,7 +44,7 @@ $this->params['breadcrumbs'][] = $this->title;
             //'user_id',
             [
                 'class' => ActionColumn::className(),
-                'urlCreator' => function ($action, Userprofile $model, $key, $index, $column) {
+                'urlCreator' => function ($action, UserProfile $model, $key, $index, $column) {
                     return Url::toRoute([$action, 'id' => $model->id]);
                  }
             ],

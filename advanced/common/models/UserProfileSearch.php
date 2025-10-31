@@ -4,19 +4,18 @@ namespace common\models;
 
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
+use common\models\UserProfile;
 
-/**
- * UserProfileSearch representa o modelo de pesquisa para `common\models\Userprofile`.
- */
-class UserProfileSearch extends Userprofile
+class UserProfileSearch extends UserProfile
 {
-    public $q; // campo de pesquisa global
+    public $q;           // 🔍 Campo de pesquisa geral
+    public $created_at;  // 📅 Filtro de data de registo
 
     public function rules()
     {
         return [
-            [['id', 'user_id'], 'integer'],
-            [['nome', 'email', 'morada', 'nif', 'sns', 'datanascimento', 'genero', 'telefone', 'q'], 'safe'],
+            [['id'], 'integer'],
+            [['nome', 'email', 'telefone', 'genero', 'datanascimento', 'created_at', 'q'], 'safe'],
         ];
     }
 
@@ -27,42 +26,38 @@ class UserProfileSearch extends Userprofile
 
     public function search($params)
     {
-        $query = Userprofile::find();
+        $query = UserProfile::find();
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
-            'sort' => ['defaultOrder' => ['id' => SORT_DESC]],
-            'pagination' => ['pageSize' => 10],
         ]);
 
-        // 🔹 Carrega parâmetros
         $this->load($params);
-
-        // 🔹 Se o campo 'q' vier do formulário GET manual, atribui-o manualmente
-        if (isset($params['UserProfileSearch']['q'])) {
-            $this->q = $params['UserProfileSearch']['q'];
-        }
 
         if (!$this->validate()) {
             return $dataProvider;
         }
 
-        // 🔍 Pesquisa global (campo 'q')
+        // 🔍 Filtro geral (pesquisa em múltiplos campos)
         if (!empty($this->q)) {
-            $query->andFilterWhere(['or',
+            $query->andFilterWhere([
+                'or',
                 ['like', 'nome', $this->q],
                 ['like', 'email', $this->q],
                 ['like', 'telefone', $this->q],
                 ['like', 'nif', $this->q],
-                ['like', 'sns', $this->q],
-                ['like', 'morada', $this->q],
             ]);
         }
 
-        // 🔹 Filtros adicionais (opcional)
-        $query->andFilterWhere(['id' => $this->id]);
-        $query->andFilterWhere(['like', 'genero', $this->genero]);
-        $query->andFilterWhere(['like', 'email', $this->email]);
+        // 📅 Filtro por data (formato do input type=date)
+        if (!empty($this->created_at)) {
+            $query->andWhere(['DATE(created_at)' => $this->created_at]);
+        }
+
+        // Ordenação padrão
+        $dataProvider->setSort([
+            'defaultOrder' => ['id' => SORT_DESC],
+        ]);
 
         return $dataProvider;
     }

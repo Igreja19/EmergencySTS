@@ -7,43 +7,8 @@ use yii\widgets\ActiveForm;
 /** @var common\models\Triagem $model */
 /** @var yii\widgets\ActiveForm $form */
 
-$this->registerCss('
-.triagem-form {
-  background: #fff;
-  border-radius: 20px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-  padding: 25px 30px;
-  margin-bottom: 25px;
-}
-.triagem-form h5 {
-  color: #198754;
-  font-weight: 700;
-  margin-bottom: 15px;
-}
-.triagem-form .form-control {
-  border-radius: 12px;
-  box-shadow: none;
-  border: 1px solid #ced4da;
-  padding: 10px 12px;
-}
-.triagem-form .form-control:focus {
-  border-color: #198754;
-  box-shadow: 0 0 0 0.15rem rgba(25,135,84,.25);
-}
-.btn-save {
-  background: linear-gradient(90deg, #198754 0%, #28a745 100%);
-  color: #fff;
-  font-weight: 600;
-  border-radius: 12px;
-  padding: 10px 25px;
-  transition: .2s;
-}
-.btn-save:hover {
-  opacity: .9;
-  transform: translateY(-2px);
-}
-');
 ?>
+<link rel="stylesheet" href="css/triagem.css">
 
 <div class="triagem-form">
 

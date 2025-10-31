@@ -64,7 +64,7 @@ class Consulta extends \yii\db\ActiveRecord
             'prioridade' => 'Prioridade',
             'motivo' => 'Motivo',
             'observacoes' => 'Observacoes',
-            'userprofile_id' => 'Userprofile ID',
+            'userprofile_id' => 'UserProfile ID',
             'triagem_id' => 'Triagem ID',
             'prescricao_id' => 'Prescricao ID',
             'data_encerramento' => 'Data Encerramento',
@@ -94,7 +94,7 @@ class Consulta extends \yii\db\ActiveRecord
     }
 
     /**
-     * Gets query for [[Userprofile]].
+     * Gets query for [[UserProfile]].
      *
      * @return \yii\db\ActiveQuery
      */

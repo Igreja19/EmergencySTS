@@ -2,7 +2,7 @@
 
 namespace common\models;
 
-use common\models\Userprofile;
+use common\models\UserProfile;
 use Yii;
 use yii\base\NotSupportedException;
 use yii\behaviors\TimestampBehavior;
@@ -24,7 +24,7 @@ use yii\web\IdentityInterface;
  * @property integer $updated_at
  * @property string $password write-only password
  * @property int $primeiro_login
- * @property \common\models\Userprofile $userprofile
+ * @property \common\models\UserProfile $userprofile
  */
 class User extends ActiveRecord implements IdentityInterface
 {
@@ -156,7 +156,7 @@ class User extends ActiveRecord implements IdentityInterface
 
     public function getUserprofile()
     {
-        return $this->hasOne(\common\models\Userprofile::class, ['user_id' => 'id']);
+        return $this->hasOne(\common\models\UserProfile::class, ['user_id' => 'id']);
     }
 
     /**

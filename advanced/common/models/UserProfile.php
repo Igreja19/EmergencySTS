@@ -22,7 +22,7 @@ use Yii;
  * @property Triagem[] $triagems
  * @property User $user
  */
-class Userprofile extends \yii\db\ActiveRecord
+class UserProfile extends \yii\db\ActiveRecord
 {
     public $role;
 
@@ -103,4 +103,5 @@ class Userprofile extends \yii\db\ActiveRecord
     {
         return $this->hasOne(User::class, ['id' => 'user_id']);
     }
+
 }

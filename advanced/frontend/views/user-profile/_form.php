@@ -3,7 +3,7 @@ use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
 /** @var yii\web\View $this */
-/** @var common\models\Userprofile $model */
+/** @var common\models\UserProfile $model */
 
 $this->title = $model->isNewRecord ? 'Criar Perfil' : 'Editar Perfil';
 ?>
