@@ -21,13 +21,6 @@ use yii\widgets\ActiveForm;
                         'class' => 'form-control shadow-sm border border-success rounded-pill px-3'
                 ])->label(false) ?>
             </div>
-
-            <div class="col-md-3">
-                <?= $form->field($model, 'created_at')->input('date', [
-                        'class' => 'form-control shadow-sm border border-success rounded-pill px-3'
-                ])->label(false) ?>
-            </div>
-
             <div class="col-md-3 text-center text-md-start">
                 <div class="d-flex justify-content-center justify-content-md-start gap-2">
                     <?= Html::submitButton('<i class="bi bi-search me-1"></i> Procurar', [
