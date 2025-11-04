@@ -11,7 +11,7 @@ $userProfile = Yii::$app->user->identity->userprofile;
 <div class="container py-5">
     <div class="text-center mb-5">
         <h3 class="fw-bold text-success mt-3">Formulário Clínico</h3>
-        <p class="text-muted">Os seus dados foram preenchidos automaticamente com base no seu perfil.</p>
+        <p class="text-muted">Os seus <dados></dados> foram preenchidos automaticamente com base no seu perfil.</p>
     </div>
 
     <div class="mx-auto card shadow-sm border-0 rounded-4 p-4" style="max-width: 850px;">

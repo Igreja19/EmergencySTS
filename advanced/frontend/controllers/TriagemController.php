@@ -33,9 +33,22 @@ class TriagemController extends Controller
         if (Yii::$app->request->isPost && $model->load(Yii::$app->request->post())) {
             $model->datatriagem = date('Y-m-d H:i:s');
 
+            // 🔹 Cria automaticamente a pulseira (sem cor definida)
+            $pulseira = new Pulseira();
+            $pulseira->codigo = strtoupper(substr(md5(uniqid()), 0, 8)); // código único
+            $pulseira->prioridade = 'Pendente'; // cor ainda não atribuída
+            $pulseira->tempoentrada = date('Y-m-d H:i:s');
+            $pulseira->status = 'Aguardando';
+            $pulseira->userprofile_id = $model->userprofile_id;
+
+            // 🔹 Guarda a pulseira e associa à triagem
+            if ($pulseira->save(false)) {
+                $model->pulseira_id = $pulseira->id;
+            }
+
             if ($model->save(false)) {
-                Yii::$app->session->setFlash('success', 'Formulário clínico registado com sucesso!');
-                return $this->redirect(['triagem/index']);
+                Yii::$app->session->setFlash('success', 'Formulário clínico registado e pulseira criada com sucesso!');
+                return $this->redirect(['pulseira/index']);
             } else {
                 Yii::$app->session->setFlash('error', 'Erro ao guardar os dados da triagem.');
             }
@@ -46,4 +59,5 @@ class TriagemController extends Controller
             'model' => $model,
         ]);
     }
+
 }

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Tempo de geração: 30-Out-2025 às 16:50
+-- Tempo de geração: 31-Out-2025 às 12:00
 -- Versão do servidor: 9.1.0
 -- versão do PHP: 8.2.26
 
@@ -41,11 +41,7 @@ CREATE TABLE IF NOT EXISTS `auth_assignment` (
 --
 
 INSERT INTO `auth_assignment` (`item_name`, `user_id`, `created_at`) VALUES
-('admin', '1', 1761233604),
-('author', '11', 1761752949),
-('author', '13', 1761753767),
-('author', '14', 1761765484),
-('author', '15', 1761841878);
+('admin', '1', 1761233604);
 
 -- --------------------------------------------------------
 
@@ -74,7 +70,6 @@ CREATE TABLE IF NOT EXISTS `auth_item` (
 INSERT INTO `auth_item` (`name`, `type`, `description`, `rule_name`, `data`, `created_at`, `updated_at`) VALUES
 ('admin', 1, NULL, NULL, NULL, 1761233604, 1761233604),
 ('atualizarRegisto', 2, 'Atualizar registo existente', NULL, NULL, 1761233604, 1761233604),
-('author', 1, NULL, NULL, NULL, 1761233604, 1761233604),
 ('createPost', 2, 'Create a post', NULL, NULL, 1761233604, 1761233604),
 ('criarRegisto', 2, 'Criar novo registo', NULL, NULL, 1761233604, 1761233604),
 ('editarRegisto', 2, 'Editar registo existente', NULL, NULL, 1761233604, 1761233604),
@@ -103,8 +98,6 @@ CREATE TABLE IF NOT EXISTS `auth_item_child` (
 --
 
 INSERT INTO `auth_item_child` (`parent`, `child`) VALUES
-('admin', 'author'),
-('author', 'createPost'),
 ('admin', 'updatePost');
 
 -- --------------------------------------------------------
@@ -133,20 +126,31 @@ CREATE TABLE IF NOT EXISTS `consulta` (
   `id` int NOT NULL AUTO_INCREMENT,
   `data_consulta` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `estado` enum('Aberta','Encerrada','Em curso') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'Aberta',
-  `prioridade` enum('Vermelho','Laranja','Amarelo','Verde','Azul') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `motivo` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `observacoes` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
   `userprofile_id` int NOT NULL,
   `triagem_id` int NOT NULL,
   `prescricao_id` int NOT NULL,
   `data_encerramento` datetime DEFAULT NULL,
-  `tempo_consulta` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `relatorio_pdf` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_consulta_triagem_idx` (`triagem_id`),
   KEY `fk_prescricao_id` (`prescricao_id`),
   KEY `fk_userprofile_consulta` (`userprofile_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura da tabela `medicamento`
+--
+
+DROP TABLE IF EXISTS `medicamento`;
+CREATE TABLE IF NOT EXISTS `medicamento` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `nome` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `dosagem` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -196,13 +200,29 @@ CREATE TABLE IF NOT EXISTS `notificacao` (
 DROP TABLE IF EXISTS `prescricao`;
 CREATE TABLE IF NOT EXISTS `prescricao` (
   `id` int NOT NULL,
-  `medicamento` varchar(100) NOT NULL,
-  `dosagem` varchar(100) NOT NULL,
-  `frequencia` varchar(100) NOT NULL,
   `observacoes` text NOT NULL,
   `dataprescricao` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
+  `consulta_id` int NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_consulta_prescricao` (`consulta_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura da tabela `prescricaomedicamento`
+--
+
+DROP TABLE IF EXISTS `prescricaomedicamento`;
+CREATE TABLE IF NOT EXISTS `prescricaomedicamento` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `posologia` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `prescricao_id` int NOT NULL,
+  `medicamento_id` int NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_prescricaoMed_prescricao` (`prescricao_id`),
+  KEY `fk_prescricaoMed_medicamento` (`medicamento_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -214,13 +234,13 @@ DROP TABLE IF EXISTS `pulseira`;
 CREATE TABLE IF NOT EXISTS `pulseira` (
   `id` int NOT NULL AUTO_INCREMENT,
   `codigo` varchar(10) NOT NULL,
-  `prioridade` enum('Vermelho','Laranja','Amarelo','Verde','Azul') NOT NULL,
+  `prioridade` enum('Vermelho','Laranja','Amarelo','Verde','Azul','Pendente') CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
   `status` enum('Aguardando','Em atendimento','Atendido') CHARACTER SET latin1 COLLATE latin1_swedish_ci DEFAULT 'Aguardando',
   `tempoentrada` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `userprofile_id` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_userprofile_pulseira` (`userprofile_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
 
 --
 -- Extraindo dados da tabela `pulseira`
@@ -229,7 +249,8 @@ CREATE TABLE IF NOT EXISTS `pulseira` (
 INSERT INTO `pulseira` (`id`, `codigo`, `prioridade`, `status`, `tempoentrada`, `userprofile_id`) VALUES
 (4, '9D3AA8E5', 'Azul', 'Aguardando', '2025-10-29 20:45:21', 9),
 (5, '97A510BD', '', 'Aguardando', '2025-10-30 15:07:38', 9),
-(6, 'B2882746', 'Verde', 'Aguardando', '2025-10-30 16:40:46', 10);
+(6, 'B2882746', 'Verde', 'Aguardando', '2025-10-30 16:40:46', 10),
+(7, '34CC9466', 'Amarelo', 'Aguardando', '2025-10-31 11:32:55', 8);
 
 -- --------------------------------------------------------
 
@@ -253,7 +274,7 @@ CREATE TABLE IF NOT EXISTS `triagem` (
   PRIMARY KEY (`id`),
   KEY `fk_pulseira_id` (`pulseira_id`),
   KEY `fk_triagem_userprofile_id` (`userprofile_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=latin1;
 
 --
 -- Extraindo dados da tabela `triagem`
@@ -263,7 +284,7 @@ INSERT INTO `triagem` (`id`, `motivoconsulta`, `queixaprincipal`, `descricaosint
 (11, 'Dor no Queixo', 'sdf', 'sdfs', '4333-03-12 23:32:00', 3, 'sdf', 'sdf', '2025-10-29 20:45:21', 9, 4),
 (12, 'gfhfgh', 'fghfh', 'dghfh', '4334-03-12 03:23:00', 10, 'efsg', 'dfg', '2025-10-30 15:07:38', 9, 5),
 (13, 'Dor no Queixo de baixo', 'Sangue no queixo', 'Doi ao tocar na testa', '3222-05-04 05:08:00', 10, 'nao tenoh', 'viogrum', '2025-10-30 16:40:46', 10, 6),
-(14, 'Dor no Queixo de cima', 'dgfdg', 'dfgdfg', '3453-05-31 05:34:00', 4, 'erg', 'erg', '2025-10-30 16:49:42', 10, NULL);
+(16, 'teste', 'teste', 'teste', '2343-04-23 03:23:00', 10, 'teste', 'teste', '2025-10-31 11:32:55', 8, 7);
 
 -- --------------------------------------------------------
 
@@ -296,8 +317,8 @@ CREATE TABLE IF NOT EXISTS `user` (
 
 INSERT INTO `user` (`id`, `username`, `auth_key`, `password_hash`, `password_reset_token`, `email`, `status`, `created_at`, `updated_at`, `verification_token`, `primeiro_login`) VALUES
 (1, 'admin', 'wF3wFkGpMxcqjhdrmS3WJvWNEdYB2WaT', '$2y$13$EIvoQKhEciV2r1hAF3AJauyr5nuyHYnJ7X/S9d9nV4WR4dYUxUWfG', NULL, 'admin@gmail.com', 10, 1761233560, 1761233560, NULL, 1),
-(13, 'henrique', 'vaP80G6lRRA6t6gzN8V8mdd4r2GTaFYA', '$2y$13$eb3e8WM7NkvGb8jJ/90emu.rvswWdGOBRwPMDJxO1cqR9iCIA/fRi', NULL, 'henrique@admin.com', 10, 1761753767, 1761753767, NULL, 1),
-(14, 'henrique2', 'js3kFvtb9Wll0UeVVJsnycj6gxfzeuqO', '$2y$13$gj08.hqXkJZdLKWyLPL1buvBCEVoW74SeGVZViX1Sm3k4p.gTR/yC', NULL, 'henrique2@admin.com', 10, 1761765484, 1761765484, NULL, 1),
+(13, 'henrique', 'vaP80G6lRRA6t6gzN8V8mdd4r2GTaFYA', '$2y$13$eb3e8WM7NkvGb8jJ/90emu.rvswWdGOBRwPMDJxO1cqR9iCIA/fRi', NULL, 'henrique@admin.com', 10, 1761753767, 1761907875, NULL, 0),
+(14, 'henrique2', 'js3kFvtb9Wll0UeVVJsnycj6gxfzeuqO', '$2y$13$gj08.hqXkJZdLKWyLPL1buvBCEVoW74SeGVZViX1Sm3k4p.gTR/yC', NULL, 'henrique2@admin.com', 10, 1761765484, 1761907640, NULL, 0),
 (15, 'henrique3', '63wiuOFwnacZUswcy7rsJvH0VbsALtIl', '$2y$13$Uqcj5pOm8btQqPmqHVD7xOOcuVMTiC3.PTNLwwG/js0JKNgi8l8tC', NULL, 'henrique3@admin.com', 10, 1761841878, 1761841884, NULL, 0);
 
 -- --------------------------------------------------------
@@ -328,7 +349,7 @@ CREATE TABLE IF NOT EXISTS `userprofile` (
 --
 
 INSERT INTO `userprofile` (`id`, `nome`, `email`, `morada`, `nif`, `sns`, `datanascimento`, `genero`, `telefone`, `user_id`) VALUES
-(8, 'henrique', 'henrique@admin.com', NULL, '', '', '0000-00-00', '', '', 13),
+(8, 'henrique', 'henrique@admin.com', 'Rua das Flores, nº72 2445-034', '234938493', '398493928', '2333-02-23', 'M', '915429512', 13),
 (9, 'Henrique Salgado', 'henriquesalgado@gmail.com', 'Rua das Flores, nº72 2445-034', '483956185', '495284639', '2004-07-05', 'M', '915429512', 14),
 (10, 'henrique3', 'henrique3@admin.com', 'Rua das Flores, nº72 2445-034', '234549264', '485429512', '2234-03-02', 'M', '915429512', 15);
 
@@ -362,6 +383,19 @@ ALTER TABLE `consulta`
 --
 ALTER TABLE `notificacao`
   ADD CONSTRAINT `fk_userprofile_id` FOREIGN KEY (`userprofile_id`) REFERENCES `userprofile` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+--
+-- Limitadores para a tabela `prescricao`
+--
+ALTER TABLE `prescricao`
+  ADD CONSTRAINT `fk_consulta_prescricao` FOREIGN KEY (`consulta_id`) REFERENCES `consulta` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+--
+-- Limitadores para a tabela `prescricaomedicamento`
+--
+ALTER TABLE `prescricaomedicamento`
+  ADD CONSTRAINT `fk_prescricaoMed_medicamento` FOREIGN KEY (`medicamento_id`) REFERENCES `medicamento` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  ADD CONSTRAINT `fk_prescricaoMed_prescricao` FOREIGN KEY (`prescricao_id`) REFERENCES `prescricao` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 --
 -- Limitadores para a tabela `pulseira`

@@ -3,10 +3,6 @@ use yii\helpers\Html;
 
 $this->title = 'Painel de Triagem - EmergencySTS';
 
-$this->registerCssFile('https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css');
-$this->registerCssFile('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css');
-$this->registerJsFile('https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js', ['position' => \yii\web\View::POS_END]);
-
 if (!$pulseira) {
     echo '<div class="container py-5 text-center">
             <div class="alert alert-warning rounded-4 shadow-sm p-4">
@@ -22,26 +18,18 @@ if (!$pulseira) {
 
 // 🔹 Cores das prioridades
 $cores = [
-        'Vermelha' => '#dc3545',
+        'Vermelho' => '#dc3545',
         'Laranja'  => '#fd7e14',
-        'Amarela'  => '#ffc107',
+        'Amarelo'  => '#ffc107',
         'Verde'    => '#198754',
         'Azul'     => '#0d6efd',
+        'Pendente' => '#6c757d',
 ];
-$cor = $cores[$pulseira->prioridade] ?? '#198754';
 
-// 🔹 Ajuste do tempo estimado
-if ($tempoEstimadoMin <= 0 && $position > 1) {
-    $tempoEstimadoMin = max(5, $position * 5);
-}
+$cor = $cores[$pulseira->prioridade] ?? '#6c757d';
 
-// 🔹 Corrige progresso
-if ($position > 1 && $totalAguardar > 0) {
-    $progressPct = max(0, 100 - (($position - 1) / $totalAguardar) * 100);
-} else {
-    $progressPct = 100;
-}
 ?>
+
 
 <div class="container py-5">
     <h5 class="fw-bold text-success mb-2">Tempo de Espera Estimado</h5>
@@ -70,40 +58,38 @@ if ($position > 1 && $totalAguardar > 0) {
                          letter-spacing: .5px;
                          box-shadow: 0 2px 6px rgba(0,0,0,0.1);
                          ">
-                <?= strtoupper(Html::encode($pulseira->prioridade)) ?>
+                <?= strtoupper(Html::encode($pulseira->prioridade ?? 'PENDENTE')) ?>
             </div>
         </div>
 
         <hr class="my-3">
 
-        <!-- Informações principais -->
-        <div class="row text-center g-3">
-            <div class="col-md-4">
-                <p class="text-muted mb-1">Tempo Decorrido</p>
-                <h6 class="fw-semibold"><?= (int)$tempoDecorridoMin ?> min</h6>
-            </div>
-            <div class="col-md-4">
-                <p class="text-muted mb-1">Tempo Estimado</p>
-                <h6 class="fw-semibold">~<?= (int)$tempoEstimadoMin ?> min</h6>
-            </div>
-            <div class="col-md-4">
-                <p class="text-muted mb-1">Posição na Fila</p>
-                <h6 class="fw-semibold"><?= (int)$position ?>º</h6>
-            </div>
-        </div>
-
         <!-- Barra de progresso -->
         <div class="mt-3 position-relative">
-            <div class="progress rounded-pill triage-track" style="height: 12px;">
+            <div class="progress rounded-pill triage-track" style="height: 14px; overflow: hidden;">
                 <div class="progress-bar progress-bar-striped progress-bar-animated"
-                     style="width: <?= min(100, (int)$progressPct) ?>%; background-color: <?= $cor ?>;">
+                     style="
+                             width: <?= min(100, (int)$progressPct) ?>%;
+                             background: linear-gradient(90deg, <?= $cor ?>, <?= $cor ?>cc);
+                             transition: width 0.8s ease;
+                             box-shadow: 0 0 10px <?= $cor ?>80;
+                             ">
                 </div>
             </div>
-            <div class="small text-muted text-end mt-1"><?= (int)$progressPct ?>%</div>
+
+            <div class="small text-muted text-end mt-1">
+                <?= (int)$progressPct ?>%
+            </div>
         </div>
 
+        <!-- Legenda da fila -->
         <div class="small text-muted mb-1 mt-3">
-            Progresso do tempo máximo (<?= isset($maxByPriority[$pulseira->prioridade]) ? (int)$maxByPriority[$pulseira->prioridade] : 60 ?> min)
+            <?php if ($pulseira->prioridade === 'Pendente'): ?>
+                A sua prioridade ainda não foi atribuída. Aguarde avaliação de um enfermeiro.
+            <?php else: ?>
+                Posição <?= (int)$position ?> de <?= (int)$totalAguardarPrioridade ?> na fila de prioridade
+                <strong style="color: <?= $cor ?>;"><?= Html::encode($pulseira->prioridade) ?></strong>.
+            <?php endif; ?>
         </div>
 
         <!-- Nome do utilizador -->
