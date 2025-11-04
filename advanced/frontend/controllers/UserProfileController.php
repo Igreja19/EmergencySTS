@@ -2,7 +2,7 @@
 
 namespace frontend\controllers;
 
-use common\models\Userprofile;
+use common\models\UserProfile;
 use common\models\UserProfileSearch;
 use Yii;
 use yii\web\Controller;
@@ -10,7 +10,7 @@ use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
- * UserProfileController implements the CRUD actions for Userprofile model.
+ * UserProfileController implements the CRUD actions for UserProfile model.
  */
 class UserProfileController extends Controller
 {
@@ -33,7 +33,7 @@ class UserProfileController extends Controller
     }
 
     /**
-     * Lists all Userprofile models.
+     * Lists all UserProfile models.
      *
      * @return string
      */
@@ -49,7 +49,7 @@ class UserProfileController extends Controller
     }
 
     /**
-     * Displays a single Userprofile model.
+     * Displays a single UserProfile model.
      * @param int $id ID
      * @return string
      * @throws NotFoundHttpException if the model cannot be found
@@ -62,13 +62,13 @@ class UserProfileController extends Controller
     }
 
     /**
-     * Creates a new Userprofile model.
+     * Creates a new UserProfile model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return string|\yii\web\Response
      */
     public function actionCreate()
     {
-        $model = new Userprofile();
+        $model = new UserProfile();
 
         if ($this->request->isPost) {
             if ($model->load($this->request->post()) && $model->save()) {
@@ -84,7 +84,7 @@ class UserProfileController extends Controller
     }
 
     /**
-     * Updates an existing Userprofile model.
+     * Updates an existing UserProfile model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param int $id ID
      * @return string|\yii\web\Response
@@ -104,7 +104,7 @@ class UserProfileController extends Controller
     }
 
     /**
-     * Deletes an existing Userprofile model.
+     * Deletes an existing UserProfile model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param int $id ID
      * @return \yii\web\Response
@@ -135,15 +135,15 @@ class UserProfileController extends Controller
     }
 
     /**
-     * Finds the Userprofile model based on its primary key value.
+     * Finds the UserProfile model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param int $id ID
-     * @return Userprofile the loaded model
+     * @return UserProfile the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Userprofile::findOne(['id' => $id])) !== null) {
+        if (($model = UserProfile::findOne(['id' => $id])) !== null) {
             return $model;
         }
 

@@ -1,0 +1,88 @@
+/* === Estilo do formulário UserProfile === */
+
+.userprofile-form {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    padding: 25px 30px;
+    margin-bottom: 25px;
+}
+
+/* Títulos das secções */
+.userprofile-form h5 {
+    color: #198754;
+    font-weight: 700;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.userprofile-form h5 i {
+    color: #198754;
+    font-size: 1.2rem;
+}
+
+/* Campos de formulário */
+.userprofile-form .form-control,
+.userprofile-form .form-select {
+    border-radius: 12px;
+    box-shadow: none;
+    border: 1px solid #ced4da;
+    padding: 10px 12px;
+    transition: all 0.2s ease-in-out;
+}
+
+.userprofile-form .form-control:focus,
+.userprofile-form .form-select:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.15rem rgba(25, 135, 84, 0.25);
+}
+
+/* Espaçamento entre grupos */
+.userprofile-form .row + .row {
+    margin-top: 0.5rem;
+}
+
+/* Botões principais */
+.btn-save {
+    background: linear-gradient(90deg, #198754 0%, #28a745 100%);
+    color: #fff;
+    font-weight: 600;
+    border-radius: 12px;
+    padding: 10px 25px;
+    transition: 0.2s ease;
+    border: none;
+    box-shadow: 0 4px 10px rgba(25, 135, 84, 0.2);
+}
+
+.btn-save:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+
+/* Botão secundário (Cancelar) */
+.btn-cancel {
+    background: #f8f9fa;
+    color: #6c757d;
+    font-weight: 500;
+    border-radius: 12px;
+    padding: 10px 25px;
+    border: 1px solid #ced4da;
+    transition: 0.2s ease;
+}
+
+.btn-cancel:hover {
+    background: #e9ecef;
+    color: #495057;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .userprofile-form {
+        padding: 20px;
+    }
+    .userprofile-form h5 {
+        font-size: 1rem;
+    }
+}

@@ -14,7 +14,7 @@ use Yii;
  * @property string $tempoentrada
  * @property int $userprofile_id
  *
- * @property Userprofile $userprofile
+ * @property UserProfile $userprofile
  * @property Triagem $triagem
  */
 class Pulseira extends \yii\db\ActiveRecord
@@ -41,7 +41,7 @@ class Pulseira extends \yii\db\ActiveRecord
             [['codigo'], 'string', 'max' => 10],
             [['codigo'], 'unique'],
             [['userprofile_id'], 'exist', 'skipOnError' => true,
-                'targetClass' => Userprofile::class, 'targetAttribute' => ['userprofile_id' => 'id']],
+                'targetClass' => UserProfile::class, 'targetAttribute' => ['userprofile_id' => 'id']],
         ];
     }
 
@@ -65,7 +65,7 @@ class Pulseira extends \yii\db\ActiveRecord
      */
     public function getUserprofile()
     {
-        return $this->hasOne(\common\models\Userprofile::class, ['id' => 'userprofile_id']);
+        return $this->hasOne(\common\models\UserProfile::class, ['id' => 'userprofile_id']);
     }
 
     /**

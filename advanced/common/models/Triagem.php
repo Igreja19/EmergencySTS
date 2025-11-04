@@ -1,7 +1,7 @@
 <?php
 
 namespace common\models;
-use common\models\Userprofile; // adiciona no topo se ainda não tiver
+use common\models\UserProfile; // adiciona no topo se ainda não tiver
 use Yii;
 
 /**
@@ -86,6 +86,6 @@ class Triagem extends \yii\db\ActiveRecord
      */
     public function getUserprofile()
     {
-        return $this->hasOne(Userprofile::class, ['id' => 'userprofile_id']);
+        return $this->hasOne(UserProfile::class, ['id' => 'userprofile_id']);
     }
 }

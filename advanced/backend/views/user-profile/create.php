@@ -3,7 +3,7 @@
 use yii\helpers\Html;
 
 /** @var yii\web\View $this */
-/** @var common\models\Userprofile $model */
+/** @var common\models\UserProfile $model */
 
 $this->title = 'Criar Novo Perfil';
 $this->params['breadcrumbs'][] = ['label' => 'Perfis de Utilizador', 'url' => ['index']];

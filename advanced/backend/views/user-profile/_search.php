@@ -14,43 +14,30 @@ use yii\widgets\ActiveForm;
                 'options' => ['data-pjax' => 1],
         ]); ?>
 
-        <div class="row g-3 align-items-end">
-            <div class="col-md-4">
+        <div class="row g-3 align-items-end justify-content-center">
+            <div class="col-md-6">
                 <?= $form->field($model, 'q')->textInput([
                         'placeholder' => '🔍 Pesquisar por nome, email, NIF ou telefone...',
-                        'class' => 'form-control shadow-sm border border-success rounded-3 px-3'
+                        'class' => 'form-control shadow-sm border border-success rounded-pill px-3'
                 ])->label(false) ?>
             </div>
 
             <div class="col-md-3">
-                <?= $form->field($model, 'genero')->dropDownList([
-                        '' => 'Todos os géneros',
-                        'M' => 'Masculino',
-                        'F' => 'Feminino',
-                        'O' => 'Outro',
-                ], [
-                        'class' => 'form-select shadow-sm border border-success rounded-3',
+                <?= $form->field($model, 'created_at')->input('date', [
+                        'class' => 'form-control shadow-sm border border-success rounded-pill px-3'
                 ])->label(false) ?>
             </div>
 
-            <div class="col-md-3">
-                <?= $form->field($model, 'ativo')->dropDownList([
-                        '' => 'Estado',
-                        'ativo' => 'Ativo',
-                        'inativo' => 'Inativo',
-                ], [
-                        'class' => 'form-select shadow-sm border border-success rounded-3',
-                ])->label(false) ?>
-            </div>
-
-            <div class="col-md-2 text-end">
-                <?= Html::submitButton('<i class="bi bi-search me-1"></i> Procurar', [
-                        'class' => 'btn btn-success px-4 py-2 shadow-sm rounded-3'
-                ]) ?>
-                <?= Html::a('<i class="bi bi-x-circle me-1"></i>', ['index'], [
-                        'class' => 'btn btn-outline-secondary px-3 py-2 shadow-sm rounded-3',
-                        'title' => 'Limpar filtros'
-                ]) ?>
+            <div class="col-md-3 text-center text-md-start">
+                <div class="d-flex justify-content-center justify-content-md-start gap-2">
+                    <?= Html::submitButton('<i class="bi bi-search me-1"></i> Procurar', [
+                            'class' => 'btn btn-success px-4 py-2 shadow-sm rounded-pill fw-semibold'
+                    ]) ?>
+                    <?= Html::a('<i class="bi bi-x-circle me-1"></i> Limpar', ['index'], [
+                            'class' => 'btn btn-outline-secondary px-4 py-2 shadow-sm rounded-pill fw-semibold',
+                            'title' => 'Limpar filtros'
+                    ]) ?>
+                </div>
             </div>
         </div>
 

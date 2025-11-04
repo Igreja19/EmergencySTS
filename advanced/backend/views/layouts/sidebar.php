@@ -4,7 +4,10 @@ use yii\helpers\Url;
 ?>
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <a href="<?= Url::to(['/site/index']) ?>" class="brand-link">
-        <img src="/img/logo.png" alt="EmergencySTS" class="brand-image img-circle elevation-3" style="opacity:.9">
+        <img src="<?= Yii::$app->request->baseUrl ?>/img/logo.png"
+             alt="EmergencySTS"
+             class="brand-image img-circle elevation-3"
+             style="opacity:.9">
         <span class="brand-text font-weight-light">EmergencySTS</span>
     </a>
 

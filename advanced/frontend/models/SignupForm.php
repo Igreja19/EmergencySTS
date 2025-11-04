@@ -54,7 +54,7 @@ class SignupForm extends Model
             $user->save(false);
 
             // Criar automaticamente um perfil associado
-            $profile = new \common\models\Userprofile();
+            $profile = new \common\models\UserProfile();
             $profile->user_id = $user->id;
             $profile->nome = $this->username;
             $profile->email = $this->email;
