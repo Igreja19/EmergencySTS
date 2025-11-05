@@ -11,18 +11,14 @@ use yii\widgets\Pjax;
 $this->title = 'Utilizadores';
 $this->params['breadcrumbs'][] = $this->title;
 
-/* Importa o estilo global */
-$this->registerCssFile(Yii::$app->request->baseUrl . '/css/table-style.css');
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile.css');
 ?>
-
 <div class="userprofile-index">
-    <!-- Título + Botão Nova Conta -->
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <h1 class="mb-0"><i class="bi bi-people-fill me-2"></i><?= Html::encode($this->title) ?></h1>
         <?= Html::a('<i class="bi bi-person-plus me-1"></i> Novo Utilizador', ['create'], ['class' => 'btn btn-new']) ?>
     </div>
 
-    <!-- Card da tabela -->
     <div class="card-table">
         <div class="mb-3">
             <?= $this->render('_search', ['model' => $searchModel]); ?>
@@ -31,7 +27,7 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/table-style.css');
         <?php Pjax::begin(); ?>
         <?= GridView::widget([
                 'dataProvider' => $dataProvider,
-                'filterModel' => null, // já tens o _search em cima
+                'filterModel' => null,
                 'tableOptions' => ['class' => 'table table-striped table-modern align-middle'],
                 'columns' => [
                         ['class' => 'yii\grid\SerialColumn', 'header' => '#'],
@@ -39,42 +35,57 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/table-style.css');
                         [
                                 'attribute' => 'id',
                                 'label' => 'ID',
-                                'headerOptions' => ['style' => 'width:60px; text-align:center;'],
-                                'contentOptions' => ['style' => 'text-align:center;'],
+                                'headerOptions' => ['style' => 'width:80px;'],
                         ],
                         [
                                 'attribute' => 'nome',
                                 'label' => 'Nome',
-                                'headerOptions' => ['style' => 'min-width:200px;'],
                         ],
                         [
                                 'attribute' => 'email',
                                 'label' => 'Email',
-                                'headerOptions' => ['style' => 'min-width:220px;'],
+                                'format' => 'email',
                         ],
                         [
                                 'attribute' => 'telefone',
                                 'label' => 'Telefone',
-                                'headerOptions' => ['style' => 'width:130px;'],
                         ],
                         [
                                 'attribute' => 'genero',
                                 'label' => 'Género',
-                                'headerOptions' => ['style' => 'width:80px; text-align:center;'],
+                                'value' => fn($m) => match ($m->genero) {
+                                    'M' => 'Masculino',
+                                    'F' => 'Feminino',
+                                    'O' => 'Outro',
+                                    default => '—',
+                                },
                                 'contentOptions' => ['style' => 'text-align:center;'],
                         ],
                         [
                                 'attribute' => 'datanascimento',
                                 'label' => 'Nascimento',
                                 'format' => ['date', 'php:d/m/Y'],
-                                'headerOptions' => ['style' => 'width:130px; text-align:center;'],
                                 'contentOptions' => ['style' => 'text-align:center;'],
                         ],
                         [
-                                'attribute' => 'created_at',
-                                'label' => 'Data de Registo',
-                                'format' => ['datetime', 'php:d/m/Y H:i'],
-                                'headerOptions' => ['style' => 'min-width:160px; text-align:center;'],
+                                'label' => 'Função / Role',
+                                'value' => function ($model) {
+                                    $roles = Yii::$app->authManager->getRolesByUser($model->user_id);
+                                    if (!empty($roles)) {
+                                        return ucfirst(array_keys($roles)[0]);
+                                    }
+                                    return '—';
+                                },
+                                'contentOptions' => ['style' => 'text-align:center;'],
+                        ],
+                        [
+                                'attribute' => 'nif',
+                                'label' => 'NIF',
+                                'contentOptions' => ['style' => 'text-align:center;'],
+                        ],
+                        [
+                                'attribute' => 'sns',
+                                'label' => 'SNS',
                                 'contentOptions' => ['style' => 'text-align:center;'],
                         ],
 
