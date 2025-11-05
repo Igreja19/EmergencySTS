@@ -1,90 +1,139 @@
-main > .container {
-    padding: 70px 15px 20px;
+/* === RESET E BASE === */
+html, body {
+    height: 100%;
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    color: #333;
+    overflow: hidden; /* evita scroll indesejado no fade animado */
 }
 
-.footer {
-    background-color: #f5f5f5;
-    font-size: .9em;
-    height: 60px;
+/* === FUNDO GRADIENTE SUAVE E TRANSLÚCIDO === */
+#background-gradient {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+            120deg,
+            rgba(240, 255, 248, 0.7) 0%,
+            rgba(200, 255, 220, 0.6) 40%,
+            rgba(25, 135, 84, 0.25) 100%
+    );
+    background-size: 200% 200%;
+    animation: subtleFade 20s ease-in-out infinite;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px); /* Safari fix */
+    transition: background 1s ease;
+}
+#background-gradient::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+            circle at 70% 30%,
+            rgba(255, 255, 255, 0.3),
+            transparent 70%
+    );
+    mix-blend-mode: soft-light;
+    pointer-events: none;
 }
 
-.footer > .container {
-    padding-right: 15px;
-    padding-left: 15px;
+@keyframes subtleFade {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
-.not-set {
-    color: #c55;
-    font-style: italic;
+/* === REMOVE FUNDO PADRÃO DO ADMINLTE === */
+.content-wrapper,
+.login-page,
+.wrapper,
+.main-footer {
+    background: transparent !important;
 }
 
-/* add sorting icons to gridview sort links */
-a.asc:after, a.desc:after {
-    content: '';
-    left: 3px;
-    display: inline-block;
-    width: 0;
-    height: 0;
-    border: solid 5px transparent;
-    margin: 4px 4px 2px 4px;
-    background: transparent;
+/* === LOGIN CONTAINER === */
+.login-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 30px;
 }
 
-a.asc:after {
-    border-bottom: solid 7px #212529;
-    border-top-width: 0;
+/* === CARTÃO DE LOGIN === */
+.login-card {
+    background: rgba(255, 255, 255, 0.93);
+    border-radius: 24px;
+    max-width: 560px;
+    width: 100%;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.15);
+    animation: fadeIn 0.8s ease-out;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: all 0.4s ease;
+}
+.login-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 45px rgba(0, 0, 0, 0.22);
 }
 
-a.desc:after {
-    border-top: solid 7px #212529;
-    border-bottom-width: 0;
+.login-card .card-body {
+    padding: 3rem 2.5rem;
 }
 
-.grid-view th,
-.grid-view td:last-child {
-    white-space: nowrap;
+/* === FORMULÁRIO === */
+.form-label {
+    font-weight: 600;
+    color: #198754;
 }
 
-.grid-view .filters input,
-.grid-view .filters select {
-    min-width: 50px;
+.form-control {
+    height: 48px;
+    border: 1px solid #d9e2dc;
+    border-radius: 12px;
+    box-shadow: none;
+    transition: all 0.25s ease;
+}
+.form-control:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.15rem rgba(25, 135, 84, 0.25);
 }
 
-.hint-block {
-    display: block;
-    margin-top: 5px;
-    color: #999;
+/* === BOTÃO === */
+.btn-success {
+    background: linear-gradient(90deg, #198754 0%, #28a745 100%);
+    border: none;
+    border-radius: 12px;
+    padding: 12px 25px;
+    font-weight: 600;
+    color: #fff;
+    transition: all 0.25s ease-in-out;
+    box-shadow: 0 4px 15px rgba(25, 135, 84, 0.3);
+}
+.btn-success:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(25, 135, 84, 0.35);
 }
 
-.error-summary {
-    color: #a94442;
-    background: #fdf7f7;
-    border-left: 3px solid #eed3d7;
-    padding: 10px 20px;
-    margin: 0 0 15px 0;
+/* === ALERTA === */
+.alert-light {
+    background-color: #f9fff9;
+    border-color: #d9f5df;
+    border-radius: 12px;
+    font-size: 0.9rem;
 }
 
-/* align the logout "link" (button in form) of the navbar */
-.nav li > form > button.logout {
-    padding-top: 7px;
-    color: rgba(255, 255, 255, 0.5);
+/* === ANIMAÇÕES === */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(25px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-@media(max-width:767px) {
-    .nav li > form > button.logout {
-        display:block;
-        text-align: left;
-        width: 100%;
-        padding: 10px 0;
+/* === RESPONSIVO === */
+@media (max-width: 576px) {
+    .login-card {
+        margin: 0 15px;
+        padding: 1.8rem;
+        max-width: 100%;
     }
-}
-
-.nav > li > form > button.logout:focus,
-.nav > li > form > button.logout:hover {
-    text-decoration: none;
-    color: rgba(255, 255, 255, 0.75);
-}
-
-.nav > li > form > button.logout:focus {
-    outline: none;
 }
