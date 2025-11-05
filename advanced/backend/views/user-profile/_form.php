@@ -13,8 +13,8 @@ foreach ($roles as $name => $role) {
     $roleOptions[$name] = ucfirst($name);
 }
 // Carrega o CSS global (com o mesmo estilo do _form da Triagem)
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile.css');
 ?>
-<link rel="stylesheet" href="css/user-profile.css">
 
 
 <div class="form-card"> <!-- mesmo estilo da Triagem -->

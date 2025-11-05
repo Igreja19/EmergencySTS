@@ -153,4 +153,29 @@ class UserProfileController extends Controller
         }
         throw new NotFoundHttpException('O perfil solicitado não existe.');
     }
+    public function actionMeuPerfil()
+    {
+        if (Yii::$app->user->isGuest) {
+            throw new \yii\web\ForbiddenHttpException('Precisa de iniciar sessão.');
+        }
+
+        $userId = Yii::$app->user->id;
+        $model = \common\models\UserProfile::findOne(['user_id' => $userId]);
+
+        if (!$model) {
+            Yii::$app->session->setFlash('info', 'Ainda não possui um perfil. Crie um agora.');
+            return $this->redirect(['create']);
+        }
+
+        return $this->render('meu-perfil', ['model' => $model]);
+    }
+
+    protected function findModelByUser($userId)
+    {
+        if (($model = \common\models\UserProfile::findOne(['user_id' => $userId])) !== null) {
+            return $model;
+        }
+
+        throw new \yii\web\NotFoundHttpException('Perfil não encontrado.');
+    }
 }

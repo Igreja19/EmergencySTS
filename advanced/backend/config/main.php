@@ -11,25 +11,31 @@ return [
     'basePath' => dirname(__DIR__),
     'controllerNamespace' => 'backend\controllers',
     'bootstrap' => ['log'],
-    'modules' => [],
+
+    // 🔹 módulo API
+    'modules' => [
+        'api' => [
+            'class' => backend\modules\api\ModuleAPI::class,
+        ],
+    ],
+
     'components' => [
         'request' => [
             'csrfParam' => '_csrf-backend',
         ],
         'user' => [
-            'identityClass' => 'common\models\User',
+            'identityClass' => common\models\User::class,
             'enableAutoLogin' => true,
             'identityCookie' => ['name' => '_identity-backend', 'httpOnly' => true],
         ],
         'session' => [
-            // this is the name of the session cookie used for login on the backend
             'name' => 'advanced-backend',
         ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
             'targets' => [
                 [
-                    'class' => \yii\log\FileTarget::class,
+                    'class' => yii\log\FileTarget::class,
                     'levels' => ['error', 'warning'],
                 ],
             ],
@@ -37,14 +43,21 @@ return [
         'errorHandler' => [
             'errorAction' => 'site/error',
         ],
-        /*
+        // 🔹 URL Manager da API
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                [
+                    'class' => yii\rest\UrlRule::class, 'controller' => ['api/user', 'api/triagem'],
+                    'pluralize' => false,
+                ],
+                'api/auth/login' => 'api/auth/login',
+                'api/auth/logout' => 'api/auth/logout',
+                'api' => 'api/default/index',
             ],
         ],
-        */
     ],
+
     'params' => $params,
 ];
