@@ -40,7 +40,10 @@ $this->title = $model->isNewRecord ? 'Criar Perfil' : 'Editar Perfil';
             </div>
             <div class="col-md-3">
                 <?= $form->field($model, 'datanascimento')
-                        ->input('date')
+                        ->input('date', [
+                                'min' => '1900-01-01',
+                                'max' => date('Y-m-d'),
+                        ])
                         ->label('<i class="bi bi-calendar me-2"></i> <span class="short-label">Data Nascimento</span>') ?>
             </div>
             <div class="col-md-3">

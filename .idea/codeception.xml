@@ -7,15 +7,6 @@
           <option name="path" value="$PROJECT_DIR$/advanced/tests" />
         </Configuration>
         <Configuration>
-          <option name="path" value="$PROJECT_DIR$/advanced/tests" />
-        </Configuration>
-        <Configuration>
-          <option name="path" value="$PROJECT_DIR$/advanced/tests" />
-        </Configuration>
-        <Configuration>
-          <option name="path" value="$PROJECT_DIR$/advanced/tests" />
-        </Configuration>
-        <Configuration>
           <option name="namespace" value="common\tests" />
           <option name="path" value="$PROJECT_DIR$/advanced/common/tests" />
           <option name="mySuiteNamespaces">

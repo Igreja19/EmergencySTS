@@ -107,6 +107,39 @@
       <path value="$PROJECT_DIR$/advanced/vendor/almasaeed2010/adminlte" />
       <path value="$PROJECT_DIR$/advanced/vendor/yiisoft/yii2-bootstrap4" />
       <path value="$PROJECT_DIR$/advanced/vendor/npm-asset/bootstrap" />
+      <path value="$PROJECT_DIR$/advanced/vendor/yiisoft/yii2-swiftmailer" />
+      <path value="$PROJECT_DIR$/advanced/vendor/swiftmailer/swiftmailer" />
+      <path value="$PROJECT_DIR$/advanced/vendor/almasaeed2010/almasaeed2010" />
+      <path value="$PROJECT_DIR$/advanced/vendor/vendor/almasaeed2010" />
+      <path value="$PROJECT_DIR$/advanced/vendor/vendor/behat" />
+      <path value="$PROJECT_DIR$/advanced/vendor/vendor/bin" />
+      <path value="$PROJECT_DIR$/advanced/vendor/vendor/bower-asset" />
+      <path value="$PROJECT_DIR$/advanced/vendor/vendor/cebe" />
+      <path value="$PROJECT_DIR$/advanced/vendor/vendor/codeception" />
+      <path value="$PROJECT_DIR$/advanced/vendor/vendor/composer" />
+      <path value="$PROJECT_DIR$/advanced/vendor/vendor/doctrine" />
+      <path value="$PROJECT_DIR$/advanced/vendor/vendor/egulias" />
+      <path value="$PROJECT_DIR$/advanced/vendor/vendor/ezyang" />
+      <path value="$PROJECT_DIR$/advanced/vendor/vendor/fakerphp" />
+      <path value="$PROJECT_DIR$/advanced/vendor/vendor/guzzlehttp" />
+      <path value="$PROJECT_DIR$/advanced/vendor/vendor/hail812" />
+      <path value="$PROJECT_DIR$/advanced/vendor/vendor/masterminds" />
+      <path value="$PROJECT_DIR$/advanced/vendor/vendor/mpdf" />
+      <path value="$PROJECT_DIR$/advanced/vendor/vendor/myclabs" />
+      <path value="$PROJECT_DIR$/advanced/vendor/vendor/nikic" />
+      <path value="$PROJECT_DIR$/advanced/vendor/vendor/npm-asset" />
+      <path value="$PROJECT_DIR$/advanced/vendor/vendor/paragonie" />
+      <path value="$PROJECT_DIR$/advanced/vendor/vendor/phar-io" />
+      <path value="$PROJECT_DIR$/advanced/vendor/vendor/phpspec" />
+      <path value="$PROJECT_DIR$/advanced/vendor/vendor/phpunit" />
+      <path value="$PROJECT_DIR$/advanced/vendor/vendor/psr" />
+      <path value="$PROJECT_DIR$/advanced/vendor/vendor/psy" />
+      <path value="$PROJECT_DIR$/advanced/vendor/vendor/ralouphie" />
+      <path value="$PROJECT_DIR$/advanced/vendor/vendor/sebastian" />
+      <path value="$PROJECT_DIR$/advanced/vendor/vendor/setasign" />
+      <path value="$PROJECT_DIR$/advanced/vendor/vendor/symfony" />
+      <path value="$PROJECT_DIR$/advanced/vendor/vendor/theseer" />
+      <path value="$PROJECT_DIR$/advanced/vendor/vendor/yiisoft" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="7.4">

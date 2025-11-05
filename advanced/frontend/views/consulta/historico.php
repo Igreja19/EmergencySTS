@@ -28,12 +28,12 @@ $this->params['breadcrumbs'][] = $this->title;
                 <h4 class="fw-bold"><?= Html::encode($ultimaVisita) ?></h4>
             </div>
         </div>
-        <div class="col-md-4">
+        <!--<div class="col-md-4">
             <div class="card shadow-sm border-0 rounded-4 text-center py-3">
                 <h6 class="text-muted mb-1">Prioridade Mais Comum</h6>
-                <h4 class="fw-bold"><?= Html::encode($prioridadeMaisComum) ?></h4>
+                <h4 class="fw-bold"><?php // Html::encode($prioridadeMaisComum) ?></h4>
             </div>
-        </div>
+        </div>-->
     </div>
 
     <?php foreach ($consultas as $c): ?>

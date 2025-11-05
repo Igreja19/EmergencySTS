@@ -45,21 +45,21 @@ class ConsultaController extends Controller
             ? Yii::$app->formatter->asDatetime($ultimaConsulta->data_consulta, 'php:d/m/Y H:i')
             : '-';
 
-        $prioridadeMaisComum = Consulta::find()
+        /*$prioridadeMaisComum = Consulta::find()
             ->select(['prioridade', 'COUNT(*) AS total'])
             ->where(['userprofile_id' => $userProfileId])
             ->groupBy('prioridade')
             ->orderBy(['total' => SORT_DESC])
             ->asArray()
             ->one();
-        $prioridadeMaisComum = $prioridadeMaisComum['prioridade'] ?? '-';
+        $prioridadeMaisComum = $prioridadeMaisComum['prioridade'] ?? '-';*/
 
         // 🔹 Renderizar view
         return $this->render('historico', [
             'consultas' => $consultas,
             'total' => $total,
             'ultimaVisita' => $ultimaVisita,
-            'prioridadeMaisComum' => $prioridadeMaisComum,
+            //'prioridadeMaisComum' => $prioridadeMaisComum,
         ]);
     }
 

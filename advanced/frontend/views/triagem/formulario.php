@@ -42,6 +42,8 @@ $userProfile = Yii::$app->user->identity->userprofile;
                 </label>
                 <input type="date" class="form-control"
                        value="<?= Html::encode($userProfile->datanascimento ?? '') ?>"
+                       min="1900-01-01"
+                       max="<?= date('Y-m-d') ?>"
                        readonly>
             </div>
 
