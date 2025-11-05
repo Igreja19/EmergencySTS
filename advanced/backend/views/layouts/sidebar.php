@@ -1,6 +1,8 @@
 <?php
 use hail812\adminlte\widgets\Menu;
 use yii\helpers\Url;
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/sidebar.css');
+
 ?>
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <a href="<?= Url::to(['/site/index']) ?>" class="brand-link">
@@ -34,9 +36,15 @@ use yii\helpers\Url;
                                     'visible' => !Yii::$app->user->isGuest, 'options' => ['class' => 'is-perfil']
                             ],
                             [
-                                    'label' => 'Sair', 'icon' => 'sign-out-alt', 'url' => ['/site/logout'],
+                                    'label' => 'Sair',
+                                    'icon' => 'sign-out-alt',
+                                    'url' => ['/site/logout'],
                                     'visible' => !Yii::$app->user->isGuest,
-                                    'template' => '<a href="{url}" data-method="post">{icon}{label}</a>',
+                                    'template' => '
+                            <a href="{url}" data-method="post" class="nav-link logout-link d-flex align-items-center">
+                                <i class="nav-icon fas fa-sign-out-alt me-2"></i>
+                                <span class="logout-text">Sair</span>
+                            </a>',
                                     'options' => ['class' => 'is-sair']
                             ],
                     ],
@@ -46,25 +54,3 @@ use yii\helpers\Url;
     </div>
 </aside>
 
-<style>
-    .nav-sidebar .nav-item .nav-icon { transition: transform .15s ease; }
-
-    .nav-sidebar .is-dashboard  .nav-icon { color: #20c997 !important; } /* teal */
-    .nav-sidebar .is-users      .nav-icon { color: #6f42c1 !important; } /* roxo */
-    .nav-sidebar .is-triagem    .nav-icon { color: #fd7e14 !important; } /* laranja */
-    .nav-sidebar .is-pulseira   .nav-icon { color: #0d6efd !important; } /* azul */
-    .nav-sidebar .is-consulta   .nav-icon { color: #0dcaf0 !important; } /* ciano */
-    .nav-sidebar .is-prescricao .nav-icon { color: #6610f2 !important; } /* índigo */
-    .nav-sidebar .is-notificacao .nav-icon{ color: #ffc107 !important; } /* amarelo */
-    .nav-sidebar .is-perfil     .nav-icon { color: #e83e8c !important; } /* rosa */
-    .nav-sidebar .is-sair       .nav-icon { color: #adb5bd !important; } /* cinza */
-
-    /* efeito hover: leve zoom */
-    .nav-sidebar .nav-item:hover .nav-icon { transform: scale(1.08); }
-
-    /* quando ativo, mantém a cor do ícone e destaca o link */
-    .nav-sidebar .nav-item .nav-link.active {
-        background: rgba(255,255,255,0.12);
-        font-weight: 600;
-    }
-</style>

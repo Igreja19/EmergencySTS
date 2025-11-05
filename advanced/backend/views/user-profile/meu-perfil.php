@@ -31,13 +31,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/meu-perfil.css');
                 <?= Html::a('<i class="bi bi-pencil-square me-1"></i> Editar', ['update', 'id' => $model->id], [
                         'class' => 'btn btn-success btn-sm fw-semibold shadow-sm me-1'
                 ]) ?>
-                <?= Html::a('<i class="bi bi-trash3 me-1"></i> Eliminar', ['delete', 'id' => $model->id], [
-                        'class' => 'btn btn-outline-danger btn-sm fw-semibold shadow-sm',
-                        'data' => [
-                                'confirm' => 'Tem a certeza que deseja eliminar este perfil?',
-                                'method' => 'post',
-                        ],
-                ]) ?>
             </div>
         </div>
 
