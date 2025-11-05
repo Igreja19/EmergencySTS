@@ -48,9 +48,16 @@ class UserProfileController extends Controller
     {
         $model = new UserProfile();
 
-        // Definir user_id automaticamente se estiver autenticado
+        // Define user_id automaticamente se o utilizador estiver autenticado
         if (Yii::$app->user->identity) {
             $model->user_id = Yii::$app->user->id;
+        }
+
+        // 🔸 Obter lista de roles do RBAC
+        $roles = Yii::$app->authManager->getRoles();
+        $roleOptions = [];
+        foreach ($roles as $name => $r) {
+            $roleOptions[$name] = ucfirst($name);
         }
 
         if ($model->load(Yii::$app->request->post())) {
@@ -66,7 +73,10 @@ class UserProfileController extends Controller
 
                 if (!$user->save()) {
                     Yii::$app->session->setFlash('error', 'Erro ao criar utilizador base: ' . json_encode($user->getErrors()));
-                    return $this->render('create', compact('model'));
+                    return $this->render('create', [
+                        'model' => $model,
+                        'roleOptions' => $roleOptions
+                    ]);
                 }
             }
 
@@ -85,13 +95,16 @@ class UserProfileController extends Controller
                 }
 
                 Yii::$app->session->setFlash('success', 'Utilizador criado com sucesso!');
-                return $this->redirect(['index']); // redireciona para a lista
+                return $this->redirect(['index']);
             } else {
                 Yii::$app->session->setFlash('error', 'Erro ao guardar o perfil: ' . json_encode($model->getErrors()));
             }
         }
 
-        return $this->render('create', compact('model'));
+        return $this->render('create', [
+            'model' => $model,
+            'roleOptions' => $roleOptions,
+        ]);
     }
 
     public function actionUpdate($id)
