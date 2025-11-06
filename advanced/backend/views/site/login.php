@@ -10,11 +10,14 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/site.css');
     <div class="login-card card border-0 shadow-lg rounded-4">
         <div class="card-body text-center">
 
-            <!-- 🔹 Logótipo ou título -->
+            <!-- 🔹 Logótipo / Ícone -->
             <div class="mb-4">
                 <div class="d-flex justify-content-center mb-3">
-                    <div class="login-icon">
-                        <i class="bi bi-hospital text-success fs-1"></i>
+                    <div class="login-icon shadow-sm">
+                        <img src="<?= Yii::getAlias('@web') ?>/img/login.png"
+                             alt="Segurança"
+                             class="img-fluid p-2"
+                             style="max-width: 90px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));">
                     </div>
                 </div>
                 <h3 class="fw-bold text-success mt-3 mb-1">Acesso Restrito</h3>

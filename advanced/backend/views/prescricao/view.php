@@ -6,36 +6,28 @@ use yii\widgets\DetailView;
 /** @var yii\web\View $this */
 /** @var common\models\Prescricao $model */
 
-$this->title = $model->id;
-$this->params['breadcrumbs'][] = ['label' => 'Prescricaos', 'url' => ['index']];
+$this->title = 'Detalhes da Prescrição #' . $model->id;
+$this->params['breadcrumbs'][] = ['label' => 'Prescrições', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
-\yii\web\YiiAsset::register($this);
 ?>
 <div class="prescricao-view">
 
-    <h1><?= Html::encode($this->title) ?></h1>
-
-    <p>
-        <?= Html::a('Update', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
-        <?= Html::a('Delete', ['delete', 'id' => $model->id], [
-            'class' => 'btn btn-danger',
-            'data' => [
-                'confirm' => 'Are you sure you want to delete this item?',
-                'method' => 'post',
-            ],
-        ]) ?>
-    </p>
+    <h1 class="text-success fw-bold mb-3">
+        <i class="bi bi-file-medical me-2"></i><?= Html::encode($this->title) ?>
+    </h1>
 
     <?= DetailView::widget([
-        'model' => $model,
-        'attributes' => [
-            'id',
-            'medicamento',
-            'dosagem',
-            'frequencia',
-            'observacoes:ntext',
-            'dataprescricao',
-        ],
+            'model' => $model,
+            'attributes' => [
+                    'id',
+                    'observacoes',
+                    'dataprescricao',
+                    'consulta_id',
+            ],
     ]) ?>
 
+    <p class="mt-3">
+        <?= Html::a('<i class="bi bi-pencil-square"></i> Editar', ['update', 'id' => $model->id], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('<i class="bi bi-arrow-left-circle"></i> Voltar', ['index'], ['class' => 'btn btn-outline-secondary']) ?>
+    </p>
 </div>

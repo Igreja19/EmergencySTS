@@ -10,8 +10,8 @@ $this->title = $model->nome;
 $this->params['breadcrumbs'][] = ['label' => 'Perfis de Utilizador', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 
-$roles = Yii::$app->authManager->getRolesByUser($model->user_id);
-$roleName = !empty($roles) ? array_keys($roles)[0] : null;
+$roleOptions = Yii::$app->authManager->getRolesByUser($model->user_id);
+$roleName = !empty($roleOptions) ? array_keys($roleOptions)[0] : null;
 
 $roleBadge = match ($roleName) {
     'admin' => '<span class="badge bg-danger"><i class="bi bi-shield-lock"></i> Admin</span>',

@@ -49,8 +49,8 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile.css');
                         [
                                 'label' => 'Função / Role',
                                 'value' => function ($model) {
-                                    $roles = Yii::$app->authManager->getRolesByUser($model->user_id);
-                                    return !empty($roles) ? ucfirst(array_keys($roles)[0]) : '—';
+                                    $roleOptions = Yii::$app->authManager->getRolesByUser($model->user_id);
+                                    return !empty($roleOptions) ? ucfirst(array_keys($roleOptions)[0]) : '—';
                                 },
                                 'contentOptions' => ['style' => 'text-align:center;'],
                         ],

@@ -95,12 +95,21 @@ $userProfile = Yii::$app->user->identity->userprofile;
             </div>
             <div class="col-md-6">
                 <?= $form->field($model, 'intensidadedor')
-                        ->input('number', [
-                                'min' => 0,
-                                'max' => 10,
-                                'step' => 1,
-                                'oninput' => 'this.value = Math.max(0, Math.min(10, this.value))',
-                                'placeholder' => '0 a 10'
+                        ->dropDownList([
+                                0 => '0 - Sem Dor',
+                                1 => '1 - Muito Leve',
+                                2 => '2 - Leve',
+                                3 => '3 - Moderada',
+                                4 => '4 - Moderada a Forte',
+                                5 => '5 - Forte',
+                                6 => '6 - Bastante Forte',
+                                7 => '7 - Muito Forte',
+                                8 => '8 - Intensa',
+                                9 => '9 - Muito Intensa',
+                                10 => '10 - Insuportável'
+                        ], [
+                                'prompt' => 'Selecione a intensidade da dor',
+                                'class' => 'form-select rounded-3 shadow-sm'
                         ])
                         ->label('<i class="bi bi-emoji-expressionless me-2"></i> Intensidade da Dor (0-10)') ?>
             </div>
@@ -115,26 +124,7 @@ $userProfile = Yii::$app->user->identity->userprofile;
         <?= $form->field($model, 'medicacao')
                 ->textarea(['rows' => 2, 'placeholder' => 'Medicação atual...'])
                 ->label('<i class="bi bi-capsule me-2"></i> Medicação Atual') ?>
-
-        <!-- 🔹 TRIAGEM
-        <h6 class="fw-bold text-success mt-4 mb-3">Prioridade e Triagem</h6>
-        <div class="row g-3 mb-3">
-            <div class="col-md-6">
-                <label class="form-label fw-semibold text-success">
-                    <i class="bi bi-flag me-2"></i> Prioridade Atribuída
-                </label>
-                <?= Html::hiddenInput('Triagem[datatriagem]', date('Y-m-d H:i:s')) ?>
-                <select name="Pulseira[prioridade]" class="form-select rounded-3">
-                    <option value="">Selecione a prioridade</option>
-                    <option value="Vermelha" <?= isset($model->pulseira) && $model->pulseira->prioridade == 'Vermelha' ? 'selected' : '' ?>>🔴 Vermelha - Emergente</option>
-                    <option value="Laranja" <?= isset($model->pulseira) && $model->pulseira->prioridade == 'Laranja' ? 'selected' : '' ?>>🟠 Laranja - Muito Urgente</option>
-                    <option value="Amarela" <?= isset($model->pulseira) && $model->pulseira->prioridade == 'Amarela' ? 'selected' : '' ?>>🟡 Amarela - Urgente</option>
-                    <option value="Verde" <?= isset($model->pulseira) && $model->pulseira->prioridade == 'Verde' ? 'selected' : '' ?>>🟢 Verde - Pouco Urgente</option>
-                    <option value="Azul" <?= isset($model->pulseira) && $model->pulseira->prioridade == 'Azul' ? 'selected' : '' ?>>🔵 Azul - Não Urgente</option>
-                </select>
-            </div>
-        </div>-->
-
+        
         <!-- 🔹 BOTÃO -->
         <?= Html::hiddenInput('Triagem[userprofile_id]', $userProfile->id) ?>
         <div class="text-center mt-4">
@@ -226,6 +216,18 @@ $userProfile = Yii::$app->user->identity->userprofile;
         display: flex;
         flex-direction: column;
         justify-content: flex-end; /* alinha todas as caixas pela base */
+    }
+
+    .form-select {
+        border-radius: 10px !important;
+        padding: 10px 14px;
+        height: 44px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        transition: all .25s ease;
+    }
+    .form-select:focus {
+        border-color: #198754;
+        box-shadow: 0 0 0 0.15rem rgba(25,135,84,.25);
     }
 </style>
 

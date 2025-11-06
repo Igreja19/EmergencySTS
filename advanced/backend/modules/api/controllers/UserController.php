@@ -1,6 +1,7 @@
 <?php
 namespace backend\modules\api\controllers;
 
+use yii\filters\auth\QueryParamAuth;
 use yii\rest\ActiveController;
 use Yii;
 use yii\web\Response;
@@ -17,6 +18,11 @@ class UserController extends ActiveController
         $behaviors = parent::behaviors();
         unset($behaviors['authenticator']);
         $behaviors['contentNegotiator']['formats']['text/html'] = Response::FORMAT_JSON;
+        $behaviors['authenticator'] = [
+            'class' => QueryParamAuth::class,
+            'tokenParam' => 'auth_key', // parâmetro da URL
+        ];
+
         return $behaviors;
     }
 

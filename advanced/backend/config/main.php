@@ -49,12 +49,18 @@ return [
             'showScriptName' => false,
             'rules' => [
                 [
-                    'class' => yii\rest\UrlRule::class, 'controller' => ['api/user', 'api/triagem'],
+                    'class' => yii\rest\UrlRule::class,
+                    'controller' => ['api/user','api/triagem', 'api/pulseira'],
                     'pluralize' => false,
+                    'extraPatterns' => [
+                        'GET prioridade' => 'prioridade',
+                    ],
                 ],
-                'api/auth/login' => 'api/auth/login',
-                'api/auth/logout' => 'api/auth/logout',
-                'api' => 'api/default/index',
+
+                // Outras rotas manuais
+                'POST api/auth/login' => 'api/auth/login',
+                'POST api/auth/logout' => 'api/auth/logout',
+                'GET api' => 'api/default/index',
             ],
         ],
     ],

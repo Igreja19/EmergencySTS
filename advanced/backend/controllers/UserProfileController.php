@@ -48,27 +48,27 @@ class UserProfileController extends Controller
     {
         $model = new UserProfile();
 
-        // Define user_id automaticamente se o utilizador estiver autenticado
+        // Define o user_id automaticamente, se autenticado
         if (Yii::$app->user->identity) {
             $model->user_id = Yii::$app->user->id;
         }
 
-        // 🔸 Obter lista de roles do RBAC
+        // 🔹 Obter lista de roles do RBAC
         $roles = Yii::$app->authManager->getRoles();
         $roleOptions = [];
-        foreach ($roles as $name => $r) {
+        foreach ($roles as $name => $role) {
             $roleOptions[$name] = ucfirst($name);
         }
 
         if ($model->load(Yii::$app->request->post())) {
 
-            // ⚠️ Criar utilizador base se não existir
+            // Criar utilizador base se não existir
             $user = \common\models\User::findOne(['email' => $model->email]);
             if (!$user) {
                 $user = new \common\models\User();
                 $user->username = $model->email;
                 $user->email = $model->email;
-                $user->setPassword('123456'); // password padrão
+                $user->setPassword('123456'); // senha padrão
                 $user->generateAuthKey();
 
                 if (!$user->save()) {
@@ -82,7 +82,7 @@ class UserProfileController extends Controller
 
             $model->user_id = $user->id;
 
-            // 🔹 Guardar perfil
+            // Guardar perfil
             if ($model->save(false)) {
                 // Atribuir role, se selecionada
                 if (!empty($model->role)) {
@@ -111,6 +111,13 @@ class UserProfileController extends Controller
     {
         $model = $this->findModel($id);
         $oldEmail = $model->email;
+
+        // 🔹 Obter lista de roles do RBAC
+        $roles = Yii::$app->authManager->getRoles();
+        $roleOptions = [];
+        foreach ($roles as $name => $role) {
+            $roleOptions[$name] = ucfirst($name);
+        }
 
         if ($model->load(Yii::$app->request->post())) {
 
@@ -141,7 +148,10 @@ class UserProfileController extends Controller
             }
         }
 
-        return $this->render('update', compact('model'));
+        return $this->render('update', [
+            'model' => $model,
+            'roleOptions' => $roleOptions,
+        ]);
     }
 
     public function actionDelete($id)
@@ -166,6 +176,7 @@ class UserProfileController extends Controller
         }
         throw new NotFoundHttpException('O perfil solicitado não existe.');
     }
+
     public function actionMeuPerfil()
     {
         if (Yii::$app->user->isGuest) {

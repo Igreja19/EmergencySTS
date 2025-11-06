@@ -8,7 +8,6 @@ use yii\web\UnauthorizedHttpException;
 use common\models\User;
 use yii\filters\auth\QueryParamAuth;
 
-
 class AuthController extends Controller
 {
     public $enableCsrfValidation = false;
@@ -17,14 +16,16 @@ class AuthController extends Controller
     {
         $behaviors = parent::behaviors();
 
-        // ✅ Força JSON mesmo se pedirem HTML
+        // ✅ força JSON mesmo se pedirem HTML
         $behaviors['contentNegotiator']['formats']['text/html'] = Response::FORMAT_JSON;
 
-        // ✅ Autenticação via parâmetro "auth_key"
+        // ✅ autenticação via parâmetro ?auth_key=XYZ
         $behaviors['authenticator'] = [
             'class' => QueryParamAuth::class,
-            'tokenParam' => 'auth_key', // URL param ex: ?auth_key=abc123
+            'tokenParam' => 'auth_key',
+            'optional' => ['login', 'validate'], // ❗ permite login sem token
         ];
+
         return $behaviors;
     }
 
@@ -45,16 +46,13 @@ class AuthController extends Controller
             throw new UnauthorizedHttpException('Utilizador ou palavra-passe incorretos.');
         }
 
-        // ✅ Gera nova auth_key (se quiseres renovar a cada login)
-        $user->generateAuthKey();
-        $user->save(false);
-
+        // 🔹 apenas devolve a auth_key existente
         return [
             'status' => 'success',
             'message' => 'Login efetuado com sucesso.',
             'user_id' => $user->id,
             'username' => $user->username,
-            'auth_key' => $user->auth_key, // 🔑 Token que o Android usará
+            'auth_key' => $user->auth_key, // 🔑 vai buscar o que já está guardado na BD
         ];
     }
 
@@ -72,6 +70,7 @@ class AuthController extends Controller
             'user' => [
                 'id' => $user->id,
                 'username' => $user->username,
+                'email' => $user->email,
             ],
         ];
     }

@@ -6,6 +6,7 @@ use yii\widgets\ActiveForm;
 /** @var yii\web\View $this */
 /** @var common\models\UserProfile $model */
 /** @var array $roleOptions */
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile.css');
 
 ?>
 
@@ -17,16 +18,24 @@ use yii\widgets\ActiveForm;
 
 <div class="row g-3">
     <div class="col-md-6">
-        <?= $form->field($model, 'nome')->textInput(['maxlength' => true, 'placeholder' => 'Nome completo']) ?>
+        <?= $form->field($model, 'nome')->textInput([
+                'maxlength' => true,
+                'placeholder' => 'Nome completo'
+        ]) ?>
     </div>
     <div class="col-md-6">
-        <?= $form->field($model, 'email')->input('email', ['placeholder' => 'Email']) ?>
+        <?= $form->field($model, 'email')->input('email', [
+                'placeholder' => 'Email'
+        ]) ?>
     </div>
 </div>
 
 <div class="row g-3">
     <div class="col-md-6">
-        <?= $form->field($model, 'telefone')->textInput(['maxlength' => true, 'placeholder' => '9XXXXXXXX']) ?>
+        <?= $form->field($model, 'telefone')->textInput([
+                'maxlength' => true,
+                'placeholder' => '9XXXXXXXX'
+        ]) ?>
     </div>
     <div class="col-md-3">
         <?= $form->field($model, 'nif')->textInput(['maxlength' => true]) ?>
@@ -48,21 +57,26 @@ use yii\widgets\ActiveForm;
         <?= $form->field($model, 'datanascimento')->input('date') ?>
     </div>
     <div class="col-md-4">
-        <?= $form->field($model, 'morada')->textInput(['maxlength' => true, 'placeholder' => 'Morada']) ?>
+        <?= $form->field($model, 'morada')->textInput([
+                'maxlength' => true,
+                'placeholder' => 'Morada'
+        ]) ?>
     </div>
 </div>
 
+<!-- 🔹 Campo de Role -->
 <div class="row g-3">
     <div class="col-md-6">
-        <?= $form->field($model, 'role')->dropDownList($roleOptions, [
-                'prompt' => '— Selecionar função —'
-        ])->label('Função / Role') ?>
+        <?= $form->field($model, 'role')->dropDownList(
+                $roleOptions ?? [], // garante que não dá erro se a variável não existir
+                ['prompt' => '— Selecionar função —']
+        )->label('Função / Role') ?>
     </div>
 </div>
 
 <div class="mt-4 d-flex gap-2">
-    <?= Html::submitButton('Guardar', ['class' => 'btn btn-save']) ?>
-    <?= Html::a('Cancelar', ['index'], ['class' => 'btn btn-cancel']) ?>
+    <?= Html::submitButton('Guardar', ['class' => 'btn btn-success']) ?>
+    <?= Html::a('Cancelar', ['index'], ['class' => 'btn btn-outline-secondary']) ?>
 </div>
 
 <?php ActiveForm::end(); ?>

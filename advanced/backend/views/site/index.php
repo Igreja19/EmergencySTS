@@ -17,14 +17,29 @@ $this->registerCssFile('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font
 
 /* ===== CSS Premium ===== */
 $this->registerCss('
+/* Força o dropdown das notificações a sobrepor tudo */
+.topbar, .dashboard-wrap {
+  overflow: visible !important;
+  z-index: 10;
+  position: relative;
+}
+
+.dropdown-menu.notif-dropdown {
+  position: absolute !important;
+  top: 60px !important;
+  right: 0 !important;
+  z-index: 9999 !important;
+  transform: none !important;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  border: none;
+  background: #fff;
+}
+
 body {
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   transition: background 0.4s ease, color 0.4s ease;
 }
-.dark body, .dark {
-  background: linear-gradient(135deg, #0b0e11 0%, #151a1f 100%);
-  color: #dfe6ee;
-}
+
 .dashboard-wrap { padding: 20px; }
 
 .topbar {
@@ -34,26 +49,78 @@ body {
   border: 1px solid rgba(0,0,0,.05);
   transition: background 0.3s ease;
 }
-.dark .topbar { background: rgba(20,25,30,0.7); border-color: rgba(255,255,255,.08); }
 
 .brand { font-weight:700; color:#198754; display:flex; align-items:center; gap:8px; }
-.btn-ghost { background:transparent; border:none; font-size:20px; transition:transform .2s; }
-.btn-ghost:hover { transform: scale(1.15); }
-.notif-dot::after {
-  content:""; position:absolute; right:-3px; top:-3px;
-  width:10px; height:10px; background:#dc3545; border-radius:50%;
+
+.transition { transition: all 0.3s ease; }
+
+/* === NOTIFICAÇÕES PREMIUM === */
+.notif-btn {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  border-radius: 50%;
+  border: none;
+  transition: all .25s ease;
+  position: relative;
 }
+.notif-btn:hover { background: #f8f9fa; transform: translateY(-2px); }
+.notif-badge {
+  position: absolute;
+  top: 8px; right: 8px;
+  width: 10px; height: 10px;
+  background: #dc3545;
+  border-radius: 50%;
+  box-shadow: 0 0 4px rgba(220,53,69,0.4);
+  animation: pulse 1.2s infinite ease-in-out;
+}
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 0.7; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.notif-dropdown {
+  min-width: 320px;
+  border-radius: 16px;
+  overflow: hidden;
+  animation: fadeSlide 0.25s ease;
+}
+@keyframes fadeSlide {
+  0% { opacity: 0; transform: translateY(-5px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.notif-header {
+  background: #f8f9fa;
+}
+.notif-item {
+  background: #fff;
+  transition: all 0.2s ease;
+}
+.notif-item:hover {
+  background: #e9f8f0;
+  transform: translateX(3px);
+}
+.notif-icon i {
+  width: 28px;
+  height: 28px;
+}
+.notif-footer {
+  background: #f8f9fa;
+}
+
+/* === KPIs e CARDS === */
 .card-kpi {
   border-radius:20px; border:none; padding:20px;
   background: #fff; box-shadow:0 4px 20px rgba(0,0,0,0.05);
   transition:transform .2s, box-shadow .3s;
 }
 .card-kpi:hover { transform:translateY(-3px); box-shadow:0 6px 24px rgba(0,0,0,0.08); }
-.dark .card-kpi { background:#141a1f; }
 
-.card-kpi .icon {
-  font-size:28px; color:#198754; margin-bottom:10px;
-}
+.card-kpi .icon { font-size:28px; color:#198754; margin-bottom:10px; }
 .card-kpi.red .icon { color:#dc3545; }
 .card-kpi.orange .icon { color:#fd7e14; }
 .card-kpi.green .icon { color:#198754; }
@@ -64,7 +131,6 @@ body {
 .table-modern { border-radius:16px; overflow:hidden; }
 .table-modern thead tr { background:#198754; color:#fff; }
 .table-modern tbody tr:hover { background:rgba(25,135,84,0.05); }
-.dark .table-modern thead tr { background:#146c43; }
 
 .badge-prio { font-weight:600; }
 .badge-vermelho { background:#dc3545; }
@@ -72,22 +138,12 @@ body {
 .badge-amarelo  { background:#ffc107; color:#000; }
 .badge-verde    { background:#198754; }
 .badge-azul     { background:#0d6efd; }
-
-.transition { transition: all 0.3s ease; }
 ');
 
 $this->registerJsFile('https://cdn.jsdelivr.net/npm/chart.js', ['position' => \yii\web\View::POS_END]);
 
 /* ===== JS atualizado com eixo Y inteiro e animação ===== */
 $this->registerJs('
-const root=document.documentElement;
-const key="emergencysts-theme";
-if(localStorage.getItem(key)==="dark"){ root.classList.add("dark"); }
-document.getElementById("toggle-dark")?.addEventListener("click",()=>{
-  root.classList.toggle("dark");
-  localStorage.setItem(key, root.classList.contains("dark")?"dark":"light");
-});
-
 const donut=document.getElementById("chartManchester");
 if(donut){
   new Chart(donut,{
@@ -109,11 +165,7 @@ if(donut){
       responsive:true,
       plugins:{ legend:{ position:"bottom" } },
       cutout:"65%",
-      animation:{
-        animateScale:true,
-        animateRotate:true,
-        duration:1200
-      }
+      animation:{ animateScale:true, animateRotate:true, duration:1200 }
     }
   });
 }
@@ -141,30 +193,12 @@ if(line){
       scales:{
         y:{
           beginAtZero:true,
-          ticks:{
-            stepSize:1,
-            precision:0
-          },
-          title:{
-            display:true,
-            text:"Número de Triagens"
-          }
+          ticks:{ stepSize:1, precision:0 },
+          title:{ display:true, text:"Número de Triagens" }
         },
-        x:{
-          title:{
-            display:true,
-            text:"Dias"
-          }
-        }
+        x:{ title:{ display:true, text:"Dias" } }
       },
-      elements:{
-        line:{ borderWidth:2 },
-        point:{ radius:4 }
-      },
-      animation:{
-        duration:1500,
-        easing:"easeOutQuart"
-      }
+      animation:{ duration:1500, easing:"easeOutQuart" }
     }
   });
 }
@@ -173,8 +207,11 @@ if(line){
 /* Helper para badges de prioridade */
 function badgePrio(string $prio): string {
     $map = [
-            'Vermelho'=>'badge-vermelho', 'Laranja'=>'badge-laranja', 'Amarelo'=>'badge-amarelo',
-            'Verde'=>'badge-verde', 'Azul'=>'badge-azul'
+            'Vermelho'=>'badge-vermelho',
+            'Laranja'=>'badge-laranja',
+            'Amarelo'=>'badge-amarelo',
+            'Verde'=>'badge-verde',
+            'Azul'=>'badge-azul'
     ];
     $cls = $map[$prio] ?? 'bg-secondary';
     return "<span class=\"badge badge-prio {$cls}\">{$prio}</span>";
@@ -190,17 +227,50 @@ function badgePrio(string $prio): string {
             <span>EmergencySTS</span>
         </div>
         <div class="actions d-flex gap-3">
-            <button id="toggle-dark" class="btn-ghost" title="Modo escuro/claro"><i class="bi bi-moon"></i></button>
+            <!-- 🔔 Notificações Premium -->
             <div class="dropdown position-relative">
-                <button class="btn-ghost position-relative notif-dot" data-bs-toggle="dropdown"><i class="bi bi-bell"></i></button>
-                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                    <li><h6 class="dropdown-header">Notificações</h6></li>
-                    <?php if (empty($notificacoes)): ?>
-                        <li><span class="dropdown-item-text text-muted">Sem novas notificações</span></li>
-                    <?php else: foreach ($notificacoes as $n): ?>
-                        <li><span class="dropdown-item-text"><?= Html::encode($n["titulo"]) ?> — <?= Html::encode($n["mensagem"]) ?></span></li>
-                    <?php endforeach; endif; ?>
-                </ul>
+                <button class="notif-btn" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-bell fs-5"></i>
+                    <?php if (!empty($notificacoes)): ?>
+                        <span class="notif-badge"></span>
+                    <?php endif; ?>
+                </button>
+
+                <div class="dropdown-menu dropdown-menu-end shadow-lg border-0 p-0 notif-dropdown">
+                    <div class="notif-header p-3 border-bottom d-flex align-items-center justify-content-between">
+                        <h6 class="mb-0 fw-bold text-success"><i class="bi bi-bell-fill me-1"></i> Notificações</h6>
+                        <?php if (!empty($notificacoes)): ?>
+                            <span class="badge bg-success rounded-pill"><?= count($notificacoes) ?></span>
+                        <?php endif; ?>
+                    </div>
+
+                    <div class="notif-body p-2" style="max-height: 300px; overflow-y: auto;">
+                        <?php if (empty($notificacoes)): ?>
+                            <div class="text-center text-muted py-3">
+                                <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                                <small>Sem novas notificações</small>
+                            </div>
+                        <?php else: foreach ($notificacoes as $n): ?>
+                            <div class="notif-item d-flex align-items-start p-2 mb-1 rounded-3 transition">
+                                <div class="notif-icon flex-shrink-0 me-2">
+                                    <i class="bi bi-exclamation-circle-fill text-success fs-5"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-semibold"><?= Html::encode($n["titulo"]) ?></div>
+                                    <div class="text-muted small"><?= Html::encode($n["mensagem"]) ?></div>
+                                </div>
+                            </div>
+                        <?php endforeach; endif; ?>
+                    </div>
+
+                    <?php if (!empty($notificacoes)): ?>
+                        <div class="notif-footer text-center border-top p-2 bg-light">
+                            <a href="<?= Yii::$app->urlManager->createUrl(["notificacao/index"]) ?>" class="small text-success text-decoration-none fw-semibold">
+                                Ver todas as notificações <i class="bi bi-arrow-right-short"></i>
+                            </a>
+                        </div>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
     </div>
@@ -246,7 +316,7 @@ function badgePrio(string $prio): string {
         </div>
     </div>
 
-    <!-- 🔹 Tabela -->
+    <!-- 🔹 Tabela de pacientes -->
     <div class="card shadow-sm p-3 table-modern mb-4" style="border-radius:16px;">
         <h6 class="mb-3"><i class="bi bi-list-check me-1"></i> Pacientes em Espera</h6>
         <div class="table-responsive">
@@ -277,7 +347,7 @@ function badgePrio(string $prio): string {
 
     <!-- 🔹 Últimas triagens -->
     <div class="card shadow-sm p-3" style="border-radius:16px;">
-        <h6 class="mb-3"><i class="bi bi-clock-history me-1"></i> Últimas Triagens</h6>
+        <h6 class="mb-3"><i class="bi bi-clock-history me-1"></i> <Ú></Ú>ltimas Triagens</h6>
         <div class="row row-cols-1 row-cols-md-2 g-3">
             <?php if (empty($ultimas)): ?>
                 <p class="text-muted">Nenhuma triagem recente.</p>

@@ -1,6 +1,7 @@
 <?php
 namespace backend\modules\api\controllers;
 
+use Yii;
 use yii\rest\ActiveController;
 use yii\web\Response;
 use yii\web\NotFoundHttpException;
@@ -15,10 +16,10 @@ class PulseiraController extends ActiveController
     {
         $behaviors = parent::behaviors();
 
-        // ✅ força JSON
+        // ✅ força saída em JSON mesmo se pedirem HTML
         $behaviors['contentNegotiator']['formats']['text/html'] = Response::FORMAT_JSON;
 
-        // ✅ autenticação com auth_key
+        // ✅ autenticação via token ?auth_key=XYZ
         $behaviors['authenticator'] = [
             'class' => QueryParamAuth::class,
             'tokenParam' => 'auth_key',
@@ -27,13 +28,13 @@ class PulseiraController extends ActiveController
         return $behaviors;
     }
 
-    // ✅ Listar todas as pulseiras
+    // ✅ Listar todas as pulseiras (GET /api/pulseira)
     public function actionIndex()
     {
         $modelClass = $this->modelClass;
         $pulseiras = $modelClass::find()
+            ->with(['userprofile', 'triagem'])
             ->asArray()
-            ->with(['paciente', 'triagem'])
             ->all();
 
         return [
@@ -43,11 +44,11 @@ class PulseiraController extends ActiveController
         ];
     }
 
-    // ✅ Ver uma pulseira específica
+    // ✅ Ver pulseira específica (GET /api/pulseira/{id})
     public function actionView($id)
     {
         $pulseira = \common\models\Pulseira::find()
-            ->with(['paciente', 'triagem'])
+            ->with(['userprofile', 'triagem'])
             ->asArray()
             ->where(['id' => $id])
             ->one();
@@ -62,10 +63,10 @@ class PulseiraController extends ActiveController
         ];
     }
 
-    // ✅ Criar uma nova pulseira (POST)
+    // ✅ Criar uma nova pulseira (POST /api/pulseira/create)
     public function actionCreate()
     {
-        $data = \Yii::$app->request->post();
+        $data = Yii::$app->request->post();
         $pulseira = new \common\models\Pulseira();
         $pulseira->load($data, '');
 
@@ -77,9 +78,32 @@ class PulseiraController extends ActiveController
             ];
         }
 
+        Yii::$app->response->statusCode = 400;
         return [
             'status' => 'error',
             'errors' => $pulseira->getErrors(),
+        ];
+    }
+
+    // ✅ Filtro por cor/prioridade (GET /api/pulseira/prioridade?cor=vermelho)
+    public function actionPrioridade($cor)
+    {
+        $modelClass = $this->modelClass;
+        $pulseiras = $modelClass::find()
+            ->where(['prioridade' => $cor])
+            ->with(['userprofile', 'triagem'])
+            ->asArray()
+            ->all();
+
+        if (empty($pulseiras)) {
+            throw new NotFoundHttpException("Nenhuma pulseira encontrada com a cor '{$cor}'.");
+        }
+
+        return [
+            'status' => 'success',
+            'cor' => $cor,
+            'total' => count($pulseiras),
+            'data' => $pulseiras,
         ];
     }
 }
