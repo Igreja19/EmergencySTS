@@ -124,7 +124,7 @@ $userProfile = Yii::$app->user->identity->userprofile;
         <?= $form->field($model, 'medicacao')
                 ->textarea(['rows' => 2, 'placeholder' => 'Medicação atual...'])
                 ->label('<i class="bi bi-capsule me-2"></i> Medicação Atual') ?>
-        
+
         <!-- 🔹 BOTÃO -->
         <?= Html::hiddenInput('Triagem[userprofile_id]', $userProfile->id) ?>
         <div class="text-center mt-4">
