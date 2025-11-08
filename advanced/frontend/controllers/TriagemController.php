@@ -33,21 +33,41 @@ class TriagemController extends Controller
         if (Yii::$app->request->isPost && $model->load(Yii::$app->request->post())) {
             $model->datatriagem = date('Y-m-d H:i:s');
 
-            // 🔹 Cria automaticamente a pulseira (sem cor definida)
+            // 🔹 1️⃣ Criar automaticamente a pulseira
             $pulseira = new Pulseira();
             $pulseira->codigo = strtoupper(substr(md5(uniqid()), 0, 8)); // código único
-            $pulseira->prioridade = 'Pendente'; // cor ainda não atribuída
+            $pulseira->prioridade = 'Pendente'; // cor inicial
             $pulseira->tempoentrada = date('Y-m-d H:i:s');
             $pulseira->status = 'Aguardando';
             $pulseira->userprofile_id = $model->userprofile_id;
 
-            // 🔹 Guarda a pulseira e associa à triagem
             if ($pulseira->save(false)) {
                 $model->pulseira_id = $pulseira->id;
             }
 
+            // 🔹 2️⃣ Guardar triagem
             if ($model->save(false)) {
-                Yii::$app->session->setFlash('success', 'Formulário clínico registado e pulseira criada com sucesso!');
+                // 🔹 3️⃣ Criar prescrição placeholder
+                $prescricao = new \common\models\Prescricao();
+                $prescricao->observacoes = 'Prescrição inicial automática';
+                $prescricao->dataprescricao = date('Y-m-d H:i:s');
+                $prescricao->save(false);
+
+                // 🔹 4️⃣ Criar consulta associada
+                $consulta = new \common\models\Consulta();
+                $consulta->data_consulta = date('Y-m-d H:i:s');
+                $consulta->estado = 'Aberta';
+                $consulta->observacoes = 'Consulta gerada automaticamente a partir da triagem.';
+                $consulta->userprofile_id = $model->userprofile_id;
+                $consulta->triagem_id = $model->id;
+                $consulta->prescricao_id = $prescricao->id;
+                $consulta->save(false);
+
+                // 🔹 5️⃣ Atualizar prescrição com ID da consulta
+                $prescricao->consulta_id = $consulta->id;
+                $prescricao->save(false);
+
+                Yii::$app->session->setFlash('success', 'Formulário clínico, pulseira e consulta criados com sucesso!');
                 return $this->redirect(['pulseira/index']);
             } else {
                 Yii::$app->session->setFlash('error', 'Erro ao guardar os dados da triagem.');
