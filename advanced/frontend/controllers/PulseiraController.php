@@ -58,12 +58,12 @@ class PulseiraController extends Controller
 
         // 🔹 Posição na fila (mesma prioridade)
         $totalAguardarPrioridade = Pulseira::find()
-            ->where(['prioridade' => $priority, 'status' => 'Aguardando'])
+            ->where(['prioridade' => $priority, 'status' => 'Em espera'])
             ->count();
 
         // 🔹 Posição do utilizador na fila (1º = à frente)
         $position = Pulseira::find()
-                ->where(['prioridade' => $priority, 'status' => 'Aguardando'])
+                ->where(['prioridade' => $priority, 'status' => 'Em espera'])
                 ->andWhere(['<', 'tempoentrada', $pulseira->tempoentrada])
                 ->count() + 1;
 
@@ -79,12 +79,12 @@ class PulseiraController extends Controller
         }
 
         // 🔹 Estatísticas gerais
-        $totalAguardar = Pulseira::find()->where(['status' => 'Aguardando'])->count();
+        $totalAguardar = Pulseira::find()->where(['status' => 'Em espera'])->count();
         $afluencia = $totalAguardar >= 40 ? 'Alta' : ($totalAguardar >= 20 ? 'Moderada' : 'Baixa');
 
         // 🔹 Fila de pacientes (todos)
         $fila = Pulseira::find()
-            ->where(['status' => ['Aguardando', 'Em Atendimento']])
+            ->where(['status' => ['Em espera', 'Em Atendimento']])
             ->orderBy(['tempoentrada' => SORT_ASC])
             ->limit(15)
             ->all();

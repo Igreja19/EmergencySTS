@@ -144,7 +144,7 @@ $this->registerCss('
                                 'label' => 'Estado',
                                 'value' => function ($model) {
                                     return match ($model->status) {
-                                        'Aguardando' => '⏳ Aguardando Atendimento',
+                                        'Em espera' => '⏳ A aguardar Atendimento',
                                         'Atendida'   => '✅ Atendida',
                                         'Encerrada'  => '❌ Encerrada',
                                         default => Html::encode($model->status),

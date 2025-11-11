@@ -65,7 +65,7 @@ class SiteController extends Controller
     {
         // ===== Estatísticas principais =====
         $stats = [
-            'espera' => \common\models\Pulseira::find()->where(['status' => 'Aguardando'])->count(),
+            'espera' => \common\models\Pulseira::find()->where(['status' => 'Em espera'])->count(),
             'ativas' => \common\models\Pulseira::find()->where(['status' => 'Em atendimento'])->count(),
             'atendidosHoje' => \common\models\Pulseira::find()
                 ->where(['status' => 'Atendido'])

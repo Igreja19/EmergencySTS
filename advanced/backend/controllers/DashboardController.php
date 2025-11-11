@@ -12,7 +12,7 @@ class DashboardController extends Controller
     {
         // Estatísticas principais
         $stats = [
-            'espera' => Pulseira::find()->where(['status' => 'Aguardando'])->count(),
+            'espera' => Pulseira::find()->where(['status' => 'Em espera'])->count(),
             'ativas' => Pulseira::find()->where(['status' => 'Em atendimento'])->count(),
             'atendidosHoje' => Pulseira::find()
                 ->where(['status' => 'Atendido'])

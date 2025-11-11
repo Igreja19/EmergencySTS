@@ -127,8 +127,8 @@ $cor = $cores[$pulseira->prioridade] ?? '#6c757d';
 
                 <?php if (strcasecmp($item->status, 'Em atendimento') === 0): ?>
                     <span class="badge bg-success-subtle text-success border border-success px-3 py-2">Em atendimento</span>
-                <?php elseif (strcasecmp($item->status, 'Aguardando') === 0): ?>
-                    <span class="badge bg-warning-subtle text-dark border border-warning px-3 py-2">Aguardando</span>
+                <?php elseif (strcasecmp($item->status, 'Em espera') === 0): ?>
+                    <span class="badge bg-warning-subtle text-dark border border-warning px-3 py-2">Em espera</span>
                 <?php else: ?>
                     <span class="badge bg-secondary-subtle text-secondary border border-secondary px-3 py-2">Atendido</span>
                 <?php endif; ?>

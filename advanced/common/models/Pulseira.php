@@ -37,7 +37,7 @@ class Pulseira extends \yii\db\ActiveRecord
             [['tempoentrada'], 'safe'],
             [['userprofile_id'], 'integer'],
             [['prioridade'], 'in', 'range' => ['Vermelha', 'Laranja', 'Amarela', 'Verde', 'Azul']],
-            [['status'], 'in', 'range' => ['Aguardando', 'Em atendimento', 'Atendido']],
+            [['status'], 'in', 'range' => ['Em espera', 'Em atendimento', 'Atendido']],
             [['codigo'], 'string', 'max' => 10],
             [['codigo'], 'unique'],
             [['userprofile_id'], 'exist', 'skipOnError' => true,

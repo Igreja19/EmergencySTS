@@ -38,7 +38,7 @@ class TriagemController extends Controller
             $pulseira->codigo = strtoupper(substr(md5(uniqid()), 0, 8)); // código único
             $pulseira->prioridade = 'Pendente'; // cor ainda não atribuída
             $pulseira->tempoentrada = date('Y-m-d H:i:s');
-            $pulseira->status = 'Aguardando';
+            $pulseira->status = 'Em espera';
             $pulseira->userprofile_id = $model->userprofile_id;
 
             // 🔹 Guarda a pulseira e associa à triagem

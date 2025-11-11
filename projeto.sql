@@ -235,7 +235,7 @@ CREATE TABLE IF NOT EXISTS `pulseira` (
   `id` int NOT NULL AUTO_INCREMENT,
   `codigo` varchar(10) NOT NULL,
   `prioridade` enum('Vermelho','Laranja','Amarelo','Verde','Azul','Pendente') CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
-  `status` enum('Aguardando','Em atendimento','Atendido') CHARACTER SET latin1 COLLATE latin1_swedish_ci DEFAULT 'Aguardando',
+  `status` enum('Em espera','Em atendimento','Atendido') CHARACTER SET latin1 COLLATE latin1_swedish_ci DEFAULT 'Em espera',
   `tempoentrada` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `userprofile_id` int NOT NULL,
   PRIMARY KEY (`id`),
@@ -247,10 +247,10 @@ CREATE TABLE IF NOT EXISTS `pulseira` (
 --
 
 INSERT INTO `pulseira` (`id`, `codigo`, `prioridade`, `status`, `tempoentrada`, `userprofile_id`) VALUES
-(4, '9D3AA8E5', 'Azul', 'Aguardando', '2025-10-29 20:45:21', 9),
-(5, '97A510BD', '', 'Aguardando', '2025-10-30 15:07:38', 9),
-(6, 'B2882746', 'Verde', 'Aguardando', '2025-10-30 16:40:46', 10),
-(7, '34CC9466', 'Amarelo', 'Aguardando', '2025-10-31 11:32:55', 8);
+(4, '9D3AA8E5', 'Azul', 'Em espera', '2025-10-29 20:45:21', 9),
+(5, '97A510BD', '', 'Em espera', '2025-10-30 15:07:38', 9),
+(6, 'B2882746', 'Verde', 'Em espera', '2025-10-30 16:40:46', 10),
+(7, '34CC9466', 'Amarelo', 'Em espera', '2025-10-31 11:32:55', 8);
 
 -- --------------------------------------------------------
 

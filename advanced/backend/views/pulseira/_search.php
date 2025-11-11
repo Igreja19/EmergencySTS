@@ -40,7 +40,7 @@ use yii\widgets\ActiveForm;
     <div class="col-md-3">
         <?= $form->field($model, 'status')->dropDownList([
                 '' => 'Todos os estados',
-                'Aguardando' => 'Aguardando Atendimento',
+                'Em espera' => 'A aguardar Atendimento',
                 'Atendida'   => 'Atendida',
                 'Encerrada'  => 'Encerrada',
         ], ['class' => 'form-select rounded-pill shadow-sm border-success'])->label(false) ?>
