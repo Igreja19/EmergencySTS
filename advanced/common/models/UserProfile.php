@@ -41,6 +41,7 @@ class UserProfile extends \yii\db\ActiveRecord
     {
         return [
             [['nome', 'email', 'nif', 'sns', 'datanascimento', 'genero', 'telefone', 'user_id'], 'required'],
+            [['nif', 'sns'], 'required', 'on' => 'update'],
             [['datanascimento'], 'safe'],
             [['user_id'], 'integer'],
             [['nome', 'email'], 'string', 'max' => 100],
@@ -50,6 +51,8 @@ class UserProfile extends \yii\db\ActiveRecord
             [['telefone'], 'string', 'max' => 30],
             [['email'], 'unique'],
             [['role'], 'safe'], // 🔹 Permitir o uso no formulário
+            [['nif'], 'unique', 'targetClass' => self::class, 'message' => 'Este NIF já está registado.'],
+            [['sns'], 'unique', 'targetClass' => self::class, 'message' => 'Este número SNS já está registado.'],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['user_id' => 'id']],
         ];
     }

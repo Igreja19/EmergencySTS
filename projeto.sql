@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Tempo de geração: 31-Out-2025 às 12:00
+-- Tempo de geração: 11-Nov-2025 às 14:59
 -- Versão do servidor: 9.1.0
 -- versão do PHP: 8.2.26
 
@@ -41,7 +41,11 @@ CREATE TABLE IF NOT EXISTS `auth_assignment` (
 --
 
 INSERT INTO `auth_assignment` (`item_name`, `user_id`, `created_at`) VALUES
-('admin', '1', 1761233604);
+('admin', '1', 1761233604),
+('admin', '17', 1762871574),
+('enfermeiro', '14', 1762871639),
+('enfermeiro', '15', 1762871582),
+('medico', '13', 1762871645);
 
 -- --------------------------------------------------------
 
@@ -126,7 +130,7 @@ CREATE TABLE IF NOT EXISTS `consulta` (
   `id` int NOT NULL AUTO_INCREMENT,
   `data_consulta` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `estado` enum('Aberta','Encerrada','Em curso') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'Aberta',
-  `observacoes` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
+  `observacoes` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `userprofile_id` int NOT NULL,
   `triagem_id` int NOT NULL,
   `prescricao_id` int NOT NULL,
@@ -182,7 +186,7 @@ DROP TABLE IF EXISTS `notificacao`;
 CREATE TABLE IF NOT EXISTS `notificacao` (
   `id` int NOT NULL AUTO_INCREMENT,
   `titulo` varchar(150) DEFAULT NULL,
-  `mensagem` text NOT NULL,
+  `mensagem` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
   `tipo` enum('Consulta','Prioridade','Geral') NOT NULL DEFAULT 'Geral',
   `dataenvio` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `lida` tinyint(1) NOT NULL DEFAULT '0',
@@ -200,7 +204,7 @@ CREATE TABLE IF NOT EXISTS `notificacao` (
 DROP TABLE IF EXISTS `prescricao`;
 CREATE TABLE IF NOT EXISTS `prescricao` (
   `id` int NOT NULL,
-  `observacoes` text NOT NULL,
+  `observacoes` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
   `dataprescricao` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `consulta_id` int NOT NULL,
   PRIMARY KEY (`id`),
@@ -240,17 +244,7 @@ CREATE TABLE IF NOT EXISTS `pulseira` (
   `userprofile_id` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_userprofile_pulseira` (`userprofile_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
-
---
--- Extraindo dados da tabela `pulseira`
---
-
-INSERT INTO `pulseira` (`id`, `codigo`, `prioridade`, `status`, `tempoentrada`, `userprofile_id`) VALUES
-(4, '9D3AA8E5', 'Azul', 'Em espera', '2025-10-29 20:45:21', 9),
-(5, '97A510BD', '', 'Em espera', '2025-10-30 15:07:38', 9),
-(6, 'B2882746', 'Verde', 'Em espera', '2025-10-30 16:40:46', 10),
-(7, '34CC9466', 'Amarelo', 'Em espera', '2025-10-31 11:32:55', 8);
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -262,29 +256,19 @@ DROP TABLE IF EXISTS `triagem`;
 CREATE TABLE IF NOT EXISTS `triagem` (
   `id` int NOT NULL AUTO_INCREMENT,
   `motivoconsulta` varchar(255) DEFAULT NULL,
-  `queixaprincipal` text,
-  `descricaosintomas` text,
+  `queixaprincipal` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci DEFAULT NULL,
+  `descricaosintomas` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci DEFAULT NULL,
   `iniciosintomas` datetime DEFAULT NULL,
   `intensidadedor` int DEFAULT NULL,
-  `alergias` text,
-  `medicacao` text,
+  `alergias` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci DEFAULT NULL,
+  `medicacao` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci DEFAULT NULL,
   `datatriagem` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `userprofile_id` int NOT NULL,
   `pulseira_id` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_pulseira_id` (`pulseira_id`),
   KEY `fk_triagem_userprofile_id` (`userprofile_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=latin1;
-
---
--- Extraindo dados da tabela `triagem`
---
-
-INSERT INTO `triagem` (`id`, `motivoconsulta`, `queixaprincipal`, `descricaosintomas`, `iniciosintomas`, `intensidadedor`, `alergias`, `medicacao`, `datatriagem`, `userprofile_id`, `pulseira_id`) VALUES
-(11, 'Dor no Queixo', 'sdf', 'sdfs', '4333-03-12 23:32:00', 3, 'sdf', 'sdf', '2025-10-29 20:45:21', 9, 4),
-(12, 'gfhfgh', 'fghfh', 'dghfh', '4334-03-12 03:23:00', 10, 'efsg', 'dfg', '2025-10-30 15:07:38', 9, 5),
-(13, 'Dor no Queixo de baixo', 'Sangue no queixo', 'Doi ao tocar na testa', '3222-05-04 05:08:00', 10, 'nao tenoh', 'viogrum', '2025-10-30 16:40:46', 10, 6),
-(16, 'teste', 'teste', 'teste', '2343-04-23 03:23:00', 10, 'teste', 'teste', '2025-10-31 11:32:55', 8, 7);
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -309,17 +293,18 @@ CREATE TABLE IF NOT EXISTS `user` (
   UNIQUE KEY `username` (`username`),
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `password_reset_token` (`password_reset_token`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 --
 -- Extraindo dados da tabela `user`
 --
 
 INSERT INTO `user` (`id`, `username`, `auth_key`, `password_hash`, `password_reset_token`, `email`, `status`, `created_at`, `updated_at`, `verification_token`, `primeiro_login`) VALUES
-(1, 'admin', 'wF3wFkGpMxcqjhdrmS3WJvWNEdYB2WaT', '$2y$13$EIvoQKhEciV2r1hAF3AJauyr5nuyHYnJ7X/S9d9nV4WR4dYUxUWfG', NULL, 'admin@gmail.com', 10, 1761233560, 1761233560, NULL, 1),
 (13, 'henrique', 'vaP80G6lRRA6t6gzN8V8mdd4r2GTaFYA', '$2y$13$eb3e8WM7NkvGb8jJ/90emu.rvswWdGOBRwPMDJxO1cqR9iCIA/fRi', NULL, 'henrique@admin.com', 10, 1761753767, 1761907875, NULL, 0),
 (14, 'henrique2', 'js3kFvtb9Wll0UeVVJsnycj6gxfzeuqO', '$2y$13$gj08.hqXkJZdLKWyLPL1buvBCEVoW74SeGVZViX1Sm3k4p.gTR/yC', NULL, 'henrique2@admin.com', 10, 1761765484, 1761907640, NULL, 0),
-(15, 'henrique3', '63wiuOFwnacZUswcy7rsJvH0VbsALtIl', '$2y$13$Uqcj5pOm8btQqPmqHVD7xOOcuVMTiC3.PTNLwwG/js0JKNgi8l8tC', NULL, 'henrique3@admin.com', 10, 1761841878, 1761841884, NULL, 0);
+(15, 'henrique3', '63wiuOFwnacZUswcy7rsJvH0VbsALtIl', '$2y$13$Uqcj5pOm8btQqPmqHVD7xOOcuVMTiC3.PTNLwwG/js0JKNgi8l8tC', NULL, 'henrique3@admin.com', 10, 1761841878, 1761841884, NULL, 0),
+(17, 'admin', 'jzrlaOlDUn7l6KKMpacSvFgtMGt1fqU7', '$2y$13$RKK2ufnqiyC8P6nTbVbo..mMG3uHtqKajWI6DCbED2kBYLMj9DDKK', NULL, 'admin@gmail.com', 10, 1762344402, 1762344423, NULL, 0),
+(19, 'paciente', 'kNkjrWgUUW7oJsGX5rYO37Z9JVud-88g', '$2y$13$OBUCgH38mdcSEvFliWf5Ou4aaNnd4J8tA6TfJx9.ylBlyJgeD92.S', NULL, 'paciente@gmail.com', 10, 1762873049, 1762873052, NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -341,8 +326,10 @@ CREATE TABLE IF NOT EXISTS `userprofile` (
   `user_id` int NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`),
+  UNIQUE KEY `unique_sns` (`sns`),
+  UNIQUE KEY `unique_nif` (`nif`),
   KEY `fk_userprofile_user` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=latin1;
 
 --
 -- Extraindo dados da tabela `userprofile`
@@ -351,7 +338,9 @@ CREATE TABLE IF NOT EXISTS `userprofile` (
 INSERT INTO `userprofile` (`id`, `nome`, `email`, `morada`, `nif`, `sns`, `datanascimento`, `genero`, `telefone`, `user_id`) VALUES
 (8, 'henrique', 'henrique@admin.com', 'Rua das Flores, nº72 2445-034', '234938493', '398493928', '2333-02-23', 'M', '915429512', 13),
 (9, 'Henrique Salgado', 'henriquesalgado@gmail.com', 'Rua das Flores, nº72 2445-034', '483956185', '495284639', '2004-07-05', 'M', '915429512', 14),
-(10, 'henrique3', 'henrique3@admin.com', 'Rua das Flores, nº72 2445-034', '234549264', '485429512', '2234-03-02', 'M', '915429512', 15);
+(10, 'henrique3', 'henrique3@admin.com', 'Rua das Flores, nº72 2445-034', '234549264', '485429512', '2234-03-02', 'M', '915429512', 15),
+(12, 'admin', 'admin@gmail.com', 'rua das flores', '234132345', '999999999', '3434-03-23', 'M', '243928938', 17),
+(14, 'paciente', 'paciente@gmail.com', 'Rua das Flores, nº72 2445-034', '283718374', '273687187', '2002-03-21', 'F', '915429512', 19);
 
 --
 -- Restrições para despejos de tabelas
