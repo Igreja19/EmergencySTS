@@ -1,4 +1,5 @@
 <?php
+
 namespace backend\modules\api\controllers;
 
 use Yii;
@@ -16,14 +17,14 @@ class AuthController extends Controller
     {
         $behaviors = parent::behaviors();
 
-        // ✅ força JSON mesmo se pedirem HTML
+        // 🔹 força resposta JSON
         $behaviors['contentNegotiator']['formats']['text/html'] = Response::FORMAT_JSON;
 
-        // ✅ autenticação via parâmetro ?auth_key=XYZ
+        // 🔹 autenticação via parâmetro ?auth_key=XYZ (opcional)
         $behaviors['authenticator'] = [
             'class' => QueryParamAuth::class,
             'tokenParam' => 'auth_key',
-            'optional' => ['login', 'validate'], // ❗ permite login sem token
+            'optional' => ['login', 'validate'], // permite login sem token
         ];
 
         return $behaviors;
@@ -32,45 +33,66 @@ class AuthController extends Controller
     // ✅ POST /api/auth/login
     public function actionLogin()
     {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
         $data = Yii::$app->request->post();
         $username = $data['username'] ?? null;
         $password = $data['password'] ?? null;
 
         if (!$username || !$password) {
-            throw new UnauthorizedHttpException('Credenciais em falta.');
+            return [
+                'status' => false,
+                'message' => 'Credenciais em falta.',
+                'data' => null,
+            ];
         }
 
         $user = User::findByUsername($username);
 
         if (!$user || !$user->validatePassword($password)) {
-            throw new UnauthorizedHttpException('Utilizador ou palavra-passe incorretos.');
+            return [
+                'status' => false,
+                'message' => 'Utilizador ou palavra-passe incorretos.',
+                'data' => null,
+            ];
         }
 
-        // 🔹 apenas devolve a auth_key existente
+        // 🔹 Login bem-sucedido → devolve dados do utilizador
         return [
-            'status' => 'success',
+            'status' => true,
             'message' => 'Login efetuado com sucesso.',
-            'user_id' => $user->id,
-            'username' => $user->username,
-            'auth_key' => $user->auth_key, // 🔑 vai buscar o que já está guardado na BD
+            'data' => [
+                'id' => $user->id,
+                'username' => $user->username,
+                'role' => $user->role ?? 'paciente',
+                'auth_key' => $user->auth_key,
+            ],
         ];
     }
 
     // ✅ GET /api/auth/validate?auth_key=XYZ
     public function actionValidate($auth_key)
     {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
         $user = User::findOne(['auth_key' => $auth_key]);
 
         if (!$user) {
-            throw new UnauthorizedHttpException('Token inválido ou expirado.');
+            return [
+                'status' => false,
+                'message' => 'Token inválido ou expirado.',
+                'data' => null,
+            ];
         }
 
         return [
-            'status' => 'success',
-            'user' => [
+            'status' => true,
+            'message' => 'Token válido.',
+            'data' => [
                 'id' => $user->id,
                 'username' => $user->username,
                 'email' => $user->email,
+                'role' => $user->role ?? 'paciente',
             ],
         ];
     }

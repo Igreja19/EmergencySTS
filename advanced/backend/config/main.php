@@ -48,21 +48,26 @@ return [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                // 🔹 Controladores REST (automáticos)
                 [
                     'class' => yii\rest\UrlRule::class,
-                    'controller' => ['api/user','api/triagem', 'api/pulseira'],
+                    'controller' => ['api/user', 'api/triagem', 'api/pulseira'],
                     'pluralize' => false,
                     'extraPatterns' => [
                         'GET prioridade' => 'prioridade',
                     ],
                 ],
 
-                // Outras rotas manuais
+                // 🔹 Endpoints manuais (Auth)
                 'POST api/auth/login' => 'api/auth/login',
+                'GET api/auth/validate' => 'api/auth/validate',
                 'POST api/auth/logout' => 'api/auth/logout',
+
+                // 🔹 Rota base da API
                 'GET api' => 'api/default/index',
             ],
         ],
+
     ],
 
     'params' => $params,
