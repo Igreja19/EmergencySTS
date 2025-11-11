@@ -57,14 +57,27 @@ class AuthController extends Controller
             ];
         }
 
-        // 🔹 Login bem-sucedido → devolve dados do utilizador
+        // 🔹 Buscar role real a partir da tabela auth_assignment
+        $role = Yii::$app->db->createCommand("
+            SELECT item_name
+            FROM auth_assignment
+            WHERE user_id = :user_id
+            LIMIT 1
+        ")
+            ->bindValue(':user_id', $user->id)
+            ->queryScalar();
+
+        if (!$role) {
+            $role = 'paciente'; // fallback
+        }
+
         return [
             'status' => true,
             'message' => 'Login efetuado com sucesso.',
             'data' => [
                 'id' => $user->id,
                 'username' => $user->username,
-                'role' => $user->role ?? 'paciente',
+                'role' => $role,
                 'auth_key' => $user->auth_key,
             ],
         ];
