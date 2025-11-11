@@ -55,47 +55,5 @@ $user = Yii::$app->user->identity ?? null;
                 ]) ?>
             </div>
         </li>
-
-        <!-- Fullscreen -->
-        <li class="nav-item">
-            <a class="nav-link" data-widget="fullscreen" href="#" role="button" title="Ecrã inteiro">
-                <i class="fas fa-expand-arrows-alt"></i>
-            </a>
-        </li>
-
-        <!-- Dark mode -->
-        <li class="nav-item">
-            <a class="nav-link" href="#" id="darkToggle" title="Tema escuro">
-                <i class="fas fa-moon"></i>
-            </a>
-        </li>
-
-        <!-- Control sidebar (opcional) -->
-        <li class="nav-item">
-            <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button" title="Painel lateral">
-                <i class="fas fa-th-large"></i>
-            </a>
-        </li>
     </ul>
 </nav>
-<!-- /.navbar -->
-
-<?php
-// Dark mode persistente (localStorage)
-$js = <<<JS
-(function(){
-  const key = 'emergencysts-theme';
-  const saved = localStorage.getItem(key);
-  if(saved === 'dark') document.body.classList.add('dark-mode');
-  const toggle = document.getElementById('darkToggle');
-  if(toggle){
-    toggle.addEventListener('click', function(e){
-      e.preventDefault();
-      document.body.classList.toggle('dark-mode');
-      localStorage.setItem(key, document.body.classList.contains('dark-mode') ? 'dark' : 'light');
-    });
-  }
-})();
-JS;
-$this->registerJs($js);
-?>

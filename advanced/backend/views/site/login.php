@@ -1,55 +1,75 @@
 <?php
 use yii\helpers\Html;
-// Certifica-te que estás a usar o ActiveForm do Bootstrap 4
-use yii\bootstrap4\ActiveForm;
+use yii\bootstrap5\ActiveForm;
+
+$this->title = 'Acesso Restrito';
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/site.css');
 ?>
-<div class="card">
-    <div class="card-body login-card-body">
 
-        <div class="text-center mb-4">
-            <span class="fas fa-shield-alt fa-3x text-muted"></span>
-            <h4 class="mt-3 mb-1">Back-Office - Acesso Restrito</h4>
-            <p class="text-muted">Área exclusiva para funcionários do hospital</p>
-        </div>
+<div class="login-container">
+    <div class="login-card card border-0 shadow-lg rounded-4">
+        <div class="card-body text-center">
 
-        <?php $form = ActiveForm::begin([
-            'id' => 'login-form',
-            // Removemos as classes de form-horizontal para um layout standard
-            'layout' => 'default',
-        ]); ?>
-
-
-        <?= $form->field($model, 'username')
-            ->textInput(['placeholder' => 'USERNAME'])
-            ->label('Username') // O label que aparece na imagem
-        ?>
-
-        <?= $form->field($model, 'password')
-            ->passwordInput(['placeholder' => '********'])
-            ->label('Palavra-passe') // O label que aparece na imagem
-        ?>
-
-        <div class="row mt-4">
-            <div class="col-12">
-                <?= Html::submitButton('Iniciar Sessão &rarr;', ['class' => 'btn btn-success btn-block']) ?>
+            <!-- 🔹 Logótipo / Ícone -->
+            <div class="mb-4">
+                <div class="d-flex justify-content-center mb-3">
+                    <div class="login-icon shadow-sm">
+                        <img src="<?= Yii::getAlias('@web') ?>/img/login.png"
+                             alt="Segurança"
+                             class="img-fluid p-2"
+                             style="max-width: 90px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));">
+                    </div>
+                </div>
+                <h3 class="fw-bold text-success mt-3 mb-1">Acesso Restrito</h3>
+                <p class="text-muted small">Área exclusiva para funcionários do hospital</p>
             </div>
+
+            <!-- 🔹 Formulário -->
+            <?php $form = ActiveForm::begin([
+                    'id' => 'login-form',
+                    'layout' => 'default',
+                    'options' => ['class' => 'text-start login-form']
+            ]); ?>
+
+            <?= $form->field($model, 'username', [
+                    'inputOptions' => [
+                            'class' => 'form-control rounded-3 shadow-sm',
+                            'placeholder' => 'Introduza o seu username'
+                    ],
+            ])->label('<i class="bi bi-person-fill me-1"></i> Nome de Utilizador', [
+                    'class' => 'form-label fw-semibold text-success'
+            ]) ?>
+
+            <?= $form->field($model, 'password', [
+                    'inputOptions' => [
+                            'class' => 'form-control rounded-3 shadow-sm',
+                            'placeholder' => '********'
+                    ],
+            ])->passwordInput()
+                    ->label('<i class="bi bi-lock-fill me-1"></i> Palavra-passe', [
+                            'class' => 'form-label fw-semibold text-success'
+                    ]) ?>
+
+            <div class="d-grid mt-4">
+                <?= Html::submitButton('<i class="bi bi-box-arrow-in-right me-1"></i> Iniciar Sessão', [
+                        'class' => 'btn btn-success btn-lg rounded-3 fw-semibold shadow-sm position-relative overflow-hidden'
+                ]) ?>
+            </div>
+
+            <?php ActiveForm::end(); ?>
+
+            <!-- 🔹 Rodapé / Alerta -->
+            <div class="alert alert-light border mt-4 small shadow-sm text-start" role="alert">
+                <i class="bi bi-shield-lock-fill text-success me-2"></i>
+                <strong>Acesso Seguro:</strong> Apenas funcionários autorizados podem aceder.
+            </div>
+
+            <div class="text-center mt-3">
+                <?= Html::a('<i class="bi bi-question-circle me-1"></i> Esqueceu-se da palavra-passe?',
+                        ['site/request-password-reset'],
+                        ['class' => 'text-success text-decoration-none fw-semibold']) ?>
+            </div>
+
         </div>
-
-        <?php ActiveForm::end(); ?>
-
-        <div class="alert alert-warning mt-4" role="alert">
-            <p class="mb-1">
-                <span class="fas fa-info-circle mr-2"></span>
-                <strong>Acesso Seguro</strong>
-            </p>
-            <p class="mb-0" style="font-size: 0.9em;">
-                Esta área é protegida. Apenas funcionários autorizados podem aceder.
-            </p>
-        </div>
-
-        <p class="mb-1 text-center mt-3">
-            <?= Html::a('Esqueceu-se da palavra-passe?', ['site/request-password-reset']) ?>
-        </p>
-
     </div>
 </div>

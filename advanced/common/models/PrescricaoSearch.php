@@ -6,66 +6,48 @@ use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use common\models\Prescricao;
 
-/**
- * PrescricaoSearch represents the model behind the search form of `common\models\Prescricao`.
- */
 class PrescricaoSearch extends Prescricao
 {
-    /**
-     * {@inheritdoc}
-     */
+    public $medicamento; // Campo virtual para pesquisa pelo nome do medicamento
+
     public function rules()
     {
         return [
-            [['id'], 'integer'],
-            [['medicamento', 'dosagem', 'frequencia', 'observacoes', 'dataprescricao'], 'safe'],
+            [['id', 'consulta_id'], 'integer'],
+            [['observacoes', 'dataprescricao', 'medicamento'], 'safe'],
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function scenarios()
-    {
-        // bypass scenarios() implementation in the parent class
-        return Model::scenarios();
-    }
-
-    /**
-     * Creates data provider instance with search query applied
-     *
-     * @param array $params
-     *
-     * @return ActiveDataProvider
-     */
     public function search($params)
     {
         $query = Prescricao::find();
 
-        // add conditions that should always apply here
+        // Faz o join com as tabelas relacionadas
+        $query->joinWith(['prescricaomedicamentos.medicamento']);
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
 
+        // Permite ordenar pela coluna medicamento.nome
+        $dataProvider->sort->attributes['medicamento'] = [
+            'asc' => ['medicamento.nome' => SORT_ASC],
+            'desc' => ['medicamento.nome' => SORT_DESC],
+        ];
+
         $this->load($params);
 
         if (!$this->validate()) {
-            // uncomment the following line if you do not want to return any records when validation fails
-            // $query->where('0=1');
             return $dataProvider;
         }
 
-        // grid filtering conditions
         $query->andFilterWhere([
-            'id' => $this->id,
-            'dataprescricao' => $this->dataprescricao,
+            'prescricao.id' => $this->id,
+            'prescricao.consulta_id' => $this->consulta_id,
         ]);
 
-        $query->andFilterWhere(['like', 'medicamento', $this->medicamento])
-            ->andFilterWhere(['like', 'dosagem', $this->dosagem])
-            ->andFilterWhere(['like', 'frequencia', $this->frequencia])
-            ->andFilterWhere(['like', 'observacoes', $this->observacoes]);
+        $query->andFilterWhere(['like', 'prescricao.observacoes', $this->observacoes])
+            ->andFilterWhere(['like', 'medicamento.nome', $this->medicamento]);
 
         return $dataProvider;
     }

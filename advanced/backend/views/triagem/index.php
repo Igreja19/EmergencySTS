@@ -4,15 +4,9 @@ use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\widgets\Pjax;
 
-/** @var yii\web\View $this */
-/** @var common\models\TriagemSearch $searchModel */
-/** @var yii\data\ActiveDataProvider $dataProvider */
-
 $this->title = 'Triagens';
 $this->params['breadcrumbs'][] = $this->title;
-
-$this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem.css');
-
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile.css');
 ?>
 
 <div class="triagem-index">
@@ -29,51 +23,33 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem.css');
         <?php Pjax::begin(); ?>
         <?= GridView::widget([
                 'dataProvider' => $dataProvider,
-                'filterModel' => null,
                 'tableOptions' => ['class' => 'table table-striped table-modern align-middle'],
                 'columns' => [
                         ['class' => 'yii\grid\SerialColumn', 'header' => '#'],
-
-                        [
-                                'attribute' => 'id',
-                                'label' => 'ID',
-                                'headerOptions' => ['style' => 'width:80px;'],
-                        ],
+                        'id',
                         [
                                 'label' => 'Código da Pulseira',
-                                'value' => fn($model) => $model->pulseira->codigo ?? '-',
+                                'value' => fn($m) => $m->pulseira->codigo ?? '-',
                         ],
                         [
                                 'label' => 'Paciente',
-                                'value' => fn($model) => $model->userprofile->nome ?? '-',
+                                'value' => fn($m) => $m->userprofile->nome ?? '-',
                         ],
-                        [
-                                'attribute' => 'motivoconsulta',
-                                'label' => 'Motivo da Consulta',
-                        ],
+                        'motivoconsulta',
                         [
                                 'attribute' => 'datatriagem',
-                                'label' => 'Data da Triagem',
                                 'format' => ['datetime', 'php:d/m/Y H:i'],
-                                'headerOptions' => ['style' => 'min-width:160px;'],
                         ],
                         [
                                 'class' => 'yii\grid\ActionColumn',
                                 'header' => 'Ações',
                                 'template' => '{view} {update} {delete}',
-                                'contentOptions' => ['style' => 'white-space:nowrap; text-align:center;'],
+                                'contentOptions' => ['style' => 'text-align:center;'],
                                 'buttons' => [
-                                        'view' => fn($url) => Html::a('<i class="bi bi-eye"></i>', $url, [
-                                                'class' => 'btn-action btn-view',
-                                                'title' => 'Ver'
-                                        ]),
-                                        'update' => fn($url) => Html::a('<i class="bi bi-pencil"></i>', $url, [
-                                                'class' => 'btn-action btn-edit',
-                                                'title' => 'Editar'
-                                        ]),
+                                        'view' => fn($url) => Html::a('<i class="bi bi-eye"></i>', $url, ['class' => 'btn-action btn-view']),
+                                        'update' => fn($url) => Html::a('<i class="bi bi-pencil"></i>', $url, ['class' => 'btn-action btn-edit']),
                                         'delete' => fn($url) => Html::a('<i class="bi bi-trash"></i>', $url, [
                                                 'class' => 'btn-action btn-delete',
-                                                'title' => 'Eliminar',
                                                 'data-confirm' => 'Tens a certeza que queres eliminar esta triagem?',
                                                 'data-method' => 'post',
                                         ]),

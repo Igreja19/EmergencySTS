@@ -5,64 +5,60 @@ namespace common\models;
 use Yii;
 
 /**
- * This is the model class for table "prescricao".
+ * Esta é a classe modelo para a tabela "prescricao".
  *
  * @property int $id
- * @property string $medicamento
- * @property string $dosagem
- * @property string $frequencia
  * @property string $observacoes
  * @property string $dataprescricao
+ * @property int $consulta_id
  *
- * @property Consulta[] $consultas
+ * @property Consulta $consulta
+ * @property Prescricaomedicamento[] $prescricaomedicamentos
  */
 class Prescricao extends \yii\db\ActiveRecord
 {
-    /**
-     * {@inheritdoc}
-     */
     public static function tableName()
     {
         return 'prescricao';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function rules()
     {
         return [
-            [['id', 'medicamento', 'dosagem', 'frequencia', 'observacoes'], 'required'],
-            [['id'], 'integer'],
-            [['observacoes'], 'string'],
+            [['observacoes', 'consulta_id'], 'required'],
+            [['consulta_id'], 'integer'],
             [['dataprescricao'], 'safe'],
-            [['medicamento', 'dosagem', 'frequencia'], 'string', 'max' => 100],
-            [['id'], 'unique'],
+            [['observacoes'], 'string', 'max' => 255],
+            [['consulta_id'], 'exist', 'skipOnError' => true, 'targetClass' => Consulta::class, 'targetAttribute' => ['consulta_id' => 'id']],
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function attributeLabels()
     {
         return [
             'id' => 'ID',
-            'medicamento' => 'Medicamento',
-            'dosagem' => 'Dosagem',
-            'frequencia' => 'Frequencia',
-            'observacoes' => 'Observacoes',
-            'dataprescricao' => 'Dataprescricao',
+            'observacoes' => 'Observações',
+            'dataprescricao' => 'Data da Prescrição',
+            'consulta_id' => 'Consulta Associada',
         ];
     }
 
-    /**
-     * Gets query for [[Consultas]].
-     *
-     * @return \yii\db\ActiveQuery
-     */
-    public function getConsultas()
+    // 🔹 Relação: cada prescrição pertence a uma consulta
+    public function getConsulta()
     {
-        return $this->hasMany(Consulta::class, ['prescricao_id' => 'id']);
+        return $this->hasOne(Consulta::class, ['id' => 'consulta_id']);
+    }
+
+    // 🔹 Relação: cada prescrição pode ter vários medicamentos
+    public function getPrescricaomedicamentos()
+    {
+        return $this->hasMany(Prescricaomedicamento::class, ['prescricao_id' => 'id']);
+    }
+
+    // 🔹 Acesso rápido aos medicamentos através da tabela relacional
+    public function getMedicamentos()
+    {
+        return $this->hasMany(Medicamento::class, ['id' => 'medicamento_id'])
+            ->via('prescricaomedicamentos');
     }
 }

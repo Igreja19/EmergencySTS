@@ -1,38 +1,43 @@
 <?php
-
 /* @var $this \yii\web\View */
 /* @var $content string */
 
-\hail812\adminlte3\assets\AdminLteAsset::register($this);
-$this->registerCssFile('https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700');
-$this->registerCssFile('https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css');
-$this->registerCssFile(Yii::getAlias('@web') . '/css/adminlte-custom.css?v=1.1', ['depends' => [\yii\web\JqueryAsset::class]]);
+use yii\helpers\Html;
+use hail812\adminlte3\assets\AdminLteAsset;
+use hail812\adminlte3\assets\PluginAsset;
+use yii\web\JqueryAsset;
 
-\hail812\adminlte3\assets\PluginAsset::register($this)->add(['fontawesome', 'icheck-bootstrap']);
+AdminLteAsset::register($this);
+PluginAsset::register($this)->add(['fontawesome', 'icheck-bootstrap']);
+
+$this->registerCssFile('https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700&display=swap');
+$this->registerCssFile(Yii::getAlias('@web') . '/css/adminlte-custom.css?v=1.2', ['depends' => [JqueryAsset::class]]);
 ?>
+
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
-<html>
+<html lang="<?= Yii::$app->language ?>">
 <head>
     <meta charset="<?= Yii::$app->charset ?>">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>AdminLTE 3 | Log in</title>
-    <!-- Tell the browser to be responsive to screen width -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#198754">
+    <link rel="icon" type="image/png" href="<?= Yii::getAlias('@web') ?>/img/logo.png">
     <?php $this->registerCsrfMetaTags() ?>
+    <title><?= Html::encode($this->title ?: 'EmergencySTS | Acesso Restrito') ?></title>
     <?php $this->head() ?>
 </head>
-<body class="hold-transition login-page">
-<?php  $this->beginBody() ?>
-<div class="login-box">
-    <div class="login-logo">
-        <a href="<?=Yii::$app->homeUrl?>"><b>Admin</b>LTE</a>
-    </div>
-    <!-- /.login-logo -->
 
+<body class="hold-transition login-page" style="background: transparent !important; overflow: hidden;">
+<?php $this->beginBody() ?>
+
+<!-- 🔹 Fundo em fade animado -->
+<div id="background-gradient"></div>
+
+<!-- 🔹 Container central do login -->
+<main class="login-container d-flex align-items-center justify-content-center">
     <?= $content ?>
-</div>
-<!-- /.login-box -->
+</main>
 
 <?php $this->endBody() ?>
 </body>
