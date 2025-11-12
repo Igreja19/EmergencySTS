@@ -110,22 +110,24 @@ class PulseiraController extends ActiveController
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
-        // 🔒 Autenticação
         if (!$auth_key) {
-            return ['status'=>'error','message'=>'Auth key não fornecida.','data'=>[]];
+            return ['status' => 'error', 'message' => 'Auth key não fornecida.', 'data' => []];
         }
 
         $user = \common\models\User::findOne(['auth_key' => $auth_key]);
         if (!$user) {
-            return ['status'=>'error','message'=>'Acesso negado. Auth key inválida.','data'=>[]];
+            return ['status' => 'error', 'message' => 'Acesso negado. Auth key inválida.', 'data' => []];
         }
 
         try {
-            // 🔹 Buscar pulseiras com status "Em espera"
+            // 🔹 Busca pulseiras cuja prioridade esteja vazia OU seja 'Pendente'
             $pulseiras = \common\models\Pulseira::find()
                 ->alias('p')
                 ->joinWith('userprofile up')
-                ->where(['p.status' => 'Em espera'])
+                ->where(['or',
+                    ['p.prioridade' => 'Pendente'],
+                    ['p.prioridade' => '']
+                ])
                 ->orderBy(['p.tempoentrada' => SORT_DESC])
                 ->asArray()
                 ->all();
@@ -138,7 +140,7 @@ class PulseiraController extends ActiveController
                 ];
             }
 
-            // 🔹 Formatando resposta
+            // 🔹 Monta o resultado
             $data = [];
             foreach ($pulseiras as $p) {
                 $data[] = [
@@ -146,7 +148,7 @@ class PulseiraController extends ActiveController
                     'codigo' => $p['codigo'],
                     'nome' => $p['userprofile']['nome'] ?? 'Desconhecido',
                     'sns' => $p['userprofile']['sns'] ?? 'N/A',
-                    'prioridade' => $p['prioridade'],
+                    'prioridade' => $p['prioridade'] ?: 'Pendente',
                     'hora' => date('H:i', strtotime($p['tempoentrada'])),
                     'status' => $p['status'],
                 ];
@@ -154,16 +156,17 @@ class PulseiraController extends ActiveController
 
             return [
                 'status' => 'success',
-                'message' => 'Pulseiras em espera encontradas.',
+                'message' => 'Pulseiras pendentes encontradas.',
                 'data' => $data
             ];
 
         } catch (\Throwable $e) {
             return [
                 'status' => 'error',
-                'message' => 'Erro ao obter pulseiras: ' . $e->getMessage(),
+                'message' => 'Erro ao obter pulseiras pendentes: ' . $e->getMessage(),
                 'data' => []
             ];
         }
     }
+
 }
