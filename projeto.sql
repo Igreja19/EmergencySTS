@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.2
+-- version 5.2.0
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Tempo de geração: 12-Nov-2025 às 14:49
--- Versão do servidor: 9.1.0
--- versão do PHP: 8.3.14
+-- Tempo de geração: 12-Nov-2025 às 15:46
+-- Versão do servidor: 5.7.40
+-- versão do PHP: 8.2.0
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de dados: `projeto`
+-- Banco de dados: `projeto`
 --
 
 -- --------------------------------------------------------
@@ -31,10 +31,10 @@ DROP TABLE IF EXISTS `auth_assignment`;
 CREATE TABLE IF NOT EXISTS `auth_assignment` (
   `item_name` varchar(64) NOT NULL,
   `user_id` varchar(64) NOT NULL,
-  `created_at` int DEFAULT NULL,
+  `created_at` int(11) DEFAULT NULL,
   PRIMARY KEY (`item_name`,`user_id`),
   KEY `idx-auth_assignment-user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Extraindo dados da tabela `auth_assignment`
@@ -51,17 +51,17 @@ INSERT INTO `auth_assignment` (`item_name`, `user_id`, `created_at`) VALUES
 
 DROP TABLE IF EXISTS `auth_item`;
 CREATE TABLE IF NOT EXISTS `auth_item` (
-  `name` varchar(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
-  `type` smallint NOT NULL,
-  `description` text CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci,
-  `rule_name` varchar(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL,
+  `name` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
+  `type` smallint(6) NOT NULL,
+  `description` text COLLATE utf8_unicode_ci,
+  `rule_name` varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,
   `data` blob,
-  `created_at` int DEFAULT NULL,
-  `updated_at` int DEFAULT NULL,
+  `created_at` int(11) DEFAULT NULL,
+  `updated_at` int(11) DEFAULT NULL,
   PRIMARY KEY (`name`),
   KEY `rule_name` (`rule_name`),
   KEY `idx-auth_item-type` (`type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Extraindo dados da tabela `auth_item`
@@ -87,11 +87,11 @@ INSERT INTO `auth_item` (`name`, `type`, `description`, `rule_name`, `data`, `cr
 
 DROP TABLE IF EXISTS `auth_item_child`;
 CREATE TABLE IF NOT EXISTS `auth_item_child` (
-  `parent` varchar(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
-  `child` varchar(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+  `parent` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
+  `child` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`parent`,`child`),
   KEY `child` (`child`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Extraindo dados da tabela `auth_item_child`
@@ -108,12 +108,12 @@ INSERT INTO `auth_item_child` (`parent`, `child`) VALUES
 
 DROP TABLE IF EXISTS `auth_rule`;
 CREATE TABLE IF NOT EXISTS `auth_rule` (
-  `name` varchar(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+  `name` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
   `data` blob,
-  `created_at` int DEFAULT NULL,
-  `updated_at` int DEFAULT NULL,
+  `created_at` int(11) DEFAULT NULL,
+  `updated_at` int(11) DEFAULT NULL,
   PRIMARY KEY (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -123,18 +123,18 @@ CREATE TABLE IF NOT EXISTS `auth_rule` (
 
 DROP TABLE IF EXISTS `consulta`;
 CREATE TABLE IF NOT EXISTS `consulta` (
-  `id` int NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `data_consulta` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `estado` enum('Aberta','Encerrada','Em curso') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'Aberta',
-  `observacoes` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
-  `userprofile_id` int NOT NULL,
-  `triagem_id` int NOT NULL,
+  `estado` enum('Aberta','Encerrada','Em curso') NOT NULL DEFAULT 'Aberta',
+  `observacoes` text,
+  `userprofile_id` int(11) NOT NULL,
+  `triagem_id` int(11) NOT NULL,
   `data_encerramento` datetime DEFAULT NULL,
-  `relatorio_pdf` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `relatorio_pdf` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_consulta_triagem_idx` (`triagem_id`),
   KEY `fk_userprofile_consulta` (`userprofile_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -144,11 +144,11 @@ CREATE TABLE IF NOT EXISTS `consulta` (
 
 DROP TABLE IF EXISTS `medicamento`;
 CREATE TABLE IF NOT EXISTS `medicamento` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `nome` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-  `dosagem` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `nome` varchar(255) NOT NULL,
+  `dosagem` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -158,10 +158,10 @@ CREATE TABLE IF NOT EXISTS `medicamento` (
 
 DROP TABLE IF EXISTS `migration`;
 CREATE TABLE IF NOT EXISTS `migration` (
-  `version` varchar(180) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-  `apply_time` int DEFAULT NULL,
+  `version` varchar(180) NOT NULL,
+  `apply_time` int(11) DEFAULT NULL,
   PRIMARY KEY (`version`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Extraindo dados da tabela `migration`
@@ -178,13 +178,13 @@ INSERT INTO `migration` (`version`, `apply_time`) VALUES
 
 DROP TABLE IF EXISTS `notificacao`;
 CREATE TABLE IF NOT EXISTS `notificacao` (
-  `id` int NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `titulo` varchar(150) DEFAULT NULL,
   `mensagem` text NOT NULL,
   `tipo` enum('Consulta','Prioridade','Geral') NOT NULL DEFAULT 'Geral',
   `dataenvio` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `lida` tinyint(1) NOT NULL DEFAULT '0',
-  `userprofile_id` int NOT NULL,
+  `userprofile_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_notificacao_userprofile_id` (`userprofile_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
@@ -197,10 +197,10 @@ CREATE TABLE IF NOT EXISTS `notificacao` (
 
 DROP TABLE IF EXISTS `prescricao`;
 CREATE TABLE IF NOT EXISTS `prescricao` (
-  `id` int NOT NULL,
+  `id` int(11) NOT NULL,
   `observacoes` text NOT NULL,
   `dataprescricao` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `consulta_id` int NOT NULL,
+  `consulta_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_consulta_prescricao` (`consulta_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -213,14 +213,14 @@ CREATE TABLE IF NOT EXISTS `prescricao` (
 
 DROP TABLE IF EXISTS `prescricaomedicamento`;
 CREATE TABLE IF NOT EXISTS `prescricaomedicamento` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `posologia` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-  `prescricao_id` int NOT NULL,
-  `medicamento_id` int NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `posologia` varchar(255) NOT NULL,
+  `prescricao_id` int(11) NOT NULL,
+  `medicamento_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_prescricaoMed_prescricao` (`prescricao_id`),
   KEY `fk_prescricaoMed_medicamento` (`medicamento_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -230,12 +230,12 @@ CREATE TABLE IF NOT EXISTS `prescricaomedicamento` (
 
 DROP TABLE IF EXISTS `pulseira`;
 CREATE TABLE IF NOT EXISTS `pulseira` (
-  `id` int NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `codigo` varchar(10) NOT NULL,
-  `prioridade` enum('Vermelho','Laranja','Amarelo','Verde','Azul','Pendente') CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
-  `status` enum('Em espera','Em atendimento','Atendido') CHARACTER SET latin1 COLLATE latin1_swedish_ci DEFAULT 'Em espera',
+  `prioridade` enum('Vermelho','Laranja','Amarelo','Verde','Azul','Pendente') NOT NULL,
+  `status` enum('Em espera','Em atendimento','Atendido') DEFAULT 'Em espera',
   `tempoentrada` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `userprofile_id` int NOT NULL,
+  `userprofile_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_userprofile_pulseira` (`userprofile_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
@@ -258,17 +258,17 @@ INSERT INTO `pulseira` (`id`, `codigo`, `prioridade`, `status`, `tempoentrada`, 
 
 DROP TABLE IF EXISTS `triagem`;
 CREATE TABLE IF NOT EXISTS `triagem` (
-  `id` int NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `motivoconsulta` varchar(255) DEFAULT NULL,
   `queixaprincipal` text,
   `descricaosintomas` text,
   `iniciosintomas` datetime DEFAULT NULL,
-  `intensidadedor` int DEFAULT NULL,
+  `intensidadedor` int(11) DEFAULT NULL,
   `alergias` text,
   `medicacao` text,
   `datatriagem` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `userprofile_id` int NOT NULL,
-  `pulseira_id` int DEFAULT NULL,
+  `userprofile_id` int(11) NOT NULL,
+  `pulseira_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_pulseira_id` (`pulseira_id`),
   KEY `fk_triagem_userprofile_id` (`userprofile_id`)
@@ -292,22 +292,22 @@ INSERT INTO `triagem` (`id`, `motivoconsulta`, `queixaprincipal`, `descricaosint
 
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE IF NOT EXISTS `user` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `username` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
-  `auth_key` varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
-  `password_hash` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
-  `password_reset_token` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL,
-  `email` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
-  `status` smallint NOT NULL DEFAULT '10',
-  `created_at` int NOT NULL,
-  `updated_at` int NOT NULL,
-  `verification_token` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `auth_key` varchar(32) COLLATE utf8_unicode_ci NOT NULL,
+  `password_hash` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `password_reset_token` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `email` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `status` smallint(6) NOT NULL DEFAULT '10',
+  `created_at` int(11) NOT NULL,
+  `updated_at` int(11) NOT NULL,
+  `verification_token` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `primeiro_login` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`),
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `password_reset_token` (`password_reset_token`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Extraindo dados da tabela `user`
@@ -318,7 +318,9 @@ INSERT INTO `user` (`id`, `username`, `auth_key`, `password_hash`, `password_res
 (13, 'henrique', 'vaP80G6lRRA6t6gzN8V8mdd4r2GTaFYA', '$2y$13$eb3e8WM7NkvGb8jJ/90emu.rvswWdGOBRwPMDJxO1cqR9iCIA/fRi', NULL, 'henrique@admin.com', 10, 1761753767, 1761907875, NULL, 0),
 (14, 'henrique2', 'js3kFvtb9Wll0UeVVJsnycj6gxfzeuqO', '$2y$13$gj08.hqXkJZdLKWyLPL1buvBCEVoW74SeGVZViX1Sm3k4p.gTR/yC', NULL, 'henrique2@admin.com', 10, 1761765484, 1761907640, NULL, 0),
 (15, 'henrique3', '63wiuOFwnacZUswcy7rsJvH0VbsALtIl', '$2y$13$Uqcj5pOm8btQqPmqHVD7xOOcuVMTiC3.PTNLwwG/js0JKNgi8l8tC', NULL, 'henrique3@admin.com', 10, 1761841878, 1761841884, NULL, 0),
-(16, 'paciente', 'iwCBKSHgv3PdisglhLUwIi7uaodtv5KZ', '$2y$13$k5/Z4U83KEGiWv5pZaZWK.Hw0FYdcyZba6EmO.nr9MHCDkrwfMl.u', NULL, 'paciente@gmail.com', 10, 1762957973, 1762957982, NULL, 0);
+(16, 'paciente', 'iwCBKSHgv3PdisglhLUwIi7uaodtv5KZ', '$2y$13$k5/Z4U83KEGiWv5pZaZWK.Hw0FYdcyZba6EmO.nr9MHCDkrwfMl.u', NULL, 'paciente@gmail.com', 10, 1762957973, 1762957982, NULL, 0),
+(17, 'fabio', 'uzFzzNSoXGyx_G6WA_PXA-2XE9XsG2A-', '$2y$13$1H4srvB689klIiVTDDXvveyGhpbV5LITcpj.wXY5ikgtMUFuceO2m', NULL, 'fabio@gmail.com', 10, 1762960888, 1762960953, NULL, 0),
+(18, 'zezoca', '5Bafu7LFi6mEO7F0RH7rLBcxEj0YhgMp', '$2y$13$01.YP4ozXB5DwglMWyfRFOqrQQpT6aDFvmdMpB2LVWhfAl02IQ2MW', NULL, 'zezoca@gmail.com', 10, 1762961282, 1762961299, NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -328,20 +330,20 @@ INSERT INTO `user` (`id`, `username`, `auth_key`, `password_hash`, `password_res
 
 DROP TABLE IF EXISTS `userprofile`;
 CREATE TABLE IF NOT EXISTS `userprofile` (
-  `id` int NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `nome` varchar(100) NOT NULL,
   `email` varchar(100) NOT NULL,
-  `morada` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci DEFAULT NULL,
-  `nif` varchar(9) NOT NULL,
-  `sns` varchar(9) NOT NULL,
-  `datanascimento` date NOT NULL,
-  `genero` char(1) NOT NULL,
-  `telefone` varchar(30) NOT NULL,
-  `user_id` int NOT NULL,
+  `morada` varchar(255) DEFAULT NULL,
+  `nif` varchar(9) DEFAULT NULL,
+  `sns` varchar(9) DEFAULT NULL,
+  `datanascimento` date DEFAULT NULL,
+  `genero` char(1) DEFAULT NULL,
+  `telefone` varchar(30) DEFAULT NULL,
+  `user_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`),
   KEY `fk_userprofile_user` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
 
 --
 -- Extraindo dados da tabela `userprofile`
@@ -351,7 +353,8 @@ INSERT INTO `userprofile` (`id`, `nome`, `email`, `morada`, `nif`, `sns`, `datan
 (8, 'henrique', 'henrique@admin.com', 'Rua das Flores, nº72 2445-034', '234938493', '398493928', '2333-02-23', 'M', '915429512', 13),
 (9, 'Henrique Salgado', 'henriquesalgado@gmail.com', 'Rua das Flores, nº72 2445-034', '483956185', '495284639', '2004-07-05', 'M', '915429512', 14),
 (10, 'henrique3', 'henrique3@admin.com', 'Rua das Flores, nº72 2445-034', '234549264', '485429512', '2234-03-02', 'M', '915429512', 15),
-(11, 'paciente', 'paciente@gmail.com', NULL, '', '', '0000-00-00', '', '', 16);
+(11, 'paciente', 'paciente@gmail.com', NULL, '', '', '0000-00-00', '', '', 16),
+(12, 'zezoca', 'zezoca@gmail.com', 'rua', '123', '1234', '2025-11-11', 'M', '2343412313', 18);
 
 --
 -- Restrições para despejos de tabelas
@@ -374,40 +377,40 @@ ALTER TABLE `auth_item_child`
 -- Limitadores para a tabela `consulta`
 --
 ALTER TABLE `consulta`
-  ADD CONSTRAINT `fk_consulta_triagem` FOREIGN KEY (`triagem_id`) REFERENCES `triagem` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_consulta_utilizador` FOREIGN KEY (`userprofile_id`) REFERENCES `userprofile` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_consulta_triagem` FOREIGN KEY (`triagem_id`) REFERENCES `triagem` (`id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_consulta_utilizador` FOREIGN KEY (`userprofile_id`) REFERENCES `userprofile` (`id`) ON UPDATE CASCADE;
 
 --
 -- Limitadores para a tabela `notificacao`
 --
 ALTER TABLE `notificacao`
-  ADD CONSTRAINT `fk_userprofile_id` FOREIGN KEY (`userprofile_id`) REFERENCES `userprofile` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+  ADD CONSTRAINT `fk_userprofile_id` FOREIGN KEY (`userprofile_id`) REFERENCES `userprofile` (`id`);
 
 --
 -- Limitadores para a tabela `prescricao`
 --
 ALTER TABLE `prescricao`
-  ADD CONSTRAINT `fk_consulta_prescricao` FOREIGN KEY (`consulta_id`) REFERENCES `consulta` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+  ADD CONSTRAINT `fk_consulta_prescricao` FOREIGN KEY (`consulta_id`) REFERENCES `consulta` (`id`);
 
 --
 -- Limitadores para a tabela `prescricaomedicamento`
 --
 ALTER TABLE `prescricaomedicamento`
-  ADD CONSTRAINT `fk_prescricaoMed_medicamento` FOREIGN KEY (`medicamento_id`) REFERENCES `medicamento` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  ADD CONSTRAINT `fk_prescricaoMed_prescricao` FOREIGN KEY (`prescricao_id`) REFERENCES `prescricao` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+  ADD CONSTRAINT `fk_prescricaoMed_medicamento` FOREIGN KEY (`medicamento_id`) REFERENCES `medicamento` (`id`),
+  ADD CONSTRAINT `fk_prescricaoMed_prescricao` FOREIGN KEY (`prescricao_id`) REFERENCES `prescricao` (`id`);
 
 --
 -- Limitadores para a tabela `pulseira`
 --
 ALTER TABLE `pulseira`
-  ADD CONSTRAINT `fk_userprofile_pulseira` FOREIGN KEY (`userprofile_id`) REFERENCES `userprofile` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+  ADD CONSTRAINT `fk_userprofile_pulseira` FOREIGN KEY (`userprofile_id`) REFERENCES `userprofile` (`id`);
 
 --
 -- Limitadores para a tabela `triagem`
 --
 ALTER TABLE `triagem`
-  ADD CONSTRAINT `fk_pulseira_id` FOREIGN KEY (`pulseira_id`) REFERENCES `pulseira` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  ADD CONSTRAINT `fk_triagem_userprofile_id` FOREIGN KEY (`userprofile_id`) REFERENCES `userprofile` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+  ADD CONSTRAINT `fk_pulseira_id` FOREIGN KEY (`pulseira_id`) REFERENCES `pulseira` (`id`),
+  ADD CONSTRAINT `fk_triagem_userprofile_id` FOREIGN KEY (`userprofile_id`) REFERENCES `userprofile` (`id`);
 
 --
 -- Limitadores para a tabela `userprofile`

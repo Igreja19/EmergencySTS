@@ -6,6 +6,7 @@ use common\widgets\Alert;
 use frontend\assets\AppAsset;
 use yii\bootstrap5\Breadcrumbs;
 use yii\bootstrap5\Html;
+use yii\helpers\Url;
 
 AppAsset::register($this);
 ?>
@@ -153,19 +154,48 @@ AppAsset::register($this);
 
 <!-- 🔹 FOOTER GLOBAL -->
 <footer class="text-light py-4 border-top">
-    <div class="container text-center">
-        <p class="mb-1 small">
-            <img src="<?= Yii::$app->request->baseUrl ?>/img/logo.png"
-                 alt="Logo EmergencySTS" style="height:30px; margin-right:10px;">
-            <span class="text-success fw-semibold">EmergencySTS</span> <?= date('Y') ?> — Todos os direitos reservados.
-        </p>
-        <p class="mb-0 small">
-            Desenvolvido por
-            <a href="<?= Yii::$app->urlManager->createUrl(['team/index']) ?>">
-                EmergencySTS Dev Team
-            </a>
-        </p>
-    </div>
+    <div class="container">
+        <div class="row gy-4">
+            <div class="col-lg-4 col-md-6">
+                <h5 class="fw-bold mb-3 text-success">Endereço</h5>
+                <p class="mb-2"><i class="bi bi-geo-alt-fill text-success me-2"></i> Rua Central da Saúde, 2450-100 Leiria, Portugal</p>
+                <p class="mb-2"><i class="bi bi-telephone-fill text-success me-2"></i> +351 987 654 321</p>
+                <p class="mb-3"><i class="bi bi-envelope-fill text-success me-2"></i> suporte@emergencysts.pt</p>
+                <div class="d-flex mt-3">
+                    <a href="#" class="btn btn-outline-success btn-sm rounded-circle me-2"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="btn btn-outline-success btn-sm rounded-circle me-2"><i class="bi bi-twitter"></i></a>
+                    <a href="#" class="btn btn-outline-success btn-sm rounded-circle me-2"><i class="bi bi-youtube"></i></a>
+                    <a href="#" class="btn btn-outline-success btn-sm rounded-circle"><i class="bi bi-linkedin"></i></a>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <h5 class="fw-bold mb-3 text-success">Serviços</h5>
+                <ul class="list-unstyled">
+                    <li><a href="<?= Yii::$app->urlManager->createUrl(['triagem/index']) ?>" class="text-light text-decoration-none"><i class="bi bi-chevron-right me-2 text-success"></i>Triagem</a></li>
+                    <li><a href="<?= Yii::$app->urlManager->createUrl(['consulta/historico']) ?>" class="text-light text-decoration-none"><i class="bi bi-chevron-right me-2 text-success"></i>Histórico de Pacientes</a></li>
+                    <li><a href="<?= Yii::$app->urlManager->createUrl(['pulseira/index']) ?>" class="text-light text-decoration-none"><i class="bi bi-chevron-right me-2 text-success"></i>Tempo de Espera</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <h5 class="fw-bold mb-3 text-success">Links Rápidos</h5>
+                <ul class="list-unstyled">
+                    <li><a href="<?= Yii::$app->urlManager->createUrl(['site/about']) ?>" class="text-light text-decoration-none"><i class="bi bi-chevron-right me-2 text-success"></i>Sobre Nós</a></li>
+                    <li><a href="<?= Yii::$app->urlManager->createUrl(['site/contact']) ?>" class="text-light text-decoration-none"><i class="bi bi-chevron-right me-2 text-success"></i>Contactos</a></li>
+                    <li><a href="<?= Yii::$app->urlManager->createUrl(['terms/index']) ?>" class="text-light text-decoration-none"><i class="bi bi-chevron-right me-2 text-success"></i>Termos e Condições</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <hr class="border-secondary my-4">
+
+        <div class="row">
+            <div class="col-md-6 text-center text-md-end">
+                <small>Desenvolvido por <a href="<?= Url::to(['/team/index']) ?>" class="text-success text-decoration-none fw-semibold">EmergencySTS Dev Team</a></small>
+            </div>
+        </div>
+            </div>
 </footer>
 
 <!-- 🔹 Bootstrap e Owl Carousel -->
