@@ -63,8 +63,14 @@ $this->title = 'Perfil do Utilizador';
                                 'label' => '<i class="bi bi-hospital-fill me-2"></i> Nº SNS',
                         ],
                         [
-                                'attribute' => 'genero',
-                                'label' => '<i class="bi bi-gender-ambiguous me-2"></i> Género',
+                                'label' => 'Género',
+                                'value' => match ($model->genero) {
+                                    'M' => 'Masculino',
+                                    'F' => 'Feminino',
+                                    'O' => 'Outro',
+                                    default => '<span class="text-muted">—</span>',
+                                },
+                                'format' => 'raw',
                         ],
                         [
                                 'attribute' => 'datanascimento',

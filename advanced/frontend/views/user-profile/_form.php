@@ -55,12 +55,11 @@ $this->title = $model->isNewRecord ? 'Criar Perfil' : 'Editar Perfil';
             </div>
 
             <div class="col-md-3">
-                <?= $form->field($model, 'genero')
-                        ->dropDownList([
-                                'M' => 'M',
-                                'F' => 'F',
-                        ], ['prompt' => 'Selecionar'])
-                        ->label('<i class="bi bi-gender-ambiguous me-2"></i> Género') ?>
+                <?= $form->field($model, 'genero')->dropDownList([
+                        'M' => 'Masculino',
+                        'F' => 'Feminino',
+                        'O' => 'Outro',
+                ], ['prompt' => '— Selecionar —']) ?>
             </div>
         </div>
 
