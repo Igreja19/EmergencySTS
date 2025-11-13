@@ -42,7 +42,6 @@ class TriagemController extends Controller
     {
         $model = new Triagem();
 
-        // 🔹 Se o utilizador estiver autenticado, associa automaticamente o perfil
         if (!Yii::$app->user->isGuest) {
             $model->userprofile_id = Yii::$app->user->identity->userprofile->id ?? null;
         }
@@ -59,31 +58,30 @@ class TriagemController extends Controller
         }
 
         if (Yii::$app->request->isPost && $model->load(Yii::$app->request->post())) {
+
             $model->datatriagem = date('Y-m-d H:i:s');
 
-            // 🔹 1️⃣ Criar automaticamente a pulseira
+            // 1️⃣ Criar pulseira
             $pulseira = new Pulseira();
-            $pulseira->codigo = strtoupper(substr(md5(uniqid()), 0, 8)); // código único
-            $pulseira->prioridade = 'Pendente'; // cor inicial
+            $pulseira->codigo = strtoupper(substr(md5(uniqid()), 0, 8));
+            $pulseira->prioridade = 'Pendente';
             $pulseira->tempoentrada = date('Y-m-d H:i:s');
             $pulseira->status = 'Em espera';
             $pulseira->userprofile_id = $model->userprofile_id;
+            $pulseira->save(false);
 
-            if ($pulseira->save(false)) {
-                $model->pulseira_id = $pulseira->id;
-            }
+            $model->pulseira_id = $pulseira->id;
 
-            // 🔹 2️⃣ Guardar triagem
+            // 2️⃣ Guardar triagem
             if ($model->save(false)) {
 
                 Yii::$app->session->setFlash('success', 'Formulário clínico criado com sucesso!');
                 return $this->redirect(['pulseira/index']);
-            } else {
-                Yii::$app->session->setFlash('error', 'Erro ao guardar os dados da triagem.');
             }
+
+            Yii::$app->session->setFlash('error', 'Erro ao guardar os dados da triagem.');
         }
 
-        // 🔹 Renderização normal do formulário
         return $this->render('formulario', [
             'model' => $model,
         ]);

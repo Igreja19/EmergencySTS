@@ -9,38 +9,93 @@ $this->title = 'EmergencySTS - Serviço de Urgências';
         <p class="text-muted mb-4">Sistema de Triagem - Protocolo EmergencySTS</p>
 
         <div class="d-flex flex-column align-items-center gap-3">
+
+            <!-- 🔍 Lógica completa e corrigida do botão -->
             <div class="text-center">
+
                 <?php if (!Yii::$app->user->isGuest): ?>
+
                     <?php
                     $userProfile = Yii::$app->user->identity->userprofile ?? null;
 
-                    // Verifica se todos os campos essenciais estão preenchidos
-                    $perfilCompleto = $userProfile &&
+                    // ✔️ Verifica se perfil está completo
+                    $perfilCompleto =
+                            $userProfile &&
                             !empty($userProfile->nome) &&
                             !empty($userProfile->email) &&
                             !empty($userProfile->nif) &&
                             !empty($userProfile->sns) &&
                             !empty($userProfile->telefone) &&
                             !empty($userProfile->datanascimento);
+
+                    // Inicializar
+                    $triagem = null;
+                    $consulta = null;
+
+                    // 🔍 Só consulta triagem se existir userProfile
+                    if ($userProfile) {
+
+                        // Triagem mais recente
+                        $triagem = \common\models\Triagem::find()
+                                ->where(['userprofile_id' => $userProfile->id])
+                                ->orderBy(['id' => SORT_DESC])
+                                ->one();
+
+                        // Consulta associada
+                        if ($triagem) {
+                            $consulta = \common\models\Consulta::find()
+                                    ->where(['triagem_id' => $triagem->id])
+                                    ->orderBy(['id' => SORT_DESC])
+                                    ->one();
+                        }
+                    }
+
+                    // 🔥 Decisão final do botão
+                    $mostrarBotao = false;
+
+                    if ($perfilCompleto) {
+                        if (!$triagem) {
+                            // Nenhuma triagem → pode preencher
+                            $mostrarBotao = true;
+                        } elseif ($consulta && $consulta->estado === 'Encerrada') {
+                            // Triagem existe mas consulta encerrada → pode fazer nova
+                            $mostrarBotao = true;
+                        }
+                    }
                     ?>
 
-                    <?php if ($perfilCompleto): ?>
-                        <!-- ✅ Botão visível se o perfil estiver completo -->
+                    <?php if ($mostrarBotao): ?>
+                        <!-- 🟢 Botão aparece -->
                         <a href="<?= Yii::$app->urlManager->createUrl(['triagem/formulario']) ?>"
                            class="btn btn-success btn-lg fw-semibold px-5 py-3 shadow-sm">
                             <i class="bi bi-file-earmark-text me-2"></i> Preencher Formulário Clínico
                         </a>
+
                     <?php else: ?>
-                        <!-- ⚠️ Caixa de aviso se o perfil estiver incompleto -->
-                        <div class="alert alert-warning d-inline-block fw-semibold px-4 py-3 rounded-3 shadow-sm mt-3" style="max-width:600px;">
-                            <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>
-                            Por favor, preencha o seu <a href="<?= Yii::$app->urlManager->createUrl(['user-profile/view', 'id' => $userProfile->id ?? 0]) ?>"
-                                                         class="alert-link text-success fw-bold">perfil</a> antes de preencher o formulário clínico.
-                        </div>
+
+                        <?php if ($perfilCompleto): ?>
+                            <!-- 🟡 Já existe triagem ativa -->
+                            <div class="alert alert-secondary fw-semibold px-4 py-3 rounded-3 shadow-sm mt-3" style="max-width:600px;">
+                                <i class="bi bi-hourglass-split text-muted me-2"></i>
+                                Já preencheu o formulário clínico. Aguarde pela conclusão da consulta.
+                            </div>
+                        <?php else: ?>
+                            <!-- 🔴 Perfil incompleto -->
+                            <div class="alert alert-warning d-inline-block fw-semibold px-4 py-3 rounded-3 shadow-sm mt-3" style="max-width:600px;">
+                                <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>
+                                Por favor, preencha o seu
+                                <a href="<?= Yii::$app->urlManager->createUrl(['user-profile/view', 'id' => $userProfile->id ?? 0]) ?>"
+                                   class="alert-link text-success fw-bold">perfil</a>
+                                antes de preencher o formulário clínico.
+                            </div>
+                        <?php endif; ?>
+
                     <?php endif; ?>
+
                 <?php endif; ?>
             </div>
 
+            <!-- Se for visitante -->
             <?php if (Yii::$app->user->isGuest): ?>
                 <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-3">
                     <a href="<?= Yii::$app->urlManager->createUrl(['site/login']) ?>" class="btn btn-outline-success px-4 py-2 fw-semibold">
@@ -51,6 +106,7 @@ $this->title = 'EmergencySTS - Serviço de Urgências';
                     </a>
                 </div>
             <?php endif; ?>
+
         </div>
     </div>
 
@@ -77,7 +133,6 @@ $this->title = 'EmergencySTS - Serviço de Urgências';
         <div class="col-md-4">
             <div class="card border-0 shadow-sm h-100 rounded-4 p-3 card-link position-relative"
                  role="button"
-                 style="cursor:pointer;"
                  onclick="window.location.href='<?= Yii::$app->urlManager->createUrl(['notificacao/index']) ?>'">
                 <i class="bi bi-bell fs-2 text-success mb-2"></i>
                 <h5 class="fw-bold">Notificações</h5>
@@ -85,8 +140,9 @@ $this->title = 'EmergencySTS - Serviço de Urgências';
                 <span class="position-absolute top-0 start-100 translate-middle-x mt-1 badge rounded-pill bg-success"><?= $kpiNaoLidas ?? 0 ?></span>
             </div>
         </div>
+    </div>
 
-    <!-- Sobre o Protocolo de Manchester -->
+    <!-- Sobre o Protocolo -->
     <div class="card border-0 shadow-sm rounded-4 p-4" style="background-color: #f8fbf8;">
         <h5 class="fw-bold text-success mb-3">Sobre o Protocolo EmergencySTS</h5>
         <p class="text-muted mb-4">
@@ -101,7 +157,6 @@ $this->title = 'EmergencySTS - Serviço de Urgências';
                 </div>
             </div>
 
-            <!-- Muito Urgente → Laranja -->
             <div class="col-md-2 col-6">
                 <div class="card border-start border-4 shadow-sm rounded-4 p-3 border-warning laranja">
                     <p class="fw-bold mb-1">Muito Urgente</p>
@@ -109,7 +164,6 @@ $this->title = 'EmergencySTS - Serviço de Urgências';
                 </div>
             </div>
 
-            <!-- Urgente → Amarelo -->
             <div class="col-md-2 col-6">
                 <div class="card border-start border-4 border-amarelo shadow-sm rounded-4 p-3">
                     <p class="fw-bold text-amarelo mb-1">Urgente</p>
@@ -133,6 +187,7 @@ $this->title = 'EmergencySTS - Serviço de Urgências';
         </div>
     </div>
 </div>
+
 <style>
     .card-link {
         cursor: pointer;
@@ -152,7 +207,6 @@ $this->title = 'EmergencySTS - Serviço de Urgências';
 
     .card-link:hover i {
         transform: scale(1.15);
-        /*color: #0d6efd !important;*/
     }
 
     .badge {
@@ -166,10 +220,10 @@ $this->title = 'EmergencySTS - Serviço de Urgências';
     .border-amarelo {
         border-color: #FFFF00 !important;
     }
+
     .text-amarelo {
         color: #FFFF00 !important;
     }
 </style>
 
-<!-- Bootstrap Icons -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">

@@ -106,4 +106,67 @@ class PulseiraController extends ActiveController
             'data' => $pulseiras,
         ];
     }
+    public function actionPendentes($auth_key = null)
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        if (!$auth_key) {
+            return ['status' => 'error', 'message' => 'Auth key não fornecida.', 'data' => []];
+        }
+
+        $user = \common\models\User::findOne(['auth_key' => $auth_key]);
+        if (!$user) {
+            return ['status' => 'error', 'message' => 'Acesso negado. Auth key inválida.', 'data' => []];
+        }
+
+        try {
+            // 🔹 Busca pulseiras cuja prioridade esteja vazia OU seja 'Pendente'
+            $pulseiras = \common\models\Pulseira::find()
+                ->alias('p')
+                ->joinWith('userprofile up')
+                ->where(['or',
+                    ['p.prioridade' => 'Pendente'],
+                    ['p.prioridade' => '']
+                ])
+                ->orderBy(['p.tempoentrada' => SORT_DESC])
+                ->asArray()
+                ->all();
+
+            if (!$pulseiras) {
+                return [
+                    'status' => 'success',
+                    'message' => 'Nenhuma pulseira pendente encontrada.',
+                    'data' => []
+                ];
+            }
+
+            // 🔹 Monta o resultado
+            $data = [];
+            foreach ($pulseiras as $p) {
+                $data[] = [
+                    'id' => $p['id'],
+                    'codigo' => $p['codigo'],
+                    'nome' => $p['userprofile']['nome'] ?? 'Desconhecido',
+                    'sns' => $p['userprofile']['sns'] ?? 'N/A',
+                    'prioridade' => $p['prioridade'] ?: 'Pendente',
+                    'hora' => date('H:i', strtotime($p['tempoentrada'])),
+                    'status' => $p['status'],
+                ];
+            }
+
+            return [
+                'status' => 'success',
+                'message' => 'Pulseiras pendentes encontradas.',
+                'data' => $data
+            ];
+
+        } catch (\Throwable $e) {
+            return [
+                'status' => 'error',
+                'message' => 'Erro ao obter pulseiras pendentes: ' . $e->getMessage(),
+                'data' => []
+            ];
+        }
+    }
+
 }

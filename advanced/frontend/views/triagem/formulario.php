@@ -23,6 +23,7 @@ $userProfile = Yii::$app->user->identity->userprofile;
 
         <!-- 🔹 DADOS PESSOAIS -->
         <h6 class="fw-bold text-success mt-2 mb-3">Dados Pessoais</h6>
+
         <div class="row g-3 mb-3">
 
             <!-- Nome -->
@@ -89,10 +90,15 @@ $userProfile = Yii::$app->user->identity->userprofile;
 
         <div class="row g-3 mb-3">
             <div class="col-md-6">
+
+                <!-- 🔹 CAMPO COM A VALIDAÇÃO DO ANO -->
                 <?= $form->field($model, 'iniciosintomas')
-                        ->input('datetime-local')
+                        ->input('datetime-local', [
+                                'id' => 'triagem-iniciosintomas',
+                        ])
                         ->label('<i class="bi bi-clock-history me-2"></i> Início dos Sintomas') ?>
             </div>
+
             <div class="col-md-6">
                 <?= $form->field($model, 'intensidadedor')
                         ->dropDownList([
@@ -117,6 +123,7 @@ $userProfile = Yii::$app->user->identity->userprofile;
 
         <!-- 🔹 CONDIÇÕES, ALERGIAS E MEDICAÇÃO -->
         <h6 class="fw-bold text-success section-spacing">Informações Adicionais</h6>
+
         <?= $form->field($model, 'alergias')
                 ->textarea(['rows' => 2, 'placeholder' => 'Alergias conhecidas...'])
                 ->label('<i class="bi bi-exclamation-triangle me-2"></i> Alergias Conhecidas') ?>
@@ -135,7 +142,35 @@ $userProfile = Yii::$app->user->identity->userprofile;
 
         <?php ActiveForm::end(); ?>
     </div>
+
+    <!-- 🔹 SCRIPT: valida ano (min = atual−100, max = atual) -->
     <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const campoData = document.querySelector('#triagem-iniciosintomas');
+
+            if (campoData) {
+                const anoAtual = new Date().getFullYear();
+                const anoMinimo = anoAtual - 100;
+
+                campoData.addEventListener('input', function () {
+                    const valor = campoData.value;
+
+                    if (valor.length >= 4) {
+                        const ano = parseInt(valor.substring(0, 4));
+
+                        if (isNaN(ano) || ano < anoMinimo || ano > anoAtual) {
+                            campoData.setCustomValidity(
+                                `O ano deve estar entre ${anoMinimo} e ${anoAtual}.`
+                            );
+                        } else {
+                            campoData.setCustomValidity("");
+                        }
+                    }
+                });
+            }
+        });
+
+        // Bloqueia múltiplos envios
         document.querySelector('#form-triagem').addEventListener('submit', function() {
             const btn = document.querySelector('.submit-btn');
             btn.disabled = true;
@@ -161,7 +196,6 @@ $userProfile = Yii::$app->user->identity->userprofile;
         box-shadow: 0 8px 28px rgba(0, 0, 0, 0.1);
     }
 
-    /* Inputs e selects uniformes */
     .form-control, .form-select, select {
         border-radius: 10px !important;
         padding: 10px 14px;
@@ -173,21 +207,18 @@ $userProfile = Yii::$app->user->identity->userprofile;
         height: auto;
     }
 
-    /* ✅ Labels com espaçamento e cor */
     .form-label, label {
         font-weight: 600;
-        color: #198754; /* verde original */
-        margin-top: 6px; /* pequeno espaço entre a caixa anterior e o label */
-        margin-bottom: 6px; /* espaço entre o label e o input abaixo */
+        color: #198754;
+        margin-top: 6px;
+        margin-bottom: 6px;
         display: block;
     }
 
-    /* Alinhamento visual consistente */
     .row.g-3 > [class*="col-"] {
         margin-bottom: 10px;
     }
 
-    /* Secções principais */
     h6 {
         text-transform: uppercase;
         font-size: 0.85rem;
@@ -197,7 +228,6 @@ $userProfile = Yii::$app->user->identity->userprofile;
         margin-bottom: 1rem;
     }
 
-    /* Botões */
     .btn-success {
         background-color: #198754 !important;
         border: none;
@@ -210,12 +240,12 @@ $userProfile = Yii::$app->user->identity->userprofile;
         box-shadow: 0 4px 15px rgba(22, 163, 74, 0.4);
         transform: translateY(-2px);
     }
-    /* 🔹 Corrige desalinhamento de colunas com labels longas */
+
     .row.g-3 .col-md-3,
     .row.g-3 .col-md-6 {
         display: flex;
         flex-direction: column;
-        justify-content: flex-end; /* alinha todas as caixas pela base */
+        justify-content: flex-end;
     }
 
     .form-select {
@@ -225,10 +255,9 @@ $userProfile = Yii::$app->user->identity->userprofile;
         box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         transition: all .25s ease;
     }
+
     .form-select:focus {
         border-color: #198754;
         box-shadow: 0 0 0 0.15rem rgba(25,135,84,.25);
     }
 </style>
-
-

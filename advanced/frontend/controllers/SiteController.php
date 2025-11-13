@@ -16,8 +16,6 @@ use yii\filters\VerbFilter;
 use yii\web\BadRequestHttpException;
 use yii\web\Controller;
 
-// Se tiveres a tabela paciente ligada
-
 /**
  * Site controller
  */
@@ -35,18 +33,18 @@ class SiteController extends Controller
                 'rules' => [
                     [
                         'actions' => ['signup'],
-                        'allow' => true,
-                        'roles' => ['?'],
+                        'allow'   => true,
+                        'roles'   => ['?'],
                     ],
                     [
                         'actions' => ['logout'],
-                        'allow' => true,
-                        'roles' => ['@'],
+                        'allow'   => true,
+                        'roles'   => ['@'],
                     ],
                 ],
             ],
             'verbs' => [
-                'class' => VerbFilter::class,
+                'class'  => VerbFilter::class,
                 'actions' => [
                     'logout' => ['post'],
                 ],
@@ -64,7 +62,7 @@ class SiteController extends Controller
                 'class' => \yii\web\ErrorAction::class,
             ],
             'captcha' => [
-                'class' => \yii\captcha\CaptchaAction::class,
+                'class'           => \yii\captcha\CaptchaAction::class,
                 'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null,
             ],
         ];
@@ -134,10 +132,9 @@ class SiteController extends Controller
         $model = new ContactForm();
 
         if ($model->load(Yii::$app->request->post())) {
-            // 🔹 Simulação de envio do email (nenhum email real é enviado)
+            // Simulação de envio do email
             Yii::$app->session->setFlash('success', 'O email foi enviado, iremos contactá-lo o mais brevemente possível.');
 
-            // Redireciona para a página inicial (onde aparecerá o modal)
             return $this->redirect(['site/index']);
         }
 
@@ -157,22 +154,36 @@ class SiteController extends Controller
     }
 
     /**
-     * Signs user up.
+     * Registo de utilizador (signup).
      *
      * @return mixed
      */
     public function actionSignup()
     {
         $model = new SignupForm();
-        if ($model->load(Yii::$app->request->post()) && $model->signup()) {
-            Yii::$app->session->setFlash('success', 'Thank you for registration. Please check your inbox for verification email.');
-            return $this->redirect(["site/login"]);
+
+        if ($model->load(Yii::$app->request->post())) {
+
+            $user = $model->signup(); // cria o user
+
+            if ($user) {
+
+                // login automático
+                Yii::$app->user->login($user);
+
+                // redirecionar para criar perfil
+                return $this->redirect([
+                    'user-profile/create',
+                    'user_id' => $user->id
+                ]);
+            }
         }
 
         return $this->render('signup', [
             'model' => $model,
         ]);
     }
+
 
     /**
      * Requests password reset.
@@ -182,6 +193,7 @@ class SiteController extends Controller
     public function actionRequestPasswordReset()
     {
         $model = new PasswordResetRequestForm();
+
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             if ($model->sendEmail()) {
                 Yii::$app->session->setFlash('success', 'Check your email for further instructions.');
@@ -224,11 +236,11 @@ class SiteController extends Controller
     }
 
     /**
-     * Verify email address
+     * Verify email address.
      *
      * @param string $token
      * @throws BadRequestHttpException
-     * @return yii\web\Response
+     * @return \yii\web\Response
      */
     public function actionVerifyEmail($token)
     {
@@ -237,6 +249,7 @@ class SiteController extends Controller
         } catch (InvalidArgumentException $e) {
             throw new BadRequestHttpException($e->getMessage());
         }
+
         if ($model->verifyEmail()) {
             Yii::$app->session->setFlash('success', 'Your email has been confirmed!');
             return $this->goHome();
@@ -247,23 +260,25 @@ class SiteController extends Controller
     }
 
     /**
-     * Resend verification email
+     * Resend verification email.
      *
      * @return mixed
      */
     public function actionResendVerificationEmail()
     {
         $model = new ResendVerificationEmailForm();
+
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             if ($model->sendEmail()) {
                 Yii::$app->session->setFlash('success', 'Check your email for further instructions.');
                 return $this->goHome();
             }
+
             Yii::$app->session->setFlash('error', 'Sorry, we are unable to resend verification email for the provided email address.');
         }
 
         return $this->render('resendVerificationEmail', [
-            'model' => $model
+            'model' => $model,
         ]);
     }
 }
