@@ -15,7 +15,24 @@ class TriagemController extends Controller
      */
     public function actionIndex()
     {
-        return $this->render('index');
+        $podeCriarTriagem = true;
+
+        if (!Yii::$app->user->isGuest) {
+            $userProfileId = Yii::$app->user->identity->userprofile->id ?? null;
+
+            if ($userProfileId) {
+                $pulseiraAtiva = Pulseira::find()
+                    ->where(['userprofile_id' => $userProfileId])
+                    ->andWhere(['in', 'status', ['Pendente', 'Em Atendimento']])
+                    ->exists(); // devolve true/false, não carrega o modelo inteiro
+
+                $podeCriarTriagem = !$pulseiraAtiva;
+            }
+        }
+
+        return $this->render('index', [
+            'podeCriarTriagem' => $podeCriarTriagem,
+        ]);
     }
 
     /**
@@ -28,6 +45,17 @@ class TriagemController extends Controller
         // 🔹 Se o utilizador estiver autenticado, associa automaticamente o perfil
         if (!Yii::$app->user->isGuest) {
             $model->userprofile_id = Yii::$app->user->identity->userprofile->id ?? null;
+        }
+
+        // Verifica se o utilizador já tem uma pulseira com status "Aguardando" ou "Em Atendimento"
+        $pulseiraAtiva = Pulseira::find()
+            ->where(['userprofile_id' => $model->userprofile_id])
+            ->andWhere(['in', 'status', ['Pendente', 'Em Atendimento']])
+            ->one();
+
+        if ($pulseiraAtiva) {
+            Yii::$app->session->setFlash('warning', 'Já tem uma pulseira ativa e não pode criar outro formulário até esta ser concluída.');
+            return $this->redirect(['site/index']);
         }
 
         if (Yii::$app->request->isPost && $model->load(Yii::$app->request->post())) {
@@ -48,7 +76,7 @@ class TriagemController extends Controller
             // 🔹 2️⃣ Guardar triagem
             if ($model->save(false)) {
                 // 🔹 3️⃣ Criar prescrição placeholder
-                $prescricao = new \common\models\Prescricao();
+                /*$prescricao = new \common\models\Prescricao();
                 $prescricao->observacoes = 'Prescrição inicial automática';
                 $prescricao->dataprescricao = date('Y-m-d H:i:s');
                 $prescricao->save(false);
@@ -65,7 +93,7 @@ class TriagemController extends Controller
 
                 // 🔹 5️⃣ Atualizar prescrição com ID da consulta
                 $prescricao->consulta_id = $consulta->id;
-                $prescricao->save(false);
+                $prescricao->save(false);*/
 
                 Yii::$app->session->setFlash('success', 'Formulário clínico, pulseira e consulta criados com sucesso!');
                 return $this->redirect(['pulseira/index']);
