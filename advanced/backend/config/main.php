@@ -1,6 +1,6 @@
 <?php
 
-use Yii; // 👈 IMPORTANTE!
+use yii\log\FileTarget;  // ✔️ Classe correta
 
 $params = array_merge(
     require __DIR__ . '/../../common/config/params.php',
@@ -19,12 +19,11 @@ return [
     'on beforeRequest' => function () {
         $auth = Yii::$app->authManager;
 
-        // Se por algum motivo não houver authManager (só por segurança)
         if ($auth === null) {
             return;
         }
 
-        // 🔹 1) Criar role paciente se ainda não existir
+        // 🔹 1) Criar role paciente se não existir
         if ($auth->getRole('paciente') === null) {
             $role = $auth->createRole('paciente');
             $role->description = 'Paciente do sistema';
@@ -37,17 +36,15 @@ return [
             $roles = $auth->getRolesByUser($userId);
 
             if (isset($roles['paciente'])) {
-                // 🔥 logout + mensagem + redirect
                 Yii::$app->user->logout();
                 Yii::$app->session->setFlash('error', 'Acesso exclusivo para staff.');
-
                 Yii::$app->response->redirect(['/site/login'])->send();
                 Yii::$app->end();
             }
         }
     },
 
-    // 🔹 Módulo da API
+    // 🔹 Módulos
     'modules' => [
         'api' => [
             'class' => backend\modules\api\ModuleAPI::class,
@@ -58,28 +55,33 @@ return [
         'request' => [
             'csrfParam' => '_csrf-backend',
         ],
+
         'user' => [
             'identityClass' => common\models\User::class,
             'enableAutoLogin' => true,
             'identityCookie' => ['name' => '_identity-backend', 'httpOnly' => true],
         ],
+
         'session' => [
             'name' => 'advanced-backend',
         ],
+
+        // ✔️ LOG CORRIGIDO
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
             'targets' => [
                 [
-                    'class' => yii\log\FileTarget::class,
+                    'class' => FileTarget::class,
                     'levels' => ['error', 'warning'],
                 ],
             ],
         ],
+
         'errorHandler' => [
             'errorAction' => 'site/error',
         ],
 
-        // 🔹 URL Manager da API
+        // 🔹 URL Manager
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
@@ -88,20 +90,24 @@ return [
                 // 🔹 Controladores REST automáticos
                 [
                     'class' => yii\rest\UrlRule::class,
-                    'controller' => ['api/user', 'api/triagem', 'api/pulseira'],
+                    'controller' => ['api/user', 'api/triagem', 'api/pulseira', 'api/notificacao'],
                     'pluralize' => false,
                     'extraPatterns' => [
                         'GET prioridade' => 'prioridade',
                     ],
                 ],
 
-                // 🔹 Endpoints manuais (Auth)
+                // 🔹 Endpoints de autenticação
                 'POST api/auth/login'    => 'api/auth/login',
                 'GET api/auth/validate'  => 'api/auth/validate',
                 'POST api/auth/logout'   => 'api/auth/logout',
+                // 🔹 Notificações
+                'GET api/notificacao/list' => 'api/notificacao/list',
+                'POST api/notificacao/ler/<id:\d+>' => 'api/notificacao/ler',
 
-                // 🔹 Página base da API
+                // Página base da API
                 'GET api' => 'api/default/index',
+
             ],
         ],
     ],
