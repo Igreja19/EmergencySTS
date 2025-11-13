@@ -25,6 +25,9 @@ class PrescricaoController extends Controller
         ];
     }
 
+    /**
+     * Lista todas as prescrições
+     */
     public function actionIndex()
     {
         $searchModel = new PrescricaoSearch();
@@ -33,6 +36,9 @@ class PrescricaoController extends Controller
         return $this->render('index', compact('searchModel', 'dataProvider'));
     }
 
+    /**
+     * Mostra uma prescrição específica
+     */
     public function actionView($id)
     {
         return $this->render('view', [
@@ -40,18 +46,32 @@ class PrescricaoController extends Controller
         ]);
     }
 
+    /**
+     * Cria uma nova prescrição
+     */
     public function actionCreate()
     {
         $model = new Prescricao();
 
-        $consultas = \common\models\Consulta::find()
+        // Lista de consultas válidas
+        $consultas = Consulta::find()
             ->select(['id'])
             ->indexBy('id')
             ->column();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            Yii::$app->session->setFlash('success', 'Prescrição criada com sucesso!');
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($model->load(Yii::$app->request->post())) {
+
+            // 🔥 PREVENIR ERRO: se dataprescricao vier vazia → timestamp atual
+            if (empty($model->dataprescricao)) {
+                $model->dataprescricao = date('Y-m-d H:i:s');
+            }
+
+            if ($model->save()) {
+                Yii::$app->session->setFlash('success', 'Prescrição criada com sucesso!');
+                return $this->redirect(['view', 'id' => $model->id]);
+            }
+
+            Yii::$app->session->setFlash('error', 'Erro ao guardar prescrição: ' . json_encode($model->getErrors()));
         }
 
         return $this->render('create', [
@@ -60,6 +80,9 @@ class PrescricaoController extends Controller
         ]);
     }
 
+    /**
+     * Atualiza uma prescrição
+     */
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
@@ -74,30 +97,48 @@ class PrescricaoController extends Controller
             ->indexBy('id')
             ->column();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            Yii::$app->session->setFlash('success', 'Prescrição atualizada com sucesso!');
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($model->load(Yii::$app->request->post())) {
+
+            // 🔥 PREVENIR ERRO: se dataprescricao vier vazia → timestamp atual
+            if (empty($model->dataprescricao)) {
+                $model->dataprescricao = date('Y-m-d H:i:s');
+            }
+
+            if ($model->save()) {
+                Yii::$app->session->setFlash('success', 'Prescrição atualizada com sucesso!');
+                return $this->redirect(['view', 'id' => $model->id]);
+            }
+
+            Yii::$app->session->setFlash('error', 'Erro ao atualizar: ' . json_encode($model->getErrors()));
         }
 
         return $this->render('update', [
             'model' => $model,
             'medicamentos' => $medicamentos,
-            'consultas' => $consultas, // ✅ também aqui
+            'consultas' => $consultas,
         ]);
     }
 
+    /**
+     * Apaga uma prescrição
+     */
     public function actionDelete($id)
     {
         $this->findModel($id)->delete();
+
         Yii::$app->session->setFlash('success', 'Prescrição eliminada com sucesso.');
         return $this->redirect(['index']);
     }
 
+    /**
+     * Encontra um modelo Prescricao ou lança erro 404
+     */
     protected function findModel($id)
     {
         if (($model = Prescricao::findOne($id)) !== null) {
             return $model;
         }
+
         throw new NotFoundHttpException('A prescrição solicitada não existe.');
     }
 }

@@ -47,23 +47,7 @@ class TriagemController extends Controller
             // 2️⃣ Guardar triagem
             if ($model->save(false)) {
 
-                // 3️⃣ Criar consulta em primeiro lugar
-                $consulta = new \common\models\Consulta();
-                $consulta->data_consulta = date('Y-m-d H:i:s');
-                $consulta->estado = 'Aberta';
-                $consulta->observacoes = 'Consulta gerada automaticamente a partir da triagem.';
-                $consulta->userprofile_id = $model->userprofile_id;
-                $consulta->triagem_id = $model->id;
-                $consulta->save(false);
-
-                // 4️⃣ Criar prescrição associada à consulta
-                $prescricao = new \common\models\Prescricao();
-                $prescricao->consulta_id = $consulta->id;  // OBRIGATÓRIO
-                $prescricao->observacoes = 'Prescrição inicial automática';
-                $prescricao->dataprescricao = date('Y-m-d H:i:s');
-                $prescricao->save(false);
-
-                Yii::$app->session->setFlash('success', 'Formulário clínico, pulseira, consulta e prescrição criados com sucesso!');
+                Yii::$app->session->setFlash('success', 'Formulário clínico criado com sucesso!');
                 return $this->redirect(['pulseira/index']);
             }
 

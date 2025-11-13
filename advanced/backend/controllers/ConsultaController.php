@@ -6,19 +6,13 @@ use Yii;
 use common\models\Consulta;
 use common\models\ConsultaSearch;
 use common\models\Triagem;
-use yii\helpers\ArrayHelper;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\helpers\ArrayHelper;
 
-/**
- * ConsultaController implements the CRUD actions for Consulta model.
- */
 class ConsultaController extends Controller
 {
-    /**
-     * @inheritDoc
-     */
     public function behaviors()
     {
         return array_merge(
@@ -34,28 +28,17 @@ class ConsultaController extends Controller
         );
     }
 
-    /**
-     * Lists all Consulta models.
-     *
-     * @return string
-     */
     public function actionIndex()
     {
         $searchModel = new ConsultaSearch();
-        $dataProvider = $searchModel->search($this->request->queryParams);
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
+            'searchModel'   => $searchModel,
+            'dataProvider'  => $dataProvider,
         ]);
     }
 
-    /**
-     * Displays a single Consulta model.
-     * @param int $id ID
-     * @return string
-     * @throws NotFoundHttpException if the model cannot be found
-     */
     public function actionView($id)
     {
         return $this->render('view', [
@@ -64,68 +47,64 @@ class ConsultaController extends Controller
     }
 
     /**
-     * Creates a new Consulta model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return string|\yii\web\Response
+     * =============================================
+     *      🚀 CRIAR CONSULTA
+     * =============================================
      */
     public function actionCreate()
     {
-        $model = new \common\models\Consulta();
+        $model = new Consulta();
 
-        // 🔹 Buscar triagens que têm pulseira associada
-        $triagensDisponiveis = \yii\helpers\ArrayHelper::map(
-            \common\models\Triagem::find()
+        // 🔹 Obter triagens com pulseira associada
+        $triagensDisponiveis = ArrayHelper::map(
+            Triagem::find()
                 ->joinWith('pulseira')
                 ->where(['not', ['pulseira.id' => null]])
                 ->all(),
             'id',
-            function ($triagem) {
-                // Mostra apenas o código da pulseira
-                return 'Pulseira: ' . ($triagem->pulseira->codigo ?? '-');
+            function ($t) {
+                return 'Pulseira: ' . ($t->pulseira->codigo ?? '-');
             }
         );
 
-        // 🔹 Quando o formulário é submetido
-        if ($model->load(\Yii::$app->request->post())) {
+        if ($model->load(Yii::$app->request->post())) {
 
-            $model->prescricao_id = null;
+            // 🔥 Atribui automaticamente a data e hora atuais
+            $model->data_consulta = date('Y-m-d H:i:s');
 
-            // Define data de consulta se não estiver preenchida
-            if (empty($model->data_consulta)) {
-                $model->data_consulta = date('Y-m-d H:i:s');
+            // 🔥 Estado inicial SEMPRE “Em curso”
+            $model->estado = Consulta::ESTADO_EM_CURSO;
+
+            // 🔥 Data de encerramento obrigatoriamente nula ao criar
+            $model->data_encerramento = null;
+
+            if ($model->save(false)) {
+                Yii::$app->session->setFlash('success', 'Consulta criada com sucesso!');
+                return $this->redirect(['index']);
             }
 
-            // Define estado padrão
-            if (empty($model->estado)) {
-                $model->estado = 'Aberta';
-            }
-
-            // 🔹 Guarda o modelo
-            if ($model->save(false)) { // false = ignora validações repetidas
-                \Yii::$app->session->setFlash('success', 'Consulta criada com sucesso!');
-                return $this->redirect(['index']); // ✅ Redireciona para a listagem
-            } else {
-                \Yii::$app->session->setFlash('error', 'Erro ao guardar consulta: ' . json_encode($model->getErrors()));
-            }
+            Yii::$app->session->setFlash('error', 'Erro ao guardar consulta.');
         }
 
-        // 🔹 Renderiza o formulário
         return $this->render('create', [
             'model' => $model,
             'triagensDisponiveis' => $triagensDisponiveis,
         ]);
     }
 
-    // ✅ Novo método AJAX para preencher o paciente automaticamente
+    /**
+     * AJAX — devolve info da triagem
+     */
     public function actionTriagemInfo($id)
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
-        $triagem = \common\models\Triagem::findOne($id);
+        $triagem = Triagem::findOne($id);
+
         if ($triagem) {
             return [
                 'userprofile_id' => $triagem->userprofile_id,
-                'user_nome' => $triagem->userprofile->nome ?? '',
+                'user_nome'      => $triagem->userprofile->nome ?? '',
             ];
         }
 
@@ -133,18 +112,30 @@ class ConsultaController extends Controller
     }
 
     /**
-     * Updates an existing Consulta model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param int $id ID
-     * @return string|\yii\web\Response
-     * @throws NotFoundHttpException if the model cannot be found
+     * =============================================
+     *      ✏ EDITAR CONSULTA
+     * =============================================
      */
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
 
-        if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($model->load(Yii::$app->request->post())) {
+
+            // 🔹 Se estado voltar a "Em curso", remover data de encerramento
+            if ($model->estado === Consulta::ESTADO_EM_CURSO) {
+                $model->data_encerramento = null;
+            }
+
+            // 🔹 Se marcada como encerrada e sem data → gerar timestamp
+            if ($model->estado === Consulta::ESTADO_ENCERRADA && empty($model->data_encerramento)) {
+                $model->data_encerramento = date('Y-m-d H:i:s');
+            }
+
+            if ($model->save(false)) {
+                Yii::$app->session->setFlash('success', 'Consulta atualizada com sucesso!');
+                return $this->redirect(['view', 'id' => $model->id]);
+            }
         }
 
         return $this->render('update', [
@@ -153,32 +144,26 @@ class ConsultaController extends Controller
     }
 
     /**
-     * Deletes an existing Consulta model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param int $id ID
-     * @return \yii\web\Response
-     * @throws NotFoundHttpException if the model cannot be found
+     * =============================================
+     *      ❌ APAGAR CONSULTA
+     * =============================================
      */
     public function actionDelete($id)
     {
         $this->findModel($id)->delete();
-
+        Yii::$app->session->setFlash('success', 'Consulta eliminada com sucesso.');
         return $this->redirect(['index']);
     }
 
     /**
-     * Finds the Consulta model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param int $id ID
-     * @return Consulta the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
+     * Encontrar consulta
      */
     protected function findModel($id)
     {
-        if (($model = Consulta::findOne(['id' => $id])) !== null) {
+        if (($model = Consulta::findOne($id)) !== null) {
             return $model;
         }
 
-        throw new NotFoundHttpException('The requested page does not exist.');
+        throw new NotFoundHttpException('A consulta solicitada não existe.');
     }
 }

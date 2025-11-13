@@ -18,7 +18,6 @@ use yii\widgets\ActiveForm;
         <div class="col-md-4">
             <?= $form->field($model, 'estado')->dropDownList([
                     '' => 'Selecionar',
-                    'Aberta' => 'Aberta',
                     'Em curso' => 'Em curso',
                     'Encerrada' => 'Encerrada',
             ], ['class' => 'form-select']) ?>

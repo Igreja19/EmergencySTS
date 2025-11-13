@@ -7,47 +7,77 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/consulta.css');
 
 /** @var yii\web\View $this */
 /** @var common\models\Consulta $model */
-/** @var yii\widgets\ActiveForm $form */
 /** @var array $triagensDisponiveis */
+
+$isNew = $model->isNewRecord;
 ?>
 
-    <div class="consulta-form card shadow-sm border-0 p-4 rounded-4">
-        <?php $form = ActiveForm::begin(); ?>
+<div class="consulta-form card shadow-sm border-0 p-4 rounded-4">
 
-        <h5 class="fw-bold text-success mb-4 d-flex align-items-center">
-            <i class="bi bi-calendar2-heart me-2 fs-5"></i> Dados da Consulta
+    <?php $form = ActiveForm::begin(); ?>
+
+    <!-- TÍTULO E DATA VISUAL -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold text-success d-flex align-items-center">
+            <i class="bi bi-calendar2-heart me-2 fs-5"></i>
+            <?= $isNew ? "Criar Consulta" : "Editar Consulta" ?>
         </h5>
 
-        <!-- Linha 1 -->
-        <div class="row g-3">
-            <div class="col-md-4">
-                <?= $form->field($model, 'data_consulta')
-                        ->input('datetime-local', ['class' => 'form-control rounded-3 shadow-sm'])
-                        ->label('Data da Consulta') ?>
-            </div>
+        <!-- BADGE DA DATA DA CONSULTA -->
+        <span class="badge bg-light border text-dark px-3 py-2 shadow-sm">
+            <i class="bi bi-clock-history me-1 text-success"></i>
+            <?= $model->data_consulta ? date('d/m/Y H:i', strtotime($model->data_consulta)) : 'A definir...' ?>
+        </span>
+    </div>
 
-            <div class="col-md-4">
+    <!-- Campo hidden (necessário para o POST funcionar) -->
+    <?= $form->field($model, 'data_consulta')->hiddenInput()->label(false) ?>
+
+    <!-- ===================== -->
+    <!-- ESTADO + ENCERRAMENTO -->
+    <!-- ===================== -->
+    <div class="section-box p-3 rounded-3 mb-3">
+        <h6 class="text-success fw-bold mb-3">
+            <i class="bi bi-clipboard2-pulse me-1"></i> Estado da Consulta
+        </h6>
+
+        <div class="row g-3">
+            <div class="col-md-6">
                 <?= $form->field($model, 'estado')
                         ->dropDownList(
                                 [
-                                        'Aberta' => 'Aberta',
                                         'Em curso' => 'Em curso',
                                         'Encerrada' => 'Encerrada',
                                 ],
-                                ['prompt' => '— Selecionar Estado —', 'class' => 'form-select rounded-3 shadow-sm']
+                                [
+                                        'class' => 'form-select rounded-3 shadow-sm',
+                                        'disabled' => $isNew,
+                                        'id' => 'estado-select'
+                                ]
                         )
-                        ->label('Estado da Consulta') ?>
+                        ->label('Estado Atual') ?>
             </div>
 
-            <div class="col-md-4">
+            <div class="col-md-6" id="campo-encerramento"
+                 style="<?= $model->estado === 'Encerrada' ? '' : 'display:none;' ?>">
                 <?= $form->field($model, 'data_encerramento')
-                        ->input('datetime-local', ['class' => 'form-control rounded-3 shadow-sm'])
+                        ->input('datetime-local', [
+                                'class' => 'form-control rounded-3 shadow-sm',
+                        ])
                         ->label('Data de Encerramento') ?>
             </div>
         </div>
+    </div>
 
-        <!-- Linha 2 -->
-        <div class="row g-3 mt-2 align-items-end">
+    <!-- ===================== -->
+    <!-- TRIAGEM E PACIENTE   -->
+    <!-- ===================== -->
+    <div class="section-box p-3 rounded-3 mb-3">
+        <h6 class="text-success fw-bold mb-3">
+            <i class="bi bi-person-lines-fill me-1"></i> Dados do Paciente
+        </h6>
+
+        <div class="row g-3 align-items-end">
             <div class="col-md-6">
                 <?= $form->field($model, 'triagem_id')
                         ->dropDownList(
@@ -55,7 +85,8 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/consulta.css');
                                 [
                                         'prompt' => '— Selecione a Triagem (Pulseira) —',
                                         'id' => 'triagem-select',
-                                        'class' => 'form-select rounded-3 shadow-sm'
+                                        'class' => 'form-select rounded-3 shadow-sm',
+                                        'disabled' => !$isNew
                                 ]
                         )
                         ->label('<i class="bi bi-upc-scan me-1"></i> Triagem (Pulseira)') ?>
@@ -69,38 +100,57 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/consulta.css');
                 <label for="userprofile-nome" class="form-label fw-semibold text-success mb-1">
                     <i class="bi bi-person-fill me-1"></i> Paciente
                 </label>
+
                 <input type="text"
                        id="userprofile-nome"
                        class="form-control rounded-3 shadow-sm"
+                       value="<?= $model->userprofile->nome ?? '' ?>"
                        placeholder="Será preenchido automaticamente..."
                        readonly>
             </div>
         </div>
-
-        <!-- Observações -->
-        <div class="mt-3">
-            <?= $form->field($model, 'observacoes')
-                    ->textarea([
-                            'rows' => 4,
-                            'placeholder' => 'Observações da consulta...',
-                            'class' => 'form-control rounded-3 shadow-sm'
-                    ])
-                    ->label('<i class="bi bi-journal-text me-1"></i> Observações') ?>
-        </div>
-
-        <!-- Botões -->
-        <div class="mt-4 d-flex justify-content-end gap-2">
-            <?= Html::submitButton('<i class="bi bi-save2 me-1"></i> Guardar', ['class' => 'btn btn-save px-4']) ?>
-            <?= Html::a('<i class="bi bi-x-circle me-1"></i> Cancelar', ['index'], ['class' => 'btn btn-cancel px-4']) ?>
-        </div>
-
-        <?php ActiveForm::end(); ?>
     </div>
 
+    <!-- ===================== -->
+    <!-- OBSERVAÇÕES          -->
+    <!-- ===================== -->
+    <div class="section-box p-3 rounded-3 mb-3">
+        <h6 class="text-success fw-bold mb-3">
+            <i class="bi bi-journal-text me-1"></i> Observações
+        </h6>
+
+        <?= $form->field($model, 'observacoes')
+                ->textarea([
+                        'rows' => 4,
+                        'placeholder' => 'Registe aqui notas importantes...',
+                        'class' => 'form-control rounded-3 shadow-sm'
+                ])
+                ->label(false) ?>
+    </div>
+
+    <!-- BOTÕES -->
+    <div class="mt-4 d-flex justify-content-end gap-2">
+        <?= Html::submitButton(
+                '<i class="bi bi-save2 me-1"></i> Guardar',
+                ['class' => 'btn btn-save px-4']
+        ) ?>
+
+        <?= Html::a(
+                '<i class="bi bi-x-circle me-1"></i> Cancelar',
+                ['index'],
+                ['class' => 'btn btn-cancel px-4']
+        ) ?>
+    </div>
+
+    <?php ActiveForm::end(); ?>
+</div>
+
 <?php
-// === SCRIPT AJAX PARA PREENCHER O PACIENTE ===
+// === JAVASCRIPT ===
 $triagemInfoUrl = Url::to(['consulta/triagem-info']);
 $js = <<<JS
+
+// AJAX preencher paciente
 $('#triagem-select').on('change', function() {
     var triagemId = $(this).val();
     if (triagemId) {
@@ -108,13 +158,8 @@ $('#triagem-select').on('change', function() {
             url: '$triagemInfoUrl',
             data: {id: triagemId},
             success: function(data) {
-                if (data && data.user_nome) {
-                    $('#userprofile-id').val(data.userprofile_id);
-                    $('#userprofile-nome').val(data.user_nome);
-                } else {
-                    $('#userprofile-id').val('');
-                    $('#userprofile-nome').val('');
-                }
+                $('#userprofile-id').val(data.userprofile_id || '');
+                $('#userprofile-nome').val(data.user_nome || '');
             }
         });
     } else {
@@ -122,5 +167,18 @@ $('#triagem-select').on('change', function() {
         $('#userprofile-nome').val('');
     }
 });
+
+// Mostrar/esconder campo de encerramento
+$('#estado-select').on('change', function() {
+    if ($(this).val() === 'Encerrada') {
+        $('#campo-encerramento').slideDown();
+    } else {
+        $('#campo-encerramento').slideUp();
+        $('#consulta-data_encerramento').val('');
+    }
+});
+
 JS;
+
 $this->registerJs($js);
+?>
