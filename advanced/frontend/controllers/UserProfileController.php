@@ -66,22 +66,41 @@ class UserProfileController extends Controller
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return string|\yii\web\Response
      */
-    public function actionCreate()
+    public function actionCreate($user_id = null)
     {
-        $model = new UserProfile();
-
-        if ($this->request->isPost) {
-            if ($model->load($this->request->post()) && $model->save()) {
-                return $this->redirect(['view', 'id' => $model->id]);
+        // 1️⃣ Verificar se o utilizador já tem perfil
+        if (!Yii::$app->user->isGuest) {
+            $profile = UserProfile::find()->where(['user_id' => Yii::$app->user->id])->one();
+            if ($profile !== null) {
+                return $this->redirect(['triagem/index']);
             }
-        } else {
-            $model->loadDefaultValues();
         }
 
+        $model = new UserProfile();
+
+        // 2️⃣ Preencher user_id (via GET ou sessão)
+        if ($user_id !== null) {
+            $model->user_id = $user_id;
+        } elseif (!Yii::$app->user->isGuest) {
+            $model->user_id = Yii::$app->user->identity->id;
+        }
+
+        // 3️⃣ POST → load + save
+        if ($model->load(Yii::$app->request->post())) {
+
+            if ($model->save()) {
+                return $this->redirect(['triagem/index']);
+            }
+
+            Yii::error($model->errors, 'userprofile_save_errors');
+        }
+
+        // 4️⃣ Mostrar formulário
         return $this->render('create', [
             'model' => $model,
         ]);
     }
+
 
     /**
      * Updates an existing UserProfile model.

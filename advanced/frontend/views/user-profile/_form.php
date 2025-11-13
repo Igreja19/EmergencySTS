@@ -26,18 +26,25 @@ $this->title = $model->isNewRecord ? 'Criar Perfil' : 'Editar Perfil';
                 'options' => ['class' => 'needs-validation'],
         ]); ?>
 
+        <!-- 🔥 MOSTRAR ERROS DE VALIDAÇÃO -->
+        <?= $form->errorSummary($model, [
+                'class' => 'alert alert-danger mb-4',
+        ]); ?>
+
         <!-- IDs escondidos -->
         <?= $form->field($model, 'id')->hiddenInput()->label(false) ?>
         <?= $form->field($model, 'user_id')->hiddenInput()->label(false) ?>
 
         <!-- DADOS PESSOAIS -->
         <h6 class="fw-bold text-success mt-2 mb-3">Dados Pessoais</h6>
+
         <div class="row g-3 mb-3">
             <div class="col-md-6">
                 <?= $form->field($model, 'nome')
                         ->textInput(['maxlength' => true, 'placeholder' => 'Nome completo'])
                         ->label('<i class="bi bi-person me-2"></i> Nome Completo') ?>
             </div>
+
             <div class="col-md-3">
                 <?= $form->field($model, 'datanascimento')
                         ->input('date', [
@@ -46,6 +53,7 @@ $this->title = $model->isNewRecord ? 'Criar Perfil' : 'Editar Perfil';
                         ])
                         ->label('<i class="bi bi-calendar me-2"></i> <span class="short-label">Data Nascimento</span>') ?>
             </div>
+
             <div class="col-md-3">
                 <?= $form->field($model, 'genero')
                         ->dropDownList([
@@ -62,6 +70,7 @@ $this->title = $model->isNewRecord ? 'Criar Perfil' : 'Editar Perfil';
                         ->input('email', ['maxlength' => true, 'placeholder' => 'o.seu@email.com'])
                         ->label('<i class="bi bi-envelope me-2"></i> Email') ?>
             </div>
+
             <div class="col-md-6">
                 <?= $form->field($model, 'telefone')
                         ->textInput(['maxlength' => true, 'placeholder' => 'Telefone'])
@@ -83,6 +92,7 @@ $this->title = $model->isNewRecord ? 'Criar Perfil' : 'Editar Perfil';
                         ->textInput(['maxlength' => true, 'placeholder' => 'NIF'])
                         ->label('<i class="bi bi-credit-card-2-front me-2"></i> NIF') ?>
             </div>
+
             <div class="col-md-6">
                 <?= $form->field($model, 'sns')
                         ->textInput(['maxlength' => true, 'placeholder' => 'Número de Utente (SNS)'])
@@ -159,6 +169,7 @@ $this->title = $model->isNewRecord ? 'Criar Perfil' : 'Editar Perfil';
         box-shadow: 0 4px 15px rgba(22, 163, 74, 0.4);
         transform: translateY(-2px);
     }
+
     .short-label {
         white-space: nowrap;
         font-size: 1rem;

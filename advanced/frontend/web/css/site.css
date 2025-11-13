@@ -227,7 +227,7 @@ footer {
 }
 
 .login-bg {
-    background: url('../img/login.avif') center center / cover no-repeat fixed;
+    background: url('../img/hospital.png') center center / cover no-repeat fixed;
     position: relative;
     min-height: 100vh;
 }
