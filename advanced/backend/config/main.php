@@ -37,7 +37,7 @@ return [
             'csrfParam' => '_csrf-backend',
             'parsers' => [
                 'application/json' => 'yii\web\JsonParser',
-            ]
+            ],
         ],
 
         'user' => [
@@ -65,6 +65,12 @@ return [
             'errorAction' => 'site/error',
         ],
 
+        // 🔥 AUTH MANAGER (ESSENCIAL PARA O RBAC)
+        'authManager' => [
+            'class' => 'yii\rbac\DbManager',
+            'defaultRoles' => ['@'], // Esta linha é opcional mas boa
+        ],
+        
         // 🔥 URL MANAGER — 100% corrigido
         'urlManager' => [
             'enablePrettyUrl' => true,
