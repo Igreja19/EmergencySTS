@@ -164,39 +164,34 @@ class SiteController extends Controller
 
         if ($model->load(Yii::$app->request->post())) {
 
-            // Cria o utilizador
+            // Criar utilizador
             $user = $model->signup();
-
             if ($user) {
 
-                // ==========================
-                // RBAC → ATRIBUIÇÃO DE ROLE
-                // ==========================
+                // ==============================
+                // RBAC — ATRIBUIÇÃO DE ROLE
+                // ==============================
                 $auth = Yii::$app->authManager;
 
-                // Tenta obter a role "paciente"
+                // Garantir que a role paciente existe
                 $pacienteRole = $auth->getRole('paciente');
-
-                // Se a role não existir → criar
                 if ($pacienteRole === null) {
                     $pacienteRole = $auth->createRole('paciente');
                     $pacienteRole->description = 'Paciente do sistema';
                     $auth->add($pacienteRole);
                 }
 
-                // Atribuir role ao novo user
+                // Atribuir role ao user recém-criado
                 if ($auth->getAssignment('paciente', $user->id) === null) {
                     $auth->assign($pacienteRole, $user->id);
                 }
 
-                // Login automático
-                Yii::$app->user->login($user);
+                // ==============================
+                // REDIRECIONAR PARA LOGIN
+                // ==============================
+                Yii::$app->session->setFlash('success', 'Conta criada com sucesso! Faça login para continuar.');
 
-                // Redirecionar para criar perfil
-                return $this->redirect([
-                    'user-profile/create',
-                    'user_id' => $user->id
-                ]);
+                return $this->redirect(['site/login']);
             }
         }
 

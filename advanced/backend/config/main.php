@@ -1,6 +1,9 @@
 <?php
 
-use yii\log\FileTarget;  // ✔️ Classe correta
+use yii\log\FileTarget;
+use yii\web\Response;
+use yii\web\JsonResponseFormatter;
+use yii\rest\UrlRule;
 
 $params = array_merge(
     require __DIR__ . '/../../common/config/params.php',
@@ -15,36 +18,7 @@ return [
     'controllerNamespace' => 'backend\controllers',
     'bootstrap' => ['log'],
 
-    // 🔹 Criar automaticamente a role paciente + impedir acesso ao backend
-    'on beforeRequest' => function () {
-        $auth = Yii::$app->authManager;
-
-        if ($auth === null) {
-            return;
-        }
-
-        // 🔹 1) Criar role paciente se não existir
-        if ($auth->getRole('paciente') === null) {
-            $role = $auth->createRole('paciente');
-            $role->description = 'Paciente do sistema';
-            $auth->add($role);
-        }
-
-        // 🔹 2) Bloquear pacientes no backend
-        if (!Yii::$app->user->isGuest) {
-            $userId = Yii::$app->user->id;
-            $roles = $auth->getRolesByUser($userId);
-
-            if (isset($roles['paciente'])) {
-                Yii::$app->user->logout();
-                Yii::$app->session->setFlash('error', 'Acesso exclusivo para staff.');
-                Yii::$app->response->redirect(['/site/login'])->send();
-                Yii::$app->end();
-            }
-        }
-    },
-
-    // 🔹 Módulos
+    // 🔥 API MODULE
     'modules' => [
         'api' => [
             'class' => backend\modules\api\ModuleAPI::class,
@@ -52,8 +26,18 @@ return [
     ],
 
     'components' => [
+
+        // 🔥 FORÇAR JSON NA API — sem quebrar backend
+        'response' => [
+            'class' => yii\web\Response::class,
+        ],
+
+
         'request' => [
             'csrfParam' => '_csrf-backend',
+            'parsers' => [
+                'application/json' => 'yii\web\JsonParser',
+            ]
         ],
 
         'user' => [
@@ -66,7 +50,7 @@ return [
             'name' => 'advanced-backend',
         ],
 
-        // ✔️ LOG CORRIGIDO
+        // 🔥 LOG — limpo e funcional
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
             'targets' => [
@@ -81,33 +65,40 @@ return [
             'errorAction' => 'site/error',
         ],
 
-        // 🔹 URL Manager
+        // 🔥 URL MANAGER — 100% corrigido
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
 
-                // 🔹 Controladores REST automáticos
+                // REST API
                 [
-                    'class' => yii\rest\UrlRule::class,
-                    'controller' => ['api/user', 'api/triagem', 'api/pulseira', 'api/notificacao'],
+                    'class' => UrlRule::class,
+                    'controller' => [
+                        'api/user',
+                        'api/triagem',
+                        'api/pulseira',
+                        'api/consulta',
+                        'api/prescricao',
+                        'api/notificacao'
+                    ],
                     'pluralize' => false,
                     'extraPatterns' => [
                         'GET prioridade' => 'prioridade',
                     ],
                 ],
 
-                // 🔹 Endpoints de autenticação
+                // Autenticação
                 'POST api/auth/login'    => 'api/auth/login',
                 'GET api/auth/validate'  => 'api/auth/validate',
                 'POST api/auth/logout'   => 'api/auth/logout',
-                // 🔹 Notificações
+
+                // Notificações
                 'GET api/notificacao/list' => 'api/notificacao/list',
                 'POST api/notificacao/ler/<id:\d+>' => 'api/notificacao/ler',
 
-                // Página base da API
+                // Página Base
                 'GET api' => 'api/default/index',
-
             ],
         ],
     ],
