@@ -73,6 +73,11 @@ class RbacController extends Controller
         $auth->addChild($admin, $enfermeiro);
         $auth->addChild($admin, $medico);
 
+        // PACIENTE → role sem permissões
+        $paciente = $auth->createRole('paciente');
+        $paciente->description = 'Paciente do sistema';
+        $auth->add($paciente);
+
         echo "✅ RBAC inicializado com sucesso! Roles e permissões criadas.\n";
     }
 }

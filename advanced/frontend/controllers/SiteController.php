@@ -169,11 +169,11 @@ class SiteController extends Controller
             if ($user) {
 
                 // ==============================
-                // RBAC — ATRIBUIÇÃO DE ROLE
+                // RBAC — ATRIBUIÇÃO DA ROLE PACIENTE
                 // ==============================
                 $auth = Yii::$app->authManager;
 
-                // Garantir que a role paciente existe
+                // Obter role paciente (não criar várias vezes)
                 $pacienteRole = $auth->getRole('paciente');
                 if ($pacienteRole === null) {
                     $pacienteRole = $auth->createRole('paciente');
@@ -181,7 +181,7 @@ class SiteController extends Controller
                     $auth->add($pacienteRole);
                 }
 
-                // Atribuir role ao user recém-criado
+                // Só atribuir se ainda não tiver
                 if ($auth->getAssignment('paciente', $user->id) === null) {
                     $auth->assign($pacienteRole, $user->id);
                 }
@@ -189,7 +189,10 @@ class SiteController extends Controller
                 // ==============================
                 // REDIRECIONAR PARA LOGIN
                 // ==============================
-                Yii::$app->session->setFlash('success', 'Conta criada com sucesso! Faça login para continuar.');
+                Yii::$app->session->setFlash(
+                    'success',
+                    'Conta criada com sucesso! Faça login para continuar.'
+                );
 
                 return $this->redirect(['site/login']);
             }
