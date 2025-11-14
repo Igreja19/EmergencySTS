@@ -1,6 +1,7 @@
 <?php
 namespace backend\controllers;
 
+use Yii;
 use yii\web\Controller;
 use common\models\Pulseira;
 use common\models\Triagem;
@@ -10,7 +11,36 @@ class DashboardController extends Controller
 {
     public function actionIndex()
     {
-        // Estatísticas principais
+        $auth = Yii::$app->authManager;
+        $roles = $auth->getRolesByUser(Yii::$app->user->id);
+
+        // ADMIN → dashboard completo
+        if (isset($roles['admin'])) {
+            return $this->render('admin', $this->getAdminData());
+        }
+
+        // MÉDICO → painel médico
+        if (isset($roles['medico'])) {
+            return $this->render('medico');
+        }
+
+        // ENFERMEIRO → painel enfermeiro
+        if (isset($roles['enfermeiro'])) {
+            return $this->render('enfermeiro');
+        }
+
+        // PACIENTE → acesso negado
+        Yii::$app->session->setFlash('error', 'Acesso não permitido.');
+        return $this->redirect(['/site/login']);
+    }
+
+
+    /**
+     * 🔥 Dados do dashboard para ADMIN
+     */
+    private function getAdminData()
+    {
+        // Estatísticas
         $stats = [
             'espera' => Pulseira::find()->where(['status' => 'Em espera'])->count(),
             'ativas' => Pulseira::find()->where(['status' => 'Em atendimento'])->count(),
@@ -22,7 +52,7 @@ class DashboardController extends Controller
             'salasTotal' => 6,
         ];
 
-        // Contagem por prioridade
+        // Prioridades
         $manchester = [
             'vermelho' => Pulseira::find()->where(['prioridade' => 'Vermelho'])->count(),
             'laranja'  => Pulseira::find()->where(['prioridade' => 'Laranja'])->count(),
@@ -31,18 +61,18 @@ class DashboardController extends Controller
             'azul'     => Pulseira::find()->where(['prioridade' => 'Azul'])->count(),
         ];
 
-        // Evolução das triagens (últimos 7 dias)
+        // Evolução dos últimos 7 dias
         $evolucaoLabels = [];
         $evolucaoData = [];
         for ($i = 6; $i >= 0; $i--) {
             $dia = date('Y-m-d', strtotime("-$i days"));
             $evolucaoLabels[] = date('d/m', strtotime($dia));
             $evolucaoData[] = Triagem::find()
-                ->where(['between', 'datatriagem', $dia . ' 00:00:00', $dia . ' 23:59:59'])
+                ->where(['between', 'datatriagem', "$dia 00:00:00", "$dia 23:59:59"])
                 ->count();
         }
 
-        // Pacientes e triagens
+        // Últimos pacientes
         $pacientes = Triagem::find()
             ->joinWith(['userprofile', 'pulseira'])
             ->orderBy(['datatriagem' => SORT_DESC])
@@ -58,7 +88,7 @@ class DashboardController extends Controller
             ->asArray()
             ->all();
 
-        // Notificações
+        // Últimas notificações
         $notificacoes = Notificacao::find()
             ->where(['lida' => 0])
             ->orderBy(['dataenvio' => SORT_DESC])
@@ -66,8 +96,8 @@ class DashboardController extends Controller
             ->asArray()
             ->all();
 
-        // Envia tudo para a view
-        return $this->render('index', [
+        // retorna o array completo para usar na view admin
+        return [
             'stats' => $stats,
             'manchester' => $manchester,
             'evolucaoLabels' => $evolucaoLabels,
@@ -75,6 +105,6 @@ class DashboardController extends Controller
             'pacientes' => $pacientes,
             'ultimas' => $ultimas,
             'notificacoes' => $notificacoes,
-        ]);
+        ];
     }
 }

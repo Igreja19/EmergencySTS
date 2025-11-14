@@ -47,3 +47,8 @@
     background-color: #f9f9f9;
     border-color: #e5e5e5;
 }
+.section-box {
+    background: #f9fafb;
+    border: 1px solid #e6e8ea;
+    border-radius: 12px;
+}

@@ -5,7 +5,7 @@ namespace common\models;
 use Yii;
 
 /**
- * Esta é a classe modelo para a tabela "prescricao".
+ * This is the model class for table "prescricao".
  *
  * @property int $id
  * @property string $observacoes
@@ -15,6 +15,7 @@ use Yii;
  * @property Consulta $consulta
  * @property Prescricaomedicamento[] $prescricaomedicamentos
  */
+
 class Prescricao extends \yii\db\ActiveRecord
 {
     public static function tableName()
@@ -26,10 +27,16 @@ class Prescricao extends \yii\db\ActiveRecord
     {
         return [
             [['observacoes', 'consulta_id'], 'required'],
-            [['consulta_id'], 'integer'],
+            [['observacoes'], 'string'],
             [['dataprescricao'], 'safe'],
-            [['observacoes'], 'string', 'max' => 255],
-            [['consulta_id'], 'exist', 'skipOnError' => true, 'targetClass' => Consulta::class, 'targetAttribute' => ['consulta_id' => 'id']],
+            [['consulta_id'], 'integer'],
+            [
+                ['consulta_id'],
+                'exist',
+                'skipOnError' => true,
+                'targetClass' => Consulta::class,
+                'targetAttribute' => ['consulta_id' => 'id']
+            ],
         ];
     }
 
@@ -39,23 +46,20 @@ class Prescricao extends \yii\db\ActiveRecord
             'id' => 'ID',
             'observacoes' => 'Observações',
             'dataprescricao' => 'Data da Prescrição',
-            'consulta_id' => 'Consulta Associada',
+            'consulta_id' => 'Consulta ID',
         ];
     }
 
-    // 🔹 Relação: cada prescrição pertence a uma consulta
     public function getConsulta()
     {
         return $this->hasOne(Consulta::class, ['id' => 'consulta_id']);
     }
 
-    // 🔹 Relação: cada prescrição pode ter vários medicamentos
     public function getPrescricaomedicamentos()
     {
         return $this->hasMany(Prescricaomedicamento::class, ['prescricao_id' => 'id']);
     }
 
-    // 🔹 Acesso rápido aos medicamentos através da tabela relacional
     public function getMedicamentos()
     {
         return $this->hasMany(Medicamento::class, ['id' => 'medicamento_id'])

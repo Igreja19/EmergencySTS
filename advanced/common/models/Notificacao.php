@@ -3,6 +3,7 @@
 namespace common\models;
 
 use Yii;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "notificacao".
@@ -17,30 +18,24 @@ use Yii;
  *
  * @property UserProfile $userprofile
  */
-class Notificacao extends \yii\db\ActiveRecord
+class Notificacao extends ActiveRecord
 {
-    /**
-     * {@inheritdoc}
-     */
     public static function tableName()
     {
         return 'notificacao';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function rules()
     {
         return [
             [['mensagem', 'userprofile_id'], 'required'],
-            [['mensagem', 'tipo'], 'string'],
-            [['dataenvio'], 'safe'],
+            [['mensagem'], 'string'],
             [['lida', 'userprofile_id'], 'integer'],
+            [['dataenvio'], 'safe'],
             [['titulo'], 'string', 'max' => 150],
+            [['tipo'], 'in', 'range' => ['Consulta', 'Prioridade', 'Geral']],
             [
-                ['userprofile_id'],
-                'exist',
+                ['userprofile_id'], 'exist',
                 'skipOnError' => true,
                 'targetClass' => UserProfile::class,
                 'targetAttribute' => ['userprofile_id' => 'id']
@@ -48,9 +43,6 @@ class Notificacao extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function attributeLabels()
     {
         return [
@@ -64,73 +56,85 @@ class Notificacao extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * Relação com UserProfile.
-     *
-     * @return \yii\db\ActiveQuery
-     */
     public function getUserprofile()
     {
         return $this->hasOne(UserProfile::class, ['id' => 'userprofile_id']);
     }
 
     /**
-     * Conta notificações não lidas do utilizador atual.
-     *
-     * @return int
+     * 🔥 MÉTODO UNIVERSAL PARA CRIAR NOTIFICAÇÕES
+     */
+    public static function enviar($userprofileId, $titulo, $mensagem, $tipo = 'Geral')
+    {
+        $n = new self();
+        $n->userprofile_id = $userprofileId;
+        $n->titulo = $titulo;
+        $n->mensagem = $mensagem;
+        $n->tipo = $tipo;
+        $n->lida = 0;
+        $n->dataenvio = date('Y-m-d H:i:s');
+
+        return $n->save(false);
+    }
+
+    /**
+     * 🔥 FORMATO PARA API / JSON
+     * Facilita Android + front-end + backend
+     */
+    public function fields()
+    {
+        return [
+            'id',
+            'titulo',
+            'mensagem',
+            'tipo',
+            'lida',
+            'dataenvio',
+        ];
+    }
+
+    /**
+     * 🔥 Notificações não lidas do utilizador autênticado
      */
     public static function countNaoLidas()
     {
-        // Se não estiver logado ou não tiver perfil
         if (Yii::$app->user->isGuest || !Yii::$app->user->identity->userprofile) {
             return 0;
         }
 
-        $userProfileId = Yii::$app->user->identity->userprofile->id;
+        $userId = Yii::$app->user->identity->userprofile->id;
 
         return self::find()
-            ->where(['lida' => 0, 'userprofile_id' => $userProfileId])
+            ->where(['lida' => 0, 'userprofile_id' => $userId])
             ->count();
     }
 
-    /**
-     * Conta o número de notificações enviadas hoje
-     * para o utilizador autenticado.
-     *
-     * @return int
-     */
     public static function countHoje()
     {
-        // Se não estiver logado ou não tiver perfil
         if (Yii::$app->user->isGuest || !Yii::$app->user->identity->userprofile) {
             return 0;
         }
 
-        $userProfileId = Yii::$app->user->identity->userprofile->id;
-        $hoje = date('Y-m-d');
+        $userId = Yii::$app->user->identity->userprofile->id;
+        $today = date('Y-m-d');
 
         return self::find()
-            ->where(['userprofile_id' => $userProfileId])
-            ->andWhere(['>=', 'dataenvio', $hoje . ' 00:00:00'])
-            ->andWhere(['<=', 'dataenvio', $hoje . ' 23:59:59'])
+            ->where(['userprofile_id' => $userId])
+            ->andWhere(['>=', 'dataenvio', $today . ' 00:00:00'])
+            ->andWhere(['<=', 'dataenvio', $today . ' 23:59:59'])
             ->count();
     }
-    /**
-     * Conta o total de notificações do utilizador autenticado.
-     *
-     * @return int
-     */
+
     public static function countTotal()
     {
-        // Se não estiver logado ou não tiver perfil
         if (Yii::$app->user->isGuest || !Yii::$app->user->identity->userprofile) {
             return 0;
         }
 
-        $userProfileId = Yii::$app->user->identity->userprofile->id;
+        $userId = Yii::$app->user->identity->userprofile->id;
 
         return self::find()
-            ->where(['userprofile_id' => $userProfileId])
+            ->where(['userprofile_id' => $userId])
             ->count();
     }
 }

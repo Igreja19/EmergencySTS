@@ -1,28 +1,53 @@
 <?php
+
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
+use yii\helpers\ArrayHelper;
 
-/** @var yii\web\View $this */
-/** @var common\models\Prescricao $model */
-/** @var array|null $consultas */
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile.css');
+
 ?>
 
-<div class="prescricao-form">
+<div class="userprofile-form">
+
+    <h5 class="fw-bold text-success mb-3">
+        <i class="bi bi-file-earmark-plus me-2"></i>
+        <?= $model->isNewRecord ? 'Criar Prescrição' : 'Editar Prescrição' ?>
+    </h5>
+
     <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'observacoes')->textInput(['maxlength' => true]) ?>
+    <div class="row g-3">
+        <div class="col-md-12">
+            <?= $form->field($model, 'observacoes')->textarea([
+                    'rows' => 3,
+                    'placeholder' => 'Detalhes da prescrição...'
+            ]) ?>
+        </div>
 
-    <?= $form->field($model, 'dataprescricao')->input('datetime-local') ?>
+        <div class="col-md-6">
+            <?= $form->field($model, 'dataprescricao')->input('datetime-local') ?>
+        </div>
 
-    <?= $form->field($model, 'consulta_id')->dropDownList(
-            $consultas ?? [],
-            ['prompt' => 'Selecione a consulta']
-    ) ?>
+        <div class="col-md-6">
+            <?= $form->field($model, 'consulta_id')->dropDownList(
+                    ArrayHelper::map(
+                            \common\models\Consulta::find()->all(),
+                            'id',
+                            fn($c) => "Consulta #" . $c->id
+                    ),
+                    ['prompt' => '— Selecionar Consulta —']
+            ) ?>
+        </div>
+    </div>
 
-    <div class="mt-3">
-        <?= Html::submitButton('Guardar', ['class' => 'btn btn-success']) ?>
-        <?= Html::a('Cancelar', ['index'], ['class' => 'btn btn-outline-secondary']) ?>
+    <div class="mt-4 d-flex gap-2">
+        <?= Html::submitButton('Guardar', ['class' => 'btn-save']) ?>
+        <?= Html::a('Cancelar', ['index'], ['class' => 'btn-cancel']) ?>
     </div>
 
     <?php ActiveForm::end(); ?>
+
 </div>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
