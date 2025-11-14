@@ -52,38 +52,31 @@ class UserController extends ActiveController
         }
     }
 
-    /**
-     * Ação personalizada para 'create' (POST /api/user)
-     * Temos de fazer a nossa, porque 'checkAccess' não é chamada para 'create'
-     * e o 'actionCreate' padrão não sabe lidar com 'User' e 'UserProfile' ao mesmo tempo.
-     */
+
     public function actionCreate()
     {
-        // 1. VERIFICAR PERMISSÃO PRIMEIRO
         if (!Yii::$app->user->can('admin')) {
             throw new ForbiddenHttpException("Apenas administradores podem criar utilizadores.");
         }
 
-        // 2. Lógica de criar User + UserProfile
+        // Lógica de criar User + UserProfile
         // (Isto é um exemplo básico, precisa da sua lógica do SignupForm aqui)
         
         $request = Yii::$app->getRequest();
         $params = $request->getBodyParams();
 
-        // 3. Criar o User (tabela 'user')
         $user = new \common\models\User();
         $user->username = $params['username'];
         $user->email = $params['email'];
-        $user->setPassword($params['password']); // 'password' vem do JSON
+        $user->setPassword($params['password']); 
         $user->generateAuthKey();
-        $user->status = 10; // Ativo
+        $user->status = 10; 
 
         if (!$user->save()) {
-            Yii::$app->response->statusCode = 422; // Unprocessable Entity
+            Yii::$app->response->statusCode = 422; 
             return ['errors' => $user->getErrors()];
         }
 
-        // 4. Criar o UserProfile (tabela 'userprofile')
         $profile = new \common\models\UserProfile();
         $profile->user_id = $user->id;
         $profile->nome = $params['nome'];
@@ -101,7 +94,6 @@ class UserController extends ActiveController
             return ['errors' => $profile->getErrors()];
         }
         
-        // 5. Atribuir a Role (ex: 'paciente')
         $auth = Yii::$app->authManager;
         $role = $auth->getRole($params['role'] ?? 'paciente'); // Tenta ler a role do JSON, ou 'paciente' por defeito
         if ($role) {
@@ -111,11 +103,6 @@ class UserController extends ActiveController
         Yii::$app->response->statusCode = 201; // 201 Created
         return $profile;
     }
-
-
-    // ===============================================
-    // AS SUAS AÇÕES DE LEITURA (Estão como antes)
-    // ===============================================
 
     /**
      * Lista perfis. (GET /api/user)

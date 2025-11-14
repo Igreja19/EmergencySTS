@@ -18,7 +18,6 @@ return [
     'controllerNamespace' => 'backend\controllers',
     'bootstrap' => ['log'],
 
-    // 🔥 API MODULE
     'modules' => [
         'api' => [
             'class' => backend\modules\api\ModuleAPI::class,
@@ -27,7 +26,6 @@ return [
 
     'components' => [
 
-        // 🔥 FORÇAR JSON NA API — sem quebrar backend
         'response' => [
             'class' => yii\web\Response::class,
         ],
@@ -50,7 +48,6 @@ return [
             'name' => 'advanced-backend',
         ],
 
-        // 🔥 LOG — limpo e funcional
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
             'targets' => [
@@ -65,13 +62,10 @@ return [
             'errorAction' => 'site/error',
         ],
 
-        // 🔥 AUTH MANAGER (ESSENCIAL PARA O RBAC)
         'authManager' => [
             'class' => 'yii\rbac\DbManager',
-            'defaultRoles' => ['@'], // Esta linha é opcional mas boa
         ],
         
-        // 🔥 URL MANAGER — 100% corrigido
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
