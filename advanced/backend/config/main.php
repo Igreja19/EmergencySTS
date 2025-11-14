@@ -21,16 +21,27 @@ return [
 
     'components' => [
         'request' => [
-            'csrfParam' => '_csrf-backend',
+            'parsers' => [
+                'application/json' => 'yii\web\JsonParser',
+            ],
+            'enableCsrfValidation' => false,
         ],
+
+        'response' => [
+            'format' => yii\web\Response::FORMAT_JSON,
+        ],
+
         'user' => [
             'identityClass' => common\models\User::class,
-            'enableAutoLogin' => true,
-            'identityCookie' => ['name' => '_identity-backend', 'httpOnly' => true],
+            'enableAutoLogin' => false,
+            'enableSession' => false,
+            'loginUrl' => null,
         ],
+
         'session' => [
             'name' => 'advanced-backend',
         ],
+
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
             'targets' => [
@@ -40,15 +51,15 @@ return [
                 ],
             ],
         ],
+
         'errorHandler' => [
             'errorAction' => 'site/error',
         ],
-        // 🔹 URL Manager da API
+
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
-                // 🔹 Controladores REST (automáticos)
                 [
                     'class' => yii\rest\UrlRule::class,
                     'controller' => ['api/user', 'api/triagem', 'api/pulseira'],
@@ -58,17 +69,15 @@ return [
                     ],
                 ],
 
-                // 🔹 Endpoints manuais (Auth)
                 'POST api/auth/login' => 'api/auth/login',
                 'GET api/auth/validate' => 'api/auth/validate',
                 'POST api/auth/logout' => 'api/auth/logout',
 
-                // 🔹 Rota base da API
                 'GET api' => 'api/default/index',
             ],
         ],
-
     ],
+
 
     'params' => $params,
 ];
