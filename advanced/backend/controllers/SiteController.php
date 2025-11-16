@@ -21,22 +21,27 @@ class SiteController extends Controller
     {
         return [
             'access' => [
-                'class' => AccessControl::class,
+                'class' => \yii\filters\AccessControl::class,
+                'only' => ['index', 'logout'],
                 'rules' => [
+
+                    // 🔐 INDEX → apenas admin, medico e enfermeiro
                     [
-                        'actions' => ['login', 'error', 'request-password-reset'], // <--- ADICIONA AQUI
+                        'actions' => ['index'],
                         'allow' => true,
-                        'roles' => ['?'], // Garante que isto é só para GUESTS
+                        'roles' => ['admin', 'medico', 'enfermeiro'],
                     ],
+
+                    // 🔓 LOGOUT → qualquer utilizador autenticado pode sair
                     [
-                        'actions' => ['logout', 'index'],
+                        'actions' => ['logout'],
                         'allow' => true,
-                        'roles' => ['@'],
+                        'roles' => ['@'],   // <--- ESTA É A SOLUÇÃO
                     ],
                 ],
             ],
             'verbs' => [
-                'class' => VerbFilter::class,
+                'class' => \yii\filters\VerbFilter::class,
                 'actions' => [
                     'logout' => ['post'],
                 ],
@@ -139,23 +144,34 @@ class SiteController extends Controller
      */
     public function actionLogin()
     {
-
-        if (!Yii::$app->user->isGuest) {
+        if (!Yii::$app->user) {
             return $this->goHome();
         }
 
         $this->layout = 'main-login';
-
         $model = new LoginForm();
+
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
+
+            // 🔥 Verificar role antes de permitir login
+            $auth = Yii::$app->authManager;
+            $roles = $auth->getRolesByUser(Yii::$app->user->id);
+
+            // Apenas admin, médico e enfermeiro podem entrar
+            if (!isset($roles['admin']) && !isset($roles['medico']) && !isset($roles['enfermeiro'])) {
+
+                // Terminar sessão imediatamente
+                Yii::$app->user->logout();
+
+                // Mostrar página de acesso restrito
+                return $this->redirect(['/site/acesso-restrito']);
+            }
+
             return $this->goBack();
         }
 
         $model->password = '';
-
-        return $this->render('login', [
-            'model' => $model,
-        ]);
+        return $this->render('login', ['model' => $model]);
     }
 
     /**
@@ -188,6 +204,12 @@ class SiteController extends Controller
         return $this->render('request-password-reset', [
             'model' => $model,
         ]);
+    }
+    public function actionAcessoRestrito()
+    {
+        $this->layout = 'main-login'; // 🔥 REMOVE navbar e sidebar
+
+        return $this->render('acesso-restrito');
     }
 
 }

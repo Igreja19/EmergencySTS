@@ -18,6 +18,49 @@ return [
     'controllerNamespace' => 'backend\controllers',
     'bootstrap' => ['log'],
 
+    // 🔥 BLOQUEIO CORRETO DO PACIENTE E ROLES INVÁLIDAS
+    'on beforeRequest' => function () {
+
+        $route = Yii::$app->requestedRoute;
+
+        // Permitir acesso sem bloqueio
+        if (
+            $route === 'site/login' ||
+            $route === 'site/error' ||
+            $route === 'site/acesso-restrito'
+        ) {
+            return true;
+        }
+
+        // Se estiver autenticado
+        if (!Yii::$app->user->isGuest) {
+
+            $auth = Yii::$app->authManager;
+            $roles = $auth->getRolesByUser(Yii::$app->user->id);
+
+            $rolesValidos = ['admin', 'medico', 'enfermeiro'];
+            $temRoleValido = false;
+
+            foreach ($roles as $nome => $roleObj) {
+                if (in_array($nome, $rolesValidos)) {
+                    $temRoleValido = true;
+                    break;
+                }
+            }
+
+            // ❌ Qualquer role inválida → bloqueado
+            if (!$temRoleValido) {
+                Yii::$app->response->redirect(['/site/acesso-restrito'])->send();
+                return false;
+            }
+        } else {
+            // ❌ Não autenticado → não mostrar login do backend ao paciente
+            // Permitir login apenas para staff
+            return true;
+        }
+    },
+
+
     'modules' => [
         'api' => [
             'class' => backend\modules\api\ModuleAPI::class,
@@ -29,7 +72,6 @@ return [
         'response' => [
             'class' => yii\web\Response::class,
         ],
-
 
         'request' => [
             'csrfParam' => '_csrf-backend',
@@ -65,7 +107,7 @@ return [
         'authManager' => [
             'class' => 'yii\rbac\DbManager',
         ],
-        
+
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
