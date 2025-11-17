@@ -111,3 +111,16 @@ $this->registerJsFile($publishedRes[1] . '/control_sidebar.js', [
 </body>
 </html>
 <?php $this->endPage() ?>
+
+<script>
+    document.addEventListener("scroll", function () {
+        const header = document.querySelector(".sticky-header");
+        if (!header) return;
+
+        if (window.scrollY > 10) {
+            header.classList.add("scrolled");
+        } else {
+            header.classList.remove("scrolled");
+        }
+    });
+</script>

@@ -131,4 +131,32 @@ class TriagemController extends Controller
 
         throw new NotFoundHttpException('The requested page does not exist.');
     }
+    public function actionChartData($start = null, $end = null)
+    {
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $query = Triagem::find();
+
+        if ($start && $end) {
+            $query->andWhere(['between', 'created_at', $start . ' 00:00:00', $end . ' 23:59:59']);
+        }
+
+        $triagens = $query->orderBy('created_at')->all();
+
+        $labels = [];
+        $counts = [];
+
+        foreach ($triagens as $t) {
+            $date = date('d-m-Y', strtotime($t->created_at));
+            if (!isset($counts[$date])) {
+                $counts[$date] = 0;
+            }
+            $counts[$date]++;
+        }
+
+        return [
+            'labels' => array_keys($counts),
+            'data'   => array_values($counts)
+        ];
+    }
 }

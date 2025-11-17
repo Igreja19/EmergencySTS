@@ -69,3 +69,18 @@ a, .btn-link { color: var(--brand); }
 /* Inputs da top-search */
 .main-header .form-control { border-radius: .75rem; }
 
+/* Header fixo com fundo transparente */
+.sticky-header {
+    position: sticky;
+    top: 0;
+    z-index: 800;
+    backdrop-filter: blur(8px);
+    background-color: rgba(255, 255, 255, 0.6);
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Quando faz scroll */
+.sticky-header.scrolled {
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
+}

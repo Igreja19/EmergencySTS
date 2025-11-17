@@ -89,16 +89,38 @@ class SiteController extends Controller
             'azul'     => \common\models\Pulseira::find()->where(['prioridade' => 'Azul'])->count(),
         ];
 
-        // ===== Evolução das triagens (últimos 7 dias) =====
+        // =================================================================
+        // 🔍 FILTRO DE DATA PARA GRÁFICO DE EVOLUÇÃO DAS TRIAGENS
+        // =================================================================
+        $dataFiltro = Yii::$app->request->get('dataFiltro');
+
         $evolucaoLabels = [];
         $evolucaoData = [];
-        for ($i = 6; $i >= 0; $i--) {
-            $dia = date('Y-m-d', strtotime("-$i days"));
-            $evolucaoLabels[] = date('d/m', strtotime($dia));
-            $count = \common\models\Triagem::find()
-                ->where(['between', 'datatriagem', $dia . ' 00:00:00', $dia . ' 23:59:59'])
+
+        if ($dataFiltro) {
+
+            // Apenas 1 dia
+            $inicio = $dataFiltro . ' 00:00:00';
+            $fim    = $dataFiltro . ' 23:59:59';
+
+            $evolucaoLabels[] = date('d/m/Y', strtotime($dataFiltro));
+            $evolucaoData[] = \common\models\Triagem::find()
+                ->where(['between', 'datatriagem', $inicio, $fim])
                 ->count();
-            $evolucaoData[] = $count;
+
+        } else {
+
+            // Últimos 7 dias
+            for ($i = 6; $i >= 0; $i--) {
+                $dia = date('Y-m-d', strtotime("-$i days"));
+                $evolucaoLabels[] = date('d/m', strtotime($dia));
+
+                $count = \common\models\Triagem::find()
+                    ->where(['between', 'datatriagem', $dia . ' 00:00:00', $dia . ' 23:59:59'])
+                    ->count();
+
+                $evolucaoData[] = $count;
+            }
         }
 
         // ===== Pacientes em triagem =====
@@ -125,7 +147,7 @@ class SiteController extends Controller
             ->asArray()
             ->all();
 
-        // ===== Renderiza a view (envia todas as variáveis) =====
+        // ===== Renderiza a view =====
         return $this->render('index', [
             'stats' => $stats,
             'manchester' => $manchester,
