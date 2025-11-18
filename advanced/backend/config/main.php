@@ -1,6 +1,6 @@
 <?php
 
-use yii\log\FileTarget;  // ✔️ Classe correta
+use yii\log\FileTarget;
 
 $params = array_merge(
     require __DIR__ . '/../../common/config/params.php',
@@ -62,7 +62,7 @@ return [
         'response' => [
             'format' => yii\web\Response::FORMAT_JSON,
         ],
-        
+
         'user' => [
             'identityClass' => common\models\User::class,
             'enableAutoLogin' => false,
