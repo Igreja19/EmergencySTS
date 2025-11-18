@@ -22,7 +22,7 @@ class ConsultaController extends Controller
                 // 🔒 CONTROLO DE ACESSO (protege rotas)
                 'access' => [
                     'class' => \yii\filters\AccessControl::class,
-                    'only' => ['index','view','create','update','delete','chart-data'],
+                    'only' => ['index','view','create','update','delete','chart-data', 'historico'],
                     'rules' => [
 
                         [

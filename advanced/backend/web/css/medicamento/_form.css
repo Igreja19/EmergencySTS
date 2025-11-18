@@ -1,0 +1,29 @@
+.medicamento-form-card {
+    background:#fff;
+    border-radius:18px;
+    padding:25px;
+    box-shadow:0 4px 15px rgba(0,0,0,0.08);
+}
+.section-title {
+    font-size:16px;
+    font-weight:700;
+    color:#198754;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:12px;
+}
+.section-title i { font-size:18px; }
+.btn-save {
+    background:#198754;
+    color:#fff;
+    border-radius:14px;
+    padding:8px 20px;
+    font-weight:600;
+}
+.btn-save:hover { color:#fff; opacity:.9; }
+.btn-cancel {
+    border-radius:14px;
+    padding:8px 20px;
+    font-weight:600;
+}

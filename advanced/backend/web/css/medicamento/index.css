@@ -1,0 +1,96 @@
+/* ====================== */
+/*      TÍTULO PÁGINA     */
+/* ====================== */
+.page-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #198754;
+    margin-bottom: 20px;
+}
+
+/* ====================== */
+/*    CAIXA DE PESQUISA    */
+/* ====================== */
+.search-box {
+    background: #fff;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+}
+
+/* ====================== */
+/*      TABELA MODERNA     */
+/* ====================== */
+.table-modern thead tr {
+    background: #f0f2f5;
+    color: #198754;
+    font-weight: 700;
+}
+
+.table-modern td,
+.table-modern th {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+/* ====================== */
+/*      BOTÕES DA AÇÃO     */
+/* ====================== */
+.btn-action {
+    padding: 8px 12px;
+    border-radius: 20px;
+    transition: all 0.25s ease-in-out;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+/* animação suave nos botões */
+.btn-action:hover {
+    transform: scale(1.12);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* cores */
+.btn-view { background:#0d6efd; color:#fff; }
+.btn-edit { background:#198754; color:#fff; }
+.btn-delete { background:#dc3545; color:#fff; }
+
+/* ao passar o rato mantém cor do texto */
+.btn-view:hover,
+.btn-edit:hover,
+.btn-delete:hover {
+    color:#fff;
+}
+
+/* ====================== */
+/*         PAGINAÇÃO       */
+/* ====================== */
+.pagination > li > a,
+.pagination > li > span {
+    border-radius: 8px;
+    margin: 0 4px;
+    padding: 8px 14px;
+    color: #198754 !important;
+    border: 1px solid #19875420;
+    transition: 0.25s ease;
+    font-weight: 500;
+}
+
+.pagination > li.active > a {
+    background-color: #198754 !important;
+    border-color: #198754 !important;
+    color: white !important;
+    font-weight: bold;
+}
+
+.pagination > li > a:hover {
+    background-color: #19875420;
+    transform: translateY(-2px);
+}
+
+.pagination > .disabled > span {
+    opacity: .5;
+}
