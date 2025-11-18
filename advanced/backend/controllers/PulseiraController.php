@@ -16,10 +16,36 @@ class PulseiraController extends Controller
         return array_merge(
             parent::behaviors(),
             [
+
+                // 🔒 CONTROLO DE ACESSO (protege rotas)
+                'access' => [
+                    'class' => \yii\filters\AccessControl::class,
+                    'only' => ['index','view','create','update','delete','chart-data'], // rotas protegidas
+                    'rules' => [
+
+                        // 👉 login e error apenas no SiteController (ignora aqui)
+                        [
+                            'allow' => true,
+                            'actions' => ['error', 'login'],
+                        ],
+
+                        // 👉 permitir apenas ADMIN, MÉDICO e ENFERMEIRO
+                        [
+                            'allow' => true,
+                            'roles' => ['admin', 'medico', 'enfermeiro'],
+                        ],
+                    ],
+                    'denyCallback' => function () {
+                        return Yii::$app->response->redirect(['/site/login']);
+                    },
+                ],
+
+                // 🔧 VerbFilter já existia, continua igual
                 'verbs' => [
-                    'class' => VerbFilter::class,
+                    'class' => \yii\filters\VerbFilter::class,
                     'actions' => [
                         'delete' => ['POST'],
+                        'chart-data' => ['GET'],
                     ],
                 ],
             ]
