@@ -30,6 +30,19 @@ class DashboardController extends Controller
         return $this->redirect(['/site/login']);
     }
 
+    public function actionManchester()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        return [
+            'vermelho' => (int) $manchester['vermelho'],
+            'laranja'  => (int) $manchester['laranja'],
+            'amarelo'  => (int) $manchester['amarelo'],
+            'verde'    => (int) $manchester['verde'],
+            'azul'     => (int) $manchester['azul'],
+        ];
+    }
+
     /**
      * 🔥 Dados do dashboard para ADMIN
      */
