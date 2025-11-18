@@ -90,4 +90,13 @@ class Pulseira extends \yii\db\ActiveRecord
         ];
         return $cores[$this->prioridade] ?? $this->prioridade;
     }
+    public function beforeSave($insert)
+    {
+        if ($insert) {
+            // Guarda automaticamente o timestamp atual
+            $this->tempoentrada = date('Y-m-d H:i:s');
+        }
+
+        return parent::beforeSave($insert);
+    }
 }

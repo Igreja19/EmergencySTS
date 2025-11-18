@@ -26,10 +26,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile.css');
         </div>
 
         <div class="col-md-6">
-            <?= $form->field($model, 'dataprescricao')->input('datetime-local') ?>
-        </div>
-
-        <div class="col-md-6">
             <?= $form->field($model, 'consulta_id')->dropDownList(
                     ArrayHelper::map(
                             \common\models\Consulta::find()->all(),

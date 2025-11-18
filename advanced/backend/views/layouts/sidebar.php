@@ -54,21 +54,21 @@ $isEnfermeiro = in_array('enfermeiro', $roleNames);
                                     'visible' => $isAdmin,
                             ],
 
-                        // PULSEIRAS – admin + enfermeiro
-                            [
-                                    'label' => 'Pulseiras',
-                                    'icon' => 'id-card',
-                                    'url' => ['/pulseira/index'],
-                                    'options' => ['class' => 'is-pulseira'],
-                                    'visible' => $isAdmin || $isEnfermeiro,
-                            ],
-
                         // TRIAGEM – admin + enfermeiro
                             [
                                     'label' => 'Triagem',
                                     'icon' => 'stethoscope',
                                     'url' => ['/triagem/index'],
                                     'options' => ['class' => 'is-triagem'],
+                                    'visible' => $isAdmin || $isEnfermeiro,
+                            ],
+
+                        // PULSEIRAS – admin + enfermeiro
+                            [
+                                    'label' => 'Pulseiras',
+                                    'icon' => 'id-card',
+                                    'url' => ['/pulseira/index'],
+                                    'options' => ['class' => 'is-pulseira'],
                                     'visible' => $isAdmin || $isEnfermeiro,
                             ],
 

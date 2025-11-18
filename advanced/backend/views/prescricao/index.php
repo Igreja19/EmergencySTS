@@ -12,7 +12,7 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile.css');
 
 <div class="prescricao-index">
 
-    <!-- Título + botão igual ao dos utilizadores -->
+    <!-- Título + botão -->
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <h1 class="mb-0">
             <i class="bi bi-journal-medical me-2"></i><?= Html::encode($this->title) ?>
@@ -26,7 +26,7 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile.css');
     <!-- CARD PRINCIPAL -->
     <div class="card-table">
 
-        <!-- 🔍 Barra de pesquisa igual à dos utilizadores -->
+        <!-- 🔍 Barra de pesquisa -->
         <div class="mb-3">
             <?= $this->render('_search', ['model' => $searchModel]) ?>
         </div>
@@ -35,7 +35,7 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile.css');
 
         <?= GridView::widget([
                 'dataProvider' => $dataProvider,
-                'filterModel' => null, // igual aos utilizadores
+                'filterModel'  => null,
                 'tableOptions' => ['class' => 'table table-striped table-modern align-middle'],
 
                 'columns' => [
@@ -48,8 +48,8 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile.css');
 
                         [
                                 'attribute' => 'observacoes',
-                                'format' => 'ntext',
                                 'label' => 'Observações',
+                                'format' => 'ntext'
                         ],
 
                         [
@@ -66,27 +66,40 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile.css');
                                 'contentOptions' => ['style' => 'text-align:center;'],
                         ],
 
+                    /* ================================
+                     *      🔥 ACTION COLUMN FIXADA
+                     * ================================ */
                         [
                                 'class' => 'yii\grid\ActionColumn',
                                 'header' => 'Ações',
                                 'template' => '{view} {update} {delete}',
                                 'contentOptions' => ['style' => 'text-align:center;'],
 
+                            // 🔥 Corrige completamente o erro Missing parameter: id
+                                'urlCreator' => function ($action, $model, $key, $index) {
+                                    return \yii\helpers\Url::to([$action, 'id' => $model->id]);
+                                },
+
                                 'buttons' => [
-                                        'view' => fn($url) =>
-                                        Html::a('<i class="bi bi-eye"></i>', $url, [
-                                                'class' => 'btn-action btn-view'
-                                        ]),
-                                        'update' => fn($url) =>
-                                        Html::a('<i class="bi bi-pencil"></i>', $url, [
-                                                'class' => 'btn-action btn-edit'
-                                        ]),
-                                        'delete' => fn($url) =>
-                                        Html::a('<i class="bi bi-trash"></i>', $url, [
-                                                'class' => 'btn-action btn-delete',
-                                                'data-confirm' => 'Tem a certeza que deseja eliminar esta prescrição?',
-                                                'data-method' => 'post',
-                                        ]),
+                                        'view' => function ($url) {
+                                            return Html::a('<i class="bi bi-eye"></i>', $url, [
+                                                    'class' => 'btn-action btn-view'
+                                            ]);
+                                        },
+
+                                        'update' => function ($url) {
+                                            return Html::a('<i class="bi bi-pencil"></i>', $url, [
+                                                    'class' => 'btn-action btn-edit'
+                                            ]);
+                                        },
+
+                                        'delete' => function ($url) {
+                                            return Html::a('<i class="bi bi-trash"></i>', $url, [
+                                                    'class' => 'btn-action btn-delete',
+                                                    'data-confirm' => 'Tem a certeza que deseja eliminar esta prescrição?',
+                                                    'data-method' => 'post',
+                                            ]);
+                                        }
                                 ],
                         ],
                 ],

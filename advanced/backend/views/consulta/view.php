@@ -3,45 +3,171 @@
 use yii\helpers\Html;
 use yii\widgets\DetailView;
 
-$this->title = 'Detalhes da Consulta';
+$this->title = 'Consulta #' . $model->id;
 $this->params['breadcrumbs'][] = ['label' => 'Consultas', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
+
+$this->registerCss('
+.view-box {
+    background: #fff;
+    border-radius: 18px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+}
+
+.title-header {
+    color: #198754;
+    font-size: 26px;
+    font-weight: 700;
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.btn-back {
+    background:#198754;
+    padding:10px 18px;
+    color:white;
+    border-radius:12px;
+    font-weight:600;
+}
+.btn-back:hover { opacity:.9; }
+
+.table-detail th {
+    width:230px;
+    background:#f5f5f5 !important;
+    color:#198754;
+    font-weight:600;
+    border-bottom:1px solid #eee !important;
+}
+.table-detail td {
+    background:#fafafa;
+    border-bottom:1px solid #eee !important;
+    font-size:15px;
+}
+
+.badge-estado {
+    padding:6px 12px;
+    border-radius:6px;
+    font-weight:600;
+    color:#fff;
+    display:inline-block;
+}
+
+.badge-Em\\ curso { background:#0d6efd; }
+.badge-Encerrada { background:#dc3545; }
+
+.prescricao-box {
+    margin-top:25px;
+    background:#fff;
+    border-radius:15px;
+    padding:20px;
+    box-shadow:0 3px 10px rgba(0,0,0,0.06);
+}
+');
+
 ?>
 
-<div class="consulta-view card shadow-sm border-0 rounded-4 p-4">
+<div class="view-box">
+
+    <!-- Cabeçalho -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h5 class="fw-bold text-success mb-0"><i class="bi bi-clipboard2-pulse me-2"></i>Consulta #<?= Html::encode($model->id) ?></h5>
-        <div>
-            <?= Html::a('<i class="bi bi-pencil-square me-1"></i> Editar', ['update', 'id' => $model->id], ['class' => 'btn btn-success btn-sm']) ?>
-            <?= Html::a('<i class="bi bi-trash3 me-1"></i> Eliminar', ['delete', 'id' => $model->id], [
-                    'class' => 'btn btn-outline-danger btn-sm',
-                    'data' => ['confirm' => 'Tem certeza que deseja eliminar esta consulta?', 'method' => 'post'],
-            ]) ?>
-        </div>
+        <h3 class="title-header">
+            <i class="bi bi-journal-medical"></i>
+            <?= Html::encode($this->title) ?>
+        </h3>
+
+        <?= Html::a('<i class="bi bi-arrow-left"></i> Voltar', ['index'], ['class' => 'btn-back']) ?>
     </div>
 
+    <!-- Detalhes da Consulta -->
     <?= DetailView::widget([
             'model' => $model,
-            'options' => ['class' => 'table table-borderless align-middle'],
+            'options' => ['class' => 'table table-bordered table-detail'],
             'attributes' => [
                     'id',
-                    'data_consulta:datetime',
-                    'estado',
+                    [
+                            'attribute' => 'data_consulta',
+                            'format' => ['datetime', 'php:d/m/Y H:i']
+                    ],
+
+                    [
+                            'attribute' => 'estado',
+                            'format' => 'raw',
+                            'value' => function ($model) {
+                                return "<span class='badge-estado badge-{$model->estado}'>" . ucfirst($model->estado) . "</span>";
+                            }
+                    ],
+
                     'observacoes:ntext',
+
                     [
                             'label' => 'Paciente',
-                            'value' => $model->userprofile->nome ?? '-',
+                            'value' => $model->userprofile->nome ?? '-'
                     ],
+
                     [
                             'label' => 'Triagem',
-                            'value' => $model->triagem->id ?? '-',
+                            'format' => 'html',
+                            'value' => Html::a(
+                                    'Ver Triagem #' . $model->triagem->id,
+                                    ['triagem/view', 'id' => $model->triagem->id],
+                                    ['class' => 'text-success fw-bold']
+                            )
                     ],
+
                     [
-                            'label' => 'Prescrição',
-                            'value' => $model->prescricao->id ?? '-',
+                            'label' => 'Pulseira',
+                            'format' => 'html',
+                            'value' => $model->triagem && $model->triagem->pulseira
+                                    ? Html::a(
+                                            $model->triagem->pulseira->codigo,
+                                            ['pulseira/view', 'id' => $model->triagem->pulseira->id],
+                                            ['class' => 'text-success fw-bold']
+                                    )
+                                    : '-'
                     ],
-                    'data_encerramento:datetime',
+
+                    [
+                            'attribute' => 'data_encerramento',
+                            'format' => ['datetime', 'php:d/m/Y H:i'],
+                            'value' => $model->data_encerramento ?? '-'
+                    ],
+
                     'relatorio_pdf',
-            ],
+            ]
     ]) ?>
+
+</div>
+
+<!-- ==========================
+       PRESCRIÇÕES
+========================== -->
+<div class="prescricao-box">
+
+    <h4 class="text-success fw-bold mb-3">
+        <i class="bi bi-capsule-pill"></i> Prescrições
+    </h4>
+
+    <?php if (empty($model->prescricaos)): ?>
+
+        <p class="text-muted">Nenhuma prescrição disponível.</p>
+
+    <?php else: ?>
+
+        <?php foreach ($model->prescricaos as $p): ?>
+
+            <div class="border rounded p-3 mb-2 d-flex justify-content-between">
+                <div>
+                    <strong>Prescrição #<?= $p->id ?></strong><br>
+                    <?= $p->tipo ?? 'Sem tipo' ?>
+                </div>
+
+                <?= Html::a('Ver', ['prescricao/view', 'id' => $p->id], ['class' => 'btn btn-outline-success btn-sm']) ?>
+            </div>
+
+        <?php endforeach; ?>
+
+    <?php endif; ?>
+
 </div>

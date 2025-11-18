@@ -8,7 +8,7 @@ use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\Response;
-
+use common\models\Notificacao;
 /**
  * Site controller
  */
@@ -139,25 +139,35 @@ class SiteController extends Controller
             ->asArray()
             ->all();
 
-        // ===== Notificações =====
-        $notificacoes = \common\models\Notificacao::find()
-            ->where(['lida' => 0])
-            ->orderBy(['dataenvio' => SORT_DESC])
-            ->limit(5)
-            ->asArray()
-            ->all();
+        // ===== Notificações (apenas do utilizador autenticado, não lidas) =====
+        $notificacoes = [];
+        if (!Yii::$app->user->isGuest && Yii::$app->user->identity->userprofile) {
+
+            $userprofileId = Yii::$app->user->identity->userprofile->id;
+
+            $notificacoes = Notificacao::find()
+                ->where([
+                    'lida' => 0,
+                    'userprofile_id' => $userprofileId,
+                ])
+                ->orderBy(['dataenvio' => SORT_DESC])
+                ->limit(5)
+                ->asArray()
+                ->all();
+        }
 
         // ===== Renderiza a view =====
         return $this->render('index', [
-            'stats' => $stats,
-            'manchester' => $manchester,
+            'stats'          => $stats,
+            'manchester'     => $manchester,
             'evolucaoLabels' => $evolucaoLabels,
-            'evolucaoData' => $evolucaoData,
-            'pacientes' => $pacientes,
-            'ultimas' => $ultimas,
-            'notificacoes' => $notificacoes,
+            'evolucaoData'   => $evolucaoData,
+            'pacientes'      => $pacientes,
+            'ultimas'        => $ultimas,
+            'notificacoes'   => $notificacoes,
         ]);
     }
+
 
     /**
      * Login action.

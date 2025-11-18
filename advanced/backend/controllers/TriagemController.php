@@ -2,29 +2,25 @@
 
 namespace backend\controllers;
 
+use common\models\Notificacao;
 use common\models\Triagem;
 use common\models\TriagemSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
-/**
- * TriagemController implements the CRUD actions for Triagem model.
- */
 class TriagemController extends Controller
 {
-    /**
-     * @inheritDoc
-     */
     public function behaviors()
     {
         return array_merge(
             parent::behaviors(),
             [
                 'verbs' => [
-                    'class' => VerbFilter::className(),
+                    'class' => VerbFilter::class,
                     'actions' => [
                         'delete' => ['POST'],
+                        'chart-data' => ['GET'],
                     ],
                 ],
             ]
@@ -32,9 +28,7 @@ class TriagemController extends Controller
     }
 
     /**
-     * Lists all Triagem models.
-     *
-     * @return string
+     * Lista Triagens
      */
     public function actionIndex()
     {
@@ -48,10 +42,7 @@ class TriagemController extends Controller
     }
 
     /**
-     * Displays a single Triagem model.
-     * @param int $id ID
-     * @return string
-     * @throws NotFoundHttpException if the model cannot be found
+     * Ver Triagem
      */
     public function actionView($id)
     {
@@ -61,21 +52,87 @@ class TriagemController extends Controller
     }
 
     /**
-     * Creates a new Triagem model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return string|\yii\web\Response
+     * Criar Triagem + 🔔 Notificações Automáticas
      */
     public function actionCreate()
     {
         $model = new Triagem();
 
+        // 🔥 SE FOR POST, já existe userprofile → vamos validar
         if ($this->request->isPost) {
-            if ($model->load($this->request->post()) && $model->save()) {
-                return $this->redirect(['view', 'id' => $model->id]);
+
+            // Primeiro carregamos os dados enviados
+            if ($model->load($this->request->post())) {
+
+                // =====================================================
+                // ❌  VERIFICAR SE O UTILIZADOR JÁ TEM PULSEIRA
+                // =====================================================
+                $pulseiraExistente = \common\models\Pulseira::find()
+                    ->where(['userprofile_id' => $model->userprofile_id])
+                    ->andWhere(['IS NOT', 'prioridade', null])   // só pulseiras atribuídas
+                    ->one();
+
+                if ($pulseiraExistente) {
+                    Yii::$app->session->setFlash(
+                        'danger',
+                        "Este paciente já tem pulseira atribuída. Não pode criar nova triagem."
+                    );
+
+                    return $this->redirect(['index']);
+                }
+
+                // =====================================================
+                // ❌  VERIFICAR SE UTILIZADOR TEM UMA TRIAGEM PENDENTE
+                // =====================================================
+                $triagemExistente = \common\models\Triagem::find()
+                    ->where(['userprofile_id' => $model->userprofile_id])
+                    ->andWhere(['pulseira_id' => null]) // Triagem ainda sem pulseira atribuída
+                    ->one();
+
+                if ($triagemExistente) {
+                    Yii::$app->session->setFlash(
+                        'danger',
+                        "Este paciente já tem uma triagem pendente. Deve atribuir uma pulseira antes de criar nova triagem."
+                    );
+
+                    return $this->redirect(['index']);
+                }
+
+                // =====================================================
+                // 🔥  SE PASSOU NAS VALIDAÇÕES → GUARDAR
+                // =====================================================
+                if ($model->save()) {
+
+                    // =====================================================
+                    // 🔔 NOTIFICAÇÕES AUTOMÁTICAS
+                    // =====================================================
+                    $userId = $model->userprofile_id;
+
+                    // 1️⃣ Notificação geral
+                    Notificacao::enviar(
+                        $userId,
+                        "Triagem registada",
+                        "Foi registada uma nova triagem para o paciente " . $model->userprofile->nome . ".",
+                        "Consulta"
+                    );
+
+                    // 2️⃣ Notificação crítica
+                    if ($model->pulseira && in_array($model->pulseira->prioridade, ["Vermelho", "Laranja"])) {
+                        Notificacao::enviar(
+                            $userId,
+                            "Prioridade " . $model->pulseira->prioridade,
+                            "O paciente " . $model->userprofile->nome . " encontra-se em prioridade " . $model->pulseira->prioridade . ".",
+                            "Prioridade"
+                        );
+                    }
+
+                    return $this->redirect(['view', 'id' => $model->id]);
+                }
             }
-        } else {
-            $model->loadDefaultValues();
         }
+
+        // ⏳ Default
+        $model->loadDefaultValues();
 
         return $this->render('create', [
             'model' => $model,
@@ -83,11 +140,7 @@ class TriagemController extends Controller
     }
 
     /**
-     * Updates an existing Triagem model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param int $id ID
-     * @return string|\yii\web\Response
-     * @throws NotFoundHttpException if the model cannot be found
+     * Atualizar Triagem
      */
     public function actionUpdate($id)
     {
@@ -103,11 +156,7 @@ class TriagemController extends Controller
     }
 
     /**
-     * Deletes an existing Triagem model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param int $id ID
-     * @return \yii\web\Response
-     * @throws NotFoundHttpException if the model cannot be found
+     * Apagar Triagem
      */
     public function actionDelete($id)
     {
@@ -117,11 +166,7 @@ class TriagemController extends Controller
     }
 
     /**
-     * Finds the Triagem model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param int $id ID
-     * @return Triagem the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
+     * Procurar Triagem
      */
     protected function findModel($id)
     {
@@ -131,26 +176,38 @@ class TriagemController extends Controller
 
         throw new NotFoundHttpException('The requested page does not exist.');
     }
+
+    /**
+     * =====================================================
+     * 🔍 API Ajax — Dados para o gráfico de evolução
+     * =====================================================
+     *
+     * /triagem/chart-data?start=2025-02-05&end=2025-02-10
+     */
     public function actionChartData($start = null, $end = null)
     {
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
         $query = Triagem::find();
 
+        // Filtrar intervalo de datas
         if ($start && $end) {
-            $query->andWhere(['between', 'created_at', $start . ' 00:00:00', $end . ' 23:59:59']);
+            $query->andWhere(['between', 'datatriagem', $start . ' 00:00:00', $end . ' 23:59:59']);
         }
 
-        $triagens = $query->orderBy('created_at')->all();
+        $triagens = $query->orderBy('datatriagem')->all();
 
         $labels = [];
         $counts = [];
 
         foreach ($triagens as $t) {
-            $date = date('d-m-Y', strtotime($t->created_at));
+            // Atributo correto da BD
+            $date = date('d-m-Y', strtotime($t->datatriagem));
+
             if (!isset($counts[$date])) {
                 $counts[$date] = 0;
             }
+
             $counts[$date]++;
         }
 

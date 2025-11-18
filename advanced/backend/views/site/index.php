@@ -6,133 +6,52 @@
 /** @var array $evolucaoData */
 /** @var array $pacientes */
 /** @var array $ultimas */
-/** @var array $notificacoes */
 
 use yii\helpers\Html;
 
 $this->title = 'EmergencySTS | Dashboard';
 
-// Bootstrap Icons
+// Bootstrap Icons + CSS global
 $this->registerCssFile('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css');
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/sidebar.css');
 
 /* ===== CSS Premium ===== */
 $this->registerCss('
-/* Força o dropdown das notificações a sobrepor tudo */
-.topbar, .dashboard-wrap {
-  overflow: visible !important;
-  z-index: 10;
-  position: relative;
-}
-
-.dropdown-menu.notif-dropdown {
-  position: absolute !important;
-  top: 60px !important;
-  right: 0 !important;
-  z-index: 9999 !important;
-  transform: none !important;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-  border: none;
-  background: #fff;
-}
-
 body {
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  transition: background 0.4s ease, color 0.4s ease;
 }
-
 .dashboard-wrap { padding: 20px; }
 
 .topbar {
   display:flex; align-items:center; justify-content:space-between;
   padding: 14px 20px; border-radius:16px;
-  background: rgba(255,255,255,0.8); backdrop-filter: blur(8px);
+  background: rgba(255,255,255,0.8);
+  backdrop-filter: blur(8px);
   border: 1px solid rgba(0,0,0,.05);
-  transition: background 0.3s ease;
 }
 
 .brand { font-weight:700; color:#198754; display:flex; align-items:center; gap:8px; }
 
-.transition { transition: all 0.3s ease; }
-
-/* === NOTIFICAÇÕES PREMIUM === */
-.notif-btn {
-  width: 42px;
-  height: 42px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #fff;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-  border-radius: 50%;
-  border: none;
-  transition: all .25s ease;
-  position: relative;
-}
-.notif-btn:hover { background: #f8f9fa; transform: translateY(-2px); }
-.notif-badge {
-  position: absolute;
-  top: 8px; right: 8px;
-  width: 10px; height: 10px;
-  background: #dc3545;
-  border-radius: 50%;
-  box-shadow: 0 0 4px rgba(220,53,69,0.4);
-  animation: pulse 1.2s infinite ease-in-out;
-}
-@keyframes pulse {
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.3); opacity: 0.7; }
-  100% { transform: scale(1); opacity: 1; }
-}
-.notif-dropdown {
-  min-width: 320px;
-  border-radius: 16px;
-  overflow: hidden;
-  animation: fadeSlide 0.25s ease;
-}
-@keyframes fadeSlide {
-  0% { opacity: 0; transform: translateY(-5px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
-.notif-header {
-  background: #f8f9fa;
-}
-.notif-item {
-  background: #fff;
-  transition: all 0.2s ease;
-}
-.notif-item:hover {
-  background: #e9f8f0;
-  transform: translateX(3px);
-}
-.notif-icon i {
-  width: 28px;
-  height: 28px;
-}
-.notif-footer {
-  background: #f8f9fa;
-}
-
-/* === KPIs e CARDS === */
 .card-kpi {
-  border-radius:20px; border:none; padding:20px;
-  background: #fff; box-shadow:0 4px 20px rgba(0,0,0,0.05);
-  transition:transform .2s, box-shadow .3s;
+  border-radius:20px;
+  border:none;
+  padding:20px;
+  background:#fff;
+  box-shadow:0 4px 20px rgba(0,0,0,0.05);
+  transition:.2s;
 }
-.card-kpi:hover { transform:translateY(-3px); box-shadow:0 6px 24px rgba(0,0,0,0.08); }
+.card-kpi:hover { transform:translateY(-3px); }
 
-.card-kpi .icon { font-size:28px; color:#198754; margin-bottom:10px; }
+.card-kpi .icon { font-size:28px; margin-bottom:10px; }
 .card-kpi.red .icon { color:#dc3545; }
 .card-kpi.orange .icon { color:#fd7e14; }
 .card-kpi.green .icon { color:#198754; }
 .card-kpi.blue .icon { color:#0d6efd; }
-.card-kpi .value { font-size:30px; font-weight:700; }
-.card-kpi .label { color:#6c757d; }
 
 .table-modern { border-radius:16px; overflow:hidden; }
 .table-modern thead tr { background:#198754; color:#fff; }
 .table-modern tbody tr:hover { background:rgba(25,135,84,0.05); }
 
-/* === Badges === */
 .badge-prio { font-weight:600; }
 .badge-vermelho { background:#dc3545; }
 .badge-laranja  { background:#fd7e14; }
@@ -140,70 +59,39 @@ body {
 .badge-verde    { background:#198754; }
 .badge-azul     { background:#0d6efd; }
 
-/* === FILTRO PREMIUM (INPUT + BOTÃO) === */
-.filter-box {
-    display: flex;
-    gap: 14px;
-    align-items: center;
-}
-.filter-input-wrapper { position: relative; }
+.filter-box { display:flex; gap:14px; align-items:center; }
+.filter-input-wrapper { position:relative; }
 .filter-input {
-    padding: 10px 14px 10px 42px;
-    border-radius: 12px;
-    border: 1px solid #ced4da;
-    background: #fff;
-    font-size: 15px;
-    height: 42px;
-    width: 200px;
-    transition: .25s;
-}
-.filter-input:focus {
-    border-color: #198754;
-    box-shadow: 0 0 0 0.15rem rgba(25,135,84,.25);
+  padding:10px 14px 10px 42px;
+  border-radius:12px;
+  border:1px solid #ced4da;
+  height:42px; width:200px;
 }
 .filter-icon {
-    position: absolute;
-    top: 50%; left: 12px;
-    transform: translateY(-50%);
-    font-size: 18px;
-    color: #198754;
+  position:absolute; top:50%; left:12px;
+  transform:translateY(-50%);
+  color:#198754;
 }
 .filter-btn-premium {
-    background: linear-gradient(135deg, #198754, #149e65);
-    border: none;
-    height: 42px;
-    padding: 0 22px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: 600;
-    font-size: 15px;
-    color: #fff;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(25,135,84,0.3);
-    transition: all .25s ease;
+  background:linear-gradient(135deg,#198754,#149e65);
+  border:none;
+  height:42px;
+  padding:0 22px;
+  border-radius:12px;
+  display:flex; align-items:center; gap:8px;
+  color:white; font-weight:600;
 }
-.filter-btn-premium:hover {
-    transform: translateY(-2px);
-    background: linear-gradient(135deg, #157347, #0f8a54);
-    box-shadow: 0 6px 16px rgba(25,135,84,0.45);
-}
-.filter-btn-premium:active { transform: scale(0.97); }
-.filter-btn-premium i { font-size: 17px; }
 ');
 
 /* ===== Chart.js ===== */
-$this->registerJsFile('https://cdn.jsdelivr.net/npm/chart.js', ['position' => \yii\web\View::POS_END]);
+$this->registerJsFile('https://cdn.jsdelivr.net/npm/chart.js', [
+        'position' => \yii\web\View::POS_END
+]);
 
-
-/* =========================================================== */
-/* ================  GRÁFICOS + FILTRO AJAX  ================= */
-/* =========================================================== */
-
+/* ===== GRÁFICOS ===== */
 $this->registerJs('
 
-// ==================== DONUT MANCHESTER ====================
+// DONUT
 const donut = document.getElementById("chartManchester");
 if (donut) {
     new Chart(donut, {
@@ -221,17 +109,11 @@ if (donut) {
                 backgroundColor: ["#dc3545","#fd7e14","#ffc107","#198754","#0d6efd"]
             }]
         },
-        options: {
-            responsive: true,
-            plugins: { legend: { position: "bottom" }},
-            cutout: "65%",
-            animation: { animateScale:true, animateRotate:true, duration:1200 }
-        }
+        options: { plugins:{ legend:{ position:"bottom" } } }
     });
 }
 
-
-// ==================== LINHA — EVOLUÇÃO TRIAGENS ====================
+// LINHA — com inteiros + eixo Y corrigido
 const line = document.getElementById("chartEvolucao");
 let triagemChart = null;
 
@@ -242,7 +124,7 @@ if (line) {
             labels: '.json_encode($evolucaoLabels).',
             datasets: [{
                 label: "Triagens",
-                data: '.json_encode($evolucaoData).',
+                data: '.json_encode(array_map("intval", $evolucaoData)).',
                 tension: .35,
                 borderColor: "#198754",
                 backgroundColor: "rgba(25,135,84,0.1)",
@@ -252,56 +134,23 @@ if (line) {
             }]
         },
         options: {
-            responsive: true,
-            plugins: { legend: { display: false }},
             scales: {
-                y: { beginAtZero: true, ticks: { stepSize: 1 }},
-                x: { title: { display: true, text: "Dias" }}
+                y: {
+                    beginAtZero:true,
+                    ticks: {
+                        stepSize: 1,
+                        callback: function(value) {
+                            return Number.isInteger(value) ? value : "";
+                        }
+                    }
+                }
             }
         }
     });
 }
-
-
-
-// ================= AJAX PARA FILTRAR GRÁFICO =================
-async function loadChart(start, end) {
-    if (!start || !end) return;
-
-    const url = "/EmergencySTS/advanced/backend/web/triagem/chart-data?start=" + start + "&end=" + end;
-
-    try {
-        const response = await fetch(url);
-        const result = await response.json();
-
-        if (triagemChart) {
-            triagemChart.data.labels = result.labels;
-            triagemChart.data.datasets[0].data = result.data;
-            triagemChart.update();
-        }
-
-    } catch (e) {
-        console.error("Erro ao carregar dados do gráfico:", e);
-    }
-}
-
-
-// ================= EVENTO DO FILTRO =================
-let filtro = document.querySelector("input[name=\"dataFiltro\"]");
-
-if (filtro) {
-    filtro.addEventListener("change", function () {
-        const selected = this.value;
-
-        // filtra o dia selecionado (start = end = mesmo dia)
-        loadChart(selected, selected);
-    });
-}
-
 ');
 
-
-/* Helper Badge */
+// Badge helper
 function badgePrio(string $prio): string {
     $map = [
             "Vermelho"=>"badge-vermelho",
@@ -314,89 +163,23 @@ function badgePrio(string $prio): string {
     return "<span class=\"badge badge-prio {$cls}\">{$prio}</span>";
 }
 ?>
+
 <!-- ====================================== -->
 <!--              DASHBOARD                 -->
 <!-- ====================================== -->
 
 <div class="dashboard-wrap">
 
-    <!-- 🔹 Topbar -->
     <div class="topbar mb-4">
         <div class="brand">
             <i class="bi bi-heart-pulse-fill"></i>
             <span>EmergencySTS</span>
         </div>
+    </div>
 
-        <div class="actions d-flex gap-3">
-
-            <!-- 🔔 Notificações -->
-            <div class="dropdown position-relative">
-                <button class="notif-btn" data-bs-toggle="dropdown">
-                    <i class="bi bi-bell fs-5"></i>
-
-                    <?php if (!empty($notificacoes)): ?>
-                        <span class="notif-badge"></span>
-                    <?php endif; ?>
-                </button>
-
-                <div class="dropdown-menu dropdown-menu-end shadow-lg border-0 p-0 notif-dropdown">
-                    <!-- Cabeçalho -->
-                    <div class="notif-header p-3 border-bottom d-flex justify-content-between">
-                        <h6 class="mb-0 fw-bold text-success">
-                            <i class="bi bi-bell-fill me-1"></i> Notificações
-                        </h6>
-
-                        <?php if (!empty($notificacoes)): ?>
-                            <span class="badge bg-success rounded-pill">
-                                <?= count($notificacoes) ?>
-                            </span>
-                        <?php endif; ?>
-                    </div>
-
-                    <!-- Corpo -->
-                    <div class="notif-body p-2" style="max-height: 300px; overflow-y: auto;">
-                        <?php if (empty($notificacoes)): ?>
-                            <div class="text-center text-muted py-3">
-                                <i class="bi bi-inbox fs-2 mb-2 d-block"></i>
-                                <small>Sem novas notificações</small>
-                            </div>
-
-                        <?php else: foreach ($notificacoes as $n): ?>
-                            <div class="notif-item d-flex p-2 mb-1 rounded-3">
-                                <div class="notif-icon me-2">
-                                    <i class="bi bi-exclamation-circle-fill text-success fs-5"></i>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <div class="fw-semibold">
-                                        <?= Html::encode($n["titulo"]) ?>
-                                    </div>
-
-                                    <div class="text-muted small">
-                                        <?= Html::encode($n["mensagem"]) ?>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php endforeach; endif; ?>
-                    </div>
-
-                    <!-- Rodapé -->
-                    <?php if (!empty($notificacoes)): ?>
-                        <div class="notif-footer text-center border-top p-2 bg-light">
-                            <a href="<?= Yii::$app->urlManager->createUrl(["notificacao/index"]) ?>"
-                               class="small text-success fw-semibold">
-                                Ver todas <i class="bi bi-arrow-right-short"></i>
-                            </a>
-                        </div>
-                    <?php endif; ?>
-                </div>
-            </div>
-
-        </div> <!-- actions -->
-    </div> <!-- topbar -->
-    <!-- 🔹 KPIs -->
+    <!-- KPIs -->
     <div class="row g-3 mb-4 justify-content-center">
-
-        <div class="col-12 col-sm-6 col-lg-3 transition">
+        <div class="col-lg-3 col-sm-6">
             <div class="card card-kpi red text-center">
                 <div class="icon"><i class="bi bi-people-fill"></i></div>
                 <div class="value"><?= (int)$stats["espera"] ?></div>
@@ -404,7 +187,7 @@ function badgePrio(string $prio): string {
             </div>
         </div>
 
-        <div class="col-12 col-sm-6 col-lg-3 transition">
+        <div class="col-lg-3 col-sm-6">
             <div class="card card-kpi orange text-center">
                 <div class="icon"><i class="bi bi-activity"></i></div>
                 <div class="value"><?= (int)$stats["ativas"] ?></div>
@@ -412,39 +195,29 @@ function badgePrio(string $prio): string {
             </div>
         </div>
 
-        <div class="col-12 col-sm-6 col-lg-3 transition">
+        <div class="col-lg-3 col-sm-6">
             <div class="card card-kpi green text-center">
                 <div class="icon"><i class="bi bi-heart-pulse"></i></div>
                 <div class="value"><?= (int)$stats["atendidosHoje"] ?></div>
                 <div class="label">Atendidos hoje</div>
             </div>
         </div>
-
     </div>
 
-    <!-- 🔹 GRÁFICOS -->
+    <!-- GRÁFICOS -->
     <div class="row g-3 mb-4">
 
-        <!-- Donut Manchester -->
         <div class="col-lg-4">
-            <div class="card shadow-sm p-3 h-100" style="border-radius:16px;">
-                <h6 class="mb-2">
-                    <i class="bi bi-palette me-1"></i>
-                    Prioridades Manchester
-                </h6>
+            <div class="card shadow-sm p-3">
+                <h6 class="mb-2">Prioridades Manchester</h6>
                 <canvas id="chartManchester" height="220"></canvas>
             </div>
         </div>
 
-        <!-- Evolução das Triagens -->
         <div class="col-lg-8">
-            <div class="card shadow-sm p-3 h-100" style="border-radius:16px;">
-                <h6 class="mb-2">
-                    <i class="bi bi-graph-up-arrow me-1"></i>
-                    Evolução das Triagens
-                </h6>
+            <div class="card shadow-sm p-3">
+                <h6 class="mb-2">Evolução das Triagens</h6>
 
-                <!-- 🔍 FILTRO DE DATA PREMIUM -->
                 <form method="get" class="filter-box mb-3">
                     <div class="filter-input-wrapper">
                         <i class="bi bi-calendar2-date filter-icon"></i>
@@ -463,14 +236,11 @@ function badgePrio(string $prio): string {
                 <canvas id="chartEvolucao" height="220"></canvas>
             </div>
         </div>
-
     </div>
-    <!-- 🔹 Pacientes em Espera -->
-    <div class="card shadow-sm p-3 table-modern mb-4" style="border-radius:16px;">
-        <h6 class="mb-3">
-            <i class="bi bi-list-check me-1"></i>
-            Pacientes em Espera
-        </h6>
+
+    <!-- Tabela Pacientes -->
+    <div class="card shadow-sm p-3 table-modern mb-4">
+        <h6 class="mb-3">Pacientes em Espera</h6>
 
         <div class="table-responsive">
             <table class="table align-middle mb-0">
@@ -485,10 +255,7 @@ function badgePrio(string $prio): string {
 
                 <tbody>
                 <?php if (empty($pacientes)): ?>
-                    <tr>
-                        <td colspan="4" class="text-center text-muted">Nenhum registo encontrado</td>
-                    </tr>
-
+                    <tr><td colspan="4" class="text-center text-muted">Nenhum registo encontrado</td></tr>
                 <?php else: foreach ($pacientes as $p): ?>
                     <tr>
                         <td><?= Html::encode($p["pulseira"]["codigo"] ?? "-") ?></td>
@@ -502,12 +269,9 @@ function badgePrio(string $prio): string {
         </div>
     </div>
 
-    <!-- 🔹 Últimas triagens -->
-    <div class="card shadow-sm p-3" style="border-radius:16px;">
-        <h6 class="mb-3">
-            <i class="bi bi-clock-history me-1"></i>
-            Últimas Triagens
-        </h6>
+    <!-- Últimas Triagens -->
+    <div class="card shadow-sm p-3">
+        <h6 class="mb-3">Últimas Triagens</h6>
 
         <div class="row row-cols-1 row-cols-md-2 g-3">
 
@@ -516,13 +280,12 @@ function badgePrio(string $prio): string {
 
             <?php else: foreach ($ultimas as $u): ?>
                 <div class="col">
-                    <div class="p-3 border rounded-4 d-flex justify-content-between align-items-center">
+                    <div class="p-3 border rounded-4 d-flex justify-content-between">
                         <div>
                             <div class="fw-semibold">
                                 <?= date("d/m H:i", strtotime($u["datatriagem"])) ?> —
                                 <?= Html::encode($u["userprofile"]["nome"] ?? "-") ?>
                             </div>
-
                             <div class="text-muted small">
                                 <?= Html::encode($u["pulseira"]["codigo"] ?? "-") ?>
                             </div>
@@ -538,4 +301,4 @@ function badgePrio(string $prio): string {
         </div>
     </div>
 
-</div> <!-- END dashboard-wrap -->
+</div>

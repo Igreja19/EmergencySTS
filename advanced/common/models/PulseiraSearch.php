@@ -28,7 +28,6 @@ class PulseiraSearch extends Pulseira
      */
     public function scenarios()
     {
-        // Ignora os cenários definidos na classe pai
         return Model::scenarios();
     }
 
@@ -41,7 +40,12 @@ class PulseiraSearch extends Pulseira
     public function search($params)
     {
         // Query base
-        $query = Pulseira::find()->joinWith(['userprofile', 'triagem']);
+        $query = Pulseira::find()
+            ->joinWith(['userprofile', 'triagem t', 'triagem.consulta c']); // 🔥 não removi nada!
+
+        // 🔥🔥🔥 AQUI ESTÁ O FILTRO QUE FALTAVA
+        // Mostra apenas pulseiras que NÃO têm consulta associada
+        $query->andWhere(['c.id' => null]); // ← alias correto da consulta
 
         // DataProvider
         $dataProvider = new ActiveDataProvider([
@@ -77,6 +81,10 @@ class PulseiraSearch extends Pulseira
         if (!empty($this->tempoentrada)) {
             $query->andFilterWhere(['like', 'tempoentrada', $this->tempoentrada]);
         }
+
+        // (❗ este filtro era duplicado com o de cima, mas mantive o teu comentário)
+        // ❗ Ocultar pulseiras que já têm consulta
+        // ❗ Já está tratado pelo filtro c.id IS NULL
 
         return $dataProvider;
     }
