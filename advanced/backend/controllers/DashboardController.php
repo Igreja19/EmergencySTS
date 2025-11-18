@@ -14,26 +14,21 @@ class DashboardController extends Controller
         $auth = Yii::$app->authManager;
         $roles = $auth->getRolesByUser(Yii::$app->user->id);
 
-        // ADMIN → dashboard completo
         if (isset($roles['admin'])) {
             return $this->render('admin', $this->getAdminData());
         }
 
-        // MÉDICO → painel médico
         if (isset($roles['medico'])) {
             return $this->render('medico');
         }
 
-        // ENFERMEIRO → painel enfermeiro
         if (isset($roles['enfermeiro'])) {
             return $this->render('enfermeiro');
         }
 
-        // PACIENTE → acesso negado
         Yii::$app->session->setFlash('error', 'Acesso não permitido.');
         return $this->redirect(['/site/login']);
     }
-
 
     /**
      * 🔥 Dados do dashboard para ADMIN
@@ -52,7 +47,7 @@ class DashboardController extends Controller
             'salasTotal' => 6,
         ];
 
-        // Prioridades
+        // Prioridades Manchester
         $manchester = [
             'vermelho' => Pulseira::find()->where(['prioridade' => 'Vermelho'])->count(),
             'laranja'  => Pulseira::find()->where(['prioridade' => 'Laranja'])->count(),
@@ -61,15 +56,29 @@ class DashboardController extends Controller
             'azul'     => Pulseira::find()->where(['prioridade' => 'Azul'])->count(),
         ];
 
-        // Evolução dos últimos 7 dias
+        /**
+         * 📊 CORRIGIDO — EVOLUÇÃO DIÁRIA DOS ÚLTIMOS 7 DIAS
+         * O gráfico exibe:
+         *   - Nº de triagens por dia
+         *   - Se não houver triagens → 0
+         */
         $evolucaoLabels = [];
         $evolucaoData = [];
+
         for ($i = 6; $i >= 0; $i--) {
+
             $dia = date('Y-m-d', strtotime("-$i days"));
+
+            // Label visível no gráfico
             $evolucaoLabels[] = date('d/m', strtotime($dia));
-            $evolucaoData[] = Triagem::find()
+
+            // Conta triagens apenas desse dia
+            $count = Triagem::find()
                 ->where(['between', 'datatriagem', "$dia 00:00:00", "$dia 23:59:59"])
                 ->count();
+
+            // Se for 0 → mantém 0
+            $evolucaoData[] = (int)$count;
         }
 
         // Últimos pacientes
@@ -88,7 +97,7 @@ class DashboardController extends Controller
             ->asArray()
             ->all();
 
-        // Últimas notificações
+        // Últimas notificações (para o sino)
         $notificacoes = Notificacao::find()
             ->where(['lida' => 0])
             ->orderBy(['dataenvio' => SORT_DESC])
@@ -96,7 +105,6 @@ class DashboardController extends Controller
             ->asArray()
             ->all();
 
-        // retorna o array completo para usar na view admin
         return [
             'stats' => $stats,
             'manchester' => $manchester,

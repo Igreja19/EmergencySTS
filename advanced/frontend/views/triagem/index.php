@@ -32,7 +32,6 @@ $this->title = 'EmergencySTS - Serviço de Urgências';
                     $triagem = null;
                     $consulta = null;
 
-                    // 🔍 Só consulta triagem se existir userProfile
                     if ($userProfile) {
 
                         // Triagem mais recente
@@ -95,14 +94,12 @@ $this->title = 'EmergencySTS - Serviço de Urgências';
                 <?php endif; ?>
             </div>
 
-            <!-- Se for visitante -->
+            <!-- 🔐 BOTÃO DE LOGIN (único) -->
             <?php if (Yii::$app->user->isGuest): ?>
-                <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-3">
-                    <a href="<?= Yii::$app->urlManager->createUrl(['site/login']) ?>" class="btn btn-outline-success px-4 py-2 fw-semibold">
+                <div class="d-flex justify-content-center mt-3">
+                    <a href="<?= Yii::$app->urlManager->createUrl(['site/login']) ?>"
+                       class="btn btn-success btn-lg px-5 py-3 fw-semibold shadow-sm">
                         <i class="bi bi-box-arrow-in-right me-2"></i> Login
-                    </a>
-                    <a href="<?= Yii::$app->urlManager->createUrl(['site/login']) ?>" class="btn btn-outline-success px-4 py-2 fw-semibold">
-                        <i class="bi bi-person me-2"></i> Entrar como Convidado
                     </a>
                 </div>
             <?php endif; ?>
@@ -137,7 +134,9 @@ $this->title = 'EmergencySTS - Serviço de Urgências';
                 <i class="bi bi-bell fs-2 text-success mb-2"></i>
                 <h5 class="fw-bold">Notificações</h5>
                 <p class="text-muted mb-0">Alertas e atualizações</p>
-                <span class="position-absolute top-0 start-100 translate-middle-x mt-1 badge rounded-pill bg-success"><?= $kpiNaoLidas ?? 0 ?></span>
+                <span class="position-absolute top-0 start-100 translate-middle-x mt-1 badge rounded-pill bg-success">
+                    <?= $kpiNaoLidas ?? 0 ?>
+                </span>
             </div>
         </div>
     </div>

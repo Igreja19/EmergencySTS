@@ -2,6 +2,11 @@
 
 use yii\log\FileTarget;
 
+use yii\web\Response;
+use yii\web\JsonResponseFormatter;
+use yii\rest\UrlRule;
+
+
 $params = array_merge(
     require __DIR__ . '/../../common/config/params.php',
     require __DIR__ . '/../../common/config/params-local.php',
@@ -15,36 +20,49 @@ return [
     'controllerNamespace' => 'backend\controllers',
     'bootstrap' => ['log'],
 
-    // 🔹 Criar automaticamente a role paciente + impedir acesso ao backend
+    // 🔥 BLOQUEIO CORRETO DO PACIENTE E ROLES INVÁLIDAS
     'on beforeRequest' => function () {
-        $auth = Yii::$app->authManager;
 
-        if ($auth === null) {
-            return;
+        $route = Yii::$app->requestedRoute;
+
+        // Permitir acesso sem bloqueio
+        if (
+            $route === 'site/login' ||
+            $route === 'site/error' ||
+            $route === 'site/acesso-restrito'
+        ) {
+            return true;
         }
 
-        // 🔹 1) Criar role paciente se não existir
-        if ($auth->getRole('paciente') === null) {
-            $role = $auth->createRole('paciente');
-            $role->description = 'Paciente do sistema';
-            $auth->add($role);
-        }
-
-        // 🔹 2) Bloquear pacientes no backend
+        // Se estiver autenticado
         if (!Yii::$app->user->isGuest) {
-            $userId = Yii::$app->user->id;
-            $roles = $auth->getRolesByUser($userId);
 
-            if (isset($roles['paciente'])) {
-                Yii::$app->user->logout();
-                Yii::$app->session->setFlash('error', 'Acesso exclusivo para staff.');
-                Yii::$app->response->redirect(['/site/login'])->send();
-                Yii::$app->end();
+            $auth = Yii::$app->authManager;
+            $roles = $auth->getRolesByUser(Yii::$app->user->id);
+
+            $rolesValidos = ['admin', 'medico', 'enfermeiro'];
+            $temRoleValido = false;
+
+            foreach ($roles as $nome => $roleObj) {
+                if (in_array($nome, $rolesValidos)) {
+                    $temRoleValido = true;
+                    break;
+                }
             }
+
+            // ❌ Qualquer role inválida → bloqueado
+            if (!$temRoleValido) {
+                Yii::$app->response->redirect(['/site/acesso-restrito'])->send();
+                return false;
+            }
+        } else {
+            // ❌ Não autenticado → não mostrar login do backend ao paciente
+            // Permitir login apenas para staff
+            return true;
         }
     },
 
-    // 🔹 Módulos
+
     'modules' => [
         'api' => [
             'class' => backend\modules\api\ModuleAPI::class,
@@ -52,15 +70,16 @@ return [
     ],
 
     'components' => [
+
+        'response' => [
+            'class' => yii\web\Response::class,
+        ],
+
         'request' => [
+            'crsfParam' => 'crsf-backend',
             'parsers' => [
                 'application/json' => 'yii\web\JsonParser',
             ],
-            'enableCsrfValidation' => false,
-        ],
-
-        'response' => [
-            'format' => yii\web\Response::FORMAT_JSON,
         ],
 
         'user' => [
@@ -74,7 +93,6 @@ return [
             'name' => 'advanced-backend',
         ],
 
-        // ✔️ LOG CORRIGIDO
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
             'targets' => [
@@ -89,33 +107,43 @@ return [
             'errorAction' => 'site/error',
         ],
 
-        // 🔹 URL Manager
+        'authManager' => [
+            'class' => 'yii\rbac\DbManager',
+        ],
+
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
 
-                // 🔹 Controladores REST automáticos
+                // REST API
                 [
-                    'class' => yii\rest\UrlRule::class,
-                    'controller' => ['api/user', 'api/triagem', 'api/pulseira', 'api/notificacao'],
+                    'class' => UrlRule::class,
+                    'controller' => [
+                        'api/user',
+                        'api/triagem',
+                        'api/pulseira',
+                        'api/consulta',
+                        'api/prescricao',
+                        'api/notificacao'
+                    ],
                     'pluralize' => false,
                     'extraPatterns' => [
                         'GET prioridade' => 'prioridade',
                     ],
                 ],
 
-                // 🔹 Endpoints de autenticação
+                // Autenticação
                 'POST api/auth/login'    => 'api/auth/login',
                 'GET api/auth/validate'  => 'api/auth/validate',
                 'POST api/auth/logout'   => 'api/auth/logout',
-                // 🔹 Notificações
+
+                // Notificações
                 'GET api/notificacao/list' => 'api/notificacao/list',
                 'POST api/notificacao/ler/<id:\d+>' => 'api/notificacao/ler',
 
-                // Página base da API
+                // Página Base
                 'GET api' => 'api/default/index',
-
             ],
         ],
     ],

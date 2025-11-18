@@ -2,27 +2,22 @@
 
 namespace backend\controllers;
 
+use common\models\Notificacao;
 use common\models\Pulseira;
 use common\models\PulseiraSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
-/**
- * PulseiraController implements the CRUD actions for Pulseira model.
- */
 class PulseiraController extends Controller
 {
-    /**
-     * @inheritDoc
-     */
     public function behaviors()
     {
         return array_merge(
             parent::behaviors(),
             [
                 'verbs' => [
-                    'class' => VerbFilter::className(),
+                    'class' => VerbFilter::class,
                     'actions' => [
                         'delete' => ['POST'],
                     ],
@@ -32,26 +27,22 @@ class PulseiraController extends Controller
     }
 
     /**
-     * Lists all Pulseira models.
-     *
-     * @return string
+     * Lista todas as pulseiras
      */
     public function actionIndex()
     {
         $searchModel = new PulseiraSearch();
         $dataProvider = $searchModel->search($this->request->queryParams);
 
+
         return $this->render('index', [
-            'searchModel' => $searchModel,
+            'searchModel'  => $searchModel,
             'dataProvider' => $dataProvider,
         ]);
     }
 
     /**
-     * Displays a single Pulseira model.
-     * @param int $id ID
-     * @return string
-     * @throws NotFoundHttpException if the model cannot be found
+     * Mostra uma pulseira
      */
     public function actionView($id)
     {
@@ -61,20 +52,68 @@ class PulseiraController extends Controller
     }
 
     /**
-     * Creates a new Pulseira model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return string|\yii\web\Response
+     * Cria uma nova pulseira + NOTIFICAÇÕES AUTOMÁTICAS
      */
     public function actionCreate()
     {
         $model = new Pulseira();
 
         if ($this->request->isPost) {
-            if ($model->load($this->request->post()) && $model->save()) {
-                return $this->redirect(['view', 'id' => $model->id]);
+
+            if ($model->load($this->request->post())) {
+
+                // TEMPO AUTOMÁTICO
+                $model->tempoentrada = date('Y-m-d H:i:s');
+
+                // STATUS DEFAULT
+                if (empty($model->status)) {
+                    $model->status = 'Em espera';
+                }
+
+                if ($model->save()) {
+
+                    // =====================================================
+                    // 🔥 LIGAR A TRIAGEM AO ID DA PULSEIRA (REMOVER DA FILA)
+                    // =====================================================
+                    $triagem = \common\models\Triagem::find()
+                        ->where(['userprofile_id' => $model->userprofile_id])
+                        ->andWhere(['pulseira_id' => null])
+                        ->one();
+
+                    if ($triagem) {
+                        $triagem->pulseira_id = $model->id;
+                        $triagem->save(false);
+                    }
+
+                    // =====================================================
+                    // 🔔 NOTIFICAÇÕES
+                    // =====================================================
+                    if ($model->userprofile_id && $model->userprofile) {
+
+                        $userId = $model->userprofile_id;
+
+                        // Notificação geral
+                        Notificacao::enviar(
+                            $userId,
+                            "Pulseira atribuída",
+                            "A pulseira do paciente " . $model->userprofile->nome . " foi criada.",
+                            "Geral"
+                        );
+
+                        // Notificação crítica
+                        if (in_array($model->prioridade, ["Vermelho", "Laranja"])) {
+                            Notificacao::enviar(
+                                $userId,
+                                "Prioridade " . $model->prioridade,
+                                "O paciente " . $model->userprofile->nome . " encontra-se com prioridade " . $model->prioridade . ".",
+                                "Prioridade"
+                            );
+                        }
+                    }
+
+                    return $this->redirect(['index']);
+                }
             }
-        } else {
-            $model->loadDefaultValues();
         }
 
         return $this->render('create', [
@@ -82,18 +121,72 @@ class PulseiraController extends Controller
         ]);
     }
 
+
     /**
-     * Updates an existing Pulseira model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param int $id ID
-     * @return string|\yii\web\Response
-     * @throws NotFoundHttpException if the model cannot be found
+     * Atualiza pulseira + NOTIFICAÇÕES AUTOMÁTICAS
      */
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
 
+        $oldStatus = $model->status;
+        $oldPrioridade = $model->prioridade;
+
         if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
+
+            $userId = $model->userprofile_id;
+
+            /* ==============================
+             * 🔥 NOTIFICAÇÕES DE STATUS
+             * ==============================*/
+            if ($oldStatus !== $model->status) {
+
+                switch ($model->status) {
+
+                    case "Em espera":
+                        Notificacao::enviar(
+                            $userId,
+                            "Paciente em espera",
+                            "O paciente " . $model->userprofile->nome . " foi colocado em espera.",
+                            "Geral"
+                        );
+                        break;
+
+                    case "Em atendimento":
+                        Notificacao::enviar(
+                            $userId,
+                            "Paciente em atendimento",
+                            "O paciente " . $model->userprofile->nome . " está a ser atendido.",
+                            "Consulta"
+                        );
+                        break;
+
+                    case "Atendido":
+                        Notificacao::enviar(
+                            $userId,
+                            "Paciente atendido",
+                            "O paciente " . $model->userprofile->nome . " foi atendido com sucesso.",
+                            "Consulta"
+                        );
+                        break;
+                }
+            }
+
+            /* ==============================
+             * 🔥 NOTIFICAÇÕES DE PRIORIDADE
+             * ==============================*/
+            if ($oldPrioridade !== $model->prioridade) {
+
+                if (in_array($model->prioridade, ["Vermelho", "Laranja"])) {
+                    Notificacao::enviar(
+                        $userId,
+                        "Prioridade " . $model->prioridade,
+                        "O paciente " . $model->userprofile->nome . " passou para prioridade " . $model->prioridade . ".",
+                        "Prioridade"
+                    );
+                }
+            }
+
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
@@ -103,11 +196,7 @@ class PulseiraController extends Controller
     }
 
     /**
-     * Deletes an existing Pulseira model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param int $id ID
-     * @return \yii\web\Response
-     * @throws NotFoundHttpException if the model cannot be found
+     * Elimina pulseira
      */
     public function actionDelete($id)
     {
@@ -117,11 +206,7 @@ class PulseiraController extends Controller
     }
 
     /**
-     * Finds the Pulseira model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param int $id ID
-     * @return Pulseira the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
+     * Encontra a pulseira
      */
     protected function findModel($id)
     {
@@ -129,6 +214,6 @@ class PulseiraController extends Controller
             return $model;
         }
 
-        throw new NotFoundHttpException('The requested page does not exist.');
+        throw new NotFoundHttpException("A pulseira não existe.");
     }
 }

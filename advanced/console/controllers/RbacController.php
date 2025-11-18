@@ -81,6 +81,7 @@ class RbacController extends Controller
         $auth->addChild($admin, $enfermeiro);
         $auth->addChild($admin, $medico);
 
+<<<<<<< HEAD
         // =========================================================
         // 👤 ATRIBUIR ROLES A UTILIZADORES (por ID)
         // =========================================================
@@ -90,6 +91,12 @@ class RbacController extends Controller
         $auth->assign($medico, 2);      // utilizador com ID 2 -> Médico
         $auth->assign($enfermeiro, 3);  // utilizador com ID 3 -> Enfermeiro
         $auth->assign($paciente, 1);    // utilizador com ID 1 -> Paciente
+=======
+        // PACIENTE → role sem permissões
+        $paciente = $auth->createRole('paciente');
+        $paciente->description = 'Paciente do sistema';
+        $auth->add($paciente);
+>>>>>>> b3cd9dd70fdbe08e96b4d2a5c69ae0e51096d713
 
         echo "✅ RBAC inicializado com sucesso! Roles e permissões criadas.\n";
     }

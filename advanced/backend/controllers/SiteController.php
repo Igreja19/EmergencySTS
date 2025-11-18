@@ -8,7 +8,7 @@ use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\Response;
-
+use common\models\Notificacao;
 /**
  * Site controller
  */
@@ -21,22 +21,27 @@ class SiteController extends Controller
     {
         return [
             'access' => [
-                'class' => AccessControl::class,
+                'class' => \yii\filters\AccessControl::class,
+                'only' => ['index', 'logout'],
                 'rules' => [
+
+                    // 🔐 INDEX → apenas admin, medico e enfermeiro
                     [
-                        'actions' => ['login', 'error', 'request-password-reset'], // <--- ADICIONA AQUI
+                        'actions' => ['index'],
                         'allow' => true,
-                        'roles' => ['?'], // Garante que isto é só para GUESTS
+                        'roles' => ['admin', 'medico', 'enfermeiro'],
                     ],
+
+                    // 🔓 LOGOUT → qualquer utilizador autenticado pode sair
                     [
-                        'actions' => ['logout', 'index'],
+                        'actions' => ['logout'],
                         'allow' => true,
-                        'roles' => ['@'],
+                        'roles' => ['@'],   // <--- ESTA É A SOLUÇÃO
                     ],
                 ],
             ],
             'verbs' => [
-                'class' => VerbFilter::class,
+                'class' => \yii\filters\VerbFilter::class,
                 'actions' => [
                     'logout' => ['post'],
                 ],
@@ -84,16 +89,38 @@ class SiteController extends Controller
             'azul'     => \common\models\Pulseira::find()->where(['prioridade' => 'Azul'])->count(),
         ];
 
-        // ===== Evolução das triagens (últimos 7 dias) =====
+        // =================================================================
+        // 🔍 FILTRO DE DATA PARA GRÁFICO DE EVOLUÇÃO DAS TRIAGENS
+        // =================================================================
+        $dataFiltro = Yii::$app->request->get('dataFiltro');
+
         $evolucaoLabels = [];
         $evolucaoData = [];
-        for ($i = 6; $i >= 0; $i--) {
-            $dia = date('Y-m-d', strtotime("-$i days"));
-            $evolucaoLabels[] = date('d/m', strtotime($dia));
-            $count = \common\models\Triagem::find()
-                ->where(['between', 'datatriagem', $dia . ' 00:00:00', $dia . ' 23:59:59'])
+
+        if ($dataFiltro) {
+
+            // Apenas 1 dia
+            $inicio = $dataFiltro . ' 00:00:00';
+            $fim    = $dataFiltro . ' 23:59:59';
+
+            $evolucaoLabels[] = date('d/m/Y', strtotime($dataFiltro));
+            $evolucaoData[] = \common\models\Triagem::find()
+                ->where(['between', 'datatriagem', $inicio, $fim])
                 ->count();
-            $evolucaoData[] = $count;
+
+        } else {
+
+            // Últimos 7 dias
+            for ($i = 6; $i >= 0; $i--) {
+                $dia = date('Y-m-d', strtotime("-$i days"));
+                $evolucaoLabels[] = date('d/m', strtotime($dia));
+
+                $count = \common\models\Triagem::find()
+                    ->where(['between', 'datatriagem', $dia . ' 00:00:00', $dia . ' 23:59:59'])
+                    ->count();
+
+                $evolucaoData[] = $count;
+            }
         }
 
         // ===== Pacientes em triagem =====
@@ -112,25 +139,35 @@ class SiteController extends Controller
             ->asArray()
             ->all();
 
-        // ===== Notificações =====
-        $notificacoes = \common\models\Notificacao::find()
-            ->where(['lida' => 0])
-            ->orderBy(['dataenvio' => SORT_DESC])
-            ->limit(5)
-            ->asArray()
-            ->all();
+        // ===== Notificações (apenas do utilizador autenticado, não lidas) =====
+        $notificacoes = [];
+        if (!Yii::$app->user->isGuest && Yii::$app->user->identity->userprofile) {
 
-        // ===== Renderiza a view (envia todas as variáveis) =====
+            $userprofileId = Yii::$app->user->identity->userprofile->id;
+
+            $notificacoes = Notificacao::find()
+                ->where([
+                    'lida' => 0,
+                    'userprofile_id' => $userprofileId,
+                ])
+                ->orderBy(['dataenvio' => SORT_DESC])
+                ->limit(5)
+                ->asArray()
+                ->all();
+        }
+
+        // ===== Renderiza a view =====
         return $this->render('index', [
-            'stats' => $stats,
-            'manchester' => $manchester,
+            'stats'          => $stats,
+            'manchester'     => $manchester,
             'evolucaoLabels' => $evolucaoLabels,
-            'evolucaoData' => $evolucaoData,
-            'pacientes' => $pacientes,
-            'ultimas' => $ultimas,
-            'notificacoes' => $notificacoes,
+            'evolucaoData'   => $evolucaoData,
+            'pacientes'      => $pacientes,
+            'ultimas'        => $ultimas,
+            'notificacoes'   => $notificacoes,
         ]);
     }
+
 
     /**
      * Login action.
@@ -139,23 +176,34 @@ class SiteController extends Controller
      */
     public function actionLogin()
     {
-
-        if (!Yii::$app->user->isGuest) {
+        if (!Yii::$app->user) {
             return $this->goHome();
         }
 
         $this->layout = 'main-login';
-
         $model = new LoginForm();
+
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
+
+            // 🔥 Verificar role antes de permitir login
+            $auth = Yii::$app->authManager;
+            $roles = $auth->getRolesByUser(Yii::$app->user->id);
+
+            // Apenas admin, médico e enfermeiro podem entrar
+            if (!isset($roles['admin']) && !isset($roles['medico']) && !isset($roles['enfermeiro'])) {
+
+                // Terminar sessão imediatamente
+                Yii::$app->user->logout();
+
+                // Mostrar página de acesso restrito
+                return $this->redirect(['/site/acesso-restrito']);
+            }
+
             return $this->goBack();
         }
 
         $model->password = '';
-
-        return $this->render('login', [
-            'model' => $model,
-        ]);
+        return $this->render('login', ['model' => $model]);
     }
 
     /**
@@ -188,6 +236,12 @@ class SiteController extends Controller
         return $this->render('request-password-reset', [
             'model' => $model,
         ]);
+    }
+    public function actionAcessoRestrito()
+    {
+        $this->layout = 'main-login'; // 🔥 REMOVE navbar e sidebar
+
+        return $this->render('acesso-restrito');
     }
 
 }

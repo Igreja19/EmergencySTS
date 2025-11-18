@@ -49,6 +49,15 @@ class Prescricao extends \yii\db\ActiveRecord
             'consulta_id' => 'Consulta ID',
         ];
     }
+    public function beforeSave($insert)
+    {
+        if ($insert) {
+            // Guarda automaticamente o timestamp atual
+            $this->tempoentrada = date('Y-m-d H:i:s');
+        }
+
+        return parent::beforeSave($insert);
+    }
 
     public function getConsulta()
     {
@@ -65,4 +74,5 @@ class Prescricao extends \yii\db\ActiveRecord
         return $this->hasMany(Medicamento::class, ['id' => 'medicamento_id'])
             ->via('prescricaomedicamentos');
     }
+
 }

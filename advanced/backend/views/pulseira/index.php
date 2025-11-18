@@ -4,98 +4,110 @@ use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\widgets\Pjax;
 
-/** @var yii\web\View $this */
-/** @var common\models\PulseiraSearch $searchModel */
-/** @var yii\data\ActiveDataProvider $dataProvider */
-
 $this->title = 'Pulseiras';
 $this->params['breadcrumbs'][] = $this->title;
 
 $this->registerCss('
-.pulseira-index {
-  max-width: 1200px;
-  margin: 0 auto;
+.page-title {
+    font-size: 30px;
+    font-weight: 700;
+    color: #198754;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
-.pulseira-index h1 {
-  color: #198754;
-  font-weight: 700;
-  margin-bottom: 25px;
-  text-align: center;
+.page-title i { font-size: 32px; }
+
+.card-box {
+    background: #fff;
+    border-radius: 18px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
 }
-.card-table {
-  border-radius: 20px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-  border: none;
-  background: #fff;
-  padding: 25px;
-}
+
 .table-modern {
-  border-radius: 14px;
-  overflow: hidden;
+    border-radius: 14px;
+    overflow: hidden;
 }
-.table-modern thead tr {
-  background: linear-gradient(90deg, #198754 0%, #28a745 100%);
-  color: #fff;
-  text-align: center;
-}
-.table-modern th a {
-  text-decoration: none;
-  font-weight: 600;
-}
+
+/* 🔥 Alinhar tudo ao centro (thead + tbody) */
+.table-modern th, 
 .table-modern td {
-  text-align: center;
-  vertical-align: middle;
+    text-align: center !important;
+    vertical-align: middle !important;
 }
+
+.table-modern thead tr {
+    background: #f0f2f5;
+    font-weight: 700;
+    color: #198754;
+}
+
+.table-modern tbody tr:hover {
+    background: #f8f9fa;
+}
+
 .badge-prio {
-  padding: 6px 10px;
-  border-radius: 8px;
-  font-weight: 600;
-  color: #fff;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-weight: 600;
+    color: #fff;
 }
+
+/* Cores Manchester */
 .badge-Vermelho { background-color: #dc3545; }
 .badge-Laranja  { background-color: #fd7e14; }
 .badge-Amarelo  { background-color: #ffc107; color:#000; }
 .badge-Verde    { background-color: #198754; }
 .badge-Azul     { background-color: #0d6efd; }
+
 .btn-action {
-  border-radius: 10px;
-  padding: 6px 10px;
-  margin: 0 2px;
-  font-size: 14px;
+    padding: 6px 10px;
+    border-radius: 10px;
+    color: white;
 }
-.btn-view { background:#0d6efd; color:#fff; }
-.btn-edit { background:#198754; color:#fff; }
-.btn-delete { background:#dc3545; color:#fff; }
-.btn-action:hover { opacity: .85; }
+.btn-view { background:#0d6efd; }
+.btn-edit { background:#198754; }
+.btn-delete { background:#dc3545; }
+
 .btn-new {
-  background: linear-gradient(90deg, #198754 0%, #28a745 100%);
-  color: #fff;
-  font-weight: 600;
-  padding: 10px 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(25,135,84,0.3);
-  transition: 0.2s;
+    background: #198754;
+    color:#fff;
+    padding:10px 18px;
+    border-radius:12px;
+    font-weight:600;
 }
-.btn-new:hover {
-  opacity: .9;
-  transform: translateY(-2px);
-}
+.btn-new:hover { opacity:.9; }
 ');
+
 ?>
 
 <div class="pulseira-index">
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <h1 class="mb-0"><i class="bi bi-upc-scan me-2"></i><?= Html::encode($this->title) ?></h1>
-        <?= Html::a('<i class="bi bi-plus-circle me-1"></i> Nova Pulseira', ['create'], ['class' => 'btn btn-new']) ?>
+
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="page-title"><i class="bi bi-upc-scan"></i> Pulseiras</h1>
+
+        <?= Html::a('<i class="bi bi-plus-circle me-1"></i> Nova Pulseira', ['create'], [
+                'class' => 'btn-new'
+        ]) ?>
     </div>
 
-    <div class="card-table">
+    <!-- SEARCH + TABLE CARD -->
+    <div class="card-box">
+
+        <!-- Filtros estilo Prescrições -->
+        <div class="mb-3">
+            <?= $this->render('_search', ['model' => $searchModel]) ?>
+        </div>
+
         <?php Pjax::begin(); ?>
+
         <?= GridView::widget([
                 'dataProvider' => $dataProvider,
-                'filterModel' => $searchModel,
                 'tableOptions' => ['class' => 'table table-striped table-modern align-middle'],
                 'columns' => [
+
                         ['class' => 'yii\grid\SerialColumn', 'header' => '#'],
 
                         [
@@ -103,78 +115,75 @@ $this->registerCss('
                                 'label' => 'ID',
                                 'headerOptions' => ['style' => 'width:70px;'],
                         ],
+
                         [
                                 'attribute' => 'codigo',
                                 'label' => 'Código da Pulseira',
                         ],
+
                         [
                                 'attribute' => 'prioridade',
                                 'label' => 'Prioridade',
                                 'format' => 'raw',
-                                'value' => function ($model) {
-                                    $cor = $model->prioridade ?? '-';
-                                    return $cor ? "<span class='badge-prio badge-{$cor}'>{$cor}</span>" : '-';
-                                },
-                                'filter' => [
-                                        'Vermelho' => 'Vermelho',
-                                        'Laranja'  => 'Laranja',
-                                        'Amarelo'  => 'Amarelo',
-                                        'Verde'    => 'Verde',
-                                        'Azul'     => 'Azul',
-                                ],
+                                'value' => function ($m) {
+                                    if (!$m->prioridade) {
+                                        return "<span class='text-secondary'>—</span>";
+                                    }
+                                    return "<span class='badge-prio badge-{$m->prioridade}'>{$m->prioridade}</span>";
+                                }
                         ],
+
                         [
                                 'attribute' => 'tempoentrada',
-                                'label' => 'Tempo de Entrada',
+                                'label' => 'Entrada',
                                 'format' => ['datetime', 'php:d/m/Y H:i'],
-                                'headerOptions' => ['style' => 'min-width:160px;'],
                         ],
+
                         [
-                                'attribute' => 'userprofile_id',
                                 'label' => 'Paciente',
-                                'value' => fn($model) => $model->userprofile->nome ?? '—',
+                                'value' => fn($m) => $m->userprofile->nome ?? '—'
                         ],
+
                         [
-                                'attribute' => 'triagem_id',
                                 'label' => 'Triagem',
-                                'value' => fn($model) => $model->triagem->motivoconsulta ?? '—',
+                                'value' => fn($m) => $m->triagem->motivoconsulta ?? '—'
                         ],
+
                         [
                                 'attribute' => 'status',
-                                'label' => 'Estado',
-                                'value' => function ($model) {
-                                    return match ($model->status) {
+                                'value' => function ($m) {
+                                    return match ($m->status) {
                                         'Em espera' => '⏳ A aguardar Atendimento',
-                                        'Atendida'   => '✅ Atendida',
-                                        'Encerrada'  => '❌ Encerrada',
-                                        default => Html::encode($model->status),
+                                        'Em atendimento' => '🩺 Em Atendimento',
+                                        'Atendido' => '✅ Atendido',
+                                        default => $m->status
                                     };
-                                },
+                                }
                         ],
+
                         [
                                 'class' => 'yii\grid\ActionColumn',
                                 'header' => 'Ações',
                                 'template' => '{view} {update} {delete}',
-                                'contentOptions' => ['style' => 'white-space:nowrap; text-align:center;'],
+                                'contentOptions' => ['style' => 'text-align:center;'],
                                 'buttons' => [
-                                        'view' => fn($url) => Html::a('<i class="bi bi-eye"></i>', $url, [
-                                                'class' => 'btn-action btn-view',
-                                                'title' => 'Ver'
-                                        ]),
-                                        'update' => fn($url) => Html::a('<i class="bi bi-pencil"></i>', $url, [
-                                                'class' => 'btn-action btn-edit',
-                                                'title' => 'Editar'
-                                        ]),
-                                        'delete' => fn($url) => Html::a('<i class="bi bi-trash"></i>', $url, [
-                                                'class' => 'btn-action btn-delete',
-                                                'title' => 'Eliminar',
-                                                'data-confirm' => 'Tens a certeza que queres eliminar esta pulseira?',
-                                                'data-method' => 'post',
+                                        'view' => fn($url) =>
+                                        Html::a('<i class="bi bi-eye"></i>', $url, ['class'=>'btn-action btn-view']),
+
+                                        'update' => fn($url) =>
+                                        Html::a('<i class="bi bi-pencil"></i>', $url, ['class'=>'btn-action btn-edit']),
+
+                                        'delete' => fn($url) =>
+                                        Html::a('<i class="bi bi-trash"></i>', $url, [
+                                                'class'=>'btn-action btn-delete',
+                                                'data-confirm'=>'Tens a certeza?',
+                                                'data-method'=>'post'
                                         ]),
                                 ],
                         ],
                 ],
-        ]); ?>
+        ]) ?>
+
         <?php Pjax::end(); ?>
     </div>
 </div>

@@ -48,37 +48,45 @@ class ConsultaController extends Controller
 
     /**
      * =============================================
-     *      🚀 CRIAR CONSULTA
+     * 🚀 CRIAR CONSULTA
      * =============================================
      */
     public function actionCreate()
     {
         $model = new Consulta();
 
-        // 🔹 Obter triagens com pulseira associada
+        // 🔹 Triagens que já têm pulseira atribuída (pacientes válidos p/ consulta)
         $triagensDisponiveis = ArrayHelper::map(
             Triagem::find()
                 ->joinWith('pulseira')
                 ->where(['not', ['pulseira.id' => null]])
                 ->all(),
             'id',
-            function ($t) {
-                return 'Pulseira: ' . ($t->pulseira->codigo ?? '-');
-            }
+            fn($t) => 'Pulseira: ' . ($t->pulseira->codigo ?? '—')
         );
 
         if ($model->load(Yii::$app->request->post())) {
 
-            // 🔥 Atribui automaticamente a data e hora atuais
+            // 🔥 data atual da consulta
             $model->data_consulta = date('Y-m-d H:i:s');
 
-            // 🔥 Estado inicial SEMPRE “Em curso”
+            // 🔥 estado inicial
             $model->estado = Consulta::ESTADO_EM_CURSO;
 
-            // 🔥 Data de encerramento obrigatoriamente nula ao criar
+            // 🔥 data de encerramento não pode existir ao criar
             $model->data_encerramento = null;
 
             if ($model->save(false)) {
+
+                /**
+                 * ⭐ AO CRIAR CONSULTA -> PULSEIRA FICA "EM ATENDIMENTO"
+                 */
+                if ($model->triagem && $model->triagem->pulseira) {
+                    $pulseira = $model->triagem->pulseira;
+                    $pulseira->status = "Em atendimento";
+                    $pulseira->save(false);
+                }
+
                 Yii::$app->session->setFlash('success', 'Consulta criada com sucesso!');
                 return $this->redirect(['index']);
             }
@@ -113,26 +121,46 @@ class ConsultaController extends Controller
 
     /**
      * =============================================
-     *      ✏ EDITAR CONSULTA
+     * ✏ EDITAR CONSULTA
      * =============================================
      */
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
 
+        $estadoAntigo = $model->estado;
+
         if ($model->load(Yii::$app->request->post())) {
 
-            // 🔹 Se estado voltar a "Em curso", remover data de encerramento
+            // 🔹 Se voltar para "Em curso", limpar data encerramento
             if ($model->estado === Consulta::ESTADO_EM_CURSO) {
                 $model->data_encerramento = null;
             }
 
-            // 🔹 Se marcada como encerrada e sem data → gerar timestamp
+            // 🔹 Se for encerrada e ainda sem data → gerar
             if ($model->estado === Consulta::ESTADO_ENCERRADA && empty($model->data_encerramento)) {
                 $model->data_encerramento = date('Y-m-d H:i:s');
             }
 
             if ($model->save(false)) {
+
+                /**
+                 * ⭐ ATUALIZAÇÃO DO ESTADO DA PULSEIRA
+                 * -----------------------------------
+                 * Se consulta muda para "Encerrada" → pulseira vira "Atendido"
+                 */
+                if ($model->triagem && $model->triagem->pulseira) {
+                    $pulseira = $model->triagem->pulseira;
+
+                    if ($model->estado === Consulta::ESTADO_ENCERRADA) {
+                        $pulseira->status = "Atendido";
+                    } else {
+                        $pulseira->status = "Em atendimento";
+                    }
+
+                    $pulseira->save(false);
+                }
+
                 Yii::$app->session->setFlash('success', 'Consulta atualizada com sucesso!');
                 return $this->redirect(['view', 'id' => $model->id]);
             }
@@ -145,7 +173,7 @@ class ConsultaController extends Controller
 
     /**
      * =============================================
-     *      ❌ APAGAR CONSULTA
+     * ❌ APAGAR CONSULTA
      * =============================================
      */
     public function actionDelete($id)

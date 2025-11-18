@@ -1,11 +1,13 @@
 <?php
+
 namespace backend\modules\api\controllers;
 
-use yii\filters\auth\QueryParamAuth;
-use yii\rest\ActiveController;
 use Yii;
-use yii\web\Response;
-use yii\web\UnauthorizedHttpException;
+use yii\rest\ActiveController;
+use yii\filters\auth\QueryParamAuth;
+use yii\web\NotFoundHttpException;
+use yii\web\ForbiddenHttpException; 
+
 
 class UserController extends ActiveController
 {
@@ -17,53 +19,139 @@ class UserController extends ActiveController
     {
         $behaviors = parent::behaviors();
         unset($behaviors['authenticator']);
-        $behaviors['contentNegotiator']['formats']['text/html'] = Response::FORMAT_JSON;
+        $behaviors['contentNegotiator']['formats']['text/html'] = \yii\web\Response::FORMAT_JSON;
         $behaviors['authenticator'] = [
             'class' => QueryParamAuth::class,
-            'tokenParam' => 'auth_key', // parâmetro da URL
+            'tokenParam' => 'auth_key',
         ];
-
         return $behaviors;
     }
 
-    public function beforeAction($action)
-    {
-        Yii::$app->response->format = Response::FORMAT_JSON;
-
-        if (Yii::$app->user->isGuest) {
-            throw new UnauthorizedHttpException('Acesso negado. Faça login primeiro.');
-        }
-
-        return parent::beforeAction($action);
-    }
-
-    // ✅ Sobrescreve a listagem para formatar o JSON
     public function actions()
     {
         $actions = parent::actions();
-
-        // Remove o index original para personalizar
-        unset($actions['index'], $actions['view']);
-
+        
+        unset($actions['index'], $actions['view'], $actions['create']);
         return $actions;
     }
 
+    /**
+     * Esta função é o "segurança" para as ações de escrita.
+     * @param string 
+     * @param \yii\base\Model 
+     * @param array 
+     * @throws ForbiddenHttpException 
+     */
+    public function checkAccess($action, $model = null, $params = [])
+    {
+        if ($action === 'update' || $action === 'delete') {
+            if (!Yii::$app->user->can('admin')) {
+                // ...lança um erro 403 (Proibido).
+                throw new ForbiddenHttpException("Apenas administradores podem executar esta ação.");
+            }
+        }
+    }
+
+
+    public function actionCreate()
+    {
+        if (!Yii::$app->user->can('admin')) {
+            throw new ForbiddenHttpException("Apenas administradores podem criar utilizadores.");
+        }
+
+        // Lógica de criar User + UserProfile
+        // (Isto é um exemplo básico, precisa da sua lógica do SignupForm aqui)
+        
+        $request = Yii::$app->getRequest();
+        $params = $request->getBodyParams();
+
+        $user = new \common\models\User();
+        $user->username = $params['username'];
+        $user->email = $params['email'];
+        $user->setPassword($params['password']); 
+        $user->generateAuthKey();
+        $user->status = 10; 
+
+        if (!$user->save()) {
+            Yii::$app->response->statusCode = 422; 
+            return ['errors' => $user->getErrors()];
+        }
+
+        $profile = new \common\models\UserProfile();
+        $profile->user_id = $user->id;
+        $profile->nome = $params['nome'];
+        $profile->email = $user->email;
+        $profile->nif = $params['nif'];
+        $profile->sns = $params['sns'];
+        $profile->datanascimento = $params['datanascimento'];
+        $profile->genero = $params['genero'];
+        $profile->telefone = $params['telefone'];
+        
+        if (!$profile->save()) {
+            // Se o perfil falhar, apaga o user que acabámos de criar (rollback)
+            $user->delete();
+            Yii::$app->response->statusCode = 422;
+            return ['errors' => $profile->getErrors()];
+        }
+        
+        $auth = Yii::$app->authManager;
+        $role = $auth->getRole($params['role'] ?? 'paciente'); // Tenta ler a role do JSON, ou 'paciente' por defeito
+        if ($role) {
+            $auth->assign($role, $user->id);
+        }
+
+        Yii::$app->response->statusCode = 201; // 201 Created
+        return $profile;
+    }
+
+    /**
+     * Lista perfis. (GET /api/user)
+     * - Se for Admin, lista TODOS.
+     * - Se for Paciente, lista SÓ O SEU.
+     */
     public function actionIndex()
     {
-        $users = \common\models\UserProfile::find()->asArray()->all();
-
-        return [
-            'Total de utilizadores' => count($users),
-            'Data' => $users,
-        ];
-    }
-    public function actionView($id) {
-        $user = \common\models\UserProfile::find()->asArray()->where(['id' => $id])->one();
-        if(!$user) {
-            throw new \yii\web\NotFoundHttpException("Utilizador com ID {$id} não encontrado.");
+        if (Yii::$app->user->can('admin')) {
+            $profiles = \common\models\UserProfile::find()->asArray()->all();
+            return [
+                'Total de perfis' => count($profiles),
+                'Data' => $profiles,
+            ];
+        } else {
+            $loggedInUserId = Yii::$app->user->id;
+            $profile = \common\models\UserProfile::find()
+                ->where(['user_id' => $loggedInUserId])
+                ->asArray()
+                ->one();
+            
+            if (!$profile) {
+                throw new NotFoundHttpException("Não foi encontrado um perfil para o utilizador logado.");
+            }
+            return $profile;
         }
-        return [
-            'Data' => $user,
-        ];
+    }
+
+    /**
+     * Vê um perfil. (GET /api/user/<id>)
+     * - Se for Admin, pode ver QUALQUER ID.
+     * - Se for Paciente, pode ver SÓ O SEU ID.
+     */
+    public function actionView($id) 
+    {
+        $loggedInUserId = Yii::$app->user->id;
+        $profile = \common\models\UserProfile::find()
+            ->where(['id' => $id]) // 'id' é o ID do perfil
+            ->asArray()
+            ->one();
+            
+        if(!$profile) {
+            throw new NotFoundHttpException("Perfil com ID {$id} não encontrado.");
+        }
+
+        if (!Yii::$app->user->can('admin') && $profile['user_id'] != $loggedInUserId) {
+            throw new ForbiddenHttpException("Não tem permissão para ver este perfil.");
+        }
+        
+        return $profile;
     }
 }

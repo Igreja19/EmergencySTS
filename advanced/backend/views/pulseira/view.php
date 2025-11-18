@@ -53,6 +53,16 @@ $this->registerCss('
 .detail-view td {
   color: #333;
 }
+
+.triagem-title {
+  color:#198754;
+  font-weight:700;
+  font-size:22px;
+  margin-bottom:15px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
 ');
 ?>
 
@@ -63,6 +73,9 @@ $this->registerCss('
             <?= Html::a('<i class="bi bi-arrow-left-circle me-1"></i> Voltar', ['index'], ['class' => 'btn btn-back']) ?>
         </div>
 
+        <!-- ================================
+             DETALHES DA PULSEIRA
+        ================================= -->
         <?= DetailView::widget([
                 'model' => $model,
                 'attributes' => [
@@ -92,8 +105,8 @@ $this->registerCss('
                                 'value' => function ($model) {
                                     return match ($model->status) {
                                         'Em espera' => '⏳ A aguardar Atendimento',
-                                        'Atendida'   => '✅ Atendida',
-                                        'Encerrada'  => '❌ Encerrada',
+                                        'Em atendimento' => '🩺 Em Atendimento',
+                                        'Atendido' => '✅ Atendido',
                                         default => Html::encode($model->status),
                                     };
                                 },
@@ -106,11 +119,49 @@ $this->registerCss('
                                 'label' => 'Triagem Associada',
                                 'format' => 'html',
                                 'value' => $model->triagem
-                                        ? Html::a('Ver Triagem #' . $model->triagem->id, ['triagem/view', 'id' => $model->triagem->id], ['class' => 'text-success fw-semibold'])
+                                        ? Html::a(
+                                                'Ver Triagem #' . $model->triagem->id,
+                                                ['triagem/view', 'id' => $model->triagem->id],
+                                                ['class' => 'text-success fw-semibold']
+                                        )
                                         : '—',
                         ],
                 ],
         ]) ?>
+
+        <!-- ================================
+             DADOS COMPLETOS DA TRIAGEM
+        ================================= -->
+        <?php if ($model->triagem): ?>
+            <hr class="my-4">
+
+            <h4 class="triagem-title">
+                <i class="bi bi-clipboard-pulse"></i>
+                Dados da Triagem
+            </h4>
+
+            <?= DetailView::widget([
+                    'model' => $model->triagem,
+                    'attributes' => [
+                            'id',
+                            [
+                                    'attribute' => 'datatriagem',
+                                    'label' => 'Data da Triagem',
+                                    'format' => ['datetime', 'php:d/m/Y H:i']
+                            ],
+                            'motivoconsulta',
+                            'queixaprincipal',
+                            'descricaosintomas:ntext',
+                            'iniciosintomas',
+                            'alergias:ntext',
+                            'medicacao:ntext',
+                            [
+                                    'label' => 'Paciente',
+                                    'value' => $model->triagem->userprofile->nome ?? '—'
+                            ],
+                    ],
+            ]) ?>
+        <?php endif; ?>
 
         <div class="mt-4 text-center">
             <?= Html::a('<i class="bi bi-pencil-square me-1"></i> Editar', ['update', 'id' => $model->id], ['class' => 'btn btn-warning text-white me-2']) ?>

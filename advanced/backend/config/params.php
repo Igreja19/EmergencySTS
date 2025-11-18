@@ -1,4 +1,4 @@
 <?php
 return [
-    'adminEmail' => 'admin@example.com',
+    'frontendUrl' => 'http://localhost/EmergencySTS/advanced/frontend/web',
 ];

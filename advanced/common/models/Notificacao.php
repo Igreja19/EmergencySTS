@@ -35,7 +35,8 @@ class Notificacao extends ActiveRecord
             [['titulo'], 'string', 'max' => 150],
             [['tipo'], 'in', 'range' => ['Consulta', 'Prioridade', 'Geral']],
             [
-                ['userprofile_id'], 'exist',
+                ['userprofile_id'],
+                'exist',
                 'skipOnError' => true,
                 'targetClass' => UserProfile::class,
                 'targetAttribute' => ['userprofile_id' => 'id']
@@ -78,8 +79,7 @@ class Notificacao extends ActiveRecord
     }
 
     /**
-     * 🔥 FORMATO PARA API / JSON
-     * Facilita Android + front-end + backend
+     * 🔥 FORMATO JSON PARA API / MOBILE
      */
     public function fields()
     {
@@ -94,7 +94,7 @@ class Notificacao extends ActiveRecord
     }
 
     /**
-     * 🔥 Notificações não lidas do utilizador autênticado
+     * 🔥 Contar notificações não lidas do utilizador autenticado
      */
     public static function countNaoLidas()
     {
@@ -109,6 +109,9 @@ class Notificacao extends ActiveRecord
             ->count();
     }
 
+    /**
+     * 🔥 Contar notificações só do dia de hoje
+     */
     public static function countHoje()
     {
         if (Yii::$app->user->isGuest || !Yii::$app->user->identity->userprofile) {
@@ -125,6 +128,9 @@ class Notificacao extends ActiveRecord
             ->count();
     }
 
+    /**
+     * 🔥 Contar todas as notificações
+     */
     public static function countTotal()
     {
         if (Yii::$app->user->isGuest || !Yii::$app->user->identity->userprofile) {

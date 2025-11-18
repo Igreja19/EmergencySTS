@@ -4,84 +4,92 @@ namespace common\models;
 
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use common\models\Triagem;
 use yii\db\Expression;
 
-/**
- * TriagemSearch representa o modelo de pesquisa para `common\models\Triagem`.
- */
 class TriagemSearch extends Triagem
 {
-    /**
-     * {@inheritdoc}
-     */
     public function rules()
     {
         return [
             [['id', 'intensidadedor', 'userprofile_id', 'pulseira_id'], 'integer'],
-            [['motivoconsulta', 'queixaprincipal', 'descricaosintomas', 'iniciosintomas', 'alergias', 'medicacao', 'datatriagem'], 'safe'],
+            [
+                [
+                    'motivoconsulta',
+                    'queixaprincipal',
+                    'descricaosintomas',
+                    'iniciosintomas',
+                    'alergias',
+                    'medicacao',
+                    'datatriagem'
+                ],
+                'safe'
+            ],
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function scenarios()
     {
         return Model::scenarios();
     }
 
-    /**
-     * Cria um DataProvider com a query de pesquisa aplicada.
-     *
-     * @param array $params
-     * @return ActiveDataProvider
-     */
     public function search($params)
     {
-        // Faz join com as tabelas relacionadas
-        $query = Triagem::find()->joinWith(['userprofile', 'pulseira']);
+        // JOIN com userprofile e pulseira
+        $query = Triagem::find()
+            ->joinWith(['userprofile', 'pulseira']);
 
-        // DataProvider padrão
+        // 🔥 MOSTRAR APENAS TRIAGENS SEM PULSEIRA
+        $query->andWhere(['triagem.pulseira_id' => null]);
+
+        // DATAPROVIDER
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'pagination' => [
+                'pageSize' => 10,
+            ]
         ]);
 
-        // === Ordenação personalizada ===
+        // ORDENAR POR PRIORIDADE
         $dataProvider->sort->attributes['prioridade'] = [
-            'asc' => [new Expression("FIELD(pulseira.prioridade, 'Azul', 'Verde', 'Amarelo', 'Laranja', 'Vermelho') ASC")],
-            'desc' => [new Expression("FIELD(pulseira.prioridade, 'Vermelho', 'Laranja', 'Amarelo', 'Verde', 'Azul') ASC")],
+            'asc' => [
+                new Expression("FIELD(pulseira.prioridade, 'Azul','Verde','Amarelo','Laranja','Vermelho')")
+            ],
+            'desc' => [
+                new Expression("FIELD(pulseira.prioridade, 'Vermelho','Laranja','Amarelo','Verde','Azul')")
+            ],
         ];
 
-        // Ordenação padrão (últimos primeiro)
-        $dataProvider->setSort([
-            'defaultOrder' => ['id' => SORT_DESC],
-        ]);
+        // ORDEM PADRÃO
+        $dataProvider->sort->defaultOrder = ['datatriagem' => SORT_DESC];
 
+        // Carrega parâmetros
         $this->load($params);
 
         if (!$this->validate()) {
             return $dataProvider;
         }
 
-        // === Filtros ===
+        // FILTROS EXATOS
         $query->andFilterWhere([
-            'id' => $this->id,
+            'triagem.id'     => $this->id,
             'intensidadedor' => $this->intensidadedor,
-            'userprofile_id' => $this->userprofile_id,
-            'pulseira_id' => $this->pulseira_id,
+            'userprofile_id' => $this->userprofile_id
         ]);
 
-        // Filtros textuais
+        // FILTROS LIKE
         $query->andFilterWhere(['like', 'motivoconsulta', $this->motivoconsulta])
             ->andFilterWhere(['like', 'queixaprincipal', $this->queixaprincipal])
             ->andFilterWhere(['like', 'descricaosintomas', $this->descricaosintomas])
             ->andFilterWhere(['like', 'alergias', $this->alergias])
             ->andFilterWhere(['like', 'medicacao', $this->medicacao]);
 
-        // Filtro por data
+        // FILTRO DE DATA
         if (!empty($this->datatriagem)) {
-            $query->andFilterWhere(['like', 'datatriagem', $this->datatriagem]);
+
+            $inicio = $this->datatriagem . ' 00:00:00';
+            $fim    = $this->datatriagem . ' 23:59:59';
+
+            $query->andFilterWhere(['between', 'datatriagem', $inicio, $fim]);
         }
 
         return $dataProvider;

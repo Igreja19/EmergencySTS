@@ -2,133 +2,98 @@
 
 namespace backend\controllers;
 
+use Yii;
 use common\models\Notificacao;
-use common\models\NotificacaoSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
-/**
- * NotificacaoController implements the CRUD actions for Notificacao model.
- */
 class NotificacaoController extends Controller
 {
-    /**
-     * @inheritDoc
-     */
     public function behaviors()
     {
-        return array_merge(
-            parent::behaviors(),
-            [
-                'verbs' => [
-                    'class' => VerbFilter::className(),
-                    'actions' => [
-                        'delete' => ['POST'],
-                    ],
+        return [
+            'verbs' => [
+                'class' => VerbFilter::class,
+                'actions' => [
+                    'lida'      => ['POST', 'GET'],
+                    'ler-todas' => ['POST', 'GET'],
                 ],
-            ]
-        );
+            ],
+        ];
     }
 
-    /**
-     * Lists all Notificacao models.
-     *
-     * @return string
-     */
     public function actionIndex()
     {
-        $searchModel = new NotificacaoSearch();
-        $dataProvider = $searchModel->search($this->request->queryParams);
+        if (Yii::$app->user->isGuest || !Yii::$app->user->identity->userprofile) {
+            return $this->redirect(['site/login']);
+        }
+
+        $userId = Yii::$app->user->identity->userprofile->id;
 
         return $this->render('index', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
+            'naoLidas' => Notificacao::find()->where([
+                'userprofile_id' => $userId, 'lida' => 0
+            ])->orderBy(['dataenvio' => SORT_DESC])->all(),
+
+            'todas' => Notificacao::find()->where([
+                'userprofile_id' => $userId
+            ])->orderBy(['dataenvio' => SORT_DESC])->all(),
         ]);
     }
 
-    /**
-     * Displays a single Notificacao model.
-     * @param int $id ID
-     * @return string
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    public function actionView($id)
+    public function actionLida($id)
     {
-        return $this->render('view', [
-            'model' => $this->findModel($id),
-        ]);
-    }
+        $n = Notificacao::findOne($id);
+        if (!$n) throw new NotFoundHttpException("Notificação não encontrada.");
+        if ($n->userprofile_id != Yii::$app->user->identity->userprofile->id)
+            throw new NotFoundHttpException("Acesso negado.");
 
-    /**
-     * Creates a new Notificacao model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return string|\yii\web\Response
-     */
-    public function actionCreate()
-    {
-        $model = new Notificacao();
-
-        if ($this->request->isPost) {
-            if ($model->load($this->request->post()) && $model->save()) {
-                return $this->redirect(['view', 'id' => $model->id]);
-            }
-        } else {
-            $model->loadDefaultValues();
-        }
-
-        return $this->render('create', [
-            'model' => $model,
-        ]);
-    }
-
-    /**
-     * Updates an existing Notificacao model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param int $id ID
-     * @return string|\yii\web\Response
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    public function actionUpdate($id)
-    {
-        $model = $this->findModel($id);
-
-        if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        }
-
-        return $this->render('update', [
-            'model' => $model,
-        ]);
-    }
-
-    /**
-     * Deletes an existing Notificacao model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param int $id ID
-     * @return \yii\web\Response
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    public function actionDelete($id)
-    {
-        $this->findModel($id)->delete();
+        $n->lida = 1;
+        $n->save(false);
 
         return $this->redirect(['index']);
     }
 
-    /**
-     * Finds the Notificacao model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param int $id ID
-     * @return Notificacao the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    protected function findModel($id)
+    public function actionLerTodas()
     {
-        if (($model = Notificacao::findOne(['id' => $id])) !== null) {
-            return $model;
+        $userId = Yii::$app->user->identity->userprofile->id;
+
+        Notificacao::updateAll(['lida' => 1], [
+            'userprofile_id' => $userId,
+            'lida' => 0
+        ]);
+
+        return $this->redirect(['index']);
+    }
+
+    public function actionStream()
+    {
+        if (Yii::$app->user->isGuest || !Yii::$app->user->identity->userprofile) {
+            return;
         }
 
-        throw new NotFoundHttpException('The requested page does not exist.');
+        $userId = Yii::$app->user->identity->userprofile->id;
+
+        header('Content-Type: text/event-stream');
+        header('Cache-Control: no-cache');
+        header('Connection: keep-alive');
+
+        while (true) {
+
+            $notificacoes = Notificacao::find()
+                ->where(['userprofile_id' => $userId, 'lida' => 0])
+                ->orderBy(['dataenvio' => SORT_DESC])
+                ->limit(5)
+                ->asArray()
+                ->all();
+
+            echo "data: " . json_encode($notificacoes) . "\n\n";
+
+            ob_flush();
+            flush();
+
+            usleep(500000); // 0.5 segundos
+        }
     }
 }

@@ -89,4 +89,8 @@ class Triagem extends \yii\db\ActiveRecord
     {
         return $this->hasOne(UserProfile::class, ['id' => 'userprofile_id']);
     }
+    public function getConsulta()
+    {
+        return $this->hasOne(\common\models\Consulta::class, ['triagem_id' => 'id']);
+    }
 }
