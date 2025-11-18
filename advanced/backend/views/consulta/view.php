@@ -1,173 +1,182 @@
 <?php
 
 use yii\helpers\Html;
-use yii\widgets\DetailView;
 
 $this->title = 'Consulta #' . $model->id;
 $this->params['breadcrumbs'][] = ['label' => 'Consultas', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 
-$this->registerCss('
-.view-box {
+$this->registerCss("
+.consulta-box {
     background: #fff;
-    border-radius: 18px;
     padding: 30px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    border-radius: 18px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.06);
+    max-width: 950px;
+    margin: 0 auto;
 }
-
-.title-header {
+.section-title {
+    font-size: 18px;
+    font-weight: 600;
     color: #198754;
-    font-size: 26px;
-    font-weight: 700;
-    display:flex;
-    align-items:center;
-    gap:10px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
-
-.btn-back {
-    background:#198754;
-    padding:10px 18px;
-    color:white;
-    border-radius:12px;
-    font-weight:600;
+.label-col {
+    width: 240px;
+    color: #198754;
+    font-weight: 600;
 }
-.btn-back:hover { opacity:.9; }
-
-.table-detail th {
-    width:230px;
-    background:#f5f5f5 !important;
-    color:#198754;
-    font-weight:600;
-    border-bottom:1px solid #eee !important;
+.value-col {
+    color: #333;
 }
-.table-detail td {
-    background:#fafafa;
-    border-bottom:1px solid #eee !important;
-    font-size:15px;
-}
-
 .badge-estado {
-    padding:6px 12px;
-    border-radius:6px;
-    font-weight:600;
-    color:#fff;
-    display:inline-block;
+    padding: 6px 12px;
+    border-radius: 8px;
+    color: #fff;
+    font-weight: 600;
 }
-
-.badge-Em\\ curso { background:#0d6efd; }
-.badge-Encerrada { background:#dc3545; }
-
-.prescricao-box {
-    margin-top:25px;
-    background:#fff;
-    border-radius:15px;
-    padding:20px;
-    box-shadow:0 3px 10px rgba(0,0,0,0.06);
-}
-');
+.badge-Em\\ curso { background: #0d6efd; }
+.badge-Encerrada { background: #dc3545; }
+");
 
 ?>
 
-<div class="view-box">
+<div class="consulta-box">
 
-    <!-- Cabeçalho -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="title-header">
-            <i class="bi bi-journal-medical"></i>
-            <?= Html::encode($this->title) ?>
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="fw-bold text-success d-flex align-items-center">
+            <i class="bi bi-journal-medical me-2"></i> <?= Html::encode($this->title) ?>
         </h3>
 
-        <?= Html::a('<i class="bi bi-arrow-left"></i> Voltar', ['index'], ['class' => 'btn-back']) ?>
+        <div>
+            <?= Html::a('<i class="bi bi-pencil-square me-1"></i> Editar',
+                    ['update', 'id' => $model->id],
+                    ['class' => 'btn btn-success rounded-4 px-4']) ?>
+
+            <?= Html::a('<i class="bi bi-arrow-left me-1"></i> Voltar',
+                    ['index'],
+                    ['class' => 'btn btn-outline-success rounded-4 px-4 ms-2']) ?>
+        </div>
     </div>
 
-    <!-- Detalhes da Consulta -->
-    <?= DetailView::widget([
-            'model' => $model,
-            'options' => ['class' => 'table table-bordered table-detail'],
-            'attributes' => [
-                    'id',
-                    [
-                            'attribute' => 'data_consulta',
-                            'format' => ['datetime', 'php:d/m/Y H:i']
-                    ],
+    <hr>
 
-                    [
-                            'attribute' => 'estado',
-                            'format' => 'raw',
-                            'value' => function ($model) {
-                                return "<span class='badge-estado badge-{$model->estado}'>" . ucfirst($model->estado) . "</span>";
-                            }
-                    ],
+    <!-- ======================== -->
+    <!-- DADOS DA CONSULTA -->
+    <!-- ======================== -->
+    <div class="mb-4">
+        <div class="section-title">
+            <i class="bi bi-clipboard2-pulse"></i> Dados da Consulta
+        </div>
 
-                    'observacoes:ntext',
-
-                    [
-                            'label' => 'Paciente',
-                            'value' => $model->userprofile->nome ?? '-'
-                    ],
-
-                    [
-                            'label' => 'Triagem',
-                            'format' => 'html',
-                            'value' => Html::a(
-                                    'Ver Triagem #' . $model->triagem->id,
-                                    ['triagem/view', 'id' => $model->triagem->id],
-                                    ['class' => 'text-success fw-bold']
-                            )
-                    ],
-
-                    [
-                            'label' => 'Pulseira',
-                            'format' => 'html',
-                            'value' => $model->triagem && $model->triagem->pulseira
-                                    ? Html::a(
-                                            $model->triagem->pulseira->codigo,
-                                            ['pulseira/view', 'id' => $model->triagem->pulseira->id],
-                                            ['class' => 'text-success fw-bold']
-                                    )
-                                    : '-'
-                    ],
-
-                    [
-                            'attribute' => 'data_encerramento',
-                            'format' => ['datetime', 'php:d/m/Y H:i'],
-                            'value' => $model->data_encerramento ?? '-'
-                    ],
-
-                    'relatorio_pdf',
-            ]
-    ]) ?>
-
-</div>
-
-<!-- ==========================
-       PRESCRIÇÕES
-========================== -->
-<div class="prescricao-box">
-
-    <h4 class="text-success fw-bold mb-3">
-        <i class="bi bi-capsule-pill"></i> Prescrições
-    </h4>
-
-    <?php if (empty($model->prescricaos)): ?>
-
-        <p class="text-muted">Nenhuma prescrição disponível.</p>
-
-    <?php else: ?>
-
-        <?php foreach ($model->prescricaos as $p): ?>
-
-            <div class="border rounded p-3 mb-2 d-flex justify-content-between">
-                <div>
-                    <strong>Prescrição #<?= $p->id ?></strong><br>
-                    <?= $p->tipo ?? 'Sem tipo' ?>
-                </div>
-
-                <?= Html::a('Ver', ['prescricao/view', 'id' => $p->id], ['class' => 'btn btn-outline-success btn-sm']) ?>
+        <div class="row mb-2">
+            <div class="col label-col">Data da Consulta</div>
+            <div class="col value-col">
+                <?= Yii::$app->formatter->asDatetime($model->data_consulta, 'php:d/m/Y H:i') ?>
             </div>
+        </div>
 
-        <?php endforeach; ?>
+        <div class="row mb-2">
+            <div class="col label-col">Estado</div>
+            <div class="col value-col">
+                <span class="badge-estado badge-<?= $model->estado ?>">
+                    <?= $model->estado ?>
+                </span>
+            </div>
+        </div>
 
-    <?php endif; ?>
+        <div class="row mb-2">
+            <div class="col label-col">Data Encerramento</div>
+            <div class="col value-col">
+                <?= $model->data_encerramento
+                        ? Yii::$app->formatter->asDatetime($model->data_encerramento, 'php:d/m/Y H:i')
+                        : '-' ?>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================== -->
+    <!-- DADOS DO PACIENTE -->
+    <!-- ======================== -->
+    <div class="mb-4">
+        <div class="section-title">
+            <i class="bi bi-person-lines-fill"></i> Dados do Paciente
+        </div>
+
+        <div class="row mb-2">
+            <div class="col label-col">Nome</div>
+            <div class="col value-col"><?= $model->userprofile->nome ?></div>
+        </div>
+
+        <div class="row mb-2">
+            <div class="col label-col">Triagem</div>
+            <div class="col value-col">
+                <?= Html::a(
+                        'Ver Triagem #' . $model->triagem->id,
+                        ['triagem/view', 'id' => $model->triagem->id],
+                        ['class' => 'text-success fw-bold']
+                ) ?>
+            </div>
+        </div>
+
+        <div class="row mb-2">
+            <div class="col label-col">Pulseira</div>
+            <div class="col value-col">
+                <?= $model->triagem->pulseira
+                        ? Html::a(
+                                $model->triagem->pulseira->codigo,
+                                ['pulseira/view', 'id' => $model->triagem->pulseira->id],
+                                ['class' => 'text-success fw-bold']
+                        )
+                        : '-' ?>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================== -->
+    <!-- OBSERVAÇÕES -->
+    <!-- ======================== -->
+    <div class="mb-4">
+        <div class="section-title">
+            <i class="bi bi-journal-text"></i> Observações
+        </div>
+
+        <div class="p-3 rounded border bg-light">
+            <?= nl2br($model->observacoes ?: "<span class='text-muted'>Nenhuma observação.</span>") ?>
+        </div>
+    </div>
+
+    <!-- ======================== -->
+    <!-- PRESCRIÇÕES -->
+    <!-- ======================== -->
+    <div>
+        <div class="section-title">
+            <i class="bi bi-capsule-pill"></i> Prescrições
+        </div>
+
+        <?php if (empty($model->prescricaos)): ?>
+
+            <p class="text-muted">Nenhuma prescrição disponível.</p>
+
+        <?php else: ?>
+
+            <?php foreach ($model->prescricaos as $p): ?>
+                <div class="border rounded p-3 mb-2 d-flex justify-content-between">
+                    <div>
+                        <strong>Prescrição #<?= $p->id ?></strong><br>
+                        <?= $p->tipo ?? 'Sem tipo' ?>
+                    </div>
+
+                    <?= Html::a('Ver', ['prescricao/view', 'id' => $p->id],
+                            ['class' => 'btn btn-outline-success btn-sm']) ?>
+                </div>
+            <?php endforeach; ?>
+
+        <?php endif; ?>
+    </div>
 
 </div>

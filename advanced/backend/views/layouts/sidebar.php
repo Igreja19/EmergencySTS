@@ -16,6 +16,7 @@ $isEnfermeiro = in_array('enfermeiro', $roleNames);
 ?>
 
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
+
     <a href="<?= Url::to(['/site/index']) ?>" class="brand-link">
         <img src="<?= Yii::$app->request->baseUrl ?>/img/logo.png"
              alt="EmergencySTS"
@@ -36,7 +37,7 @@ $isEnfermeiro = in_array('enfermeiro', $roleNames);
                     ],
                     'items' => [
 
-                        // DASHBOARD – todos os funcionários
+                        // DASHBOARD
                             [
                                     'label' => 'Dashboard',
                                     'icon' => 'tachometer-alt',
@@ -45,7 +46,7 @@ $isEnfermeiro = in_array('enfermeiro', $roleNames);
                                     'visible' => !Yii::$app->user->isGuest,
                             ],
 
-                        // UTILIZADORES – só admin
+                        // UTILIZADORES (Admin)
                             [
                                     'label' => 'Utilizadores',
                                     'icon' => 'users',
@@ -54,7 +55,7 @@ $isEnfermeiro = in_array('enfermeiro', $roleNames);
                                     'visible' => $isAdmin,
                             ],
 
-                        // TRIAGEM – admin + enfermeiro
+                        // TRIAGEM
                             [
                                     'label' => 'Triagem',
                                     'icon' => 'stethoscope',
@@ -63,7 +64,7 @@ $isEnfermeiro = in_array('enfermeiro', $roleNames);
                                     'visible' => $isAdmin || $isEnfermeiro,
                             ],
 
-                        // PULSEIRAS – admin + enfermeiro
+                        // PULSEIRAS
                             [
                                     'label' => 'Pulseiras',
                                     'icon' => 'id-card',
@@ -72,16 +73,27 @@ $isEnfermeiro = in_array('enfermeiro', $roleNames);
                                     'visible' => $isAdmin || $isEnfermeiro,
                             ],
 
-                        // CONSULTAS – admin + medico
+                        // CONSULTAS ( agora com submenu )
                             [
                                     'label' => 'Consultas',
                                     'icon' => 'notes-medical',
-                                    'url' => ['/consulta/index'],
                                     'options' => ['class' => 'is-consulta'],
                                     'visible' => $isAdmin || $isMedico,
+                                    'items' => [
+                                            [
+                                                    'label' => 'Todas as Consultas',
+                                                    'icon' => 'angle-right',
+                                                    'url' => ['/consulta/index'],
+                                            ],
+                                            [
+                                                    'label' => 'Histórico',
+                                                    'icon' => 'history text-info',
+                                                    'url' => ['/consulta/historico'],
+                                            ],
+                                    ],
                             ],
 
-                        // PRESCRIÇÕES – admin + medico
+                        // PRESCRIÇÕES
                             [
                                     'label' => 'Prescrições',
                                     'icon' => 'prescription-bottle-alt',
@@ -90,7 +102,7 @@ $isEnfermeiro = in_array('enfermeiro', $roleNames);
                                     'visible' => $isAdmin || $isMedico,
                             ],
 
-                        // MEDICAMENTOS – admin + medico
+                        // MEDICAMENTOS
                             [
                                     'label' => 'Medicamentos',
                                     'icon' => 'capsules',
@@ -99,7 +111,7 @@ $isEnfermeiro = in_array('enfermeiro', $roleNames);
                                     'visible' => $isAdmin || $isMedico,
                             ],
 
-                        // NOTIFICAÇÕES – todos os funcionários
+                        // NOTIFICAÇÕES
                             [
                                     'label' => 'Notificações',
                                     'icon' => 'bell',
@@ -108,7 +120,7 @@ $isEnfermeiro = in_array('enfermeiro', $roleNames);
                                     'visible' => $isAdmin || $isMedico || $isEnfermeiro,
                             ],
 
-                        // PERFIL – todos os funcionários
+                        // PERFIL
                             [
                                     'label' => 'Perfil',
                                     'icon'  => 'user-cog',
@@ -117,7 +129,7 @@ $isEnfermeiro = in_array('enfermeiro', $roleNames);
                                     'visible' => !Yii::$app->user->isGuest,
                             ],
 
-                        // SAIR – todos autenticados
+                        // LOGOUT
                             [
                                     'label' => 'Sair',
                                     'icon' => 'sign-out-alt',
@@ -135,4 +147,5 @@ $isEnfermeiro = in_array('enfermeiro', $roleNames);
             ?>
         </nav>
     </div>
+
 </aside>

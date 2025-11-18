@@ -130,4 +130,12 @@ class Consulta extends \yii\db\ActiveRecord
         $this->estado = self::ESTADO_EM_CURSO;
         $this->data_encerramento = null;
     }
+    public function beforeSave($insert)
+    {
+        if ($this->data_encerramento === '-' || $this->data_encerramento === '') {
+            $this->data_encerramento = null;
+        }
+
+        return parent::beforeSave($insert);
+    }
 }

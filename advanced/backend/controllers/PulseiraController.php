@@ -8,7 +8,7 @@ use common\models\PulseiraSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
-
+use Yii;
 class PulseiraController extends Controller
 {
     public function behaviors()

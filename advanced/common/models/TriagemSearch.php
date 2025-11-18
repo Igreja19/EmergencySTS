@@ -34,22 +34,21 @@ class TriagemSearch extends Triagem
 
     public function search($params)
     {
-        // JOIN com userprofile e pulseira
         $query = Triagem::find()
             ->joinWith(['userprofile', 'pulseira']);
 
-        // 🔥 MOSTRAR APENAS TRIAGENS SEM PULSEIRA
-        $query->andWhere(['triagem.pulseira_id' => null]);
+        // 🔥 Mostrar apenas triagens cuja pulseira está PENDENTE
+        $query->andWhere(['pulseira.prioridade' => 'Pendente']);
 
-        // DATAPROVIDER
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
-            'pagination' => [
-                'pageSize' => 10,
-            ]
+            'pagination' => ['pageSize' => 10],
+            'sort' => [
+                'defaultOrder' => ['datatriagem' => SORT_DESC]
+            ],
         ]);
 
-        // ORDENAR POR PRIORIDADE
+        // Ordenação por prioridade (opcional)
         $dataProvider->sort->attributes['prioridade'] = [
             'asc' => [
                 new Expression("FIELD(pulseira.prioridade, 'Azul','Verde','Amarelo','Laranja','Vermelho')")
@@ -59,36 +58,35 @@ class TriagemSearch extends Triagem
             ],
         ];
 
-        // ORDEM PADRÃO
+        // Ordem padrão: mais recente primeiro
         $dataProvider->sort->defaultOrder = ['datatriagem' => SORT_DESC];
 
-        // Carrega parâmetros
+        // Carregar filtros do formulário
         $this->load($params);
 
         if (!$this->validate()) {
             return $dataProvider;
         }
 
-        // FILTROS EXATOS
+        // Filtros exatos
         $query->andFilterWhere([
-            'triagem.id'     => $this->id,
-            'intensidadedor' => $this->intensidadedor,
-            'userprofile_id' => $this->userprofile_id
+            'triagem.id'       => $this->id,
+            'intensidadedor'   => $this->intensidadedor,
+            'userprofile_id'   => $this->userprofile_id,
+            'pulseira_id'      => $this->pulseira_id,
         ]);
 
-        // FILTROS LIKE
+        // Filtros LIKE
         $query->andFilterWhere(['like', 'motivoconsulta', $this->motivoconsulta])
             ->andFilterWhere(['like', 'queixaprincipal', $this->queixaprincipal])
             ->andFilterWhere(['like', 'descricaosintomas', $this->descricaosintomas])
             ->andFilterWhere(['like', 'alergias', $this->alergias])
             ->andFilterWhere(['like', 'medicacao', $this->medicacao]);
 
-        // FILTRO DE DATA
+        // Filtro por data
         if (!empty($this->datatriagem)) {
-
             $inicio = $this->datatriagem . ' 00:00:00';
             $fim    = $this->datatriagem . ' 23:59:59';
-
             $query->andFilterWhere(['between', 'datatriagem', $inicio, $fim]);
         }
 

@@ -22,8 +22,12 @@ class ConsultaSearch extends Consulta
 
     public function search($params)
     {
+
         $query = Consulta::find()
             ->joinWith(['userprofile', 'triagem']); // removido prescricao
+
+        $query->andWhere(['<>', 'consulta.estado', 'Encerrada']); //não mostra consultas encerradas
+
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,

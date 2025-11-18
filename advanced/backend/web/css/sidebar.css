@@ -228,3 +228,43 @@ body {
     transform: translateX(3px);
     background: #f4fbf7;
 }
+/* ----------------------------
+   Submenu das Consultas
+----------------------------- */
+
+/* Fonte mais pequena e indentação */
+.nav-sidebar .nav-treeview > .nav-item > .nav-link {
+    font-size: 13px !important;
+    padding-left: 35px !important;  /* desloca para dentro */
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+}
+
+/* Ícones menores */
+.nav-sidebar .nav-treeview .nav-icon {
+    font-size: 12px !important;
+    opacity: 0.8;
+    width: 18px !important;
+}
+
+/* Hover moderno */
+.nav-sidebar .nav-treeview > .nav-item > .nav-link:hover {
+    background: rgba(255,255,255,0.08) !important;
+    color: #00d1b2 !important; /* tom verde/turquesa */
+}
+
+/* Quando ativo */
+.nav-sidebar .nav-treeview > .nav-item > .nav-link.active {
+    background: rgba(255,255,255,0.15) !important;
+    color: #4cd964 !important;
+}
+.submenu-item .nav-icon {
+    font-size: 0.6rem !important;
+    margin-left: 10px;
+    color: #1fc8ff !important;
+}
+
+.submenu-item a {
+    padding-left: 35px !important;
+    font-size: 0.88rem !important;
+}
