@@ -7,79 +7,7 @@ use yii\widgets\Pjax;
 $this->title = 'Pulseiras';
 $this->params['breadcrumbs'][] = $this->title;
 
-$this->registerCss('
-.page-title {
-    font-size: 30px;
-    font-weight: 700;
-    color: #198754;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.page-title i { font-size: 32px; }
-
-.card-box {
-    background: #fff;
-    border-radius: 18px;
-    padding: 25px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-}
-
-.table-modern {
-    border-radius: 14px;
-    overflow: hidden;
-}
-
-/* 🔥 Alinhar tudo ao centro (thead + tbody) */
-.table-modern th, 
-.table-modern td {
-    text-align: center !important;
-    vertical-align: middle !important;
-}
-
-.table-modern thead tr {
-    background: #f0f2f5;
-    font-weight: 700;
-    color: #198754;
-}
-
-.table-modern tbody tr:hover {
-    background: #f8f9fa;
-}
-
-.badge-prio {
-    padding: 6px 10px;
-    border-radius: 8px;
-    font-weight: 600;
-    color: #fff;
-}
-
-/* Cores Manchester */
-.badge-Vermelho { background-color: #dc3545; }
-.badge-Laranja  { background-color: #fd7e14; }
-.badge-Amarelo  { background-color: #ffc107; color:#000; }
-.badge-Verde    { background-color: #198754; }
-.badge-Azul     { background-color: #0d6efd; }
-
-.btn-action {
-    padding: 6px 10px;
-    border-radius: 10px;
-    color: white;
-}
-.btn-view { background:#0d6efd; }
-.btn-edit { background:#198754; }
-.btn-delete { background:#dc3545; }
-
-.btn-new {
-    background: #198754;
-    color:#fff;
-    padding:10px 18px;
-    border-radius:12px;
-    font-weight:600;
-}
-.btn-new:hover { opacity:.9; }
-');
-
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/pulseira/index.css');
 ?>
 
 <div class="pulseira-index">
@@ -113,7 +41,7 @@ $this->registerCss('
                         [
                                 'attribute' => 'id',
                                 'label' => 'ID',
-                                'headerOptions' => ['style' => 'width:70px;'],
+                                'headerOptions' => ['class' => 'id'],
                         ],
 
                         [
@@ -165,7 +93,7 @@ $this->registerCss('
                                 'class' => 'yii\grid\ActionColumn',
                                 'header' => 'Ações',
                                 'template' => '{view} {update} {delete}',
-                                'contentOptions' => ['style' => 'text-align:center;'],
+                                'contentOptions' => ['class' => 'acoes'],
                                 'buttons' => [
                                         'view' => fn($url) =>
                                         Html::a('<i class="bi bi-eye"></i>', $url, ['class'=>'btn-action btn-view']),

@@ -2,6 +2,7 @@
 use yii\helpers\Html;
 
 $this->title = 'Painel de Triagem - EmergencySTS';
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/pulseira/index.css');
 
 if (!$pulseira) {
     echo '<div class="container py-5 text-center">
@@ -46,18 +47,7 @@ $cor = $cores[$pulseira->prioridade] ?? '#6c757d';
             </div>
 
             <!-- Selo da cor -->
-            <div class="position-absolute top-0 end-0 mt-2 me-3 d-flex align-items-center justify-content-center fw-bold text-uppercase"
-                 style="
-                         background-color: <?= $cor ?>;
-                         color: #fff;
-                         font-size: 0.9rem;
-                         padding: 0.4rem 1rem;
-                         border-radius: 6px;
-                         min-width: 90px;
-                         height: 30px;
-                         letter-spacing: .5px;
-                         box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-                         ">
+            <div class="selo position-absolute top-0 end-0 mt-2 me-3 d-flex align-items-center justify-content-center fw-bold text-uppercase" style="background-color: <?= $cor ?>;">
                 <?= strtoupper(Html::encode($pulseira->prioridade ?? 'PENDENTE')) ?>
             </div>
         </div>
@@ -66,12 +56,10 @@ $cor = $cores[$pulseira->prioridade] ?? '#6c757d';
 
         <!-- Barra de progresso -->
         <div class="mt-3 position-relative">
-            <div class="progress rounded-pill triage-track" style="height: 14px; overflow: hidden;">
-                <div class="progress-bar progress-bar-striped progress-bar-animated"
-                     style="
+            <div class="barra progress rounded-pill triage-track" style="height: 14px; overflow: hidden;">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" style="
                              width: <?= min(100, (int)$progressPct) ?>%;
                              background: linear-gradient(90deg, <?= $cor ?>, <?= $cor ?>cc);
-                             transition: width 0.8s ease;
                              box-shadow: 0 0 10px <?= $cor ?>80;
                              ">
                 </div>

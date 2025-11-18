@@ -7,7 +7,7 @@ use yii\widgets\ActiveForm;
 /** @var common\models\Triagem $model */
 /** @var yii\widgets\ActiveForm $form */
 
-$this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem.css');
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/_form.css');
 
 ?>
 

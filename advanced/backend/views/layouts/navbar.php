@@ -3,9 +3,13 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 
 $user = Yii::$app->user->identity ?? null;
-$this->registerCssFile(Yii::$app->request->baseUrl . '/css/adminlte-custom.css');
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/layouts/navbar.css');
 
 ?>
+
+<div id="navbar-config"
+     data-notif="<?= Url::to(['/notificacao/novas'], true) ?>">
+</div>
 
 <nav class="main-header navbar navbar-expand custom-navbar">
 
@@ -56,8 +60,7 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/adminlte-custom.css')
             <a class="nav-link text-white" data-toggle="dropdown" href="#">
                 <i class="far fa-bell"></i>
                 <span id="navbarNotifBadge"
-                      class="badge badge-danger navbar-badge"
-                      style="display:none;"></span>
+                      class="badge badge-danger navbar-badge"></span>
             </a>
 
             <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right p-0">
@@ -68,7 +71,7 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/adminlte-custom.css')
 
                 <div class="dropdown-divider"></div>
 
-                <div id="navbarNotifList" style="max-height:260px; overflow-y:auto;">
+                <div id="navbarNotifList">
                     <div class="text-center p-3 text-muted">
                         <i class="fas fa-spinner fa-spin"></i> A carregar...
                     </div>
@@ -117,57 +120,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/adminlte-custom.css')
         </li>
     </ul>
 </nav>
-
-<!-- ====================== NOTIFICAÇÕES AJAX ====================== -->
-<script>
-    async function carregarNotificacoesNavbarReal() {
-        try {
-            const response = await fetch("<?= Url::to(['/notificacao/novas']) ?>");
-            const data = await response.json();
-
-            const badge = document.getElementById('navbarNotifBadge');
-            const count = document.getElementById('navbarNotifCount');
-            const list  = document.getElementById('navbarNotifList');
-
-            list.innerHTML = '';
-
-            if (!data || data.length === 0) {
-                badge.style.display = 'none';
-                count.textContent = '';
-
-                list.innerHTML = `
-                <div class="text-center p-3 text-muted">
-                    <i class="far fa-bell-slash fa-2x"></i>
-                    <p class="mt-2">Sem novas notificações</p>
-                </div>
-            `;
-                return;
-            }
-
-            badge.style.display = 'inline-block';
-            badge.textContent = data.length;
-
-            count.textContent = data.length + " novas";
-
-            data.forEach(n => {
-                list.innerHTML += `
-                <a href="#" class="dropdown-item">
-                    <i class="fas fa-exclamation-circle mr-2 text-success"></i>
-                    <strong>${n.titulo}</strong>
-                    <div class="small text-muted">${n.mensagem}</div>
-                    <div class="small">
-                        <i class="far fa-clock"></i> ${n.dataenvio}
-                    </div>
-                </a>
-                <div class="dropdown-divider"></div>
-            `;
-            });
-
-        } catch (e) {
-            console.error("Erro AJAX notificações:", e);
-        }
-    }
-
-    carregarNotificacoesNavbarReal();
-    setInterval(carregarNotificacoesNavbarReal, 10000);
-</script>
+<?php
+$this->registerJsFile(Yii::$app->request->baseUrl . '/js/layouts/navbar.js', ['depends' => [\yii\web\JqueryAsset::class]]);
+?>

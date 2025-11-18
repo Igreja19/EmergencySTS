@@ -23,22 +23,6 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
             : \yii\helpers\Url::to(['user-profile/create']);
     ?>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            Swal.fire({
-                title: 'Bem-vindo!',
-                text: 'Antes de iniciar, por favor preencha o seu perfil para continuar.',
-                icon: 'info',
-                confirmButtonText: 'Ok, preencher agora',
-                allowOutsideClick: false,
-                allowEscapeKey: false
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = "<?= $profileUrl ?>";
-                }
-            });
-        });
-    </script>
 <?php endif; ?>
 
 <!-- HERO SECTION -->
@@ -281,5 +265,6 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
         </div>
     </div>
 </div>
-
-
+<?php
+$this->registerJsFile(Yii::$app->request->baseUrl . '/js/site/index.js', ['depends' => [\yii\web\JqueryAsset::class]]);
+?>

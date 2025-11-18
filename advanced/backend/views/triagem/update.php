@@ -10,27 +10,7 @@ $this->params['breadcrumbs'][] = ['label' => 'Triagens', 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => 'Ver Triagem #' . $model->id, 'url' => ['view', 'id' => $model->id]];
 $this->params['breadcrumbs'][] = 'Editar';
 
-$this->registerCss('
-.triagem-update {
-  max-width: 900px;
-  margin: 0 auto;
-}
-.triagem-update h1 {
-  color: #198754;
-  font-weight: 700;
-  margin-bottom: 25px;
-  text-align: center;
-}
-.btn-back {
-  background: #198754;
-  color: #fff;
-  border-radius: 10px;
-  padding: 10px 20px;
-  font-weight: 600;
-  transition: .2s;
-}
-.btn-back:hover { opacity: .9; transform: translateY(-2px); }
-');
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/update.css');
 ?>
 
 <div class="triagem-update">

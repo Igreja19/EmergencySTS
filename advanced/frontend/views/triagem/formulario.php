@@ -5,6 +5,7 @@ use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
 $this->title = 'Formulário Clínico - EmergencySTS';
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/formulario.css');
 $userProfile = Yii::$app->user->identity->userprofile;
 ?>
 
@@ -14,7 +15,7 @@ $userProfile = Yii::$app->user->identity->userprofile;
         <p class="text-muted">Os seus <dados></dados> foram preenchidos automaticamente com base no seu perfil.</p>
     </div>
 
-    <div class="mx-auto card shadow-sm border-0 rounded-4 p-4" style="max-width: 850px;">
+    <div class="form mx-auto card shadow-sm border-0 rounded-4 p-4">
         <?php $form = ActiveForm::begin([
                 'id' => 'form-triagem',
                 'action' => ['triagem/formulario'],
@@ -142,122 +143,7 @@ $userProfile = Yii::$app->user->identity->userprofile;
 
         <?php ActiveForm::end(); ?>
     </div>
-
-    <!-- 🔹 SCRIPT: valida ano (min = atual−100, max = atual) -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const campoData = document.querySelector('#triagem-iniciosintomas');
-
-            if (campoData) {
-                const anoAtual = new Date().getFullYear();
-                const anoMinimo = anoAtual - 100;
-
-                campoData.addEventListener('input', function () {
-                    const valor = campoData.value;
-
-                    if (valor.length >= 4) {
-                        const ano = parseInt(valor.substring(0, 4));
-
-                        if (isNaN(ano) || ano < anoMinimo || ano > anoAtual) {
-                            campoData.setCustomValidity(
-                                `O ano deve estar entre ${anoMinimo} e ${anoAtual}.`
-                            );
-                        } else {
-                            campoData.setCustomValidity("");
-                        }
-                    }
-                });
-            }
-        });
-
-        // Bloqueia múltiplos envios
-        document.querySelector('#form-triagem').addEventListener('submit', function() {
-            const btn = document.querySelector('.submit-btn');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i> A enviar...';
-        });
-    </script>
 </div>
-
-<!-- 🔹 CSS -->
-<style>
-    body {
-        background: linear-gradient(180deg, #f8fff9 0%, #eef8ef 100%);
-    }
-
-    .card {
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        border-radius: 18px;
-        transition: all 0.3s ease;
-    }
-
-    .card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.1);
-    }
-
-    .form-control, .form-select, select {
-        border-radius: 10px !important;
-        padding: 10px 14px;
-        height: 44px;
-    }
-
-    textarea.form-control {
-        resize: none;
-        height: auto;
-    }
-
-    .form-label, label {
-        font-weight: 600;
-        color: #198754;
-        margin-top: 6px;
-        margin-bottom: 6px;
-        display: block;
-    }
-
-    .row.g-3 > [class*="col-"] {
-        margin-bottom: 10px;
-    }
-
-    h6 {
-        text-transform: uppercase;
-        font-size: 0.85rem;
-        letter-spacing: 0.5px;
-        color: #198754;
-        margin-top: 2rem;
-        margin-bottom: 1rem;
-    }
-
-    .btn-success {
-        background-color: #198754 !important;
-        border: none;
-        border-radius: 10px;
-        transition: all 0.3s ease;
-    }
-
-    .btn-success:hover {
-        background-color: #16a34a !important;
-        box-shadow: 0 4px 15px rgba(22, 163, 74, 0.4);
-        transform: translateY(-2px);
-    }
-
-    .row.g-3 .col-md-3,
-    .row.g-3 .col-md-6 {
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-end;
-    }
-
-    .form-select {
-        border-radius: 10px !important;
-        padding: 10px 14px;
-        height: 44px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        transition: all .25s ease;
-    }
-
-    .form-select:focus {
-        border-color: #198754;
-        box-shadow: 0 0 0 0.15rem rgba(25,135,84,.25);
-    }
-</style>
+<?php
+$this->registerJsFile(Yii::$app->request->baseUrl . '/js/triagem/formulario.js', ['depends' => [\yii\web\JqueryAsset::class]]);
+?>

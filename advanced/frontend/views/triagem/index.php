@@ -1,5 +1,6 @@
 <?php
 $this->title = 'EmergencySTS - Serviço de Urgências';
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/index.css');
 ?>
 
 <div class="container py-5">
@@ -74,13 +75,13 @@ $this->title = 'EmergencySTS - Serviço de Urgências';
 
                         <?php if ($perfilCompleto): ?>
                             <!-- 🟡 Já existe triagem ativa -->
-                            <div class="alert alert-secondary fw-semibold px-4 py-3 rounded-3 shadow-sm mt-3" style="max-width:600px;">
+                            <div class="alert alert-secondary fw-semibold px-4 py-3 rounded-3 shadow-sm mt-3">
                                 <i class="bi bi-hourglass-split text-muted me-2"></i>
                                 Já preencheu o formulário clínico. Aguarde pela conclusão da consulta.
                             </div>
                         <?php else: ?>
                             <!-- 🔴 Perfil incompleto -->
-                            <div class="alert alert-warning d-inline-block fw-semibold px-4 py-3 rounded-3 shadow-sm mt-3" style="max-width:600px;">
+                            <div class="alert alert-warning d-inline-block fw-semibold px-4 py-3 rounded-3 shadow-sm mt-3" >
                                 <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>
                                 Por favor, preencha o seu
                                 <a href="<?= Yii::$app->urlManager->createUrl(['user-profile/view', 'id' => $userProfile->id ?? 0]) ?>"
@@ -142,7 +143,7 @@ $this->title = 'EmergencySTS - Serviço de Urgências';
     </div>
 
     <!-- Sobre o Protocolo -->
-    <div class="card border-0 shadow-sm rounded-4 p-4" style="background-color: #f8fbf8;">
+    <div class="protocolo card border-0 shadow-sm rounded-4 p-4">
         <h5 class="fw-bold text-success mb-3">Sobre o Protocolo EmergencySTS</h5>
         <p class="text-muted mb-4">
             O sistema de triagem classifica os pacientes em 5 níveis de prioridade, garantindo que casos mais urgentes sejam atendidos primeiro.
@@ -186,43 +187,5 @@ $this->title = 'EmergencySTS - Serviço de Urgências';
         </div>
     </div>
 </div>
-
-<style>
-    .card-link {
-        cursor: pointer;
-        background: #ffffff;
-        transition: all 0.25s ease-in-out;
-        border-radius: 1rem;
-    }
-
-    .card-link:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 24px rgba(0,0,0,0.08);
-    }
-
-    .card-link i {
-        transition: transform 0.3s ease, color 0.3s ease;
-    }
-
-    .card-link:hover i {
-        transform: scale(1.15);
-    }
-
-    .badge {
-        font-size: 0.8rem;
-    }
-
-    .border-warning {
-        border-color: #FF8C00 !important;
-    }
-
-    .border-amarelo {
-        border-color: #FFFF00 !important;
-    }
-
-    .text-amarelo {
-        color: #FFFF00 !important;
-    }
-</style>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">

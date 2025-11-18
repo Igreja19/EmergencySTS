@@ -9,6 +9,7 @@ use yii\bootstrap5\Html;
 use yii\helpers\Url;
 
 AppAsset::register($this);
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/layout/main.css');
 ?>
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
@@ -29,51 +30,6 @@ AppAsset::register($this);
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
 
-    <!-- CSS personalizado -->
-    <!--<link rel="stylesheet" href="../../web/css/site.css"> -->
-
-    <style>
-        /* 🔹 Navbar */
-        .navbar {
-            transition: all 0.3s ease;
-        }
-
-        .navbar.scrolled {
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-            background-color: #212529 !important;
-        }
-
-        /* 🔹 Botões */
-        .btn-success {
-            background-color: #198754 !important;
-            border: none;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-        }
-
-        .btn-success:hover {
-            background-color: #16a34a !important;
-            box-shadow: 0 4px 15px rgba(22, 163, 74, 0.4);
-            transform: translateY(-2px);
-        }
-
-        /* 🔹 Footer */
-        footer {
-            background-color: #111;
-            color: #aaa;
-        }
-
-        footer a {
-            color: #198754;
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        footer a:hover {
-            color: #16a34a;
-        }
-    </style>
-
     <?php $this->head() ?>
 </head>
 
@@ -84,8 +40,8 @@ AppAsset::register($this);
 <nav class="navbar navbar-expand-lg bg-dark navbar-dark py-3 shadow-sm">
     <div class="container">
         <a class="navbar-brand d-flex align-items-center fw-bold text-success" href="<?= Yii::$app->homeUrl ?>">
-            <img src="<?= Yii::$app->request->baseUrl ?>/img/logo.png"
-                 alt="Logo EmergencySTS" style="height:50px; margin-right:10px;">
+            <img class="img" src="<?= Yii::$app->request->baseUrl ?>/img/logo.png"
+                 alt="Logo EmergencySTS">
         </a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
@@ -206,27 +162,7 @@ $this->registerJsFile(
         'https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js',
         ['depends' => [\yii\web\JqueryAsset::class]]
 );
-
-$this->registerJs(<<<JS
-// Navbar muda estilo ao rolar
-window.addEventListener('scroll', function() {
-    const nav = document.querySelector('.navbar');
-    nav.classList.toggle('scrolled', window.scrollY > 20);
-});
-
-// Inicia o Owl Carousel se existir
-if ($(".header-carousel").length) {
-    $(".header-carousel").owlCarousel({
-        autoplay: true,
-        smartSpeed: 800,
-        items: 1,
-        loop: true,
-        dots: true,
-        nav: false
-    });
-    console.log("🟢 Owl Carousel iniciado");
-}
-JS);
+$this->registerJsFile(Yii::$app->request->baseUrl . '/js/layouts/main.js', ['depends' => [\yii\web\JqueryAsset::class]]);
 ?>
 
 <?php $this->endBody() ?>

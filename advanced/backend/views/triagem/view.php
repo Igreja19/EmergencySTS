@@ -10,64 +10,7 @@ $this->title = 'Detalhes da Triagem';
 $this->params['breadcrumbs'][] = ['label' => 'Triagens', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 
-$this->registerCss('
-.triagem-view {
-  max-width: 1000px;
-  margin: 0 auto;
-}
-.triagem-view h1 {
-  color: #198754;
-  font-weight: 700;
-  margin-bottom: 20px;
-  text-align: center;
-}
-.card {
-  border-radius: 20px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-  background: #fff;
-  border: none;
-  padding: 25px;
-}
-.table-details {
-  width: 100%;
-}
-.table-details th {
-  background: #198754;
-  color: #fff;
-  width: 30%;
-  text-align: left;
-  vertical-align: middle;
-  padding: 10px 14px;
-  border-bottom: 1px solid #e9ecef;
-}
-.table-details td {
-  background: #f8f9fa;
-  color: #333;
-  vertical-align: middle;
-  padding: 10px 14px;
-  border-bottom: 1px solid #e9ecef;
-}
-.btn-back {
-  background: #198754;
-  color: #fff;
-  border-radius: 10px;
-  padding: 10px 20px;
-  font-weight: 600;
-  transition: .2s;
-}
-.btn-back:hover { opacity: .9; transform: translateY(-2px); }
-.badge-prio {
-  padding: 6px 10px;
-  border-radius: 8px;
-  font-weight: 600;
-  color: #fff;
-}
-.badge-Vermelho { background-color: #dc3545; }
-.badge-Laranja  { background-color: #fd7e14; }
-.badge-Amarelo  { background-color: #ffc107; color:#000; }
-.badge-Verde    { background-color: #198754; }
-.badge-Azul     { background-color: #0d6efd; }
-');
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/view.css');
 ?>
 
 <div class="triagem-view">

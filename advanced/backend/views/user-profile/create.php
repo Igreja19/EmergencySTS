@@ -10,7 +10,6 @@ $this->title = 'Criar Utilizador';
 $this->params['breadcrumbs'][] = ['label' => 'Utilizadores', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 
-$this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile.css');
 ?>
 <div class="userprofile-create">
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">

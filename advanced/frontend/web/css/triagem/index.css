@@ -1,0 +1,43 @@
+.alert {
+    max-width:600px;
+}
+
+.protocolo {
+    background-color: #f8fbf8;
+}
+
+.card-link {
+    cursor: pointer;
+    background: #ffffff;
+    transition: all 0.25s ease-in-out;
+    border-radius: 1rem;
+}
+
+.card-link:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+}
+
+.card-link i {
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.card-link:hover i {
+    transform: scale(1.15);
+}
+
+.badge {
+    font-size: 0.8rem;
+}
+
+.border-warning {
+    border-color: #FF8C00 !important;
+}
+
+.border-amarelo {
+    border-color: #FFFF00 !important;
+}
+
+.text-amarelo {
+    color: #FFFF00 !important;
+}

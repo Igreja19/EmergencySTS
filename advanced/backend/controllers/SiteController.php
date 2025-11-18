@@ -168,6 +168,26 @@ class SiteController extends Controller
         ]);
     }
 
+    public function actionGraficoDados()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $manchester = $this->getManchesterStats();  // Ajusta para tua lógica real
+        $evolucaoLabels = $this->getEvolucaoLabels();
+        $evolucaoData = $this->getEvolucaoData();
+
+        return [
+            'manchester' => [
+                'vermelho' => (int)$manchester['vermelho'],
+                'laranja'  => (int)$manchester['laranja'],
+                'amarelo'  => (int)$manchester['amarelo'],
+                'verde'    => (int)$manchester['verde'],
+                'azul'     => (int)$manchester['azul'],
+            ],
+            'evolucaoLabels' => $evolucaoLabels,
+            'evolucaoData'   => array_map('intval', $evolucaoData),
+        ];
+    }
 
     /**
      * Login action.

@@ -3,7 +3,8 @@ use yii\helpers\Html;
 use yii\bootstrap5\ActiveForm;
 use yii\helpers\Url;
 
-$this->registerCssFile(Yii::$app->request->baseUrl . '/css/consulta.css');
+
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/consulta/_form.css');
 
 /** @var yii\web\View $this */
 /** @var common\models\Consulta $model */
@@ -146,39 +147,6 @@ $isNew = $model->isNewRecord;
 </div>
 
 <?php
-// === JAVASCRIPT ===
-$triagemInfoUrl = Url::to(['consulta/triagem-info']);
-$js = <<<JS
-
-// AJAX preencher paciente
-$('#triagem-select').on('change', function() {
-    var triagemId = $(this).val();
-    if (triagemId) {
-        $.ajax({
-            url: '$triagemInfoUrl',
-            data: {id: triagemId},
-            success: function(data) {
-                $('#userprofile-id').val(data.userprofile_id || '');
-                $('#userprofile-nome').val(data.user_nome || '');
-            }
-        });
-    } else {
-        $('#userprofile-id').val('');
-        $('#userprofile-nome').val('');
-    }
-});
-
-// Mostrar/esconder campo de encerramento
-$('#estado-select').on('change', function() {
-    if ($(this).val() === 'Encerrada') {
-        $('#campo-encerramento').slideDown();
-    } else {
-        $('#campo-encerramento').slideUp();
-        $('#consulta-data_encerramento').val('');
-    }
-});
-
-JS;
-
-$this->registerJs($js);
+$this->registerJsFile(Yii::$app->request->baseUrl . '/js/consulta/_form.js', ['depends' => [\yii\web\JqueryAsset::class]]);
+$this->registerJs("window.triagemInfoUrl = '" . Url::to(['consulta/triagem-info']) . "';");
 ?>

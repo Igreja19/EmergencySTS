@@ -20,55 +20,7 @@ $roleBadge = match ($roleName) {
     default => '<span class="badge bg-secondary">Utilizador</span>',
 };
 
-// CSS refinado
-$this->registerCss("
-    .profile-view {
-        background: #ffffff;
-        border-radius: 16px;
-        padding: 30px;
-        box-shadow: 0 4px 18px rgba(0,0,0,0.08);
-    }
-    .profile-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 2px solid #e8f5ec;
-        margin-bottom: 25px;
-        padding-bottom: 10px;
-    }
-    .profile-title {
-        font-weight: 700;
-        color: #198754;
-        font-size: 1.4rem;
-    }
-    .profile-subtitle {
-        color: #6c757d;
-        font-size: 0.95rem;
-    }
-    .profile-section {
-        margin-bottom: 20px;
-    }
-    .profile-section h6 {
-        color: #198754;
-        font-weight: 600;
-        border-left: 4px solid #198754;
-        padding-left: 10px;
-        margin-bottom: 12px;
-    }
-    .table td, .table th {
-        vertical-align: middle !important;
-        padding: 10px 8px;
-    }
-    .table th {
-        color: #6c757d;
-        width: 30%;
-        font-weight: 500;
-    }
-    .table td {
-        color: #212529;
-        font-weight: 500;
-    }
-");
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile/view.css');
 ?>
 
 <div class="container py-4">

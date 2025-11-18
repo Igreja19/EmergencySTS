@@ -1,0 +1,86 @@
+body {
+    background: linear-gradient(180deg, #f8fff9 0%, #eef8ef 100%);
+}
+
+.badge {
+    font-size: 0.9rem;
+}
+
+.card {
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.07);
+    border-radius: 18px;
+    max-width: 900px;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12);
+}
+
+.table-modern-profile th {
+    color: #198754;
+    font-weight: 600;
+    width: 35%;
+    border: none !important;
+    background: none !important;
+    padding: 12px 16px !important;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.table-modern-profile td {
+    color: #212529;
+    padding: 12px 16px !important;
+    background: transparent;
+}
+
+.table-modern-profile tr:nth-child(even) td {
+    background-color: #f9fdf9 !important;
+}
+
+.table-modern-profile tr:hover td {
+    background-color: #eef8f1 !important;
+    transition: background-color 0.25s ease-in-out;
+}
+
+.btn-success {
+    background: linear-gradient(90deg, #198754 0%, #28a745 100%) !important;
+    border: none;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.btn-success:hover {
+    background-color: #16a34a !important;
+    box-shadow: 0 4px 15px rgba(22, 163, 74, 0.4);
+    transform: translateY(-2px);
+}
+
+.btn-outline-danger {
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-danger:hover {
+    background-color: #dc3545;
+    color: #fff !important;
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+}
+
+@media (max-width: 768px) {
+    .table-modern-profile th, .table-modern-profile td {
+        display: block;
+        width: 100%;
+    }
+
+    .table-modern-profile tr {
+        margin-bottom: 10px;
+        display: block;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .table-modern-profile th {
+        color: #198754;
+    }
+}

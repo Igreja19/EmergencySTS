@@ -9,10 +9,11 @@ use yii\bootstrap5\ActiveForm;
 
 $this->title = 'Criar Conta';
 $this->params['breadcrumbs'][] = $this->title;
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/site/signup.css');
 ?>
 
 <section class="min-vh-100 d-flex align-items-center justify-content-center login-bg">
-    <div class="card shadow-sm border-0 w-100 mx-3" style="max-width: 600px; border-radius: 16px;">
+    <div class="signup card shadow-sm border-0 w-100 mx-3">
         <div class="card-body p-5">
 
             <h3 class="text-center fw-bold mb-3 text-dark"><?= Html::encode($this->title) ?></h3>

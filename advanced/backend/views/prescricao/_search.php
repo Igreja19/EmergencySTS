@@ -9,8 +9,7 @@
                     </span>
                     <input type="date"
                            name="PrescricaoSearch[dataprescricao]"
-                           class="form-control border-start-0"
-                           style="border-radius: 0 12px 12px 0;">
+                           class="dataprescricao form-control border-start-0">
                 </div>
             </div>
 

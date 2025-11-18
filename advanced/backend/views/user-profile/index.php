@@ -6,7 +6,7 @@ use yii\widgets\Pjax;
 
 $this->title = 'Utilizadores';
 $this->params['breadcrumbs'][] = $this->title;
-$this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile.css');
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile/index.css');
 ?>
 
 <div class="userprofile-index">
@@ -39,12 +39,12 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile.css');
                                     'O' => 'Outro',
                                     default => '—',
                                 },
-                                'contentOptions' => ['style' => 'text-align:center;'],
+                                'contentOptions' => ['class' => 'genero'],
                         ],
                         [
                                 'attribute' => 'datanascimento',
                                 'format' => ['date', 'php:d/m/Y'],
-                                'contentOptions' => ['style' => 'text-align:center;'],
+                                'contentOptions' => ['class' => 'datanascimento'],
                         ],
                         [
                                 'label' => 'Função / Role',
@@ -52,7 +52,7 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile.css');
                                     $roleOptions = Yii::$app->authManager->getRolesByUser($model->user_id);
                                     return !empty($roleOptions) ? ucfirst(array_keys($roleOptions)[0]) : '—';
                                 },
-                                'contentOptions' => ['style' => 'text-align:center;'],
+                                'contentOptions' => ['class' => 'role'],
                         ],
                         'nif',
                         'sns',
@@ -60,7 +60,7 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile.css');
                                 'class' => 'yii\grid\ActionColumn',
                                 'header' => 'Ações',
                                 'template' => '{view} {update} {delete}',
-                                'contentOptions' => ['style' => 'text-align:center;'],
+                                'contentOptions' => ['class' => 'acoes'],
                                 'buttons' => [
                                         'view' => fn($url) => Html::a('<i class="bi bi-eye"></i>', $url, ['class' => 'btn-action btn-view']),
                                         'update' => fn($url) => Html::a('<i class="bi bi-pencil"></i>', $url, ['class' => 'btn-action btn-edit']),

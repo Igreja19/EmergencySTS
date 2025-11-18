@@ -10,7 +10,7 @@ $this->params['breadcrumbs'][] = ['label' => 'Consultas', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 
 // Aplica o mesmo estilo de formulários e tabelas
-$this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile.css');
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/consulta/create.css');
 ?>
 
 <div class="consulta-create">

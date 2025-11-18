@@ -4,6 +4,7 @@ use yii\helpers\Html;
 use yii\widgets\DetailView;
 
 $this->title = 'Perfil do Utilizador';
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile/view.css');
 \yii\web\YiiAsset::register($this);
 ?>
 
@@ -17,7 +18,7 @@ $this->title = 'Perfil do Utilizador';
         <p class="text-muted">Visualize e atualize as informações associadas à sua conta.</p>
     </div>
 
-    <div class="mx-auto card shadow-sm border-0 rounded-4 p-4" style="max-width: 850px;">
+    <div class="perfil mx-auto card shadow-sm border-0 rounded-4 p-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h5 class="fw-bold text-success mb-0"><i class="bi bi-person-lines-fill me-2"></i>Dados do Perfil</h5>
             <div>
@@ -84,58 +85,3 @@ $this->title = 'Perfil do Utilizador';
         ]) ?>
     </div>
 </div>
-
-<!-- 🔹 CSS -->
-<style>
-    body {
-        background: linear-gradient(180deg, #f8fff9 0%, #eef8ef 100%);
-    }
-
-    .card {
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        border-radius: 18px;
-        transition: all 0.3s ease;
-    }
-
-    .card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.1);
-    }
-
-    .table th, .table td {
-        padding: 12px 16px !important;
-        border-top: none !important;
-    }
-
-    .table tr:nth-child(even) {
-        background-color: #f9fdf9;
-    }
-
-    .table td {
-        color: #212529;
-    }
-
-    .table th {
-        color: #198754;
-        width: 35%;
-        font-weight: 600;
-        background: none !important;
-    }
-
-    .btn-success {
-        background-color: #198754 !important;
-        border: none;
-        border-radius: 10px;
-        transition: all 0.3s ease;
-    }
-
-    .btn-success:hover {
-        background-color: #16a34a !important;
-        box-shadow: 0 4px 15px rgba(22, 163, 74, 0.4);
-        transform: translateY(-2px);
-    }
-
-    .btn-outline-danger {
-        border-radius: 10px;
-    }
-</style>

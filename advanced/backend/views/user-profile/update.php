@@ -12,45 +12,7 @@ $this->params['breadcrumbs'][] = ['label' => 'Ver Perfil #' . $model->id, 'url' 
 $this->params['breadcrumbs'][] = 'Editar';
 
 /* Reutiliza o mesmo estilo visual da triagem */
-$this->registerCss('
-.userprofile-update {
-    max-width: 900px;
-    margin: 0 auto;
-}
-.userprofile-update h1 {
-    color: #198754;
-    font-weight: 700;
-    margin-bottom: 25px;
-    text-align: center;
-}
-.userprofile-form {
-    background: #fff;
-    border-radius: 20px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-    padding: 25px 30px;
-    margin-bottom: 25px;
-}
-.userprofile-form h5 {
-    color: #198754;
-    font-weight: 700;
-    margin-bottom: 15px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-.btn-back {
-    background: #198754;
-    color: #fff;
-    border-radius: 10px;
-    padding: 10px 20px;
-    font-weight: 600;
-    transition: .2s;
-}
-.btn-back:hover {
-    opacity: .9;
-    transform: translateY(-2px);
-}
-');
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile/update.css');
 ?>
 
 <div class="userprofile-update">

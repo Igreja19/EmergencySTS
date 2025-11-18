@@ -8,147 +8,13 @@
 /** @var array $ultimas */
 
 use yii\helpers\Html;
+use yii\helpers\Url;
 
 $this->title = 'EmergencySTS | Dashboard';
 
 // Bootstrap Icons + CSS global
 $this->registerCssFile('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css');
-$this->registerCssFile(Yii::$app->request->baseUrl . '/css/sidebar.css');
-
-/* ===== CSS Premium ===== */
-$this->registerCss('
-body {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-}
-.dashboard-wrap { padding: 20px; }
-
-.topbar {
-  display:flex; align-items:center; justify-content:space-between;
-  padding: 14px 20px; border-radius:16px;
-  background: rgba(255,255,255,0.8);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(0,0,0,.05);
-}
-
-.brand { font-weight:700; color:#198754; display:flex; align-items:center; gap:8px; }
-
-.card-kpi {
-  border-radius:20px;
-  border:none;
-  padding:20px;
-  background:#fff;
-  box-shadow:0 4px 20px rgba(0,0,0,0.05);
-  transition:.2s;
-}
-.card-kpi:hover { transform:translateY(-3px); }
-
-.card-kpi .icon { font-size:28px; margin-bottom:10px; }
-.card-kpi.red .icon { color:#dc3545; }
-.card-kpi.orange .icon { color:#fd7e14; }
-.card-kpi.green .icon { color:#198754; }
-.card-kpi.blue .icon { color:#0d6efd; }
-
-.table-modern { border-radius:16px; overflow:hidden; }
-.table-modern thead tr { background:#198754; color:#fff; }
-.table-modern tbody tr:hover { background:rgba(25,135,84,0.05); }
-
-.badge-prio { font-weight:600; }
-.badge-vermelho { background:#dc3545; }
-.badge-laranja  { background:#fd7e14; }
-.badge-amarelo  { background:#ffc107; color:#000; }
-.badge-verde    { background:#198754; }
-.badge-azul     { background:#0d6efd; }
-
-.filter-box { display:flex; gap:14px; align-items:center; }
-.filter-input-wrapper { position:relative; }
-.filter-input {
-  padding:10px 14px 10px 42px;
-  border-radius:12px;
-  border:1px solid #ced4da;
-  height:42px; width:200px;
-}
-.filter-icon {
-  position:absolute; top:50%; left:12px;
-  transform:translateY(-50%);
-  color:#198754;
-}
-.filter-btn-premium {
-  background:linear-gradient(135deg,#198754,#149e65);
-  border:none;
-  height:42px;
-  padding:0 22px;
-  border-radius:12px;
-  display:flex; align-items:center; gap:8px;
-  color:white; font-weight:600;
-}
-');
-
-/* ===== Chart.js ===== */
-$this->registerJsFile('https://cdn.jsdelivr.net/npm/chart.js', [
-        'position' => \yii\web\View::POS_END
-]);
-
-/* ===== GRÁFICOS ===== */
-$this->registerJs('
-
-// DONUT
-const donut = document.getElementById("chartManchester");
-if (donut) {
-    new Chart(donut, {
-        type: "doughnut",
-        data: {
-            labels: ["Vermelho","Laranja","Amarelo","Verde","Azul"],
-            datasets: [{
-                data: [
-                    '.$manchester['vermelho'].',
-                    '.$manchester['laranja'].',
-                    '.$manchester['amarelo'].',
-                    '.$manchester['verde'].',
-                    '.$manchester['azul'].'
-                ],
-                backgroundColor: ["#dc3545","#fd7e14","#ffc107","#198754","#0d6efd"]
-            }]
-        },
-        options: { plugins:{ legend:{ position:"bottom" } } }
-    });
-}
-
-// LINHA — com inteiros + eixo Y corrigido
-const line = document.getElementById("chartEvolucao");
-let triagemChart = null;
-
-if (line) {
-    triagemChart = new Chart(line, {
-        type: "line",
-        data: {
-            labels: '.json_encode($evolucaoLabels).',
-            datasets: [{
-                label: "Triagens",
-                data: '.json_encode(array_map("intval", $evolucaoData)).',
-                tension: .35,
-                borderColor: "#198754",
-                backgroundColor: "rgba(25,135,84,0.1)",
-                fill: true,
-                pointRadius: 4,
-                pointBackgroundColor: "#198754"
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero:true,
-                    ticks: {
-                        stepSize: 1,
-                        callback: function(value) {
-                            return Number.isInteger(value) ? value : "";
-                        }
-                    }
-                }
-            }
-        }
-    });
-}
-');
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/site/index.css');
 
 // Badge helper
 function badgePrio(string $prio): string {
@@ -202,6 +68,10 @@ function badgePrio(string $prio): string {
                 <div class="label">Atendidos hoje</div>
             </div>
         </div>
+    </div>
+
+    <div id="chart-config"
+         data-url="<?= Url::to(['site/grafico-dados'], true) ?>">
     </div>
 
     <!-- GRÁFICOS -->
@@ -302,3 +172,9 @@ function badgePrio(string $prio): string {
     </div>
 
 </div>
+<?php
+$this->registerJsFile('https://cdn.jsdelivr.net/npm/chart.js', [
+        'position' => \yii\web\View::POS_END
+]);
+$this->registerJsFile(Yii::$app->request->baseUrl . '/js/site/index.js', ['depends' => [\yii\web\JqueryAsset::class]]);
+?>

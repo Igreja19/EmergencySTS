@@ -8,6 +8,7 @@ use yii\helpers\Html;
 $this->title = 'Consulta #' . $consulta->id;
 $this->params['breadcrumbs'][] = ['label' => 'Histórico de Consultas', 'url' => ['historico']];
 $this->params['breadcrumbs'][] = $this->title;
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/consulta/ver.css');
 
 $triagem = $triagem ?? $consulta->triagem ?? null;
 
@@ -117,7 +118,5 @@ $badgeClass = match ($prio) {
             ['class' => 'btn btn-danger rounded-pill']) ?>
 </div>
 <style>
-    .consulta-ver .card { transition: all .2s ease-in-out; }
-    .consulta-ver .card:hover { transform: translateY(-1px); }
-    .badge { border-radius: 10px; }
+
 </style>

@@ -2,7 +2,7 @@
 use hail812\adminlte\widgets\Menu;
 use yii\helpers\Url;
 
-$this->registerCssFile(Yii::$app->request->baseUrl . '/css/sidebar.css');
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/layouts/sidebar.css');
 
 // 🔹 Obter roles do utilizador
 $auth = Yii::$app->authManager;
@@ -19,8 +19,7 @@ $isEnfermeiro = in_array('enfermeiro', $roleNames);
     <a href="<?= Url::to(['/site/index']) ?>" class="brand-link">
         <img src="<?= Yii::$app->request->baseUrl ?>/img/logo.png"
              alt="EmergencySTS"
-             class="brand-image img-circle elevation-3"
-             style="opacity:.9">
+             class="img brand-image img-circle elevation-3">
         <span class="brand-text font-weight-light">EmergencySTS</span>
     </a>
 

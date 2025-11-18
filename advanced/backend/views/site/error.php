@@ -9,9 +9,11 @@ use yii\helpers\Html;
 
 $this->title = $name;
 $this->params['breadcrumbs'] = [['label' => $this->title]];
+
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/site/error.css');
 ?>
 <div class="error-page">
-    <div class="error-content" style="margin-left: auto;">
+    <div class="error-content">
         <h3><i class="fas fa-exclamation-triangle text-danger"></i> <?= Html::encode($name) ?></h3>
 
         <p>
@@ -25,7 +27,7 @@ $this->params['breadcrumbs'] = [['label' => $this->title]];
             or try using the search form.
         </p>
 
-        <form class="search-form" style="margin-right: 190px;">
+        <form class="search-form">
             <div class="input-group">
                 <input type="text" name="search" class="form-control" placeholder="Search">
 

@@ -11,7 +11,7 @@ use yii\widgets\Pjax;
 $this->title = 'Consultas';
 $this->params['breadcrumbs'][] = $this->title;
 
-$this->registerCssFile(Yii::$app->request->baseUrl . '/css/table-style.css');
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/consulta/index.css');
 ?>
 
 <div class="consulta-index">
@@ -36,7 +36,7 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/table-style.css');
                         [
                                 'attribute' => 'id',
                                 'label' => 'ID',
-                                'headerOptions' => ['style' => 'width:80px;'],
+                                'headerOptions' => ['class' => 'id'],
                         ],
                         [
                                 'label' => 'Paciente',
@@ -58,14 +58,14 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/table-style.css');
                                 'attribute' => 'data_consulta',
                                 'label' => 'Data da Consulta',
                                 'format' => ['datetime', 'php:d/m/Y H:i'],
-                                'headerOptions' => ['style' => 'min-width:160px; text-align:center;'],
-                                'contentOptions' => ['style' => 'text-align:center;'],
+                                'headerOptions' => ['class' => 'data-consulta-header'],
+                                'contentOptions' => ['class' => 'data-consulta-content'],
                         ],
                         [
                                 'class' => 'yii\grid\ActionColumn',
                                 'header' => 'Ações',
                                 'template' => '{view} {update} {delete}',
-                                'contentOptions' => ['style' => 'white-space:nowrap; text-align:center; vertical-align:middle;'],
+                                'contentOptions' => ['class' => 'acoes'],
                                 'buttons' => [
                                         'view' => fn($url) => Html::a('<i class="bi bi-eye"></i>', $url, [
                                                 'class' => 'btn-action btn-view', 'title' => 'Ver'

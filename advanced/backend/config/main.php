@@ -75,12 +75,7 @@ return [
             'class' => yii\web\Response::class,
         ],
 
-        'request' => [
-            'crsfParam' => 'crsf-backend',
-            'parsers' => [
-                'application/json' => 'yii\web\JsonParser',
-            ],
-        ],
+
 
         'user' => [
             'identityClass' => common\models\User::class,

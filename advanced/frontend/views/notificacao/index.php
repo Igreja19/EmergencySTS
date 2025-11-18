@@ -12,6 +12,7 @@ use yii\helpers\Url;
 
 $this->title = 'Notificações';
 $this->params['breadcrumbs'][] = $this->title;
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/notificacao/index.css');
 ?>
 
 <div class="notificacao-index container py-4">
@@ -140,42 +141,3 @@ $this->params['breadcrumbs'][] = $this->title;
         <?php endif; ?>
     </div>
 </div>
-
-<style>
-    .notificacao-index {
-        max-width: 900px;
-        margin: 0 auto;
-    }
-    .card {
-        transition: all 0.2s ease-in-out;
-    }
-    .card:hover {
-        transform: translateY(-2px);
-    }
-    .badge {
-        font-size: 0.75rem;
-        font-weight: 500;
-        border-radius: 10px;
-    }
-    .bg-primary-subtle {
-        background-color: #eaf1ff !important;
-    }
-    .bg-light {
-        background-color: #f8f9fa !important;
-    }
-    .btn-outline-success {
-        border: 1px solid #198754;
-        color: #198754;
-        font-weight: 500;
-    }
-    .btn-outline-success:hover {
-        background-color: #198754;
-        color: #fff;
-    }
-    .shadow-sm {
-        box-shadow: 0 1px 3px rgba(0,0,0,0.08)!important;
-    }
-    h4, h6 { color: #222; }
-    .lista-notificacoes .card { border-left: 4px solid transparent; }
-    .lista-notificacoes .card.bg-light { border-left: 4px solid #0d6efd; }
-</style>
