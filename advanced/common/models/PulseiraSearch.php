@@ -41,11 +41,13 @@ class PulseiraSearch extends Pulseira
     {
         // Query base
         $query = Pulseira::find()
-            ->joinWith(['userprofile', 'triagem t', 'triagem.consulta c']); // 🔥 não removi nada!
+            ->joinWith(['userprofile', 'triagem t', 'triagem.consulta c']);
 
-        // 🔥🔥🔥 AQUI ESTÁ O FILTRO QUE FALTAVA
-        // Mostra apenas pulseiras que NÃO têm consulta associada
-        $query->andWhere(['c.id' => null]); // ← alias correto da consulta
+        // 🔥 1) Mostrar apenas pulseiras SEM consulta associada (mantido do teu código)
+        $query->andWhere(['c.id' => null]);
+
+        // 🔥 2) Mostrar apenas pulseiras que JÁ TÊM PRIORIDADE REAL (ocultar PENDENTE)
+        $query->andWhere(['!=', 'pulseira.prioridade', 'Pendente']);
 
         // DataProvider
         $dataProvider = new ActiveDataProvider([
@@ -54,8 +56,12 @@ class PulseiraSearch extends Pulseira
 
         // 🔹 Ordenação personalizada Manchester
         $dataProvider->sort->attributes['prioridade'] = [
-            'asc' => [new Expression("FIELD(pulseira.prioridade, 'Azul', 'Verde', 'Amarelo', 'Laranja', 'Vermelho') ASC")],
-            'desc' => [new Expression("FIELD(pulseira.prioridade, 'Vermelho', 'Laranja', 'Amarelo', 'Verde', 'Azul') ASC")],
+            'asc' => [
+                new Expression("FIELD(pulseira.prioridade, 'Azul', 'Verde', 'Amarelo', 'Laranja', 'Vermelho')")
+            ],
+            'desc' => [
+                new Expression("FIELD(pulseira.prioridade, 'Vermelho', 'Laranja', 'Amarelo', 'Verde', 'Azul')")
+            ],
         ];
 
         // 🔹 Ordenação padrão (mais recentes primeiro)
@@ -63,13 +69,14 @@ class PulseiraSearch extends Pulseira
             'defaultOrder' => ['id' => SORT_DESC],
         ]);
 
+        // ← carregar filtros
         $this->load($params);
 
         if (!$this->validate()) {
             return $dataProvider;
         }
 
-        // === Filtros ===
+        // === Filtros adicionais ===
         $query->andFilterWhere([
             'id' => $this->id,
         ]);
@@ -81,10 +88,6 @@ class PulseiraSearch extends Pulseira
         if (!empty($this->tempoentrada)) {
             $query->andFilterWhere(['like', 'tempoentrada', $this->tempoentrada]);
         }
-
-        // (❗ este filtro era duplicado com o de cima, mas mantive o teu comentário)
-        // ❗ Ocultar pulseiras que já têm consulta
-        // ❗ Já está tratado pelo filtro c.id IS NULL
 
         return $dataProvider;
     }

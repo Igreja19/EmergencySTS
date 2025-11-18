@@ -18,10 +18,34 @@ class ConsultaController extends Controller
         return array_merge(
             parent::behaviors(),
             [
+
+                // 🔒 CONTROLO DE ACESSO (protege rotas)
+                'access' => [
+                    'class' => \yii\filters\AccessControl::class,
+                    'only' => ['index','view','create','update','delete','chart-data'],
+                    'rules' => [
+
+                        [
+                            'allow' => true,
+                            'actions' => ['error', 'login'],
+                        ],
+
+                        [
+                            'allow' => true,
+                            'roles' => ['admin', 'medico', 'enfermeiro'],
+                        ],
+                    ],
+                    'denyCallback' => function () {
+                        return Yii::$app->response->redirect(['/site/login']);
+                    },
+                ],
+
+                // 🔧 VerbFilter
                 'verbs' => [
-                    'class' => VerbFilter::className(),
+                    'class' => VerbFilter::class,
                     'actions' => [
                         'delete' => ['POST'],
+                        'chart-data' => ['GET'],
                     ],
                 ],
             ]
@@ -55,7 +79,7 @@ class ConsultaController extends Controller
     {
         $model = new Consulta();
 
-        // 🔹 Triagens que já têm pulseira atribuída (pacientes válidos p/ consulta)
+        // 🔹 Triagens com pulseira (pacientes aptos a consulta)
         $triagensDisponiveis = ArrayHelper::map(
             Triagem::find()
                 ->joinWith('pulseira')
@@ -67,20 +91,14 @@ class ConsultaController extends Controller
 
         if ($model->load(Yii::$app->request->post())) {
 
-            // 🔥 data atual da consulta
+            // Dados automáticos
             $model->data_consulta = date('Y-m-d H:i:s');
-
-            // 🔥 estado inicial
             $model->estado = Consulta::ESTADO_EM_CURSO;
-
-            // 🔥 data de encerramento não pode existir ao criar
             $model->data_encerramento = null;
 
             if ($model->save(false)) {
 
-                /**
-                 * ⭐ AO CRIAR CONSULTA -> PULSEIRA FICA "EM ATENDIMENTO"
-                 */
+                // Atualizar pulseira para "Em atendimento"
                 if ($model->triagem && $model->triagem->pulseira) {
                     $pulseira = $model->triagem->pulseira;
                     $pulseira->status = "Em atendimento";
@@ -128,35 +146,38 @@ class ConsultaController extends Controller
     {
         $model = $this->findModel($id);
 
-        $estadoAntigo = $model->estado;
+        // 🔹 Triagens com pulseira — faltava no update!
+        $triagensDisponiveis = ArrayHelper::map(
+            Triagem::find()
+                ->joinWith('pulseira')
+                ->where(['not', ['pulseira.id' => null]])
+                ->all(),
+            'id',
+            fn($t) => 'Pulseira: ' . ($t->pulseira->codigo ?? '—')
+        );
 
         if ($model->load(Yii::$app->request->post())) {
 
-            // 🔹 Se voltar para "Em curso", limpar data encerramento
+            // Se volta para "Em curso"
             if ($model->estado === Consulta::ESTADO_EM_CURSO) {
                 $model->data_encerramento = null;
             }
 
-            // 🔹 Se for encerrada e ainda sem data → gerar
+            // Se encerra e data ainda não existe
             if ($model->estado === Consulta::ESTADO_ENCERRADA && empty($model->data_encerramento)) {
                 $model->data_encerramento = date('Y-m-d H:i:s');
             }
 
             if ($model->save(false)) {
 
-                /**
-                 * ⭐ ATUALIZAÇÃO DO ESTADO DA PULSEIRA
-                 * -----------------------------------
-                 * Se consulta muda para "Encerrada" → pulseira vira "Atendido"
-                 */
+                // Atualizar estado da pulseira
                 if ($model->triagem && $model->triagem->pulseira) {
                     $pulseira = $model->triagem->pulseira;
 
-                    if ($model->estado === Consulta::ESTADO_ENCERRADA) {
-                        $pulseira->status = "Atendido";
-                    } else {
-                        $pulseira->status = "Em atendimento";
-                    }
+                    $pulseira->status =
+                        $model->estado === Consulta::ESTADO_ENCERRADA
+                            ? "Atendido"
+                            : "Em atendimento";
 
                     $pulseira->save(false);
                 }
@@ -168,14 +189,43 @@ class ConsultaController extends Controller
 
         return $this->render('update', [
             'model' => $model,
+            'triagensDisponiveis' => $triagensDisponiveis, // 🔥 FIX AQUI
         ]);
     }
 
-    /**
-     * =============================================
-     * ❌ APAGAR CONSULTA
-     * =============================================
-     */
+    public function actionHistorico()
+    {
+        // Buscar todos os médicos via RBAC
+        $medicoAssignments = Yii::$app->authManager->getUserIdsByRole('medico');
+
+        // Perfis dos médicos
+        $medicos = \common\models\UserProfile::find()
+            ->where(['user_id' => $medicoAssignments])
+            ->all();
+
+        // Consultas encerradas
+        $consultas = \common\models\Consulta::find()
+            ->where(['estado' => 'Encerrada'])
+            ->orderBy(['data_encerramento' => SORT_DESC])
+            ->all();
+
+        return $this->render('historico', [
+            'medicos' => $medicos,
+            'consultas' => $consultas,
+        ]);
+    }
+
+    public function actionEncerrar($id)
+    {
+        $model = $this->findModel($id);
+        $model->estado = 'Encerrada';
+        $model->data_encerramento = date('Y-m-d H:i:s');
+        $model->save(false);
+
+        Yii::$app->session->setFlash('success', 'Consulta encerrada com sucesso!');
+        return $this->redirect(['index']);
+    }
+
     public function actionDelete($id)
     {
         $this->findModel($id)->delete();
@@ -183,9 +233,6 @@ class ConsultaController extends Controller
         return $this->redirect(['index']);
     }
 
-    /**
-     * Encontrar consulta
-     */
     protected function findModel($id)
     {
         if (($model = Consulta::findOne($id)) !== null) {

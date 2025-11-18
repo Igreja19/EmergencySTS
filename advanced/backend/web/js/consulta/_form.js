@@ -27,3 +27,4 @@ $('#estado-select').on('change', function () {
         $('#consulta-data_encerramento').val('');
     }
 });
+

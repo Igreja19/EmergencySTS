@@ -62,6 +62,26 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/consulta/index.css');
                                 'contentOptions' => ['class' => 'data-consulta-content'],
                         ],
                         [
+                                'label' => 'Consulta',
+                                'format' => 'raw',
+                                'value' => function ($model) {
+                                    if ($model->estado === 'Encerrada') {
+                                        return "<span class='badge bg-secondary'>Encerrada</span>";
+                                    }
+
+                                    return Html::a(
+                                            '<i class="bi bi-x-octagon-fill"></i> Encerrar Consulta',
+                                            ['consulta/encerrar', 'id' => $model->id],
+                                            [
+                                                    'class' => 'btn btn-danger btn-sm w-100',
+                                                    'data-confirm' => 'Tens a certeza que queres encerrar esta consulta?',
+                                                    'data-method' => 'post',
+                                            ]
+                                    );
+                                },
+                                'contentOptions' => ['style' => 'vertical-align:middle; text-align:center; min-width:170px;'],
+                        ],
+                        [
                                 'class' => 'yii\grid\ActionColumn',
                                 'header' => 'Ações',
                                 'template' => '{view} {update} {delete}',

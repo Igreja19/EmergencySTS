@@ -199,3 +199,16 @@
         text-align: center;
     }
 }
+.update-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 28px;
+    font-weight: 700;
+    color: #198754;
+}
+.update-container {
+    max-width: 950px;
+    margin: 0 auto;
+}
+");
