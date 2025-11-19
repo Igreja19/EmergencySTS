@@ -3,7 +3,7 @@ use yii\helpers\Html;
 use yii\bootstrap5\ActiveForm;
 
 $this->title = 'Acesso Restrito';
-$this->registerCssFile(Yii::$app->request->baseUrl . '/css/site.css');
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/site/site.css');
 ?>
 
 <div class="login-container">
