@@ -56,14 +56,27 @@ $this->registerJsFile($publishedRes[1] . '/control_sidebar.js');
 <!-- 🔊 Som das notificações -->
 <audio id="notifSound" src="/platf/EmergencySTS/advanced/backend/web/sounds/notificacao.mp3" preload="auto"></audio>
 
+<?php
+$auth = Yii::$app->authManager;
+$userId = Yii::$app->user->id ?? null;
+$roles = $userId ? array_keys($auth->getRolesByUser($userId)) : [];
+
+$isAdmin      = in_array('admin', $roles);
+$isMedico     = in_array('medico', $roles);
+$isEnfermeiro = in_array('enfermeiro', $roles);
+?>
 <?php $this->beginBody() ?>
 
 <div id="toast-container" style="position:fixed; top:20px; right:20px; z-index:999999;"></div>
 
 <div class="wrapper">
 
-    <?= $this->render('navbar', ['assetDir' => $assetDir]) ?>
-    <?= $this->render('sidebar', ['assetDir' => $assetDir]) ?>
+    <?= $this->render('navbar', [
+            'assetDir' => $assetDir,
+            'isAdmin' => $isAdmin,
+            'isMedico' => $isMedico,
+            'isEnfermeiro' => $isEnfermeiro,
+    ]) ?>    <?= $this->render('sidebar', ['assetDir' => $assetDir]) ?>
     <?= $this->render('content', ['content' => $content, 'assetDir' => $assetDir]) ?>
     <?= $this->render('control-sidebar') ?>
     <?= $this->render('footer') ?>
