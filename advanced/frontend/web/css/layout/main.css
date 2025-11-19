@@ -1,0 +1,43 @@
+/* 🔹 Navbar */
+.navbar {
+    transition: all 0.3s ease;
+}
+
+.navbar.scrolled {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    background-color: #212529 !important;
+}
+
+/* 🔹 Botões */
+.btn-success {
+    background-color: #198754 !important;
+    border: none;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.btn-success:hover {
+    background-color: #16a34a !important;
+    box-shadow: 0 4px 15px rgba(22, 163, 74, 0.4);
+    transform: translateY(-2px);
+}
+
+/* 🔹 Footer */
+footer {
+    background-color: #111;
+    color: #aaa;
+}
+
+footer a {
+    color: #198754;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+footer a:hover {
+    color: #16a34a;
+}
+.img {
+    height:50px;
+    margin-right:10px;
+}

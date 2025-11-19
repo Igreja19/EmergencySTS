@@ -1,0 +1,9 @@
+.consulta-ver .card {
+    transition: all .2s ease-in-out;
+}
+.consulta-ver .card:hover {
+    transform: translateY(-1px);
+}
+.badge {
+    border-radius: 10px;
+}

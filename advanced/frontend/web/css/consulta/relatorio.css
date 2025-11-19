@@ -1,0 +1,120 @@
+/* ======= Reset/Helpers ======= */
+* { box-sizing: border-box; }
+html, body {
+    font-family: DejaVu Sans, Arial, Helvetica, sans-serif;
+    color:#1f2937;
+    font-size:12px;
+    line-height:1.45;
+}
+h1,h2,h3,h4 {
+    margin:0 0 6px 0;
+}
+.muted {
+    color:#6b7280;
+}
+.small {
+    font-size: 11px;
+    color:#6b7280;
+}
+.pill {
+    display:inline-block;
+    padding:3px 8px;
+    border-radius:999px;
+    font-weight:600;
+    font-size:11px;
+    color:#fff;
+}
+.card {
+    border:1px solid #e5e7eb;
+    border-radius:12px;
+    padding:14px;
+    margin-bottom:12px;
+    margin-top:12px;
+}
+.row {
+    display:flex;
+    gap:12px;
+}
+.col {
+    flex:1;
+}
+.divider {
+    height:1px;
+    background:#e5e7eb;
+    margin:12px 0;
+}
+.k {
+    color:#6b7280;
+    font-size:11px;
+    margin-bottom:3px;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+}
+.v {
+    font-weight:600;
+}
+.section-title {
+    font-size:13px;
+    font-weight:700;
+    color:#111827;
+    margin-bottom:8px;
+}
+.table {
+    width:100%;
+    border-collapse: collapse;
+}
+.table th, .table td {
+    padding:8px 10px;
+    border:1px solid #e5e7eb;
+    vertical-align: top;
+}
+.table th {
+    background:#f9fafb;
+    text-align:left;
+    font-weight:700;
+    width:30%;
+}
+.badge-state {
+    background:#6b7280;
+    color:#fff;
+}
+.header {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:10px 0 14px;
+    border-bottom:2px solid #10b981;
+    width:80px;
+    height:auto;
+}
+.brand {
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+.brand-logo {
+    width:40px;
+    height:40px;
+    object-fit:contain;
+}
+.brand-title {
+    font-size:18px;
+    font-weight:800;
+    color:#10b981;
+    letter-spacing:.3px;
+}
+.meta {
+    text-align:right;
+}
+.meta .title {
+    font-size:16px;
+    font-weight:700;
+    color:#111827;
+}
+.footer {
+    text-align:center;
+    color:#6b7280;
+    font-size:10px;
+    margin-top:12px;
+}
+/* mPDF footer page number via CSS content (apenas indicativo; para paginação avançada usar SetHTMLFooter no controller) */

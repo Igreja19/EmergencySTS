@@ -6,13 +6,14 @@ use yii\widgets\ActiveForm;
 /** @var common\models\UserProfile $model */
 
 $this->title = $model->isNewRecord ? 'Criar Perfil' : 'Editar Perfil';
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile/_form.css');
 ?>
 
 <!-- Bootstrap Icons -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
 <div class="profile-page d-flex align-items-center justify-content-center min-vh-100 py-5">
-    <div class="card shadow-sm border-0 rounded-4 p-4 w-100" style="max-width: 800px;">
+    <div class="form card shadow-sm border-0 rounded-4 p-4 w-100">
         <div class="text-center mb-4">
             <span class="badge bg-light text-success px-3 py-2 fw-semibold">EmergencySTS</span>
             <h3 class="fw-bold text-success mt-3">
@@ -117,60 +118,3 @@ $this->title = $model->isNewRecord ? 'Criar Perfil' : 'Editar Perfil';
         <?php ActiveForm::end(); ?>
     </div>
 </div>
-
-<!-- Estilos -->
-<style>
-    body {
-        background: linear-gradient(180deg, #f8fff9 0%, #eef8ef 100%);
-    }
-
-    .profile-page {
-        background: linear-gradient(180deg, #f8fff9 0%, #eef8ef 100%);
-        min-height: 100vh;
-    }
-
-    .card {
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        border-radius: 18px;
-        transition: all 0.3s ease;
-    }
-
-    .card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.1);
-    }
-
-    .form-control, select {
-        border-radius: 10px !important;
-        padding: 10px 14px;
-    }
-
-    label {
-        font-weight: 600;
-        color: #198754;
-    }
-
-    h6 {
-        text-transform: uppercase;
-        font-size: 0.85rem;
-        letter-spacing: 0.5px;
-    }
-
-    .btn-success {
-        background-color: #198754 !important;
-        border: none;
-        border-radius: 10px;
-        transition: all 0.3s ease;
-    }
-
-    .btn-success:hover {
-        background-color: #16a34a !important;
-        box-shadow: 0 4px 15px rgba(22, 163, 74, 0.4);
-        transform: translateY(-2px);
-    }
-
-    .short-label {
-        white-space: nowrap;
-        font-size: 1rem;
-    }
-</style>

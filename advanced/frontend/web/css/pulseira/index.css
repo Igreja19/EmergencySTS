@@ -1,0 +1,13 @@
+.selo {
+    color: #fff;
+    font-size: 0.9rem;
+    padding: 0.4rem 1rem;
+    border-radius: 6px;
+    min-width: 90px;
+    height: 30px;
+    letter-spacing: .5px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+.barra {
+    transition: width 0.8s ease;
+}

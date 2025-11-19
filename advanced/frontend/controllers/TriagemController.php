@@ -15,7 +15,24 @@ class TriagemController extends Controller
      */
     public function actionIndex()
     {
-        return $this->render('index');
+        $podeCriarTriagem = true;
+
+        if (!Yii::$app->user->isGuest) {
+            $userProfileId = Yii::$app->user->identity->userprofile->id ?? null;
+
+            if ($userProfileId) {
+                $pulseiraAtiva = Pulseira::find()
+                    ->where(['userprofile_id' => $userProfileId])
+                    ->andWhere(['in', 'status', ['Pendente', 'Em Atendimento']])
+                    ->exists(); // devolve true/false, não carrega o modelo inteiro
+
+                $podeCriarTriagem = !$pulseiraAtiva;
+            }
+        }
+
+        return $this->render('index', [
+            'podeCriarTriagem' => $podeCriarTriagem,
+        ]);
     }
 
     /**
@@ -27,6 +44,17 @@ class TriagemController extends Controller
 
         if (!Yii::$app->user->isGuest) {
             $model->userprofile_id = Yii::$app->user->identity->userprofile->id ?? null;
+        }
+
+        // Verifica se o utilizador já tem uma pulseira com status "Aguardando" ou "Em Atendimento"
+        $pulseiraAtiva = Pulseira::find()
+            ->where(['userprofile_id' => $model->userprofile_id])
+            ->andWhere(['in', 'status', ['Pendente', 'Em Atendimento']])
+            ->one();
+
+        if ($pulseiraAtiva) {
+            Yii::$app->session->setFlash('warning', 'Já tem uma pulseira ativa e não pode criar outro formulário até esta ser concluída.');
+            return $this->redirect(['site/index']);
         }
 
         if (Yii::$app->request->isPost && $model->load(Yii::$app->request->post())) {

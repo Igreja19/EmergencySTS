@@ -9,9 +9,10 @@ use yii\bootstrap5\ActiveForm;
 
 $this->title = 'Iniciar Sessão';
 $this->params['breadcrumbs'][] = $this->title;
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/site/login.css');
 ?>
 <section class="min-vh-100 d-flex align-items-center justify-content-center login-bg">
-    <div class="card shadow-sm border-0 w-100 mx-3" style="max-width: 600px; border-radius: 16px;">
+    <div class="login card shadow-sm border-0 w-100 mx-3">
         <div class="card-body p-5">
 
             <h3 class="text-center fw-bold mb-3 text-dark"><?= Html::encode($this->title) ?></h3>
@@ -35,7 +36,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <?= $form->field($model, 'rememberMe')->checkbox(['label' => 'Lembrar-me']) ?>
 
-                        <div class="text-end small" style="margin-top: -10px;">
+                        <div class="text-end small">
                             <a href="<?= Yii::$app->urlManager->createUrl(['site/request-password-reset']) ?>" class="text-decoration-none text-primary fw-semibold">
                                 Recuperar palavra-passe
                             </a>

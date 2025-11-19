@@ -1,0 +1,57 @@
+.form {
+    max-width: 800px;
+}
+
+body {
+    background: linear-gradient(180deg, #f8fff9 0%, #eef8ef 100%);
+}
+
+.profile-page {
+    background: linear-gradient(180deg, #f8fff9 0%, #eef8ef 100%);
+    min-height: 100vh;
+}
+
+.card {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border-radius: 18px;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.1);
+}
+
+.form-control, select {
+    border-radius: 10px !important;
+    padding: 10px 14px;
+}
+
+label {
+    font-weight: 600;
+    color: #198754;
+}
+
+h6 {
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+.btn-success {
+    background-color: #198754 !important;
+    border: none;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.btn-success:hover {
+    background-color: #16a34a !important;
+    box-shadow: 0 4px 15px rgba(22, 163, 74, 0.4);
+    transform: translateY(-2px);
+}
+
+.short-label {
+    white-space: nowrap;
+    font-size: 1rem;
+}

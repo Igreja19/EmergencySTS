@@ -1,0 +1,82 @@
+.form {
+    max-width: 850px;
+}
+body {
+    background: linear-gradient(180deg, #f8fff9 0%, #eef8ef 100%);
+}
+
+.card {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border-radius: 18px;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.1);
+}
+
+.form-control, .form-select, select {
+    border-radius: 10px !important;
+    padding: 10px 14px;
+    height: 44px;
+}
+
+textarea.form-control {
+    resize: none;
+    height: auto;
+}
+
+.form-label, label {
+    font-weight: 600;
+    color: #198754;
+    margin-top: 6px;
+    margin-bottom: 6px;
+    display: block;
+}
+
+.row.g-3 > [class*="col-"] {
+    margin-bottom: 10px;
+}
+
+h6 {
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    color: #198754;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+.btn-success {
+    background-color: #198754 !important;
+    border: none;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.btn-success:hover {
+    background-color: #16a34a !important;
+    box-shadow: 0 4px 15px rgba(22, 163, 74, 0.4);
+    transform: translateY(-2px);
+}
+
+.row.g-3 .col-md-3,
+.row.g-3 .col-md-6 {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.form-select {
+    border-radius: 10px !important;
+    padding: 10px 14px;
+    height: 44px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: all .25s ease;
+}
+
+.form-select:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.15rem rgba(25,135,84,.25);
+}
