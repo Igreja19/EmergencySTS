@@ -48,11 +48,15 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/table-style.css');
                         ],
                         [
                                 'label' => 'Prescrição',
-                                'value' => fn($model) => $model->prescricao->id ?? '-',
+                                'value' => function ($model) {
+                                    return count($model->prescricoes) > 0
+                                            ? count($model->prescricoes)
+                                            : '-';
+                                }
                         ],
                         [
-                                'attribute' => 'estado',
                                 'label' => 'Estado',
+                                'value' => 'estado',
                         ],
                         [
                                 'attribute' => 'data_consulta',

@@ -7,6 +7,7 @@ use common\models\Prescricao;
 use common\models\PrescricaoSearch;
 use common\models\Consulta;
 use common\models\Medicamento;
+use common\models\Prescricaomedicamento;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -44,7 +45,7 @@ class PrescricaoController extends Controller
 
                 // 🔧 VerbFilter já existia, continua igual
                 'verbs' => [
-                    'class' => \yii\filters\VerbFilter::class,
+                    'class' => VerbFilter::class,
                     'actions' => [
                         'delete' => ['POST'],
                         'chart-data' => ['GET'],
@@ -73,8 +74,13 @@ class PrescricaoController extends Controller
      */
     public function actionView($id)
     {
+        $model = $this->findModel($id);
+
+        // opcional: já traz os medicamentos carregados
+        $model->populateRelation('medicamentos', $model->medicamentos);
+
         return $this->render('view', [
-            'model' => $this->findModel($id),
+            'model' => $model,
         ]);
     }
 
@@ -99,20 +105,29 @@ class PrescricaoController extends Controller
 
         if ($model->load(Yii::$app->request->post())) {
 
-            // 🔹 TEMPO ENTRADA AUTOMÁTICO
-            $model->tempoentrada = date('Y-m-d H:i:s');
-
-            // Se a data não vier → usa agora
+            // 🔹 Se a data da prescrição não vier do formulário → usa agora
             if (empty($model->dataprescricao)) {
                 $model->dataprescricao = date('Y-m-d H:i:s');
             }
 
             if ($model->save()) {
+
+                // 🔗 grava associações na tabela pivot prescricaomedicamento
+                if (!empty($model->medicamento_ids) && is_array($model->medicamento_ids)) {
+                    foreach ($model->medicamento_ids as $medId) {
+                        $pm = new Prescricaomedicamento();
+                        $pm->prescricao_id  = $model->id;
+                        $pm->medicamento_id = $medId;
+                        $pm->save(false);
+                    }
+                }
+
                 Yii::$app->session->setFlash('success', 'Prescrição criada com sucesso!');
                 return $this->redirect(['view', 'id' => $model->id]);
             }
 
-            Yii::$app->session->setFlash('error',
+            Yii::$app->session->setFlash(
+                'error',
                 'Erro ao guardar prescrição: ' . json_encode($model->getErrors())
             );
         }
@@ -141,18 +156,40 @@ class PrescricaoController extends Controller
             ->indexBy('id')
             ->column();
 
+        // 🔹 Pré-carrega os medicamentos já associados para o dropdown múltiplo
+        $model->medicamento_ids = Prescricaomedicamento::find()
+            ->select('medicamento_id')
+            ->where(['prescricao_id' => $model->id])
+            ->column();
+
         if ($model->load(Yii::$app->request->post())) {
 
+            // 🔹 Se por algum motivo limpar a data, repõe para agora
             if (empty($model->dataprescricao)) {
                 $model->dataprescricao = date('Y-m-d H:i:s');
             }
 
             if ($model->save()) {
+
+                // ❌ remove associações antigas
+                Prescricaomedicamento::deleteAll(['prescricao_id' => $model->id]);
+
+                // ✅ recria associações de acordo com o que veio do formulário
+                if (!empty($model->medicamento_ids) && is_array($model->medicamento_ids)) {
+                    foreach ($model->medicamento_ids as $medId) {
+                        $pm = new Prescricaomedicamento();
+                        $pm->prescricao_id  = $model->id;
+                        $pm->medicamento_id = $medId;
+                        $pm->save(false);
+                    }
+                }
+
                 Yii::$app->session->setFlash('success', 'Prescrição atualizada com sucesso!');
                 return $this->redirect(['view', 'id' => $model->id]);
             }
 
-            Yii::$app->session->setFlash('error',
+            Yii::$app->session->setFlash(
+                'error',
                 'Erro ao atualizar: ' . json_encode($model->getErrors())
             );
         }
@@ -169,6 +206,10 @@ class PrescricaoController extends Controller
      */
     public function actionDelete($id)
     {
+        // primeiro apaga as associações na tabela pivot
+        Prescricaomedicamento::deleteAll(['prescricao_id' => $id]);
+
+        // depois apaga a prescrição
         $this->findModel($id)->delete();
 
         Yii::$app->session->setFlash('success', 'Prescrição eliminada com sucesso.');

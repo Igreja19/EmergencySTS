@@ -37,6 +37,7 @@ $this->title = "Histórico de Consultas";
             <th>Médico</th>
             <th>Data Consulta</th>
             <th>Encerramento</th>
+            <th>Ações</th>
             <th></th>
         </tr>
         </thead>

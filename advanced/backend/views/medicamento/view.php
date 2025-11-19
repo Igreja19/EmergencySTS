@@ -52,14 +52,6 @@ $this->params['breadcrumbs'][] = $this->title;
                                 'attribute' => 'indicacao',
                                 'format' => 'ntext',
                         ],
-                        [
-                                'attribute' => 'quantidade_diaria',
-                                'label' => 'Quantidade diária',
-                        ],
-                        [
-                                'attribute' => 'duracao_tratamento',
-                                'label' => 'Duração do tratamento',
-                        ],
                 ],
         ]) ?>
 

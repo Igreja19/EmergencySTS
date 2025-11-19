@@ -3,6 +3,9 @@
 namespace common\models;
 
 use Yii;
+use common\models\Prescricaomedicamento;
+use common\models\Medicamento;
+use common\models\Consulta;
 
 /**
  * This is the model class for table "prescricao".
@@ -15,9 +18,14 @@ use Yii;
  * @property Consulta $consulta
  * @property Prescricaomedicamento[] $prescricaomedicamentos
  */
-
 class Prescricao extends \yii\db\ActiveRecord
 {
+    /**
+     * IDs dos medicamentos selecionados no formulário
+     * (para dropdown múltiplo)
+     */
+    public $medicamento_ids = [];
+
     public static function tableName()
     {
         return 'prescricao';
@@ -30,6 +38,10 @@ class Prescricao extends \yii\db\ActiveRecord
             [['observacoes'], 'string'],
             [['dataprescricao'], 'safe'],
             [['consulta_id'], 'integer'],
+
+            // campo de seleção múltipla de medicamentos
+            [['medicamento_ids'], 'safe'],
+
             [
                 ['consulta_id'],
                 'exist',
@@ -46,14 +58,16 @@ class Prescricao extends \yii\db\ActiveRecord
             'id' => 'ID',
             'observacoes' => 'Observações',
             'dataprescricao' => 'Data da Prescrição',
-            'consulta_id' => 'Consulta ID',
+            'consulta_id' => 'Consulta',
+            'medicamento_ids' => 'Medicamentos',
         ];
     }
+
     public function beforeSave($insert)
     {
         if ($insert) {
-            // Guarda automaticamente o timestamp atual
-            $this->tempoentrada = date('Y-m-d H:i:s');
+            // Se quiser preencher automaticamente
+            // $this->dataprescricao = date('Y-m-d H:i:s');
         }
 
         return parent::beforeSave($insert);
@@ -74,5 +88,4 @@ class Prescricao extends \yii\db\ActiveRecord
         return $this->hasMany(Medicamento::class, ['id' => 'medicamento_id'])
             ->via('prescricaomedicamentos');
     }
-
 }

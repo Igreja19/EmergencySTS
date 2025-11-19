@@ -53,30 +53,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/medicamento/_form.css
         ]) ?>
     </div>
 
-    <!-- POSOLOGIA -->
-    <div class="mb-3">
-        <div class="section-title">
-            <i class="bi bi-clipboard2-check"></i>
-            Posologia Recomendada
-        </div>
-
-        <div class="row g-3">
-            <div class="col-md-6">
-                <?= $form->field($model, 'quantidade_diaria')->textInput([
-                        'maxlength' => true,
-                        'placeholder' => 'Ex.: 1 comprimido 2x ao dia'
-                ]) ?>
-            </div>
-
-            <div class="col-md-6">
-                <?= $form->field($model, 'duracao_tratamento')->textInput([
-                        'maxlength' => true,
-                        'placeholder' => 'Ex.: 7 dias, 10 dias, uso contínuo'
-                ]) ?>
-            </div>
-        </div>
-    </div>
-
     <!-- BOTÕES -->
     <div class="mt-3 d-flex justify-content-end gap-2">
         <?= Html::submitButton(

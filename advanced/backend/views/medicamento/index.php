@@ -94,22 +94,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/medicamento/index.css
                     ],
 
                     [
-                            'attribute' => 'indicacao',
-                            'label' => 'Indicação',
-                            'contentOptions' => ['style' => 'max-width:300px; white-space:normal;'],
-                    ],
-
-                    [
-                            'attribute' => 'quantidade_diaria',
-                            'label' => 'Qtd. Diária',
-                    ],
-
-                    [
-                            'attribute' => 'duracao_tratamento',
-                            'label' => 'Duração',
-                    ],
-
-                    [
                             'class' => 'yii\grid\ActionColumn',
                             'header' => 'Ações',
                             'contentOptions' => ['style' => 'text-align:center; white-space:nowrap;'],

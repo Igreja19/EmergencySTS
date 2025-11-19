@@ -4,7 +4,7 @@ use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use yii\helpers\ArrayHelper;
 
-$this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile.css');
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/prescricao/_form.css');
 
 ?>
 
