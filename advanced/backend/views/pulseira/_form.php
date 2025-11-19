@@ -2,92 +2,61 @@
 
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
-use yii\helpers\ArrayHelper;
 
 /** @var yii\web\View $this */
 /** @var common\models\Pulseira $model */
-/** @var yii\widgets\ActiveForm $form */
-
-$this->registerCss('
-.pulseira-form {
-  background: #fff;
-  border-radius: 20px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-  padding: 25px 30px;
-  margin-bottom: 25px;
-}
-.pulseira-form h5 {
-  color: #198754;
-  font-weight: 700;
-  margin-bottom: 15px;
-}
-.pulseira-form .form-control {
-  border-radius: 12px;
-  box-shadow: none;
-  border: 1px solid #ced4da;
-  padding: 10px 12px;
-}
-.pulseira-form .form-control:focus {
-  border-color: #198754;
-  box-shadow: 0 0 0 0.15rem rgba(25,135,84,.25);
-}
-.btn-save {
-  background: linear-gradient(90deg, #198754 0%, #28a745 100%);
-  color: #fff;
-  font-weight: 600;
-  border-radius: 12px;
-  padding: 10px 25px;
-  transition: .2s;
-}
-.btn-save:hover {
-  opacity: .9;
-  transform: translateY(-2px);
-}
-');
+/** @var array $triagensDropdown */
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/pulseira/_form.css');
 ?>
 
 <div class="pulseira-form">
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <h5><i class="bi bi-upc me-2"></i> Dados da Pulseira</h5>
+    <h5><i class="bi bi-upc me-2"></i> Criar Pulseira</h5>
 
     <div class="row g-3 mb-3">
 
         <?php if ($model->isNewRecord): ?>
 
-            <!-- 🔹 Selecionar pulseira sem prioridade -->
+            <!-- SELEÇÃO DE TRIAGEM -->
             <div class="col-md-6">
-                <?= $form->field($model, 'codigo')->dropDownList(
-                        ArrayHelper::map(
-                                \common\models\Pulseira::find()
-                                        ->where(['or',
-                                                ['prioridade' => null],
-                                                ['prioridade' => '']
-                                        ])
-                                        ->all(),
-                                'codigo',
-                                fn($p) => "Código: {$p->codigo} — ID #{$p->id}"
-                        ),
-                        ['prompt' => '— Selecionar Pulseira —']
+                <label class="form-label fw-bold">Triagem</label>
+                <?= Html::dropDownList(
+                        'triagem_id',
+                        null,
+                        $triagensDropdown,
+                        [
+                                'class' => 'form-select',
+                                'prompt' => '— Selecionar Triagem —'
+                        ]
                 ) ?>
             </div>
 
-            <!-- 🔹 Selecionar utilizador da pulseira -->
+            <!-- PRIORIDADE AUTOMÁTICA -->
             <div class="col-md-6">
-                <?= $form->field($model, 'userprofile_id')->dropDownList(
-                        ArrayHelper::map(
-                                \common\models\UserProfile::find()->all(),
-                                'id',
-                                fn($u) => "{$u->nome} (ID {$u->id})"
-                        ),
-                        ['prompt' => '— Selecionar Utente —']
-                ) ?>
+                <label class="form-label fw-bold">Prioridade</label>
+                <input type="text" class="form-control" value="Pendente" readonly>
             </div>
+
+            <!-- ESTADO AUTOMÁTICO -->
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Estado</label>
+                <input type="text" class="form-control" value="Em espera" readonly>
+            </div>
+
+            <!-- TEMPO DE ENTRADA AUTOMÁTICO -->
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Tempo de Entrada</label>
+                <input type="text" class="form-control" value="<?= date('d/m/Y H:i') ?>" readonly>
+            </div>
+
+            <!-- CAMPOS ESCONDIDOS AUTOMÁTICOS -->
+            <?= Html::hiddenInput('auto_generate', '1') ?>
 
         <?php else: ?>
 
-            <!-- 🔹 Código mostrado no update -->
+            <!-- CÓDIGO NO UPDATE -->
             <div class="col-md-6">
                 <?= $form->field($model, 'codigo')->textInput([
                         'readonly' => true,
@@ -95,41 +64,43 @@ $this->registerCss('
                 ]) ?>
             </div>
 
-            <!-- 🔹 Utilizador (bloqueado) -->
+            <!-- UTENTE -->
             <div class="col-md-6">
                 <?= $form->field($model, 'userprofile_id')->textInput([
                         'readonly' => true,
                         'value' => $model->userprofile->nome,
                         'class' => 'form-control-plaintext fw-bold'
+                ])->label('Utente') ?>
+            </div>
+
+            <!-- PRIORIDADE EDITÁVEL -->
+            <div class="col-md-6">
+                <?= $form->field($model, 'prioridade')->dropDownList([
+                        'Vermelho' => 'Vermelho',
+                        'Laranja'  => 'Laranja',
+                        'Amarelo'  => 'Amarelo',
+                        'Verde'    => 'Verde',
+                        'Azul'     => 'Azul',
+                ]) ?>
+            </div>
+
+            <!-- ESTADO -->
+            <div class="col-md-6">
+                <?= $form->field($model, 'status')->dropDownList([
+                        'Em espera'        => 'Em espera',
+                        'Em atendimento'   => 'Em atendimento',
+                        'Atendido'         => 'Atendido',
                 ]) ?>
             </div>
 
         <?php endif; ?>
 
-        <!-- 🔹 Selecionar prioridade -->
-        <div class="col-md-6">
-            <?= $form->field($model, 'prioridade')->dropDownList([
-                    'Vermelho' => 'Vermelho',
-                    'Laranja'  => 'Laranja',
-                    'Amarelo'  => 'Amarelo',
-                    'Verde'    => 'Verde',
-                    'Azul'     => 'Azul',
-            ], ['prompt' => 'Selecione a prioridade...']) ?>
-        </div>
-
-        <!-- 🔹 Estado -->
-        <div class="col-md-6">
-            <?= $form->field($model, 'status')->dropDownList([
-                    'Em espera'        => 'Em espera',
-                    'Em atendimento'   => 'Em atendimento',
-                    'Atendido'         => 'Atendido',
-            ], ['prompt' => 'Selecionar estado...']) ?>
-        </div>
-
     </div>
 
     <div class="text-center mt-4">
-        <?= Html::submitButton('<i class="bi bi-check-circle me-1"></i> Guardar', ['class' => 'btn btn-save']) ?>
+        <?= Html::submitButton('<i class="bi bi-check-circle me-1"></i> Guardar', [
+                'class' => 'btn btn-success px-4 py-2'
+        ]) ?>
     </div>
 
     <?php ActiveForm::end(); ?>

@@ -19,6 +19,7 @@ use Yii;
  */
 class Pulseira extends \yii\db\ActiveRecord
 {
+    public $triagem_id;
     /**
      * {@inheritdoc}
      */
@@ -42,6 +43,7 @@ class Pulseira extends \yii\db\ActiveRecord
             [['codigo'], 'unique'],
             [['userprofile_id'], 'exist', 'skipOnError' => true,
                 'targetClass' => UserProfile::class, 'targetAttribute' => ['userprofile_id' => 'id']],
+            [['triagem_id'], 'safe'],
         ];
     }
 

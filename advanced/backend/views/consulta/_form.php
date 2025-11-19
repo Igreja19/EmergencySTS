@@ -31,14 +31,10 @@ $isNew = $model->isNewRecord;
     <div class="row g-3">
 
         <div class="col-md-6">
-            <?= $form->field($model, 'estado')->dropDownList([
-                    'Em curso' => 'Em curso',
-                    'Encerrada' => 'Encerrada'
-            ], [
-                    'class' => 'form-select rounded-3 shadow-sm',
-                    'disabled' => $isNew,
-                    'id' => 'estado-select'
-            ]) ?>
+            <?= $form->field($model, 'estado')->dropDownList(
+                    ['Em curso' => 'Em curso'],
+                    ['disabled' => true] // impede alterações
+            ) ?>
         </div>
 
         <div class="col-md-6" id="campo-encerramento"

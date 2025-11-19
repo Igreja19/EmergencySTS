@@ -5,10 +5,12 @@ namespace backend\controllers;
 use common\models\Notificacao;
 use common\models\Pulseira;
 use common\models\PulseiraSearch;
+use common\models\Triagem;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use Yii;
+
 class PulseiraController extends Controller
 {
     public function behaviors()
@@ -16,50 +18,32 @@ class PulseiraController extends Controller
         return array_merge(
             parent::behaviors(),
             [
-
-                // 🔒 CONTROLO DE ACESSO (protege rotas)
                 'access' => [
                     'class' => \yii\filters\AccessControl::class,
-                    'only' => ['index','view','create','update','delete','chart-data'], // rotas protegidas
+                    'only' => ['index','view','create','update','delete'],
                     'rules' => [
-
-                        // 👉 login e error apenas no SiteController (ignora aqui)
-                        [
-                            'allow' => true,
-                            'actions' => ['error', 'login'],
-                        ],
-
-                        // 👉 permitir apenas ADMIN, MÉDICO e ENFERMEIRO
                         [
                             'allow' => true,
                             'roles' => ['admin', 'medico', 'enfermeiro'],
                         ],
                     ],
-                    'denyCallback' => function () {
-                        return Yii::$app->response->redirect(['/site/login']);
-                    },
+                    'denyCallback' => fn() => Yii::$app->response->redirect(['/site/login']),
                 ],
 
-                // 🔧 VerbFilter já existia, continua igual
                 'verbs' => [
-                    'class' => \yii\filters\VerbFilter::class,
+                    'class' => VerbFilter::class,
                     'actions' => [
                         'delete' => ['POST'],
-                        'chart-data' => ['GET'],
                     ],
                 ],
             ]
         );
     }
 
-    /**
-     * Lista todas as pulseiras
-     */
     public function actionIndex()
     {
         $searchModel = new PulseiraSearch();
         $dataProvider = $searchModel->search($this->request->queryParams);
-
 
         return $this->render('index', [
             'searchModel'  => $searchModel,
@@ -67,9 +51,6 @@ class PulseiraController extends Controller
         ]);
     }
 
-    /**
-     * Mostra uma pulseira
-     */
     public function actionView($id)
     {
         return $this->render('view', [
@@ -78,141 +59,78 @@ class PulseiraController extends Controller
     }
 
     /**
-     * Cria uma nova pulseira + NOTIFICAÇÕES AUTOMÁTICAS
+     * ============================
+     *   CREATE PULSEIRA
+     * ============================
      */
     public function actionCreate()
     {
         $model = new Pulseira();
 
-        if ($this->request->isPost) {
+        // Triagens sem pulseira atribuída
+        $triagensPendentes = Triagem::find()
+            ->where(['pulseira_id' => null])
+            ->all();
 
-            if ($model->load($this->request->post())) {
+        $triagensDropdown = \yii\helpers\ArrayHelper::map(
+            $triagensPendentes,
+            'id',
+            fn($t) => "Triagem #{$t->id} — {$t->userprofile->nome} — {$t->motivoconsulta}"
+        );
 
-                // TEMPO AUTOMÁTICO
-                $model->tempoentrada = date('Y-m-d H:i:s');
+        if (Yii::$app->request->isPost) {
 
-                // STATUS DEFAULT
-                if (empty($model->status)) {
-                    $model->status = 'Em espera';
-                }
+            // CORRETO: vem como campo independente (não do model Pulseira)
+            $triagem_id = Yii::$app->request->post('triagem_id');
 
-                if ($model->save()) {
+            if (!$triagem_id) {
+                Yii::$app->session->setFlash('error', 'Selecione uma triagem.');
+                return $this->redirect(['create']);
+            }
 
-                    // =====================================================
-                    // 🔥 LIGAR A TRIAGEM AO ID DA PULSEIRA (REMOVER DA FILA)
-                    // =====================================================
-                    $triagem = \common\models\Triagem::find()
-                        ->where(['userprofile_id' => $model->userprofile_id])
-                        ->andWhere(['pulseira_id' => null])
-                        ->one();
+            $triagem = Triagem::findOne($triagem_id);
 
-                    if ($triagem) {
-                        $triagem->pulseira_id = $model->id;
-                        $triagem->save(false);
-                    }
+            if (!$triagem) {
+                Yii::$app->session->setFlash('error', 'Triagem não encontrada.');
+                return $this->redirect(['create']);
+            }
 
-                    // =====================================================
-                    // 🔔 NOTIFICAÇÕES
-                    // =====================================================
-                    if ($model->userprofile_id && $model->userprofile) {
+            // Preencher dados automáticos
+            $model->codigo = strtoupper(substr(md5(uniqid()), 0, 8));
+            $model->prioridade = 'Pendente';
+            $model->status = 'Em espera';
+            $model->tempoentrada = date('Y-m-d H:i:s');
+            $model->userprofile_id = $triagem->userprofile_id;
 
-                        $userId = $model->userprofile_id;
+            if ($model->save(false)) {
 
-                        // Notificação geral
-                        Notificacao::enviar(
-                            $userId,
-                            "Pulseira atribuída",
-                            "A pulseira do paciente " . $model->userprofile->nome . " foi criada.",
-                            "Geral"
-                        );
+                // RELACIONAR com a triagem
+                $triagem->pulseira_id = $model->id;
+                $triagem->save(false);
 
-                        // Notificação crítica
-                        if (in_array($model->prioridade, ["Vermelho", "Laranja"])) {
-                            Notificacao::enviar(
-                                $userId,
-                                "Prioridade " . $model->prioridade,
-                                "O paciente " . $model->userprofile->nome . " encontra-se com prioridade " . $model->prioridade . ".",
-                                "Prioridade"
-                            );
-                        }
-                    }
-
-                    return $this->redirect(['index']);
-                }
+                Yii::$app->session->setFlash('success', 'Pulseira criada com sucesso.');
+                return $this->redirect(['index']);
             }
         }
 
         return $this->render('create', [
             'model' => $model,
+            'triagensDropdown' => $triagensDropdown,
         ]);
     }
 
 
+
     /**
-     * Atualiza pulseira + NOTIFICAÇÕES AUTOMÁTICAS
+     * ============================
+     *   UPDATE
+     * ============================
      */
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
 
-        $oldStatus = $model->status;
-        $oldPrioridade = $model->prioridade;
-
-        if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
-
-            $userId = $model->userprofile_id;
-
-            /* ==============================
-             * 🔥 NOTIFICAÇÕES DE STATUS
-             * ==============================*/
-            if ($oldStatus !== $model->status) {
-
-                switch ($model->status) {
-
-                    case "Em espera":
-                        Notificacao::enviar(
-                            $userId,
-                            "Paciente em espera",
-                            "O paciente " . $model->userprofile->nome . " foi colocado em espera.",
-                            "Geral"
-                        );
-                        break;
-
-                    case "Em atendimento":
-                        Notificacao::enviar(
-                            $userId,
-                            "Paciente em atendimento",
-                            "O paciente " . $model->userprofile->nome . " está a ser atendido.",
-                            "Consulta"
-                        );
-                        break;
-
-                    case "Atendido":
-                        Notificacao::enviar(
-                            $userId,
-                            "Paciente atendido",
-                            "O paciente " . $model->userprofile->nome . " foi atendido com sucesso.",
-                            "Consulta"
-                        );
-                        break;
-                }
-            }
-
-            /* ==============================
-             * 🔥 NOTIFICAÇÕES DE PRIORIDADE
-             * ==============================*/
-            if ($oldPrioridade !== $model->prioridade) {
-
-                if (in_array($model->prioridade, ["Vermelho", "Laranja"])) {
-                    Notificacao::enviar(
-                        $userId,
-                        "Prioridade " . $model->prioridade,
-                        "O paciente " . $model->userprofile->nome . " passou para prioridade " . $model->prioridade . ".",
-                        "Prioridade"
-                    );
-                }
-            }
-
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
@@ -222,21 +140,20 @@ class PulseiraController extends Controller
     }
 
     /**
-     * Elimina pulseira
+     * DELETE
      */
     public function actionDelete($id)
     {
         $this->findModel($id)->delete();
-
         return $this->redirect(['index']);
     }
 
     /**
-     * Encontra a pulseira
+     * FIND MODEL
      */
     protected function findModel($id)
     {
-        if (($model = Pulseira::findOne(['id' => $id])) !== null) {
+        if (($model = Pulseira::findOne($id)) !== null) {
             return $model;
         }
 

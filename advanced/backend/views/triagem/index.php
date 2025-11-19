@@ -29,7 +29,36 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/index.css');
                         'id',
                         [
                                 'label' => 'Código da Pulseira',
+                                'format' => 'raw',
                                 'value' => fn($m) => $m->pulseira->codigo ?? '-',
+                        ],
+
+                        [
+                                'label' => 'Prioridade',
+                                'format' => 'raw',
+                                'value' => function ($m) {
+
+                                    // ✔️ Sem pulseira → mostrar pendente
+                                    if (!$m->pulseira) {
+                                        return "<span class='badge bg-secondary px-3 py-2' style='font-size:14px;'>Pendente</span>";
+                                    }
+
+                                    // ✔️ Com pulseira → prioridade real
+                                    $prioridade = $m->pulseira->prioridade;
+
+                                    $cores = [
+                                            'Vermelho' => 'danger',
+                                            'Laranja'  => 'warning',
+                                            'Amarelo'  => 'warning',
+                                            'Verde'    => 'success',
+                                            'Azul'     => 'primary',
+                                            'Pendente' => 'secondary',
+                                    ];
+
+                                    $cor = $cores[$prioridade] ?? 'secondary';
+
+                                    return "<span class='badge bg-$cor px-3 py-2' style='font-size:14px;'>$prioridade</span>";
+                                }
                         ],
                         [
                                 'label' => 'Paciente',

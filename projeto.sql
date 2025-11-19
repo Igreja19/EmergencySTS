@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Nov 18, 2025 at 09:12 PM
+-- Generation Time: Nov 19, 2025 at 07:45 PM
 -- Server version: 9.1.0
 -- PHP Version: 8.3.14
 
@@ -167,9 +167,6 @@ CREATE TABLE IF NOT EXISTS `medicamento` (
   `id` int NOT NULL AUTO_INCREMENT,
   `nome` varchar(255) NOT NULL,
   `dosagem` varchar(255) NOT NULL,
-  `indicacao` text,
-  `quantidade_diaria` varchar(100) DEFAULT NULL,
-  `duracao_tratamento` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -177,47 +174,47 @@ CREATE TABLE IF NOT EXISTS `medicamento` (
 -- Dumping data for table `medicamento`
 --
 
-INSERT INTO `medicamento` (`id`, `nome`, `dosagem`, `indicacao`, `quantidade_diaria`, `duracao_tratamento`) VALUES
-(1, 'Paracetamol', '500mg', 'Alívio da dor e febre', '1 comprimido 3x ao dia', '3–5 dias'),
-(2, 'Paracetamol', '1g', 'Dor moderada e febre alta', '1 comprimido 2x ao dia', '3–5 dias'),
-(3, 'Ibuprofeno', '400mg', 'Dor inflamatória, febre', '1 comprimido 2–3x ao dia', '5–7 dias'),
-(4, 'Ibuprofeno', '600mg', 'Inflamação e dor intensa', '1 comprimido 2x ao dia', '5 dias'),
-(5, 'Aspirina', '500mg', 'Dor leve, febre, anti-inflamatório', '1 comprimido 2–3x ao dia', '3–7 dias'),
-(6, 'Amoxicilina', '500mg', 'Infeções bacterianas (vias respiratórias, urinárias)', '1 comprimido 3x ao dia', '7 dias'),
-(7, 'Amoxicilina', '875mg', 'Infeções moderadas a graves', '1 comprimido 2x ao dia', '7–10 dias'),
-(8, 'Clavulanato + Amoxicilina', '875mg/125mg', 'Sinusite, otite, infeções respiratórias e urinárias', '1 comprimido 2x ao dia', '7 dias'),
-(9, 'Azitromicina', '500mg', 'Infeções respiratórias e genitais', '1 comprimido 1x ao dia', '3 dias'),
-(10, 'Ciprofloxacina', '500mg', 'Infeções urinárias e gastrointestinais', '1 comprimido 2x ao dia', '5–7 dias'),
-(11, 'Metformina', '850mg', 'Diabetes tipo 2', '1 comprimido 2x ao dia', 'Uso contínuo'),
-(12, 'Metformina', '1000mg', 'Diabetes tipo 2', '1 comprimido 1–2x ao dia', 'Uso contínuo'),
-(13, 'Omeprazol', '20mg', 'Refluxo, gastrite', '1 comprimido 1x ao dia', '14 dias'),
-(14, 'Pantoprazol', '40mg', 'Refluxo grave, esofagite', '1 comprimido 1x ao dia', '14–28 dias'),
-(15, 'Losartan', '50mg', 'Hipertensão', '1 comprimido 1x ao dia', 'Uso contínuo'),
-(16, 'Losartan', '100mg', 'Hipertensão', '1 comprimido 1x ao dia', 'Uso contínuo'),
-(17, 'Amlodipina', '5mg', 'Hipertensão, angina', '1 comprimido 1x ao dia', 'Uso contínuo'),
-(18, 'Amlodipina', '10mg', 'Hipertensão resistente', '1 comprimido 1x ao dia', 'Uso contínuo'),
-(19, 'Enalapril', '20mg', 'Hipertensão, insuficiência cardíaca', '1 comprimido 1–2x ao dia', 'Uso contínuo'),
-(20, 'Simvastatina', '20mg', 'Colesterol elevado', '1 comprimido 1x ao dia (à noite)', 'Uso contínuo'),
-(21, 'Simvastatina', '40mg', 'Colesterol muito elevado', '1 comprimido 1x ao dia (à noite)', 'Uso contínuo'),
-(22, 'Atorvastatina', '20mg', 'Colesterol elevado', '1 comprimido 1x ao dia', 'Uso contínuo'),
-(23, 'Atorvastatina', '40mg', 'Colesterol muito elevado', '1 comprimido 1x ao dia', 'Uso contínuo'),
-(24, 'Furosemida', '40mg', 'Retenção de líquidos, hipertensão', '1 comprimido 1x ao dia', '3–7 dias'),
-(25, 'Prednisolona', '20mg', 'Inflamações graves, alergias, crises respiratórias', '1 comprimido 1x ao dia', '3–5 dias'),
-(26, 'Dexametasona', '4mg', 'Inflamação, alergias graves', '1 comprimido 1x ao dia', '2–5 dias'),
-(27, 'Insulina Rápida', '100 UI', 'Diabetes tipo 1 e 2', 'Dose conforme glicemia', 'Uso contínuo'),
-(28, 'Insulina Basal', '100 UI', 'Diabetes tipo 1 e 2', '1 dose diária', 'Uso contínuo'),
-(29, 'Dipirona', '500mg', 'Dor intensa e febre', '1 comprimido 3–4x ao dia', '3–5 dias'),
-(30, 'Cetirizina', '10mg', 'Alergias, rinite', '1 comprimido 1x ao dia', '7–14 dias'),
-(31, 'Loratadina', '10mg', 'Rinite alérgica, urticária', '1 comprimido 1x ao dia', '7–14 dias'),
-(32, 'Salbutamol', '100mcg', 'Crise de asma, broncoespasmo', '2 jatos até 4x ao dia', 'Uso conforme sintomas'),
-(33, 'Budesonida + Formoterol', '160/4.5mcg', 'Asma e DPOC', '2 jatos 2x ao dia', 'Uso contínuo'),
-(34, 'Tramadol', '50mg', 'Dor moderada a intensa', '1 comprimido 2x ao dia', '3–5 dias'),
-(35, 'Codeína', '30mg', 'Dor moderada e tosse persistente', '1 comprimido 2–3x ao dia', '3–5 dias'),
-(36, 'Clonazepam', '2.5mg/mL', 'Ansiedade, epilepsia', '5–10 gotas à noite', '5–14 dias'),
-(37, 'Diazepam', '10mg', 'Ansiedade, espasmos musculares', '1 comprimido 1–2x ao dia', '5–10 dias'),
-(38, 'Sertralina', '50mg', 'Depressão, ansiedade', '1 comprimido 1x ao dia', 'Uso contínuo'),
-(39, 'Sertralina', '100mg', 'Depressão, ansiedade', '1 comprimido 1x ao dia', 'Uso contínuo'),
-(40, 'Fluoxetina', '20mg', 'Depressão, ansiedade, compulsão alimentar', '1 comprimido 1x ao dia', 'Uso contínuo');
+INSERT INTO `medicamento` (`id`, `nome`, `dosagem`) VALUES
+(1, 'Paracetamol', '500mg'),
+(2, 'Paracetamol', '1g'),
+(3, 'Ibuprofeno', '400mg'),
+(4, 'Ibuprofeno', '600mg'),
+(5, 'Aspirina', '500mg'),
+(6, 'Amoxicilina', '500mg'),
+(7, 'Amoxicilina', '875mg'),
+(8, 'Clavulanato + Amoxicilina', '875mg/125mg'),
+(9, 'Azitromicina', '500mg'),
+(10, 'Ciprofloxacina', '500mg'),
+(11, 'Metformina', '850mg'),
+(12, 'Metformina', '1000mg'),
+(13, 'Omeprazol', '20mg'),
+(14, 'Pantoprazol', '40mg'),
+(15, 'Losartan', '50mg'),
+(16, 'Losartan', '100mg'),
+(17, 'Amlodipina', '5mg'),
+(18, 'Amlodipina', '10mg'),
+(19, 'Enalapril', '20mg'),
+(20, 'Simvastatina', '20mg'),
+(21, 'Simvastatina', '40mg'),
+(22, 'Atorvastatina', '20mg'),
+(23, 'Atorvastatina', '40mg'),
+(24, 'Furosemida', '40mg'),
+(25, 'Prednisolona', '20mg'),
+(26, 'Dexametasona', '4mg'),
+(27, 'Insulina Rápida', '100 UI'),
+(28, 'Insulina Basal', '100 UI'),
+(29, 'Dipirona', '500mg'),
+(30, 'Cetirizina', '10mg'),
+(31, 'Loratadina', '10mg'),
+(32, 'Salbutamol', '100mcg'),
+(33, 'Budesonida + Formoterol', '160/4.5mcg'),
+(34, 'Tramadol', '50mg'),
+(35, 'Codeína', '30mg'),
+(36, 'Clonazepam', '2.5mg/mL'),
+(37, 'Diazepam', '10mg'),
+(38, 'Sertralina', '50mg'),
+(39, 'Sertralina', '100mg'),
+(40, 'Fluoxetina', '20mg');
 
 -- --------------------------------------------------------
 
@@ -272,14 +269,14 @@ CREATE TABLE IF NOT EXISTS `prescricao` (
   `consulta_id` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_consulta_prescricao` (`consulta_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `prescricao`
 --
 
 INSERT INTO `prescricao` (`id`, `observacoes`, `dataprescricao`, `consulta_id`) VALUES
-(1, 'sdf', '0000-00-00 00:00:00', 5);
+(4, 'sdf', '2025-11-19 18:33:27', 7);
 
 -- --------------------------------------------------------
 
@@ -296,7 +293,16 @@ CREATE TABLE IF NOT EXISTS `prescricaomedicamento` (
   PRIMARY KEY (`id`),
   KEY `fk_prescricaoMed_prescricao` (`prescricao_id`),
   KEY `fk_prescricaoMed_medicamento` (`medicamento_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `prescricaomedicamento`
+--
+
+INSERT INTO `prescricaomedicamento` (`id`, `posologia`, `prescricao_id`, `medicamento_id`) VALUES
+(1, '1', 4, 1),
+(2, '2', 4, 17),
+(3, '3', 4, 12);
 
 -- --------------------------------------------------------
 
@@ -314,7 +320,7 @@ CREATE TABLE IF NOT EXISTS `pulseira` (
   `userprofile_id` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_userprofile_pulseira` (`userprofile_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `pulseira`
@@ -325,7 +331,8 @@ INSERT INTO `pulseira` (`id`, `codigo`, `prioridade`, `status`, `tempoentrada`, 
 (5, '97A510BD', 'Vermelho', 'Em espera', '2025-10-30 15:07:38', 9),
 (6, 'B2882746', 'Verde', 'Em espera', '2025-10-30 16:40:46', 10),
 (7, '34CC9466', 'Amarelo', 'Em atendimento', '2025-10-31 11:32:55', 8),
-(8, 'C3FC873E', 'Pendente', 'Em espera', '2025-11-18 17:36:55', 20);
+(8, 'C3FC873E', 'Pendente', 'Em espera', '2025-11-18 17:36:55', 20),
+(9, '41B5091B', 'Pendente', 'Em espera', '2025-11-19 19:17:24', 11);
 
 -- --------------------------------------------------------
 
@@ -349,7 +356,7 @@ CREATE TABLE IF NOT EXISTS `triagem` (
   PRIMARY KEY (`id`),
   KEY `fk_pulseira_id` (`pulseira_id`),
   KEY `fk_triagem_userprofile_id` (`userprofile_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `triagem`
@@ -360,7 +367,7 @@ INSERT INTO `triagem` (`id`, `motivoconsulta`, `queixaprincipal`, `descricaosint
 (12, 'gfhfgh', 'fghfh', 'dghfh', '4334-03-12 03:23:00', 10, 'efsg', 'dfg', '2025-10-30 15:07:38', 9, 5),
 (13, 'Dor no Queixo de baixo', 'Sangue no queixo', 'Doi ao tocar na testa', '3222-05-04 05:08:00', 10, 'nao tenoh', 'viogrum', '2025-10-30 16:40:46', 10, 6),
 (16, 'teste', 'teste', 'teste', '2343-04-23 03:23:00', 10, 'teste', 'teste', '2025-10-31 11:32:55', 8, 7),
-(17, 'dfs', 'fdg', 'dfg', '2005-03-14 23:54:00', 3, 'dsf', 'sdf', '2025-11-18 17:36:55', 20, 8);
+(18, 'sdf', 'dsf', 'sdf', '2005-03-12 02:23:00', 4, 'dsfg', 'dsdf', '2025-11-19 19:17:24', 11, 9);
 
 -- --------------------------------------------------------
 

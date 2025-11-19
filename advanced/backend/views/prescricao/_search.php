@@ -1,3 +1,7 @@
+<?php
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/prescricao/_search.css');
+
+?>
 <div class="userprofile-search">
     <form method="get">
         <div class="row g-3 align-items-center">
