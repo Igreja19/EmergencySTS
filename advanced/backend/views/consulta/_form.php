@@ -151,3 +151,4 @@ JS;
 
 $this->registerJs($js);
 ?>
+
