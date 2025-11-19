@@ -2,7 +2,9 @@
 use yii\helpers\Html;
 
 $this->title = 'Painel do Enfermeiro';
-$this->registerCssFile(Yii::$app->request->baseUrl . '/css/dashboard.css');
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/layouts/dashboard.css');
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/dashboard/enfermeiro.css');
+
 ?>
 
 <div class="dashboard-container">

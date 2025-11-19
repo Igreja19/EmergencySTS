@@ -6,7 +6,7 @@ use yii\widgets\Pjax;
 
 $this->title = 'Utilizadores';
 $this->params['breadcrumbs'][] = $this->title;
-$this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile.css');
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile/index.css');
 ?>
 
 <div class="userprofile-index">

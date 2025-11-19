@@ -12,56 +12,8 @@ use yii\helpers\Html;
 $this->title = 'EmergencySTS | Dashboard';
 
 $this->registerCssFile('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css');
-$this->registerCssFile(Yii::$app->request->baseUrl . '/css/sidebar.css');
-
-/* ==================================================== */
-/* ===================== CSS =========================== */
-/* ==================================================== */
-$this->registerCss('
-body {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-}
-
-.dashboard-wrap { padding: 20px; }
-
-.topbar {
-  display:flex; align-items:center; justify-content:space-between;
-  padding: 14px 20px; border-radius:16px;
-  background: rgba(255,255,255,0.8); backdrop-filter: blur(8px);
-  border: 1px solid rgba(0,0,0,.05);
-}
-
-.brand { font-weight:700; color:#198754; display:flex; align-items:center; gap:8px; }
-
-.card-kpi {
-  border-radius:20px; border:none; padding:20px;
-  background: #fff; box-shadow:0 4px 20px rgba(0,0,0,0.05);
-  transition:transform .2s;
-}
-.card-kpi:hover { transform:translateY(-3px); }
-.card-kpi .icon { font-size:28px; }
-
-.card-kpi.red .icon { color:#dc3545; }
-.card-kpi.orange .icon { color:#fd7e14; }
-.card-kpi.green .icon { color:#198754; }
-
-.table-modern thead tr { background:#198754; color:#fff; }
-
-.filter-box { display:flex; gap:10px; }
-.filter-input { height:42px; border-radius:12px; padding-left:40px; }
-.filter-btn-premium {
-    background:#198754; border:none; border-radius:12px; color:white;
-    padding:0 22px; height:42px; display:flex; align-items:center; gap:8px;
-}
-');
-
-$this->registerJsFile('https://cdn.jsdelivr.net/npm/chart.js', [
-    'position' => \yii\web\View::POS_END
-]);
-
-/* ==================================================== */
-/* ===================== GRÁFICOS ====================== */
-/* ==================================================== */
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/layouts/sidebar.css');
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/dashboard/admin.css');
 
 /* ===== Chart.js ===== */
 $this->registerJsFile('https://cdn.jsdelivr.net/npm/chart.js', ['position' => \yii\web\View::POS_END]);

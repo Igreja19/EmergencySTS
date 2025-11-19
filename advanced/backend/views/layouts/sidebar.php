@@ -2,7 +2,7 @@
 use hail812\adminlte\widgets\Menu;
 use yii\helpers\Url;
 
-$this->registerCssFile(Yii::$app->request->baseUrl . '/css/sidebar.css');
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/layouts/sidebar.css');
 
 // 🔹 Obter roles do utilizador
 $auth = Yii::$app->authManager;

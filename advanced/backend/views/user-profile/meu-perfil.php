@@ -5,7 +5,7 @@ use yii\widgets\DetailView;
 
 $this->title = 'O Meu Perfil';
 \yii\web\YiiAsset::register($this);
-$this->registerCssFile(Yii::$app->request->baseUrl . '/css/meu-perfil.css');
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile/meu-perfil.css');
 
 ?>
 

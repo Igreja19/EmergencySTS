@@ -6,7 +6,7 @@ use yii\widgets\Pjax;
 
 $this->title = 'Triagens';
 $this->params['breadcrumbs'][] = $this->title;
-$this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile.css');
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/index.css');
 ?>
 
 <div class="triagem-index">
