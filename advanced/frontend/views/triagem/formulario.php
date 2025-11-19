@@ -6,16 +6,40 @@ use yii\widgets\ActiveForm;
 
 $this->title = 'Formulário Clínico - EmergencySTS';
 $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/formulario.css');
-$userProfile = Yii::$app->user->identity->userprofile;
+
+/* 🔹 Garantir login */
+if (Yii::$app->user->isGuest) {
+    echo "<div class='container py-5 text-center'>
+            <div class='alert alert-danger'>
+                ⚠ Precisa de iniciar sessão para preencher o formulário clínico.
+            </div>
+          </div>";
+    return;
+}
+
+$user = Yii::$app->user->identity;
+$userProfile = $user->userprofile ?? null;
+
+/* 🔹 Garantir que o userprofile existe */
+if (!$userProfile) {
+    echo "<div class='container py-5 text-center'>
+            <div class='alert alert-danger'>
+                ⚠ O seu perfil está incompleto.<br>
+                Por favor contacte um administrador.
+            </div>
+          </div>";
+    return;
+}
 ?>
 
 <div class="container py-5">
     <div class="text-center mb-5">
         <h3 class="fw-bold text-success mt-3">Formulário Clínico</h3>
-        <p class="text-muted">Os seus <dados></dados> foram preenchidos automaticamente com base no seu perfil.</p>
+        <p class="text-muted">Os seus dados foram preenchidos automaticamente com base no seu perfil.</p>
     </div>
 
     <div class="form mx-auto card shadow-sm border-0 rounded-4 p-4">
+
         <?php $form = ActiveForm::begin([
                 'id' => 'form-triagem',
                 'action' => ['triagem/formulario'],
@@ -33,7 +57,7 @@ $userProfile = Yii::$app->user->identity->userprofile;
                     <i class="bi bi-person me-2"></i> Nome Completo
                 </label>
                 <input type="text" class="form-control"
-                       value="<?= Html::encode($userProfile->nome ?? '') ?>"
+                       value="<?= Html::encode($userProfile->nome) ?>"
                        readonly>
             </div>
 
@@ -43,9 +67,7 @@ $userProfile = Yii::$app->user->identity->userprofile;
                     <i class="bi bi-calendar me-2"></i> Data de Nascimento
                 </label>
                 <input type="date" class="form-control"
-                       value="<?= Html::encode($userProfile->datanascimento ?? '') ?>"
-                       min="1900-01-01"
-                       max="<?= date('Y-m-d') ?>"
+                       value="<?= Html::encode($userProfile->datanascimento) ?>"
                        readonly>
             </div>
 
@@ -55,19 +77,20 @@ $userProfile = Yii::$app->user->identity->userprofile;
                     <i class="bi bi-hospital me-2"></i> Número de Utente (SNS)
                 </label>
                 <input type="text" class="form-control"
-                       value="<?= Html::encode($userProfile->sns ?? '') ?>"
+                       value="<?= Html::encode($userProfile->sns) ?>"
                        readonly>
             </div>
         </div>
 
         <div class="row g-3 mb-3">
+
             <!-- Telefone -->
             <div class="col-md-6">
                 <label class="form-label fw-semibold text-success">
                     <i class="bi bi-telephone me-2"></i> Telefone
                 </label>
                 <input type="text" class="form-control"
-                       value="<?= Html::encode($userProfile->telefone ?? '') ?>"
+                       value="<?= Html::encode($userProfile->telefone) ?>"
                        readonly>
             </div>
 
@@ -81,6 +104,7 @@ $userProfile = Yii::$app->user->identity->userprofile;
 
         <!-- 🔹 SINTOMAS E QUEIXAS -->
         <h6 class="fw-bold text-success section-spacing">Sintomas e Queixas</h6>
+
         <?= $form->field($model, 'queixaprincipal')
                 ->textarea(['rows' => 3, 'placeholder' => 'Descreva a queixa principal...'])
                 ->label('<i class="bi bi-clipboard2-pulse me-2"></i> Queixa Principal') ?>
@@ -91,38 +115,27 @@ $userProfile = Yii::$app->user->identity->userprofile;
 
         <div class="row g-3 mb-3">
             <div class="col-md-6">
-
-                <!-- 🔹 CAMPO COM A VALIDAÇÃO DO ANO -->
                 <?= $form->field($model, 'iniciosintomas')
-                        ->input('datetime-local', [
-                                'id' => 'triagem-iniciosintomas',
-                        ])
+                        ->input('datetime-local', ['id' => 'triagem-iniciosintomas'])
                         ->label('<i class="bi bi-clock-history me-2"></i> Início dos Sintomas') ?>
             </div>
 
             <div class="col-md-6">
                 <?= $form->field($model, 'intensidadedor')
                         ->dropDownList([
-                                0 => '0 - Sem Dor',
-                                1 => '1 - Muito Leve',
-                                2 => '2 - Leve',
-                                3 => '3 - Moderada',
-                                4 => '4 - Moderada a Forte',
-                                5 => '5 - Forte',
-                                6 => '6 - Bastante Forte',
-                                7 => '7 - Muito Forte',
-                                8 => '8 - Intensa',
-                                9 => '9 - Muito Intensa',
-                                10 => '10 - Insuportável'
+                                0=>'0 - Sem Dor',1=>'1 - Muito Leve',2=>'2 - Leve',3=>'3 - Moderada',
+                                4=>'4 - Moderada a Forte',5=>'5 - Forte',6=>'6 - Bastante Forte',
+                                7=>'7 - Muito Forte',8=>'8 - Intensa',9=>'9 - Muito Intensa',
+                                10=>'10 - Insuportável'
                         ], [
                                 'prompt' => 'Selecione a intensidade da dor',
                                 'class' => 'form-select rounded-3 shadow-sm'
                         ])
-                        ->label('<i class="bi bi-emoji-expressionless me-2"></i> Intensidade da Dor (0-10)') ?>
+                        ->label('<i class="bi bi-emoji-expressionless me-2"></i> Intensidade da Dor') ?>
             </div>
         </div>
 
-        <!-- 🔹 CONDIÇÕES, ALERGIAS E MEDICAÇÃO -->
+        <!-- 🔹 INFORMAÇÕES ADICIONAIS -->
         <h6 class="fw-bold text-success section-spacing">Informações Adicionais</h6>
 
         <?= $form->field($model, 'alergias')
@@ -133,8 +146,9 @@ $userProfile = Yii::$app->user->identity->userprofile;
                 ->textarea(['rows' => 2, 'placeholder' => 'Medicação atual...'])
                 ->label('<i class="bi bi-capsule me-2"></i> Medicação Atual') ?>
 
-        <!-- 🔹 BOTÃO -->
+        <!-- HIDDEN FIELD DO USER -->
         <?= Html::hiddenInput('Triagem[userprofile_id]', $userProfile->id) ?>
+
         <div class="text-center mt-4">
             <?= Html::submitButton('<i class="bi bi-save me-2"></i> Submeter Formulário', [
                     'class' => 'btn btn-success btn-lg px-5 py-3 fw-semibold shadow-sm submit-btn'
@@ -144,6 +158,10 @@ $userProfile = Yii::$app->user->identity->userprofile;
         <?php ActiveForm::end(); ?>
     </div>
 </div>
+
 <?php
-$this->registerJsFile(Yii::$app->request->baseUrl . '/js/triagem/formulario.js', ['depends' => [\yii\web\JqueryAsset::class]]);
+$this->registerJsFile(
+        Yii::$app->request->baseUrl . '/js/triagem/formulario.js',
+        ['depends' => [\yii\web\JqueryAsset::class]]
+);
 ?>
