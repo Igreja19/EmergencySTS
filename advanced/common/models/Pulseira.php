@@ -36,7 +36,7 @@ class Pulseira extends \yii\db\ActiveRecord
             [['codigo', 'prioridade', 'tempoentrada', 'userprofile_id'], 'required'],
             [['tempoentrada'], 'safe'],
             [['userprofile_id'], 'integer'],
-            [['prioridade'], 'in', 'range' => ['Vermelha', 'Laranja', 'Amarela', 'Verde', 'Azul']],
+            [['prioridade'], 'in', 'range' => ['Pendente','Vermelho', 'Laranja', 'Amarelo', 'Verde', 'Azul']],
             [['status'], 'in', 'range' => ['Em espera', 'Em atendimento', 'Atendido']],
             [['codigo'], 'string', 'max' => 10],
             [['codigo'], 'unique'],
@@ -82,9 +82,10 @@ class Pulseira extends \yii\db\ActiveRecord
     public function getPrioridadeComCor()
     {
         $cores = [
-            'Vermelha' => '🔴 Vermelha - Emergente',
+            'Pendente' => '⚪ Pendente - A aguardar triagem',
+            'Vermelho' => '🔴 Vermelho - Emergente',
             'Laranja'  => '🟠 Laranja - Muito Urgente',
-            'Amarela'  => '🟡 Amarela - Urgente',
+            'Amarelo'  => '🟡 Amarelo - Urgente',
             'Verde'    => '🟢 Verde - Pouco Urgente',
             'Azul'     => '🔵 Azul - Não Urgente',
         ];
