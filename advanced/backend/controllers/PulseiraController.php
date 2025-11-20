@@ -6,6 +6,7 @@ use common\models\Notificacao;
 use common\models\Pulseira;
 use common\models\PulseiraSearch;
 use common\models\Triagem;
+use common\models\UserProfile;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -66,58 +67,62 @@ class PulseiraController extends Controller
     public function actionCreate()
     {
         $model = new Pulseira();
+        $triagem = new Triagem();
 
-        // Triagens sem pulseira atribuída
-        $triagensPendentes = Triagem::find()
-            ->where(['pulseira_id' => null])
-            ->all();
-
-        $triagensDropdown = \yii\helpers\ArrayHelper::map(
-            $triagensPendentes,
+        // Lista de pacientes para o dropdown
+        $pacientes = \yii\helpers\ArrayHelper::map(
+            UserProfile::find()->all(),
             'id',
-            fn($t) => "Triagem #{$t->id} — {$t->userprofile->nome} — {$t->motivoconsulta}"
+            'nome'
         );
 
         if (Yii::$app->request->isPost) {
 
-            // CORRETO: vem como campo independente (não do model Pulseira)
-            $triagem_id = Yii::$app->request->post('triagem_id');
+            if ($model->load(Yii::$app->request->post())) {
 
-            if (!$triagem_id) {
-                Yii::$app->session->setFlash('error', 'Selecione uma triagem.');
-                return $this->redirect(['create']);
-            }
+                // ================================
+                // 1️⃣ Criar Pulseira (igual ao frontend)
+                // ================================
+                $model->codigo = strtoupper(substr(md5(uniqid()), 0, 8));
+                $model->prioridade = 'Pendente';
+                $model->tempoentrada = date('Y-m-d H:i:s');
+                $model->status = 'Em espera';
 
-            $triagem = Triagem::findOne($triagem_id);
+                if ($model->save(false)) {
 
-            if (!$triagem) {
-                Yii::$app->session->setFlash('error', 'Triagem não encontrada.');
-                return $this->redirect(['create']);
-            }
+                    // ================================
+                    // 2️⃣ Criar Triagem automática
+                    // ================================
+                    $triagem->userprofile_id = $model->userprofile_id;
+                    $triagem->pulseira_id = $model->id;
+                    $triagem->datatriagem = date('Y-m-d H:i:s');
 
-            // Preencher dados automáticos
-            $model->codigo = strtoupper(substr(md5(uniqid()), 0, 8));
-            $model->prioridade = 'Pendente';
-            $model->status = 'Em espera';
-            $model->tempoentrada = date('Y-m-d H:i:s');
-            $model->userprofile_id = $triagem->userprofile_id;
+                    // Campos clínicos vazios (como no frontend)
+                    $triagem->motivoconsulta = '';
+                    $triagem->queixaprincipal = '';
+                    $triagem->descricaosintomas = '';
+                    $triagem->iniciosintomas = null;
+                    $triagem->intensidadedor = 0;
+                    $triagem->alergias = '';
+                    $triagem->medicacao = '';
 
-            if ($model->save(false)) {
+                    $triagem->save(false);
 
-                // RELACIONAR com a triagem
-                $triagem->pulseira_id = $model->id;
-                $triagem->save(false);
+                    Yii::$app->session->setFlash('success', 'Pulseira pendente criada com triagem associada.');
+                    return $this->redirect(['index']);
+                }
 
-                Yii::$app->session->setFlash('success', 'Pulseira criada com sucesso.');
-                return $this->redirect(['index']);
+                Yii::$app->session->setFlash('error', 'Erro ao criar a pulseira.');
             }
         }
 
         return $this->render('create', [
             'model' => $model,
-            'triagensDropdown' => $triagensDropdown,
+            'pacientes' => $pacientes,
+            'triagem' => $triagem,
         ]);
     }
+
 
 
 

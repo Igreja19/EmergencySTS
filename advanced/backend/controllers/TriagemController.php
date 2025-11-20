@@ -61,11 +61,18 @@ class TriagemController extends Controller
         $searchModel = new TriagemSearch();
         $dataProvider = $searchModel->search($this->request->queryParams);
 
+        // Pulseiras pendentes = sem triagem e prioridade = pendente
+        $pulseirasPendentes = \common\models\Pulseira::find()
+            ->where(['prioridade' => 'Pendente'])
+            ->orderBy(['tempoentrada' => SORT_ASC])
+            ->all();
+
         return $this->render('index', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
         ]);
     }
+
 
     /**
      * Ver Triagem
@@ -80,39 +87,39 @@ class TriagemController extends Controller
     /**
      * Criar Triagem + 🔔 Notificações Automáticas
      */
+
     public function actionCreate()
     {
         $model = new Triagem();
 
-        // 🔥 SE FOR POST, já existe userprofile → vamos validar
+        // 🔥 Se for POST
         if ($this->request->isPost) {
 
-            // Primeiro carregamos os dados enviados
+            // Carregar dados do form
             if ($model->load($this->request->post())) {
 
                 // =====================================================
-                // ❌  VERIFICAR SE O UTILIZADOR JÁ TEM PULSEIRA
+                // ❌ VERIFICAR SE PACIENTE JÁ TEM PULSEIRA ATRIBUÍDA
                 // =====================================================
                 $pulseiraExistente = \common\models\Pulseira::find()
                     ->where(['userprofile_id' => $model->userprofile_id])
-                    ->andWhere(['IS NOT', 'prioridade', null])   // só pulseiras atribuídas
+                    ->andWhere(['IS NOT', 'prioridade', null]) // pulseiras já classificadas
                     ->one();
 
                 if ($pulseiraExistente) {
                     Yii::$app->session->setFlash(
                         'danger',
-                        "Este paciente já tem pulseira atribuída. Não pode criar nova triagem."
+                        "Este paciente já tem uma pulseira atribuída. Não pode criar nova triagem."
                     );
-
                     return $this->redirect(['index']);
                 }
 
                 // =====================================================
-                // ❌  VERIFICAR SE UTILIZADOR TEM UMA TRIAGEM PENDENTE
+                // ❌ VERIFICAR SE JÁ EXISTE TRIAGEM PENDENTE
                 // =====================================================
                 $triagemExistente = \common\models\Triagem::find()
                     ->where(['userprofile_id' => $model->userprofile_id])
-                    ->andWhere(['pulseira_id' => null]) // Triagem ainda sem pulseira atribuída
+                    ->andWhere(['pulseira_id' => null])
                     ->one();
 
                 if ($triagemExistente) {
@@ -120,14 +127,27 @@ class TriagemController extends Controller
                         'danger',
                         "Este paciente já tem uma triagem pendente. Deve atribuir uma pulseira antes de criar nova triagem."
                     );
-
                     return $this->redirect(['index']);
                 }
 
                 // =====================================================
-                // 🔥  SE PASSOU NAS VALIDAÇÕES → GUARDAR
+                // 🔥 SE PASSOU NAS VALIDAÇÕES → GUARDAR TRIAGEM
                 // =====================================================
-                if ($model->save()) {
+                if ($model->save(false)) {
+
+                    // =====================================================
+                    // 🔥 ATRIBUIR A COR DA PULSEIRA SELECIONADA PELO ENFERMEIRO
+                    // =====================================================
+                    if (!empty($model->prioridade_pulseira)) {
+
+                        $pulseira = \common\models\Pulseira::findOne($model->pulseira_id);
+
+                        if ($pulseira) {
+                            $pulseira->prioridade = $model->prioridade_pulseira;
+                            $pulseira->status = "Em atendimento"; // opcional
+                            $pulseira->save(false);
+                        }
+                    }
 
                     // =====================================================
                     // 🔔 NOTIFICAÇÕES AUTOMÁTICAS
@@ -143,11 +163,11 @@ class TriagemController extends Controller
                     );
 
                     // 2️⃣ Notificação crítica
-                    if ($model->pulseira && in_array($model->pulseira->prioridade, ["Vermelho", "Laranja"])) {
+                    if ($model->prioridade_pulseira === "Vermelho" || $model->prioridade_pulseira === "Laranja") {
                         Notificacao::enviar(
                             $userId,
-                            "Prioridade " . $model->pulseira->prioridade,
-                            "O paciente " . $model->userprofile->nome . " encontra-se em prioridade " . $model->pulseira->prioridade . ".",
+                            "Prioridade " . $model->prioridade_pulseira,
+                            "O paciente " . $model->userprofile->nome . " encontra-se em prioridade " . $model->prioridade_pulseira . ".",
                             "Prioridade"
                         );
                     }
@@ -157,12 +177,33 @@ class TriagemController extends Controller
             }
         }
 
-        // ⏳ Default
+        // Carregar valores por defeito
         $model->loadDefaultValues();
 
         return $this->render('create', [
             'model' => $model,
         ]);
+    }
+
+    public function actionPulseirasPorPaciente($id)
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $pulseiras = \common\models\Pulseira::find()
+            ->where(['userprofile_id' => $id])
+            ->orderBy(['tempoentrada' => SORT_DESC])
+            ->all();
+
+        $result = [];
+
+        foreach ($pulseiras as $p) {
+            $result[] = [
+                'id' => $p->id,
+                'codigo' => $p->codigo . " — " . $p->prioridade . " — " . date("d/m/Y H:i", strtotime($p->tempoentrada))
+            ];
+        }
+
+        return $result;
     }
 
     /**

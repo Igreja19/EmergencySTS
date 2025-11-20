@@ -1,7 +1,5 @@
 <?php
 
-use yii\helpers\Html;
-
 /** @var yii\web\View $this */
 /** @var common\models\Pulseira $model */
 /** @var array $triagensDropdown */
@@ -14,7 +12,6 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?= $this->render('_form', [
             'model' => $model,
-            'triagensDropdown' => $triagensDropdown, // ← OBRIGATÓRIO
     ]) ?>
 
 </div>

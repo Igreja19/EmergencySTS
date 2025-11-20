@@ -17,13 +17,73 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/_form.css');
 
     <h5><i class="bi bi-person-lines-fill me-2"></i> Dados do Paciente</h5>
     <div class="row g-3 mb-3">
+
+        <?php if ($model->isNewRecord): ?>
+
+            <!-- CREATE — escolher paciente -->
+            <div class="col-md-6">
+                <?= $form->field($model, 'userprofile_id')->dropDownList(
+                        \yii\helpers\ArrayHelper::map(
+                                \common\models\UserProfile::find()->all(),
+                                'id',
+                                'nome'
+                        ),
+                        ['prompt' => 'Selecione o paciente', 'class' => 'form-select']
+                )->label('<i class="bi bi-person me-2"></i> Paciente'); ?>
+            </div>
+
+            <!-- CREATE — escolher pulseira -->
+            <div class="col-md-6">
+                <?= $form->field($model, 'pulseira_id')->dropDownList(
+                        [],
+                        ['prompt' => 'Selecione primeiro o paciente', 'id' => 'dropdown-pulseiras']
+                )->label('<i class="bi bi-upc-scan me-2"></i> Código da Pulseira') ?>
+            </div>
+
+        <?php else: ?>
+
+            <!-- UPDATE — mostrar nome do paciente -->
+            <div class="col-md-6">
+                <label class="form-label fw-bold">
+                    <i class="bi bi-person me-2"></i> Paciente
+                </label>
+                <input type="text"
+                       class="form-control fw-bold"
+                       value="<?= $model->userprofile->nome ?? '—' ?>"
+                       readonly>
+            </div>
+
+            <!-- UPDATE — mostrar código da pulseira -->
+            <div class="col-md-6">
+                <label class="form-label fw-bold">
+                    <i class="bi bi-upc-scan me-2"></i> Código da Pulseira
+                </label>
+                <input type="text"
+                       class="form-control fw-bold"
+                       value="<?= $model->pulseira->codigo ?? '—' ?>"
+                       readonly>
+            </div>
+
+            <!-- Hidden inputs para manter IDs no POST -->
+            <?= Html::hiddenInput('Triagem[userprofile_id]', $model->userprofile_id) ?>
+            <?= Html::hiddenInput('Triagem[pulseira_id]', $model->pulseira_id) ?>
+
+        <?php endif; ?>
+
+    </div>
+
+    <h5><i class="bi bi-flag me-2"></i> Classificação de Prioridade</h5>
+
+    <div class="row g-3 mb-3">
         <div class="col-md-6">
-            <?= $form->field($model, 'userprofile_id')
-                    ->textInput(['type' => 'number', 'placeholder' => 'ID do Paciente (userprofile_id)']) ?>
-        </div>
-        <div class="col-md-6">
-            <?= $form->field($model, 'pulseira_id')
-                    ->textInput(['type' => 'number', 'placeholder' => 'ID da Pulseira (pulseira_id)']) ?>
+            <?= $form->field($model, 'prioridade_pulseira')->dropDownList([
+                    'Vermelho' => 'Vermelho',
+                    'Laranja'  => 'Laranja',
+                    'Amarelo'  => 'Amarelo',
+                    'Verde'    => 'Verde',
+                    'Azul'     => 'Azul',
+            ], ['class' => 'form-select'])
+             ?>
         </div>
     </div>
 
@@ -76,6 +136,8 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/_form.css');
         <?= Html::submitButton('<i class="bi bi-check-circle me-1"></i> Guardar', ['class' => 'btn btn-save']) ?>
     </div>
 
+    <?php
+    $this->registerJsFile(Yii::$app->request->baseUrl . '/js/triagem/_form.js', ['depends' => [\yii\web\JqueryAsset::class]]);
+    ?>
     <?php ActiveForm::end(); ?>
-
 </div>

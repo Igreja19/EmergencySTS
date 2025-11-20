@@ -22,6 +22,8 @@ use Yii;
  * @property Pulseira $pulseira
  * @property UserProfile $userProfile
  */
+
+
 class Triagem extends \yii\db\ActiveRecord
 {
     /**
@@ -35,6 +37,7 @@ class Triagem extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
+    public $prioridade_pulseira;
     public function rules()
     {
         return [
@@ -44,12 +47,14 @@ class Triagem extends \yii\db\ActiveRecord
             [['userprofile_id'], 'required'],
             [['motivoconsulta'], 'string', 'max' => 255],
             [['intensidadedor'], 'integer', 'min' => 0, 'max' => 10],
+            [['prioridade_pulseira'], 'string'],
 
             // Relações
             [['pulseira_id'], 'exist', 'skipOnError' => true,
                 'targetClass' => Pulseira::class, 'targetAttribute' => ['pulseira_id' => 'id']],
             [['userprofile_id'], 'exist', 'skipOnError' => true,
                 'targetClass' => UserProfile::class, 'targetAttribute' => ['userprofile_id' => 'id']],
+
         ];
     }
 
