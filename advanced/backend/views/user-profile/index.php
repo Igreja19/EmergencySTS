@@ -39,12 +39,12 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile/index.cs
                                     'O' => 'Outro',
                                     default => '—',
                                 },
-                                'contentOptions' => ['class' => 'genero'],
+                                'contentOptions' => ['style' => 'text-align:center;'],
                         ],
                         [
                                 'attribute' => 'datanascimento',
                                 'format' => ['date', 'php:d/m/Y'],
-                                'contentOptions' => ['class' => 'datanascimento'],
+                                'contentOptions' => ['style' => 'text-align:center;'],
                         ],
                         [
                                 'label' => 'Função / Role',
@@ -52,7 +52,7 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile/index.cs
                                     $roleOptions = Yii::$app->authManager->getRolesByUser($model->user_id);
                                     return !empty($roleOptions) ? ucfirst(array_keys($roleOptions)[0]) : '—';
                                 },
-                                'contentOptions' => ['class' => 'role'],
+                                'contentOptions' => ['style' => 'text-align:center;'],
                         ],
                         'nif',
                         'sns',
@@ -60,7 +60,7 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile/index.cs
                                 'class' => 'yii\grid\ActionColumn',
                                 'header' => 'Ações',
                                 'template' => '{view} {update} {delete}',
-                                'contentOptions' => ['class' => 'acoes'],
+                                'contentOptions' => ['style' => 'text-align:center;'],
                                 'buttons' => [
                                         'view' => fn($url) => Html::a('<i class="bi bi-eye"></i>', $url, ['class' => 'btn-action btn-view']),
                                         'update' => fn($url) => Html::a('<i class="bi bi-pencil"></i>', $url, ['class' => 'btn-action btn-edit']),

@@ -6,8 +6,7 @@ use yii\widgets\Pjax;
 
 $this->title = 'Prescrições';
 $this->params['breadcrumbs'][] = $this->title;
-
-$this->registerCssFile(Yii::$app->request->baseUrl . '/css/prescricao/index.css');
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile.css');
 
 ?>
 
@@ -44,7 +43,7 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/prescricao/index.css'
 
                         [
                                 'attribute' => 'id',
-                                'contentOptions' => ['class' => 'id'],
+                                'contentOptions' => ['style' => 'font-weight:600;'],
                         ],
 
                         [
@@ -57,14 +56,14 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/prescricao/index.css'
                                 'attribute' => 'dataprescricao',
                                 'label' => 'Data',
                                 'format' => ['date', 'php:d/m/Y H:i'],
-                                'contentOptions' => ['class' => 'dataprescricao'],
+                                'contentOptions' => ['style' => 'text-align:center;'],
                         ],
 
                         [
                                 'attribute' => 'consulta_id',
                                 'label' => 'Consulta',
                                 'value' => fn($m) => "Consulta #" . $m->consulta_id,
-                                'contentOptions' => ['class' => 'consulta-id'],
+                                'contentOptions' => ['style' => 'text-align:center;'],
                         ],
 
                     /* ================================
@@ -74,7 +73,7 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/prescricao/index.css'
                                 'class' => 'yii\grid\ActionColumn',
                                 'header' => 'Ações',
                                 'template' => '{view} {update} {delete}',
-                                'contentOptions' => ['class' => 'acoes'],
+                                'contentOptions' => ['style' => 'text-align:center;'],
 
                             // 🔥 Corrige completamente o erro Missing parameter: id
                                 'urlCreator' => function ($action, $model, $key, $index) {

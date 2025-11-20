@@ -9,14 +9,22 @@ $this->title = 'Editar Consulta #' . $model->id;
 $this->params['breadcrumbs'][] = ['label' => 'Consultas', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 
+$this->registerCss("
+.update-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 28px;
+    font-weight: 700;
+    color: #198754;
+}
+.update-container {
+    max-width: 950px;
+    margin: 0 auto;
+}
+");
 
-$this->registerCssFile(Yii::$app->request->baseUrl . '/css/consulta/update.css');
 ?>
-<div class="consulta-create">
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <h1 class="mb-0 text-success"><i class="bi bi-clipboard-plus me-2"></i><?= Html::encode($this->title) ?></h1>
-        <?= Html::a('<i class="bi bi-arrow-left-circle me-1"></i> Voltar', ['index'], ['class' => 'btn btn-outline-secondary']) ?>
-    </div>
 
 <div class="update-container">
 
@@ -31,6 +39,5 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/consulta/update.css')
             'model' => $model,
             'triagensDisponiveis' => $triagensDisponiveis ?? [],
     ]) ?>
-
 
 </div>

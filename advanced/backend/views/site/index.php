@@ -8,13 +8,80 @@
 /** @var array $ultimas */
 
 use yii\helpers\Html;
-use yii\helpers\Url;
 
 $this->title = 'EmergencySTS | Dashboard';
 
 // Bootstrap Icons + CSS global
 $this->registerCssFile('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css');
 $this->registerCssFile(Yii::$app->request->baseUrl . '/css/site/index.css');
+
+/* ===== Chart.js ===== */
+$this->registerJsFile('https://cdn.jsdelivr.net/npm/chart.js', [
+        'position' => \yii\web\View::POS_END
+]);
+
+
+/* ===== GRÁFICOS ===== */
+$this->registerJs('
+
+// DONUT
+const donut = document.getElementById("chartManchester");
+if (donut) {
+    new Chart(donut, {
+        type: "doughnut",
+        data: {
+            labels: ["Vermelho","Laranja","Amarelo","Verde","Azul"],
+            datasets: [{
+                data: [
+                    '.$manchester['vermelho'].',
+                    '.$manchester['laranja'].',
+                    '.$manchester['amarelo'].',
+                    '.$manchester['verde'].',
+                    '.$manchester['azul'].'
+                ],
+                backgroundColor: ["#dc3545","#fd7e14","#ffc107","#198754","#0d6efd"]
+            }]
+        },
+        options: { plugins:{ legend:{ position:"bottom" } } }
+    });
+}
+
+// LINHA — com inteiros + eixo Y corrigido
+const line = document.getElementById("chartEvolucao");
+let triagemChart = null;
+
+if (line) {
+    triagemChart = new Chart(line, {
+        type: "line",
+        data: {
+            labels: '.json_encode($evolucaoLabels).',
+            datasets: [{
+                label: "Triagens",
+                data: '.json_encode(array_map("intval", $evolucaoData)).',
+                tension: .35,
+                borderColor: "#198754",
+                backgroundColor: "rgba(25,135,84,0.1)",
+                fill: true,
+                pointRadius: 4,
+                pointBackgroundColor: "#198754"
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero:true,
+                    ticks: {
+                        stepSize: 1,
+                        callback: function(value) {
+                            return Number.isInteger(value) ? value : "";
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+');
 
 // Badge helper
 function badgePrio(string $prio): string {
@@ -68,10 +135,6 @@ function badgePrio(string $prio): string {
                 <div class="label">Atendidos hoje</div>
             </div>
         </div>
-    </div>
-
-    <div id="chart-config"
-         data-url="<?= Url::to(['site/grafico-dados'], true) ?>">
     </div>
 
     <!-- GRÁFICOS -->
@@ -172,9 +235,3 @@ function badgePrio(string $prio): string {
     </div>
 
 </div>
-<?php
-$this->registerJsFile('https://cdn.jsdelivr.net/npm/chart.js', [
-        'position' => \yii\web\View::POS_END
-]);
-$this->registerJsFile(Yii::$app->request->baseUrl . '/js/site/index.js', ['depends' => [\yii\web\JqueryAsset::class]]);
-?>

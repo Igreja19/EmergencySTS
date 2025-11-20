@@ -4,13 +4,13 @@ use yii\helpers\Html;
 
 /** @var yii\web\View $this */
 /** @var common\models\Triagem $model */
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/update.css');
 
 $this->title = 'Editar Triagem';
 $this->params['breadcrumbs'][] = ['label' => 'Triagens', 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => 'Ver Triagem #' . $model->id, 'url' => ['view', 'id' => $model->id]];
 $this->params['breadcrumbs'][] = 'Editar';
 
-$this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/update.css');
 ?>
 
 <div class="triagem-update">

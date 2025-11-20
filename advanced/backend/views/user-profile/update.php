@@ -11,8 +11,8 @@ $this->params['breadcrumbs'][] = ['label' => 'Utilizadores', 'url' => ['index']]
 $this->params['breadcrumbs'][] = ['label' => 'Ver Perfil #' . $model->id, 'url' => ['view', 'id' => $model->id]];
 $this->params['breadcrumbs'][] = 'Editar';
 
-/* Reutiliza o mesmo estilo visual da triagem */
 $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile/update.css');
+
 ?>
 
 <div class="userprofile-update">

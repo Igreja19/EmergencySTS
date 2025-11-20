@@ -3,7 +3,7 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 
 $this->title = 'Painel do Médico';
-$this->registerCssFile(Yii::$app->request->baseUrl . '/css/dashboard/medico.css');
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/dashboard.css');
 ?>
 
 <div class="dashboard-container">
@@ -60,5 +60,17 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/dashboard/medico.css'
                 <?= Html::a('Aceder', ['/medicamento/index'], ['class' => 'btn btn-warning mt-3 w-100 text-dark fw-semibold']) ?>
             </div>
         </div>
+
     </div>
+
 </div>
+
+<style>
+    .dashboard-card { border-radius: 16px; transition: 0.2s; }
+    .dashboard-card:hover { transform: translateY(-3px); }
+    .icon-circle {
+        width: 60px; height: 60px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+    }
+</style>

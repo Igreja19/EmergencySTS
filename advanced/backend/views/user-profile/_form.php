@@ -6,6 +6,7 @@ use yii\widgets\ActiveForm;
 /** @var yii\web\View $this */
 /** @var common\models\UserProfile $model */
 /** @var array $roleOptions */
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile.css');
 
 ?>
 

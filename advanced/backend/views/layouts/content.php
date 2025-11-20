@@ -41,4 +41,5 @@ use yii\bootstrap4\Breadcrumbs;
         <?= $content ?>
     </div>
     <!-- /.content -->
+
 </div>

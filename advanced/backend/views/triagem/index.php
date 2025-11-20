@@ -44,7 +44,7 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/index.css');
                                 'class' => 'yii\grid\ActionColumn',
                                 'header' => 'Ações',
                                 'template' => '{view} {update} {delete}',
-                                'contentOptions' => ['class' => 'acoes'],
+                                'contentOptions' => ['style' => 'text-align:center;'],
                                 'buttons' => [
                                         'view' => fn($url) => Html::a('<i class="bi bi-eye"></i>', $url, ['class' => 'btn-action btn-view']),
                                         'update' => fn($url) => Html::a('<i class="bi bi-pencil"></i>', $url, ['class' => 'btn-action btn-edit']),

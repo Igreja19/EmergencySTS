@@ -45,7 +45,6 @@ class Triagem extends \yii\db\ActiveRecord
             [['motivoconsulta'], 'string', 'max' => 255],
             [['intensidadedor'], 'integer', 'min' => 0, 'max' => 10],
 
-
             // Relações
             [['pulseira_id'], 'exist', 'skipOnError' => true,
                 'targetClass' => Pulseira::class, 'targetAttribute' => ['pulseira_id' => 'id']],

@@ -1,16 +1,14 @@
 <?php
-
-use yii\helpers\Url;
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/site/acesso-restrito.css');
 
 $this->title = "Acesso Restrito";
-$this->registerCssFile(Yii::$app->request->baseUrl . '/css/site/acesso-restrito.css');
 ?>
 
-<div class="login-box premium-container">
+<div class="login-box premium-container" style="width: 480px;">
 
     <div class="card premium-card">
 
-        <div class="card-header text-center">
+        <div class="card-header text-center" style="border-bottom: none;">
 
             <!-- Ícone premium -->
             <div class="premium-icon-container">
@@ -20,7 +18,7 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/site/acesso-restrito.
             <h3 class="premium-title">Acesso Restrito</h3>
         </div>
 
-        <div class="card-body text-center">
+        <div class="card-body text-center" style="padding-top: 0;">
 
             <p class="premium-text">
                 Esta área é exclusiva para funcionários do hospital.
@@ -30,11 +28,8 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/site/acesso-restrito.
                 Será redirecionado em <b id="contador">10</b> segundos...
             </p>
 
-            <div id="redirect-config"
-                 data-url="<?= Url::to(['site/index']) ?>">
-            </div>
             <!-- 🔥 BOTÃO CORRIGIDO → FRONTEND -->
-            <a href="<?= Url::to(['site/index']) ?>" class="premium-button">
+            <a href="/PLATF/EmergencySTS/advanced/frontend/web/index.php" class="premium-button">
                 <i class="fas fa-home mr-2"></i> Ir para página inicial agora
             </a>
 
@@ -42,6 +37,17 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/site/acesso-restrito.
     </div>
 </div>
 
+<!-- 🔥 Script Redirecionamento corrigido → FRONTEND -->
 <?php
-$this->registerJsFile(Yii::$app->request->baseUrl . '/js/site/acesso-restrito.js', ['depends' => [\yii\web\JqueryAsset::class]]);
+$this->registerJs("
+    var s = 10;
+    var intv = setInterval(function() {
+        s--;
+        $('#contador').text(s);
+        if (s <= 0) {
+            clearInterval(intv);
+            window.location.href = '/PLATF/EmergencySTS/advanced/frontend/web/index.php';
+        }
+    }, 1000);
+");
 ?>

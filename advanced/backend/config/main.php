@@ -1,11 +1,9 @@
 <?php
 
 use yii\log\FileTarget;
-
 use yii\web\Response;
 use yii\web\JsonResponseFormatter;
 use yii\rest\UrlRule;
-
 
 $params = array_merge(
     require __DIR__ . '/../../common/config/params.php',
@@ -75,13 +73,17 @@ return [
             'class' => yii\web\Response::class,
         ],
 
-
+        'request' => [
+            'csrfParam' => '_csrf-backend',
+            'parsers' => [
+                'application/json' => 'yii\web\JsonParser',
+            ],
+        ],
 
         'user' => [
             'identityClass' => common\models\User::class,
-            'enableAutoLogin' => false,
-            'enableSession' => false,
-            'loginUrl' => null,
+            'enableAutoLogin' => true,
+            'identityCookie' => ['name' => '_identity-backend', 'httpOnly' => true],
         ],
 
         'session' => [
@@ -139,10 +141,13 @@ return [
 
                 // Página Base
                 'GET api' => 'api/default/index',
+
+                // Paciente
+                'GET api/paciente/perfil' => 'api/paciente/perfil',
+                'PUT api/paciente/update/<id:\d+>' => 'api/paciente/update',
             ],
         ],
     ],
-
 
     'params' => $params,
 ];

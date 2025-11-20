@@ -20,7 +20,8 @@ $isEnfermeiro = in_array('enfermeiro', $roleNames);
     <a href="<?= Url::to(['/site/index']) ?>" class="brand-link">
         <img src="<?= Yii::$app->request->baseUrl ?>/img/logo.png"
              alt="EmergencySTS"
-             class="img brand-image img-circle elevation-3">
+             class="brand-image img-circle elevation-3"
+             style="opacity:.9">
         <span class="brand-text font-weight-light">EmergencySTS</span>
     </a>
 

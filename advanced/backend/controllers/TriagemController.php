@@ -8,6 +8,7 @@ use common\models\TriagemSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use Yii;
 
 class TriagemController extends Controller
 {

@@ -12,8 +12,77 @@ use yii\helpers\Html;
 $this->title = 'EmergencySTS | Dashboard';
 
 $this->registerCssFile('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css');
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/layouts/sidebar.css');
 $this->registerCssFile(Yii::$app->request->baseUrl . '/css/dashboard/admin.css');
 
+/* ===== Chart.js ===== */
+$this->registerJsFile('https://cdn.jsdelivr.net/npm/chart.js', ['position' => \yii\web\View::POS_END]);
+
+/* ===== GRÁFICOS ===== */
+$this->registerJs('
+
+// DONUT
+const donut = document.getElementById("chartManchester");
+if (donut) {
+    new Chart(donut, {
+        type: "doughnut",
+        data: {
+            labels: ["Vermelho","Laranja","Amarelo","Verde","Azul"],
+            datasets: [{
+                data: [
+                    '.$manchester['vermelho'].',
+                    '.$manchester['laranja'].',
+                    '.$manchester['amarelo'].',
+                    '.$manchester['verde'].',
+                    '.$manchester['azul'].'
+                ],
+                backgroundColor: ["#dc3545","#fd7e14","#ffc107","#198754","#0d6efd"]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: "bottom" }},
+            cutout: "65%"
+        }
+    });
+}
+
+// LINHA – EVOLUÇÃO DAS TRIAGENS
+const line = document.getElementById("chartEvolucao");
+let triagemChart = null;
+
+if (line) {
+    triagemChart = new Chart(line, {
+        type: "line",
+        data: {
+            labels: '.json_encode($evolucaoLabels).',
+            datasets: [{
+                label: "Triagens",
+                data: '.json_encode($evolucaoData).',
+                tension: 0.3,
+                borderColor: "#198754",
+                backgroundColor: "rgba(25,135,84,0.15)",
+                fill: true,
+                pointRadius: 5,
+                pointBackgroundColor: "#198754",
+                pointBorderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false }},
+            scales: {
+                y: {
+                beginAtZero: true,
+                ticks: {
+                    precision: 0   // 👈 garante números inteiros
+            }
+        }
+    }
+}
+    });
+}
+');
 ?>
 
 <!-- ====================================== -->
@@ -140,11 +209,5 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/dashboard/admin.css')
                 <?php endforeach; endif; ?>
         </div>
     </div>
+
 </div>
-<?php
-$this->registerJsFile('https://cdn.jsdelivr.net/npm/chart.js', ['position' => \yii\web\View::POS_END]);
-$this->registerJsFile('https://cdn.jsdelivr.net/npm/chart.js', [
-        'position' => \yii\web\View::POS_END
-]);
-$this->registerJsFile(Yii::$app->request->baseUrl . '/js/dashboard/admin.js', ['depends' => [\yii\web\JqueryAsset::class]]);
-?>

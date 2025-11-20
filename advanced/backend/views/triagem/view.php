@@ -5,12 +5,11 @@ use yii\widgets\DetailView;
 
 /** @var yii\web\View $this */
 /** @var common\models\Triagem $model */
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/view.css');
 
 $this->title = 'Detalhes da Triagem';
 $this->params['breadcrumbs'][] = ['label' => 'Triagens', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
-
-$this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/view.css');
 ?>
 
 <div class="triagem-view">

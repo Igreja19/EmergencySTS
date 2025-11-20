@@ -16,7 +16,8 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/site/site.css');
                     <div class="login-icon shadow-sm">
                         <img src="<?= Yii::getAlias('@web') ?>/img/login.png"
                              alt="Segurança"
-                             class="img img-fluid p-2">
+                             class="img-fluid p-2"
+                             style="max-width: 90px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));">
                     </div>
                 </div>
                 <h3 class="fw-bold text-success mt-3 mb-1">Acesso Restrito</h3>
@@ -68,6 +69,7 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/site/site.css');
                         ['site/request-password-reset'],
                         ['class' => 'text-success text-decoration-none fw-semibold']) ?>
             </div>
+
         </div>
     </div>
 </div>

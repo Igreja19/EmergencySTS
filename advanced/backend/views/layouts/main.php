@@ -16,12 +16,11 @@ if (class_exists(\hail812\adminlte3\assets\ICheckBootstrapAsset::class)) {
 }
 
 // CSS custom
-$this->registerCssFile(Yii::$app->request->baseUrl . '/css/layouts/main.css');
 $this->registerCssFile('https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback');
-$this->registerCssFile(Yii::getAlias('@web') . '/css/navbar.css?v=1.1');
+$this->registerCssFile(Yii::getAlias('@web') . '/css/adminlte-custom.css?v=1.1');
 
 // ⭐ ADICIONADO: CSS DO DASHBOARD PREMIUM V2
-$this->registerCssFile(Yii::getAlias('@web') . '/css/admin.css?v=1.0');
+$this->registerCssFile(Yii::getAlias('@web') . '/css/sidebar.css?v=1.0');
 
 $assetDir = Yii::$app->assetManager->getPublishedUrl('@vendor/almasaeed2010/adminlte/dist');
 
@@ -42,6 +41,7 @@ $this->registerJsFile($publishedRes[1] . '/control_sidebar.js');
 
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
@@ -54,16 +54,11 @@ $this->registerJsFile($publishedRes[1] . '/control_sidebar.js');
 <body class="hold-transition sidebar-mini layout-fixed">
 
 <!-- 🔊 Som das notificações -->
-<div id="config"
-     data-sse="<?= \yii\helpers\Url::to(['/notificacao-stream/index'], true) ?>"
-     data-sound="<?= \yii\helpers\Url::to('@web/sounds/notificacao.mp3', true) ?>">
-</div>
-
-<audio id="notifSound" preload="auto"></audio>
+<audio id="notifSound" src="/platf/EmergencySTS/advanced/backend/web/sounds/notificacao.mp3" preload="auto"></audio>
 
 <?php $this->beginBody() ?>
 
-<div id="toast-container"></div>
+<div id="toast-container" style="position:fixed; top:20px; right:20px; z-index:999999;"></div>
 
 <div class="wrapper">
 
@@ -74,11 +69,98 @@ $this->registerJsFile($publishedRes[1] . '/control_sidebar.js');
     <?= $this->render('footer') ?>
 
 </div>
+
+<!-- Scroll effect -->
+<script>
+    document.addEventListener("scroll", function () {
+        const header = document.querySelector(".sticky-header");
+        if (header) header.classList.toggle("scrolled", window.scrollY > 10);
+    });
+</script>
+
+<!-- 🔥 SSE NÃO BLOQUEANTE + AUTO RECONNECT + SOM -->
+<script>
+    let ultimoCount = 0;
+
+    function ligarSSE() {
+        let evtSource = new EventSource("http://localhost/platf/EmergencySTS/advanced/backend/web/notificacao-stream/index");
+
+        evtSource.onmessage = function(event) {
+            processarNotificacoes(event.data);
+        };
+
+        evtSource.onerror = function() {
+            evtSource.close();
+            setTimeout(ligarSSE, 3000);
+        };
+    }
+
+    function processarNotificacoes(rawData) {
+        const data = JSON.parse(rawData);
+        const count = data.length;
+
+        const bell = document.querySelector(".notif-btn");
+        const list = document.querySelector(".notif-body");
+        const headerBadge = document.querySelector(".notif-header .badge");
+        const audio = document.getElementById("notifSound");
+
+        if (!list) return;
+
+        list.innerHTML = "";
+
+        if (count === 0) {
+            list.innerHTML = `
+            <div class='text-center text-muted py-3'>
+                <i class='bi bi-inbox fs-2 mb-2'></i>
+                <small>Sem novas notificações</small>
+            </div>
+        `;
+            if (headerBadge) headerBadge.remove();
+            const red = bell.querySelector(".notif-badge");
+            if (red) red.remove();
+            return;
+        }
+
+        if (!bell.querySelector(".notif-badge")) {
+            bell.insertAdjacentHTML("beforeend", "<span class='notif-badge'></span>");
+        }
+
+        if (headerBadge) {
+            headerBadge.textContent = count;
+        } else {
+            document.querySelector(".notif-header").insertAdjacentHTML(
+                "beforeend",
+                `<span class='badge bg-success rounded-pill'>${count}</span>`
+            );
+        }
+
+        data.forEach(n => {
+            list.insertAdjacentHTML("beforeend", `
+                <div class='notif-item d-flex p-2 mb-1 rounded-3'>
+                    <div class='notif-icon me-2'>
+                        <i class='bi bi-exclamation-circle-fill text-success fs-5'></i>
+                    </div>
+                    <div class='flex-grow-1'>
+                        <div class='fw-semibold'>${n.titulo}</div>
+                        <div class='text-muted small'>${n.mensagem}</div>
+                    </div>
+                </div>
+            `);
+        });
+
+        if (count > ultimoCount) {
+            audio.currentTime = 0;
+            audio.play();
+        }
+
+        ultimoCount = count;
+    }
+
+    ligarSSE();
+</script>
+
 <?php $this->endBody() ?>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
 <?php $this->endPage() ?>
-<?php
-$this->registerJsFile(Yii::$app->request->baseUrl . '/js/layouts/main.js', ['depends' => [\yii\web\JqueryAsset::class]]);
-?>
