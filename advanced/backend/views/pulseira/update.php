@@ -10,45 +10,8 @@ $this->params['breadcrumbs'][] = ['label' => 'Pulseiras', 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => 'Ver Pulseira #' . $model->id, 'url' => ['view', 'id' => $model->id]];
 $this->params['breadcrumbs'][] = 'Editar';
 
-$this->registerCss('
-.pulseira-update {
-    max-width: 900px;
-    margin: 0 auto;
-}
-.pulseira-update h1 {
-    color: #198754;
-    font-weight: 700;
-    margin-bottom: 25px;
-    text-align: center;
-}
-.pulseira-form {
-    background: #fff;
-    border-radius: 20px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-    padding: 25px 30px;
-    margin-bottom: 25px;
-}
-.pulseira-form h5 {
-    color: #198754;
-    font-weight: 700;
-    margin-bottom: 15px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-.btn-back {
-    background: #198754;
-    color: #fff;
-    border-radius: 10px;
-    padding: 10px 20px;
-    font-weight: 600;
-    transition: .2s;
-}
-.btn-back:hover {
-    opacity: .9;
-    transform: translateY(-2px);
-}
-');
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/pulseira/update.css');
+
 ?>
 
 <div class="pulseira-update">
