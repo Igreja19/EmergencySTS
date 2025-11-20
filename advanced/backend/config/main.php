@@ -18,48 +18,45 @@ return [
     'controllerNamespace' => 'backend\controllers',
     'bootstrap' => ['log'],
 
-    // BLOQUEIO CORRETO DO PACIENTE E ROLES INVÁLIDAS
+    // ----------------------------------------------------------
+    // 🔒 BLOQUEIO DE ACESSO AO BACKEND (INTERFACE WEB)
+    // ----------------------------------------------------------
     'on beforeRequest' => function () {
+        $route = Yii::$app->requestedRoute ?? '';
 
-        $route = Yii::$app->requestedRoute;
-
-        // Permitir acesso sem bloqueio
-        if (
-            $route === 'site/login' ||
-            $route === 'site/error' ||
-            $route === 'site/acesso-restrito'
-        ) {
+        // Se a rota começar por 'api/', IGNORA este bloqueio.
+        if (strpos($route, 'api/') === 0) {
             return true;
         }
 
-        // Se estiver autenticado
-        if (!Yii::$app->user->isGuest) {
+        // Permitir acesso livre a páginas de erro/login do backend
+        if (in_array($route, ['site/login', 'site/error', 'site/acesso-restrito', 'site/logout'])) {
+            return true;
+        }
 
+        // Se estiver autenticado no Backend (Sessão Web)
+        if (!Yii::$app->user->isGuest) {
             $auth = Yii::$app->authManager;
             $roles = $auth->getRolesByUser(Yii::$app->user->id);
-
             $rolesValidos = ['admin', 'medico', 'enfermeiro'];
-            $temRoleValido = false;
 
+            $temRoleValido = false;
             foreach ($roles as $nome => $roleObj) {
                 if (in_array($nome, $rolesValidos)) {
                     $temRoleValido = true;
                     break;
                 }
             }
-
-            // Qualquer role inválida → bloqueado
+            // Se for Paciente a tentar entrar no Backend Web -> Bloqueia
             if (!$temRoleValido) {
+                Yii::$app->user->logout();
                 Yii::$app->response->redirect(['/site/acesso-restrito'])->send();
                 return false;
             }
-        } else {
-            //  Não autenticado → não mostrar login do backend ao paciente
-            // Permitir login apenas para staff
-            return true;
         }
-    },
 
+        return true;
+    },
 
     'modules' => [
         'api' => [
@@ -108,12 +105,33 @@ return [
             'class' => 'yii\rbac\DbManager',
         ],
 
+        // ----------------------------------------------------------
+        // 🔗 URL MANAGER DA API
+        // ----------------------------------------------------------
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
 
-                // REST API
+                // --- 1. ROTAS ESPECIAIS (Mapeamento Manual) ---
+
+                // Login
+                'POST api/login'    => 'api/auth/login',
+
+                // Perfil
+                'GET api/profile'   => 'api/user/index',
+
+                // Histórico de Consultas
+                'GET api/userprofiles/<id:\d+>/consultas' => 'api/consulta/historico',
+
+                // Validação de Token (Opcional)
+                'GET api/auth/validate'  => 'api/auth/validate',
+
+                // Notificações
+                'GET api/notificacao/list' => 'api/notificacao/list',
+                'POST api/notificacao/ler/<id:\d+>' => 'api/notificacao/ler',
+
+                // --- 2. ROTAS REST AUTOMÁTICAS ---
                 [
                     'class' => UrlRule::class,
                     'controller' => [
@@ -128,24 +146,12 @@ return [
                     'extraPatterns' => [
                         'GET prioridade' => 'prioridade',
                     ],
-                ],
+                ], // <--- AQUI ESTAVA O ERRO: Faltava fechar este array e a vírgula
 
-                // Autenticação
-                'POST api/auth/login'    => 'api/auth/login',
-                'GET api/auth/validate'  => 'api/auth/validate',
-                'POST api/auth/logout'   => 'api/auth/logout',
-
-                //Triagem
-
-
-                // Notificações
-                'GET api/notificacao/list' => 'api/notificacao/list',
-                'POST api/notificacao/ler/<id:\d+>' => 'api/notificacao/ler',
-
-                // Página Base
+                // Página Base da API
                 'GET api' => 'api/default/index',
 
-                // Paciente
+                // Rotas extra de paciente (caso existam no futuro)
                 'GET api/paciente/perfil' => 'api/paciente/perfil',
                 'PUT api/paciente/update/<id:\d+>' => 'api/paciente/update',
             ],
