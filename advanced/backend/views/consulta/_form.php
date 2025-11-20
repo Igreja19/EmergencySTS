@@ -6,6 +6,7 @@ use yii\helpers\Url;
 /** @var yii\web\View $this */
 /** @var common\models\Consulta $model */
 /** @var array $triagensDisponiveis */
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/consulta/_form.css');
 
 $triagensDisponiveis = $triagensDisponiveis ?? [];
 $isNew = $model->isNewRecord;
@@ -31,14 +32,10 @@ $isNew = $model->isNewRecord;
     <div class="row g-3">
 
         <div class="col-md-6">
-            <?= $form->field($model, 'estado')->dropDownList([
-                    'Em curso' => 'Em curso',
-                    'Encerrada' => 'Encerrada'
-            ], [
-                    'class' => 'form-select rounded-3 shadow-sm',
-                    'disabled' => $isNew,
-                    'id' => 'estado-select'
-            ]) ?>
+            <?= $form->field($model, 'estado')->dropDownList(
+                    ['Em curso' => 'Em curso'],
+                    ['disabled' => true] // impede alterações
+            ) ?>
         </div>
 
         <div class="col-md-6" id="campo-encerramento"
@@ -155,3 +152,4 @@ JS;
 
 $this->registerJs($js);
 ?>
+

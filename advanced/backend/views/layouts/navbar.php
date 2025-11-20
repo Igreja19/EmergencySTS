@@ -3,8 +3,7 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 
 $user = Yii::$app->user->identity ?? null;
-$this->registerCssFile(Yii::$app->request->baseUrl . '/css/adminlte-custom.css');
-
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/layouts/navbar.css');
 ?>
 
 <nav class="main-header navbar navbar-expand custom-navbar">
@@ -18,72 +17,91 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/adminlte-custom.css')
             </a>
         </li>
 
-        <!-- Links -->
+        <!-- DASHBOARD (todos) -->
         <li class="nav-item d-none d-sm-inline-block">
             <a href="<?= Url::home() ?>" class="nav-link top-link">Dashboard</a>
         </li>
 
-        <li class="nav-item d-none d-sm-inline-block">
-            <a href="<?= Url::to(['/user-profile/index']) ?>" class="nav-link top-link">Utilizadores</a>
-        </li>
+        <!-- UTILIZADORES (admin) -->
+        <?php if ($isAdmin): ?>
+            <li class="nav-item d-none d-sm-inline-block">
+                <a href="<?= Url::to(['/user-profile/index']) ?>" class="nav-link top-link">Utilizadores</a>
+            </li>
+        <?php endif; ?>
 
-        <li class="nav-item d-none d-sm-inline-block">
-            <a href="<?= Url::to(['/triagem/index']) ?>" class="nav-link top-link">Triagem</a>
-        </li>
+        <!-- TRIAGEM (admin + enfermeiro) -->
+        <?php if ($isAdmin || $isEnfermeiro): ?>
+            <li class="nav-item d-none d-sm-inline-block">
+                <a href="<?= Url::to(['/triagem/index']) ?>" class="nav-link top-link">Triagem</a>
+            </li>
+        <?php endif; ?>
 
-        <li class="nav-item d-none d-sm-inline-block">
-            <a href="<?= Url::to(['/pulseira/index']) ?>" class="nav-link top-link">Pulseira</a>
-        </li>
+        <!-- PULSEIRAS (admin + enfermeiro) -->
+        <?php if ($isAdmin || $isEnfermeiro): ?>
+            <li class="nav-item d-none d-sm-inline-block">
+                <a href="<?= Url::to(['/pulseira/index']) ?>" class="nav-link top-link">Pulseira</a>
+            </li>
+        <?php endif; ?>
 
-        <li class="nav-item d-none d-sm-inline-block">
-            <a href="<?= Url::to(['/consulta/index']) ?>" class="nav-link top-link">Consulta</a>
-        </li>
+        <!-- CONSULTAS (admin + médico) -->
+        <?php if ($isAdmin || $isMedico): ?>
+            <li class="nav-item d-none d-sm-inline-block">
+                <a href="<?= Url::to(['/consulta/index']) ?>" class="nav-link top-link">Consultas</a>
+            </li>
+        <?php endif; ?>
 
-        <li class="nav-item d-none d-sm-inline-block">
-            <a href="<?= Url::to(['/prescricao/index']) ?>" class="nav-link top-link">Prescrições</a>
-        </li>
+        <!-- PRESCRIÇÕES (admin + médico) -->
+        <?php if ($isAdmin || $isMedico): ?>
+            <li class="nav-item d-none d-sm-inline-block">
+                <a href="<?= Url::to(['/prescricao/index']) ?>" class="nav-link top-link">Prescrições</a>
+            </li>
+        <?php endif; ?>
 
-        <li class="nav-item d-none d-sm-inline-block">
-            <a href="<?= Url::to(['/medicamentos/index']) ?>" class="nav-link top-link">Medicamentos</a>
-        </li>
+        <!-- MEDICAMENTOS (admin + médico) -->
+        <?php if ($isAdmin || $isMedico): ?>
+            <li class="nav-item d-none d-sm-inline-block">
+                <a href="<?= Url::to(['/medicamento/index']) ?>" class="nav-link top-link">Medicamentos</a>
+            </li>
+        <?php endif; ?>
     </ul>
 
     <!-- RIGHT -->
     <ul class="navbar-nav ml-auto">
 
-        <!-- 🔔 NOTIFICAÇÕES -->
-        <li class="nav-item dropdown">
-            <a class="nav-link text-white" data-toggle="dropdown" href="#">
-                <i class="far fa-bell"></i>
-                <span id="navbarNotifBadge"
-                      class="badge badge-danger navbar-badge"
-                      style="display:none;"></span>
-            </a>
-
-            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right p-0">
-
-                <span class="dropdown-header text-success fw-bold">
-                    Notificações <span id="navbarNotifCount"></span>
-                </span>
-
-                <div class="dropdown-divider"></div>
-
-                <div id="navbarNotifList" style="max-height:260px; overflow-y:auto;">
-                    <div class="text-center p-3 text-muted">
-                        <i class="fas fa-spinner fa-spin"></i> A carregar...
-                    </div>
-                </div>
-
-                <div class="dropdown-divider"></div>
-
-                <a href="<?= Url::to(['/notificacao/index']) ?>"
-                   class="dropdown-item dropdown-footer text-success">
-                    Ver todas
+        <!-- NOTIFICAÇÕES (todos os staff) -->
+        <?php if ($isAdmin || $isMedico || $isEnfermeiro): ?>
+            <li class="nav-item dropdown">
+                <a class="nav-link text-white" data-toggle="dropdown" href="#">
+                    <i class="far fa-bell"></i>
+                    <span id="navbarNotifBadge"
+                          class="badge badge-danger navbar-badge"
+                          style="display:none;"></span>
                 </a>
-            </div>
-        </li>
 
-        <!-- USER -->
+                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right p-0">
+                    <span class="dropdown-header text-success fw-bold">
+                        Notificações <span id="navbarNotifCount"></span>
+                    </span>
+
+                    <div class="dropdown-divider"></div>
+
+                    <div id="navbarNotifList" style="max-height:260px; overflow-y:auto;">
+                        <div class="text-center p-3 text-muted">
+                            <i class="fas fa-spinner fa-spin"></i> A carregar...
+                        </div>
+                    </div>
+
+                    <div class="dropdown-divider"></div>
+
+                    <a href="<?= Url::to(['/notificacao/index']) ?>"
+                       class="dropdown-item dropdown-footer text-success">
+                        Ver todas
+                    </a>
+                </div>
+            </li>
+        <?php endif; ?>
+
+        <!-- USER MENU (todos autenticados) -->
         <li class="nav-item dropdown user-menu">
             <a href="#" class="nav-link dropdown-toggle text-white" data-toggle="dropdown">
                 <i class="far fa-user"></i>
@@ -118,7 +136,7 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/adminlte-custom.css')
     </ul>
 </nav>
 
-<!-- ====================== NOTIFICAÇÕES AJAX ====================== -->
+<!-- 🔔 NOTIFICAÇÕES usando AJAX (mantido do teu original) -->
 <script>
     async function carregarNotificacoesNavbarReal() {
         try {
@@ -140,7 +158,7 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/adminlte-custom.css')
                     <i class="far fa-bell-slash fa-2x"></i>
                     <p class="mt-2">Sem novas notificações</p>
                 </div>
-            `;
+                `;
                 return;
             }
 
@@ -153,14 +171,12 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/adminlte-custom.css')
                 list.innerHTML += `
                 <a href="#" class="dropdown-item">
                     <i class="fas fa-exclamation-circle mr-2 text-success"></i>
-                    <strong>${n.titulo}</strong>
+                    <strong>${n.ttitulo}</strong>
                     <div class="small text-muted">${n.mensagem}</div>
-                    <div class="small">
-                        <i class="far fa-clock"></i> ${n.dataenvio}
-                    </div>
+                    <div class="small"><i class="far fa-clock"></i> ${n.dataenvio}</div>
                 </a>
                 <div class="dropdown-divider"></div>
-            `;
+                `;
             });
 
         } catch (e) {

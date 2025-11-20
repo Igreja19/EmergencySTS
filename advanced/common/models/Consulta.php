@@ -138,4 +138,8 @@ class Consulta extends \yii\db\ActiveRecord
 
         return parent::beforeSave($insert);
     }
+    public function getPrescricoes()
+    {
+        return $this->hasMany(Prescricao::class, ['consulta_id' => 'id']);
+    }
 }

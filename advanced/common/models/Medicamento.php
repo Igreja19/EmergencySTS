@@ -39,7 +39,7 @@ class Medicamento extends ActiveRecord
     }
 
     // 🔹 Relação com prescricaomedicamento
-    public function getPrescricaomedicamentos()
+    public function getPrescricaoMedicamentos()
     {
         return $this->hasMany(Prescricaomedicamento::class, ['medicamento_id' => 'id']);
     }

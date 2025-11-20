@@ -14,6 +14,12 @@ class ModuleAPI extends Module
     {
         parent::init();
 
+        Yii::$app->errorHandler->errorAction = null;
+
+        Yii::$app->user->loginUrl = null;
+        Yii::$app->user->enableSession = false;
+
+        // 3. Força JSON
         Yii::$app->response->on(Response::EVENT_BEFORE_SEND, function ($event) {
             $response = $event->sender;
             if (Yii::$app->controller && Yii::$app->controller->module instanceof self) {

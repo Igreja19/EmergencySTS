@@ -7,9 +7,12 @@ use common\models\Prescricao;
 use common\models\PrescricaoSearch;
 use common\models\Consulta;
 use common\models\Medicamento;
+use common\models\Prescricaomedicamento;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use common\helpers\ModelHelper;
+use yii\base\Model;
 
 class PrescricaoController extends Controller
 {
@@ -44,7 +47,7 @@ class PrescricaoController extends Controller
 
                 // 🔧 VerbFilter já existia, continua igual
                 'verbs' => [
-                    'class' => \yii\filters\VerbFilter::class,
+                    'class' => VerbFilter::class,
                     'actions' => [
                         'delete' => ['POST'],
                         'chart-data' => ['GET'],
@@ -73,8 +76,13 @@ class PrescricaoController extends Controller
      */
     public function actionView($id)
     {
+        $model = $this->findModel($id);
+
+        // opcional: já traz os medicamentos carregados
+        $model->populateRelation('medicamentos', $model->medicamentos);
+
         return $this->render('view', [
-            'model' => $this->findModel($id),
+            'model' => $model,
         ]);
     }
 
@@ -84,14 +92,14 @@ class PrescricaoController extends Controller
     public function actionCreate()
     {
         $model = new Prescricao();
+        $prescricaoMedicamentos = [new Prescricaomedicamento()];
 
-        // Lista dropdown de consultas
         $consultas = Consulta::find()
+            ->where(['<>', 'estado', 'Encerrada'])
             ->select(['id'])
             ->indexBy('id')
             ->column();
 
-        // Lista dropdown de medicamentos
         $medicamentos = Medicamento::find()
             ->select(['nome'])
             ->indexBy('id')
@@ -99,30 +107,32 @@ class PrescricaoController extends Controller
 
         if ($model->load(Yii::$app->request->post())) {
 
-            // 🔹 TEMPO ENTRADA AUTOMÁTICO
-            $model->tempoentrada = date('Y-m-d H:i:s');
+            $prescricaoMedicamentos = ModelHelper::createMultiple(
+                Prescricaomedicamento::class,
+                $prescricaoMedicamentos
+            );
 
-            // Se a data não vier → usa agora
-            if (empty($model->dataprescricao)) {
-                $model->dataprescricao = date('Y-m-d H:i:s');
-            }
+            ModelHelper::loadMultiple($prescricaoMedicamentos, Yii::$app->request->post());
 
             if ($model->save()) {
+                foreach ($prescricaoMedicamentos as $pm) {
+                    $pm->prescricao_id = $model->id;
+                    $pm->save(false);
+                }
+
                 Yii::$app->session->setFlash('success', 'Prescrição criada com sucesso!');
                 return $this->redirect(['view', 'id' => $model->id]);
             }
-
-            Yii::$app->session->setFlash('error',
-                'Erro ao guardar prescrição: ' . json_encode($model->getErrors())
-            );
         }
 
         return $this->render('create', [
-            'model'        => $model,
-            'consultas'    => $consultas,
-            'medicamentos' => $medicamentos,
+            'model' => $model,
+            'consultas' => $consultas,
+            'medicamentosDropdown' => $medicamentos,
+            'prescricaoMedicamentos' => $prescricaoMedicamentos,
         ]);
     }
+
 
     /**
      * Atualiza uma prescrição existente
@@ -131,36 +141,47 @@ class PrescricaoController extends Controller
     {
         $model = $this->findModel($id);
 
-        $consultas = Consulta::find()
-            ->select(['id'])
-            ->indexBy('id')
-            ->column();
+        $consultas = Consulta::find()->select(['id'])->indexBy('id')->column();
+        $medicamentos = Medicamento::find()->select(['nome'])->indexBy('id')->column();
 
-        $medicamentos = Medicamento::find()
-            ->select(['nome'])
-            ->indexBy('id')
-            ->column();
+        $prescricaoMedicamentos = Prescricaomedicamento::find()
+            ->where(['prescricao_id' => $model->id])
+            ->all();
 
         if ($model->load(Yii::$app->request->post())) {
 
-            if (empty($model->dataprescricao)) {
-                $model->dataprescricao = date('Y-m-d H:i:s');
+            $oldIDs = array_column($prescricaoMedicamentos, 'id');
+
+            $prescricaoMedicamentos = ModelHelper::createMultiple(
+                Prescricaomedicamento::class,
+                $prescricaoMedicamentos
+            );
+
+            ModelHelper::loadMultiple($prescricaoMedicamentos, Yii::$app->request->post());
+
+            $newIDs = array_filter(array_column($prescricaoMedicamentos, 'id'));
+
+            $deletedIDs = array_diff($oldIDs, $newIDs);
+            if (!empty($deletedIDs)) {
+                Prescricaomedicamento::deleteAll(['id' => $deletedIDs]);
             }
 
             if ($model->save()) {
+                foreach ($prescricaoMedicamentos as $pm) {
+                    $pm->prescricao_id = $model->id;
+                    $pm->save(false);
+                }
+
                 Yii::$app->session->setFlash('success', 'Prescrição atualizada com sucesso!');
                 return $this->redirect(['view', 'id' => $model->id]);
             }
-
-            Yii::$app->session->setFlash('error',
-                'Erro ao atualizar: ' . json_encode($model->getErrors())
-            );
         }
 
         return $this->render('update', [
-            'model'        => $model,
-            'consultas'    => $consultas,
-            'medicamentos' => $medicamentos,
+            'model' => $model,
+            'consultas' => $consultas,
+            'medicamentosDropdown' => $medicamentos,
+            'prescricaoMedicamentos' => $prescricaoMedicamentos,
         ]);
     }
 
@@ -169,6 +190,10 @@ class PrescricaoController extends Controller
      */
     public function actionDelete($id)
     {
+        // primeiro apaga as associações na tabela pivot
+        Prescricaomedicamento::deleteAll(['prescricao_id' => $id]);
+
+        // depois apaga a prescrição
         $this->findModel($id)->delete();
 
         Yii::$app->session->setFlash('success', 'Prescrição eliminada com sucesso.');
@@ -185,5 +210,43 @@ class PrescricaoController extends Controller
         }
 
         throw new NotFoundHttpException('A prescrição solicitada não existe.');
+    }
+    public function actionPdf($id)
+    {
+        $model = $this->findModel($id);
+        $consulta = $model->consulta;
+
+        // 🔒 BLOQUEIO: só permite PDF se a consulta estiver ENCERRADA
+        if (!$consulta || $consulta->estado !== 'Encerrada') {
+            Yii::$app->session->setFlash(
+                'error',
+                'Só é possível gerar o PDF após a consulta estar encerrada.'
+            );
+
+            return $this->redirect(['view', 'id' => $model->id]);
+        }
+
+        // Nome do médico responsável
+        $medicoNome = $consulta->userprofile->nomecompleto
+            ?? $consulta->userprofile->username
+            ?? 'Profissional de Saúde';
+
+        // Configuração do mPDF
+        $mpdf = new \Mpdf\Mpdf([
+            'default_font_size' => 12,
+            'default_font' => 'dejavusans'
+        ]);
+
+        // Renderização da view PDF
+        $html = $this->renderPartial('pdf', [
+            'model'      => $model,
+            'consulta'   => $consulta,
+            'medicoNome' => $medicoNome
+        ]);
+
+        $mpdf->WriteHTML($html);
+
+        // Download do ficheiro
+        return $mpdf->Output("Prescricao_{$model->id}.pdf", \Mpdf\Output\Destination::DOWNLOAD);
     }
 }

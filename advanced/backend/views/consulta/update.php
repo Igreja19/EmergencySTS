@@ -5,24 +5,12 @@ use yii\helpers\Html;
 /** @var yii\web\View $this */
 /** @var common\models\Consulta $model */
 
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/consulta/update.css');
+
 $this->title = 'Editar Consulta #' . $model->id;
 $this->params['breadcrumbs'][] = ['label' => 'Consultas', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 
-$this->registerCss("
-.update-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 28px;
-    font-weight: 700;
-    color: #198754;
-}
-.update-container {
-    max-width: 950px;
-    margin: 0 auto;
-}
-");
 
 ?>
 

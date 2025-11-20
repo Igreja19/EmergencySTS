@@ -1,15 +1,8 @@
-.id {
-    font-weight:600;
+.page-title {
+    font-size: 32px;
+    font-weight: 600;
+    margin-bottom: 10px;
 }
-
-.dataprescricao {
-    text-align:center;
-}
-
-.consulta-id {
-    text-align:center;
-}
-
-.acoes {
-    text-align:center;
+.section-header h4 i {
+    font-size: 22px;
 }

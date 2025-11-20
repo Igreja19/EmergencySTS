@@ -18,7 +18,7 @@ return [
     'controllerNamespace' => 'backend\controllers',
     'bootstrap' => ['log'],
 
-    // 🔥 BLOQUEIO CORRETO DO PACIENTE E ROLES INVÁLIDAS
+    // BLOQUEIO CORRETO DO PACIENTE E ROLES INVÁLIDAS
     'on beforeRequest' => function () {
 
         $route = Yii::$app->requestedRoute;
@@ -48,13 +48,13 @@ return [
                 }
             }
 
-            // ❌ Qualquer role inválida → bloqueado
+            // Qualquer role inválida → bloqueado
             if (!$temRoleValido) {
                 Yii::$app->response->redirect(['/site/acesso-restrito'])->send();
                 return false;
             }
         } else {
-            // ❌ Não autenticado → não mostrar login do backend ao paciente
+            //  Não autenticado → não mostrar login do backend ao paciente
             // Permitir login apenas para staff
             return true;
         }
@@ -134,6 +134,9 @@ return [
                 'POST api/auth/login'    => 'api/auth/login',
                 'GET api/auth/validate'  => 'api/auth/validate',
                 'POST api/auth/logout'   => 'api/auth/logout',
+
+                //Triagem
+
 
                 // Notificações
                 'GET api/notificacao/list' => 'api/notificacao/list',

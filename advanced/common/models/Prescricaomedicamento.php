@@ -50,7 +50,6 @@ class Prescricaomedicamento extends ActiveRecord
         return $this->hasOne(Prescricao::class, ['id' => 'prescricao_id']);
     }
 
-    // 🔹 Relação com Medicamento
     public function getMedicamento()
     {
         return $this->hasOne(Medicamento::class, ['id' => 'medicamento_id']);

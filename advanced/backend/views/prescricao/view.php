@@ -1,62 +1,119 @@
 <?php
 
 use yii\helpers\Html;
-use yii\widgets\DetailView;
 
 /** @var yii\web\View $this */
 /** @var common\models\Prescricao $model */
 
-$this->title = "Prescrição #" . $model->id;
+$this->title = 'Prescrição #' . $model->id;
 $this->params['breadcrumbs'][] = ['label' => 'Prescrições', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 
-\yii\web\YiiAsset::register($this);
 ?>
+
 <div class="prescricao-view">
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="fw-bold text-success mb-0">
-            <i class="bi bi-file-earmark-medical me-2"></i>
-            <?= Html::encode($this->title) ?>
-        </h1>
+    <h1 class="page-title"><?= Html::encode($this->title) ?></h1>
 
-        <div class="d-flex gap-2">
-            <?= Html::a('<i class="bi bi-pencil"></i> Editar', ['update', 'id' => $model->id], [
-                    'class' => 'btn btn-primary'
-            ]) ?>
+    <div class="card shadow-sm" style="border-radius: 12px; max-width: 900px; margin: auto;">
 
-            <?= Html::a('<i class="bi bi-trash"></i> Eliminar', ['delete', 'id' => $model->id], [
-                    'class' => 'btn btn-danger',
-                    'data' => [
-                            'confirm' => 'Tem a certeza que deseja eliminar esta prescrição?',
-                            'method' => 'post',
-                    ],
-            ]) ?>
+        <!-- HEADER VERDE -->
+        <div class="d-flex justify-content-between align-items-center p-3"
+             style="background: #1f9d55; color: white; border-radius: 12px 12px 0 0;">
+            <h4 class="m-0">
+                <i class="bi bi-file-earmark-medical-fill me-2"></i>
+                Prescrição #<?= $model->id ?>
+            </h4>
+
+            <div>
+                <?= Html::a('<i class="bi bi-pencil-square"></i> Editar',
+                        ['update', 'id' => $model->id],
+                        ['class' => 'btn btn-light fw-bold me-2']
+                ) ?>
+
+                <?= Html::a('<i class="bi bi-arrow-left-circle"></i> Voltar',
+                        ['index'],
+                        ['class' => 'btn btn-outline-light fw-bold']
+                ) ?>
+            </div>
+        </div>
+
+        <div class="card-body p-4">
+
+            <!-- DADOS DA PRESCRIÇÃO -->
+            <h5 class="section-title mb-3">
+                <i class="bi bi-info-circle-fill me-2"></i> Dados da Prescrição
+            </h5>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <strong>Data da Prescrição:</strong><br>
+                    <?= date('d/m/Y H:i', strtotime($model->dataprescricao)) ?>
+                </div>
+
+                <div class="col-md-6">
+                    <strong>Consulta:</strong><br>
+                    <?= Html::a(
+                            'Consulta #' . $model->consulta_id,
+                            ['/consulta/view', 'id' => $model->consulta_id],
+                            ['class' => 'text-success fw-bold']
+                    ) ?>
+                </div>
+            </div>
+
+            <hr>
+
+            <!-- OBSERVAÇÕES -->
+            <h5 class="section-title mb-3">
+                <i class="bi bi-journal-text me-2"></i> Observações
+            </h5>
+
+            <div class="mb-4">
+                <div class="form-control bg-light shadow-sm">
+                    <?= nl2br(Html::encode($model->observacoes)) ?>
+                </div>
+            </div>
+
+            <hr>
+
+            <!-- MEDICAMENTOS -->
+            <h5 class="section-title mb-3">
+                <i class="bi bi-capsule me-2"></i> Medicamentos
+            </h5>
+
+            <?php if (empty($model->prescricaoMedicamentos)): ?>
+                <p class="text-muted">Nenhum medicamento associado.</p>
+            <?php else: ?>
+
+                <div class="list-group">
+
+                    <?php foreach ($model->prescricaoMedicamentos as $pm): ?>
+                        <div class="list-group-item mb-2 shadow-sm" style="border-radius: 8px;">
+                            <div class="fw-bold text-success mb-1">
+                                <?= Html::encode($pm->medicamento->nome) ?> (<?= Html::encode($pm->medicamento->dosagem) ?>)
+                            </div>
+
+                            <div class="text-muted">
+                                <strong>Posologia:</strong> <?= Html::encode($pm->posologia) ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+
+                </div>
+
+            <?php endif; ?>
+            <?php if ($model->consulta->estado === 'Encerrada'): ?>
+                <?= Html::a(
+                        '<i class="bi bi-filetype-pdf"></i> PDF',
+                        ['pdf', 'id' => $model->id],
+                        ['class' => 'btn btn-danger fw-bold me-2', 'style' => 'color:white;']
+                ) ?>
+            <?php else: ?>
+                <button class="btn btn-secondary fw-bold me-2" disabled>
+                    <i class="bi bi-filetype-pdf"></i> PDF (disponível após encerrar)
+                </button>
+            <?php endif; ?>
         </div>
     </div>
-
-    <div class="card p-4 shadow-sm rounded-4">
-        <?= DetailView::widget([
-                'model' => $model,
-                'attributes' => [
-                        'id',
-                        [
-                                'attribute' => 'observacoes',
-                                'format' => 'ntext',
-                                'label' => 'Observações'
-                        ],
-                        [
-                                'attribute' => 'dataprescricao',
-                                'format' => ['date', 'php:d/m/Y H:i'],
-                                'label' => 'Data da Prescrição'
-                        ],
-                        [
-                                'attribute' => 'consulta_id',
-                                'label' => 'Consulta',
-                                'value' => fn($m) => "Consulta #" . $m->consulta_id
-                        ],
-                ],
-        ]) ?>
-    </div>
-
 </div>
+

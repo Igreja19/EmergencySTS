@@ -4,10 +4,11 @@
 
 use yii\helpers\Html;
 
-// AdminLTE
+// AdminLTE base
 \hail812\adminlte3\assets\AdminLteAsset::register($this);
+\hail812\adminlte3\assets\PluginAsset::register($this);
 
-// Plugins opcionais
+// Ícones adicionais
 if (class_exists(\hail812\adminlte3\assets\FontAwesomeAsset::class)) {
     \hail812\adminlte3\assets\FontAwesomeAsset::register($this);
 }
@@ -15,19 +16,16 @@ if (class_exists(\hail812\adminlte3\assets\ICheckBootstrapAsset::class)) {
     \hail812\adminlte3\assets\ICheckBootstrapAsset::register($this);
 }
 
-// CSS custom
+// CSS base
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/layouts/main.css');
+
 $this->registerCssFile('https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback');
 $this->registerCssFile(Yii::getAlias('@web') . '/css/adminlte-custom.css?v=1.1');
-
-// ⭐ ADICIONADO: CSS DO DASHBOARD PREMIUM V2
 $this->registerCssFile(Yii::getAlias('@web') . '/css/sidebar.css?v=1.0');
 
 $assetDir = Yii::$app->assetManager->getPublishedUrl('@vendor/almasaeed2010/adminlte/dist');
 
-$publishedRes = Yii::$app->assetManager->publish('@vendor/hail812/yii2-adminlte3/src/web/js');
-$this->registerJsFile($publishedRes[1] . '/control_sidebar.js');
 ?>
-
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
 <html lang="<?= Yii::$app->language ?>">
@@ -43,7 +41,7 @@ $this->registerJsFile($publishedRes[1] . '/control_sidebar.js');
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Icons -->
+    <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
     <link rel="icon" type="image/png" href="<?= Yii::$app->request->baseUrl ?>/img/logo.png">
@@ -56,15 +54,38 @@ $this->registerJsFile($publishedRes[1] . '/control_sidebar.js');
 <!-- 🔊 Som das notificações -->
 <audio id="notifSound" src="/platf/EmergencySTS/advanced/backend/web/sounds/notificacao.mp3" preload="auto"></audio>
 
+<?php
+// 🔐 Roles do utilizador
+$auth = Yii::$app->authManager;
+$userId = Yii::$app->user->id ?? null;
+$roles = $userId ? array_keys($auth->getRolesByUser($userId)) : [];
+
+$isAdmin      = in_array('admin', $roles);
+$isMedico     = in_array('medico', $roles);
+$isEnfermeiro = in_array('enfermeiro', $roles);
+?>
+
 <?php $this->beginBody() ?>
 
 <div id="toast-container" style="position:fixed; top:20px; right:20px; z-index:999999;"></div>
 
 <div class="wrapper">
 
-    <?= $this->render('navbar', ['assetDir' => $assetDir]) ?>
-    <?= $this->render('sidebar', ['assetDir' => $assetDir]) ?>
-    <?= $this->render('content', ['content' => $content, 'assetDir' => $assetDir]) ?>
+    <?= $this->render('navbar', [
+            'assetDir' => $assetDir,
+            'isAdmin' => $isAdmin,
+            'isMedico' => $isMedico,
+            'isEnfermeiro' => $isEnfermeiro,
+    ]) ?>
+
+    <?= $this->render('sidebar', [
+            'assetDir' => $assetDir,
+            'isAdmin' => $isAdmin,
+            'isMedico' => $isMedico,
+            'isEnfermeiro' => $isEnfermeiro,
+    ]) ?>
+
+    <?= $this->render('content', ['content' => $content]) ?>
     <?= $this->render('control-sidebar') ?>
     <?= $this->render('footer') ?>
 
@@ -78,12 +99,12 @@ $this->registerJsFile($publishedRes[1] . '/control_sidebar.js');
     });
 </script>
 
-<!-- 🔥 SSE NÃO BLOQUEANTE + AUTO RECONNECT + SOM -->
+<!-- 🔥 SSE NOTIFICAÇÕES -->
 <script>
     let ultimoCount = 0;
 
     function ligarSSE() {
-        let evtSource = new EventSource("http://localhost/platf/EmergencySTS/advanced/backend/web/notificacao-stream/index");
+        const evtSource = new EventSource("http://localhost/platf/EmergencySTS/advanced/backend/web/notificacao-stream/index");
 
         evtSource.onmessage = function(event) {
             processarNotificacoes(event.data);
@@ -91,7 +112,7 @@ $this->registerJsFile($publishedRes[1] . '/control_sidebar.js');
 
         evtSource.onerror = function() {
             evtSource.close();
-            setTimeout(ligarSSE, 3000);
+            setTimeout(ligarSSE, 3000); // reconnect
         };
     }
 
@@ -113,10 +134,9 @@ $this->registerJsFile($publishedRes[1] . '/control_sidebar.js');
             <div class='text-center text-muted py-3'>
                 <i class='bi bi-inbox fs-2 mb-2'></i>
                 <small>Sem novas notificações</small>
-            </div>
-        `;
+            </div>`;
             if (headerBadge) headerBadge.remove();
-            const red = bell.querySelector(".notif-badge");
+            const red = bell?.querySelector(".notif-badge");
             if (red) red.remove();
             return;
         }
@@ -136,16 +156,16 @@ $this->registerJsFile($publishedRes[1] . '/control_sidebar.js');
 
         data.forEach(n => {
             list.insertAdjacentHTML("beforeend", `
-                <div class='notif-item d-flex p-2 mb-1 rounded-3'>
-                    <div class='notif-icon me-2'>
-                        <i class='bi bi-exclamation-circle-fill text-success fs-5'></i>
-                    </div>
-                    <div class='flex-grow-1'>
-                        <div class='fw-semibold'>${n.titulo}</div>
-                        <div class='text-muted small'>${n.mensagem}</div>
-                    </div>
+            <div class='notif-item d-flex p-2 mb-1 rounded-3'>
+                <div class='notif-icon me-2'>
+                    <i class='bi bi-exclamation-circle-fill text-success fs-5'></i>
                 </div>
-            `);
+                <div class='flex-grow-1'>
+                    <div class='fw-semibold'>${n.titulo}</div>
+                    <div class='text-muted small'>${n.mensagem}</div>
+                </div>
+            </div>
+        `);
         });
 
         if (count > ultimoCount) {

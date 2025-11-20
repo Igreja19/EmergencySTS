@@ -9,6 +9,7 @@ use yii\web\JqueryAsset;
 
 AdminLteAsset::register($this);
 PluginAsset::register($this)->add(['fontawesome', 'icheck-bootstrap']);
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/layouts/main-login.css');
 
 $this->registerCssFile('https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700&display=swap');
 $this->registerCssFile(Yii::getAlias('@web') . '/css/adminlte-custom.css?v=1.2', ['depends' => [JqueryAsset::class]]);
@@ -25,46 +26,6 @@ $this->registerCssFile(Yii::getAlias('@web') . '/css/adminlte-custom.css?v=1.2',
     <link rel="icon" type="image/png" href="<?= Yii::getAlias('@web') ?>/img/logo.png">
     <?php $this->registerCsrfMetaTags() ?>
     <title><?= Html::encode($this->title ?: 'EmergencySTS | Acesso Restrito') ?></title>
-
-    <!-- 🎨 Fundo Premium -->
-    <style>
-        /* === FUNDO GRADIENTE SUAVE === */
-        #background-gradient {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            background: linear-gradient(
-                    120deg,
-                    rgba(240, 255, 248, 0.7) 0%,
-                    rgba(200, 255, 220, 0.6) 40%,
-                    rgba(25, 135, 84, 0.25) 100%
-            );
-            background-size: 200% 200%;
-            animation: subtleFade 20s ease-in-out infinite;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            transition: background 1s ease;
-        }
-
-        #background-gradient::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(
-                    circle at 70% 30%,
-                    rgba(255, 255, 255, 0.3),
-                    transparent 70%
-            );
-            mix-blend-mode: soft-light;
-            pointer-events: none;
-        }
-
-        @keyframes subtleFade {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-    </style>
 
     <?php $this->head() ?>
 </head>

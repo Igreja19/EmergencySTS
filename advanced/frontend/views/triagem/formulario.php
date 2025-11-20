@@ -6,16 +6,40 @@ use yii\widgets\ActiveForm;
 
 $this->title = 'Formulário Clínico - EmergencySTS';
 $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/formulario.css');
-$userProfile = Yii::$app->user->identity->userprofile;
+
+/* 🔹 Garantir login */
+if (Yii::$app->user->isGuest) {
+    echo "<div class='container py-5 text-center'>
+            <div class='alert alert-danger'>
+                ⚠ Precisa de iniciar sessão para preencher o formulário clínico.
+            </div>
+          </div>";
+    return;
+}
+
+$user = Yii::$app->user->identity;
+$userProfile = $user->userprofile ?? null;
+
+/* 🔹 Garantir que o userprofile existe */
+if (!$userProfile) {
+    echo "<div class='container py-5 text-center'>
+            <div class='alert alert-danger'>
+                ⚠ O seu perfil está incompleto.<br>
+                Por favor contacte um administrador.
+            </div>
+          </div>";
+    return;
+}
 ?>
 
 <div class="container py-5">
     <div class="text-center mb-5">
         <h3 class="fw-bold text-success mt-3">Formulário Clínico</h3>
-        <p class="text-muted">Os seus <dados></dados> foram preenchidos automaticamente com base no seu perfil.</p>
+        <p class="text-muted">Os seus dados foram preenchidos automaticamente com base no seu perfil.</p>
     </div>
 
     <div class="form mx-auto card shadow-sm border-0 rounded-4 p-4">
+
         <?php $form = ActiveForm::begin([
                 'id' => 'form-triagem',
                 'action' => ['triagem/formulario'],
@@ -143,7 +167,46 @@ $userProfile = Yii::$app->user->identity->userprofile;
 
         <?php ActiveForm::end(); ?>
     </div>
+
+    <!-- 🔹 SCRIPT: valida ano (min = atual−100, max = atual) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const campoData = document.querySelector('#triagem-iniciosintomas');
+
+            if (campoData) {
+                const anoAtual = new Date().getFullYear();
+                const anoMinimo = anoAtual - 100;
+
+                campoData.addEventListener('input', function () {
+                    const valor = campoData.value;
+
+                    if (valor.length >= 4) {
+                        const ano = parseInt(valor.substring(0, 4));
+
+                        if (isNaN(ano) || ano < anoMinimo || ano > anoAtual) {
+                            campoData.setCustomValidity(
+                                `O ano deve estar entre ${anoMinimo} e ${anoAtual}.`
+                            );
+                        } else {
+                            campoData.setCustomValidity("");
+                        }
+                    }
+                });
+            }
+        });
+
+        // Bloqueia múltiplos envios
+        document.querySelector('#form-triagem').addEventListener('submit', function() {
+            const btn = document.querySelector('.submit-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i> A enviar...';
+        });
+    </script>
 </div>
+
 <?php
-$this->registerJsFile(Yii::$app->request->baseUrl . '/js/triagem/formulario.js', ['depends' => [\yii\web\JqueryAsset::class]]);
+$this->registerJsFile(
+        Yii::$app->request->baseUrl . '/js/triagem/formulario.js',
+        ['depends' => [\yii\web\JqueryAsset::class]]
+);
 ?>
