@@ -4,60 +4,8 @@ use yii\helpers\Url;
 
 $this->title = 'Notificações';
 $this->params['breadcrumbs'][] = $this->title;
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/notificacao/index.css');
 
-$this->registerCss("
-.card-notif {
-    border-radius:16px;
-    background:#fff;
-    box-shadow:0 4px 18px rgba(0,0,0,0.06);
-    padding:18px;
-    transition:0.25s;
-}
-.card-notif:hover {
-    transform:translateY(-3px);
-    box-shadow:0 6px 26px rgba(0,0,0,0.10);
-}
-.notif-item {
-    padding:14px;
-    border-radius:14px;
-    display:flex;
-    gap:14px;
-    transition:.25s;
-}
-.notif-item.unread {
-    background:#e9f7ef;
-    border-left:4px solid #198754;
-}
-.notif-item.read {
-    background:#f8f9fa;
-}
-.notif-item:hover {
-    transform:translateX(4px);
-}
-
-.notif-icon {
-    font-size:26px;
-    color:#198754;
-    margin-top:4px;
-}
-
-.notif-title {
-    font-weight:600;
-    margin-bottom:3px;
-}
-
-.btn-all-read {
-    background:#198754;
-    border:none;
-    padding:10px 18px;
-    border-radius:10px;
-    color:#fff;
-    font-weight:600;
-}
-.btn-all-read:hover {
-    background:#146c43;
-}
-");
 ?>
 
 <div class="container-fluid">

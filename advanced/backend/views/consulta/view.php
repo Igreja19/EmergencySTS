@@ -2,45 +2,12 @@
 
 use yii\helpers\Html;
 
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/consulta/view.css');
+
 $this->title = 'Consulta #' . $model->id;
 $this->params['breadcrumbs'][] = ['label' => 'Consultas', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 
-$this->registerCss("
-.consulta-box {
-    background: #fff;
-    padding: 30px;
-    border-radius: 18px;
-    box-shadow: 0 4px 18px rgba(0,0,0,0.06);
-    max-width: 950px;
-    margin: 0 auto;
-}
-.section-title {
-    font-size: 18px;
-    font-weight: 600;
-    color: #198754;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.label-col {
-    width: 240px;
-    color: #198754;
-    font-weight: 600;
-}
-.value-col {
-    color: #333;
-}
-.badge-estado {
-    padding: 6px 12px;
-    border-radius: 8px;
-    color: #fff;
-    font-weight: 600;
-}
-.badge-Em\\ curso { background: #0d6efd; }
-.badge-Encerrada { background: #dc3545; }
-");
 
 ?>
 

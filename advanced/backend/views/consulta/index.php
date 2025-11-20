@@ -11,7 +11,7 @@ use yii\widgets\Pjax;
 $this->title = 'Consultas';
 $this->params['breadcrumbs'][] = $this->title;
 
-$this->registerCssFile(Yii::$app->request->baseUrl . '/css/table-style.css');
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/consulta/index.css');
 ?>
 
 <div class="consulta-index">

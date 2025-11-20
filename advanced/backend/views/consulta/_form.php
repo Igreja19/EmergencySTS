@@ -6,6 +6,7 @@ use yii\helpers\Url;
 /** @var yii\web\View $this */
 /** @var common\models\Consulta $model */
 /** @var array $triagensDisponiveis */
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/consulta/_form.css');
 
 $triagensDisponiveis = $triagensDisponiveis ?? [];
 $isNew = $model->isNewRecord;

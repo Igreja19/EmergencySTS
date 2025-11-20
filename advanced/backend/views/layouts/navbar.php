@@ -3,7 +3,7 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 
 $user = Yii::$app->user->identity ?? null;
-$this->registerCssFile(Yii::$app->request->baseUrl . '/css/adminlte-custom.css');
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/layouts/navbar.css');
 ?>
 
 <nav class="main-header navbar navbar-expand custom-navbar">

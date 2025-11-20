@@ -17,6 +17,8 @@ if (class_exists(\hail812\adminlte3\assets\ICheckBootstrapAsset::class)) {
 }
 
 // CSS base
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/layouts/main.css');
+
 $this->registerCssFile('https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback');
 $this->registerCssFile(Yii::getAlias('@web') . '/css/adminlte-custom.css?v=1.1');
 $this->registerCssFile(Yii::getAlias('@web') . '/css/sidebar.css?v=1.0');
