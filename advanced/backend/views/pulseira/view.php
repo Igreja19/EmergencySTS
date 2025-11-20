@@ -10,60 +10,8 @@ $this->title = 'Detalhes da Pulseira #' . $model->id;
 $this->params['breadcrumbs'][] = ['label' => 'Pulseiras', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 
-// ====== CSS moderno ======
-$this->registerCss('
-.view-card {
-  background: #fff;
-  border-radius: 20px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-  padding: 30px;
-  max-width: 900px;
-  margin: 0 auto;
-}
-.view-card h3 {
-  color: #198754;
-  font-weight: 700;
-  margin-bottom: 20px;
-}
-.badge-prio {
-  padding: 8px 14px;
-  border-radius: 8px;
-  font-weight: 600;
-  color: #fff;
-}
-.badge-Vermelho { background-color: #dc3545; }
-.badge-Laranja  { background-color: #fd7e14; }
-.badge-Amarelo  { background-color: #ffc107; color:#000; }
-.badge-Verde    { background-color: #198754; }
-.badge-Azul     { background-color: #0d6efd; }
-.btn-back {
-  background: linear-gradient(90deg, #198754 0%, #28a745 100%);
-  color: #fff;
-  font-weight: 600;
-  border-radius: 12px;
-  padding: 10px 20px;
-  transition: .2s;
-}
-.btn-back:hover { opacity: .9; transform: translateY(-2px); }
-.detail-view th {
-  width: 220px;
-  color: #198754;
-  font-weight: 600;
-}
-.detail-view td {
-  color: #333;
-}
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/pulseira/view.css');
 
-.triagem-title {
-  color:#198754;
-  font-weight:700;
-  font-size:22px;
-  margin-bottom:15px;
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-');
 ?>
 
 <div class="pulseira-view">

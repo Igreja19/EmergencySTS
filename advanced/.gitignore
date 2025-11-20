@@ -42,4 +42,8 @@ phpunit.phar
 /backend/web/index-test.php
 /backend/web/robots.txt
 /backend/web/.htaccess
-/frontend/web/.htacess
+/backend/web/assets/*
+!/backend/web/assets/.gitignore
+/frontend/web/assets/*
+!/frontend/web/assets/.gitignore
+/frontend/web/.htaccess

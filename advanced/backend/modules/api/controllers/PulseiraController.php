@@ -1,11 +1,16 @@
 <?php
+
 namespace backend\modules\api\controllers;
 
 use Yii;
 use yii\rest\ActiveController;
 use yii\web\Response;
 use yii\web\NotFoundHttpException;
+use yii\web\ForbiddenHttpException;
+use yii\web\BadRequestHttpException;
 use yii\filters\auth\QueryParamAuth;
+use common\models\Pulseira;
+use common\models\UserProfile;
 
 class PulseiraController extends ActiveController
 {
@@ -15,158 +20,142 @@ class PulseiraController extends ActiveController
     public function behaviors()
     {
         $behaviors = parent::behaviors();
-
-        // ✅ força saída em JSON mesmo se pedirem HTML
+        unset($behaviors['authenticator']);
         $behaviors['contentNegotiator']['formats']['text/html'] = Response::FORMAT_JSON;
-
-        // ✅ autenticação via token ?auth_key=XYZ
         $behaviors['authenticator'] = [
             'class' => QueryParamAuth::class,
             'tokenParam' => 'auth_key',
         ];
-
         return $behaviors;
     }
 
-    // ✅ Listar todas as pulseiras (GET /api/pulseira)
+    public function actions()
+    {
+        $actions = parent::actions();
+        unset($actions['index'], $actions['view'], $actions['create'], $actions['update'], $actions['delete']);
+        return $actions;
+    }
+
+    // LISTAR (GET)
     public function actionIndex()
     {
-        $modelClass = $this->modelClass;
-        $pulseiras = $modelClass::find()
-            ->with(['userprofile', 'triagem'])
-            ->asArray()
-            ->all();
+        $user = Yii::$app->user;
+        $request = Yii::$app->request;
 
-        return [
-            'status' => 'success',
-            'total' => count($pulseiras),
-            'data' => $pulseiras,
-        ];
-    }
+        if ($user->can('enfermeiro') || $user->can('medico') || $user->can('admin')) {
+            $query = Pulseira::find();
+            if ($status = $request->get('status')) {
+                $query->where(['status' => $status]);
+            }
+            $pulseiras = $query->orderBy(['tempoentrada' => SORT_ASC])->all();
+        } else {
+            $profile = UserProfile::findOne(['user_id' => $user->id]);
+            if (!$profile) throw new NotFoundHttpException("Perfil não encontrado.");
 
-    // ✅ Ver pulseira específica (GET /api/pulseira/{id})
-    public function actionView($id)
-    {
-        $pulseira = \common\models\Pulseira::find()
-            ->with(['userprofile', 'triagem'])
-            ->asArray()
-            ->where(['id' => $id])
-            ->one();
-
-        if (!$pulseira) {
-            throw new NotFoundHttpException("Pulseira com ID {$id} não encontrada.");
+            $pulseiras = Pulseira::find()
+                ->where(['userprofile_id' => $profile->id])
+                ->orderBy(['tempoentrada' => SORT_DESC])
+                ->all();
         }
 
-        return [
-            'status' => 'success',
-            'data' => $pulseira,
-        ];
+        // Formatar JSON
+        $data = [];
+        foreach ($pulseiras as $pulseira) {
+            // Tenta obter a triagem com segurança
+            $triagemId = null;
+            $triagem = \common\models\Triagem::findOne(['pulseira_id' => $pulseira->id]);
+            if ($triagem) {
+                $triagemId = $triagem->id;
+            }
+
+            $data[] = [
+                'pulseira_id' => $pulseira->id,
+                'codigo'      => $pulseira->codigo,
+                'status'      => $pulseira->status,
+                'prioridade'  => $pulseira->prioridade,
+                'tempoentrada'=> $pulseira->tempoentrada,
+                'paciente'    => [
+                    'nome' => $pulseira->userprofile ? $pulseira->userprofile->nome : 'Desconhecido',
+                    'sns'  => $pulseira->userprofile ? $pulseira->userprofile->sns : 'N/A',
+                ],
+                'triagem_id'  => $triagemId,
+            ];
+        }
+
+        return ['status' => 'success', 'total' => count($data), 'data' => $data];
     }
 
-    // ✅ Criar uma nova pulseira (POST /api/pulseira/create)
-    public function actionCreate()
-    {
-        $data = Yii::$app->request->post();
-        $pulseira = new \common\models\Pulseira();
-        $pulseira->load($data, '');
 
+    // VER UMA (GET ID)
+
+    public function actionView($id)
+    {
+        $pulseira = Pulseira::findOne($id);
+        if (!$pulseira) throw new NotFoundHttpException("Pulseira não encontrada.");
+
+        // Segurança básica
+        $user = Yii::$app->user;
+        if (!$user->can('enfermeiro') && !$user->can('medico') && !$user->can('admin')) {
+            $profile = UserProfile::findOne(['user_id' => $user->id]);
+            if (!$profile || $pulseira->userprofile_id != $profile->id) {
+                throw new ForbiddenHttpException("Acesso negado.");
+            }
+        }
+
+        return ['status' => 'success', 'data' => $pulseira];
+    }
+
+
+    // ATUALIZAR (PUT ID) - AQUI ESTAVA O ERRO
+
+    public function actionUpdate($id)
+    {
+        // Permissão
+        if (!Yii::$app->user->can('enfermeiro') && !Yii::$app->user->can('medico') && !Yii::$app->user->can('admin')) {
+            throw new ForbiddenHttpException("Apenas profissionais de saúde podem alterar pulseiras.");
+        }
+
+        // Encontrar
+        $pulseira = Pulseira::findOne($id);
+        if (!$pulseira) {
+            throw new NotFoundHttpException("Pulseira não encontrada.");
+        }
+
+        //  Ler Dados ( getBodyParams )
+        $data = Yii::$app->request->getBodyParams();
+        if (empty($data)) {
+            $data = Yii::$app->request->post();
+        }
+        if (isset($data['prioridade'])) {
+            $pulseira->prioridade = $data['prioridade'];
+        }
+        if (isset($data['status'])) {
+            $pulseira->status = $data['status'];
+        }
+        // Guardar
         if ($pulseira->save()) {
             return [
                 'status' => 'success',
-                'message' => 'Pulseira criada com sucesso!',
-                'data' => $pulseira,
+                'message' => 'Pulseira atualizada.',
+                'data' => $pulseira
             ];
         }
 
-        Yii::$app->response->statusCode = 400;
-        return [
-            'status' => 'error',
-            'errors' => $pulseira->getErrors(),
-        ];
+        Yii::$app->response->statusCode = 422;
+        return ['status' => 'error', 'errors' => $pulseira->getErrors()];
     }
 
-    // ✅ Filtro por cor/prioridade (GET /api/pulseira/prioridade?cor=vermelho)
-    public function actionPrioridade($cor)
+    // APAGAR (DELETE)
+    public function actionDelete($id)
     {
-        $modelClass = $this->modelClass;
-        $pulseiras = $modelClass::find()
-            ->where(['prioridade' => $cor])
-            ->with(['userprofile', 'triagem'])
-            ->asArray()
-            ->all();
-
-        if (empty($pulseiras)) {
-            throw new NotFoundHttpException("Nenhuma pulseira encontrada com a cor '{$cor}'.");
+        if (!Yii::$app->user->can('admin')) {
+            throw new ForbiddenHttpException("Apenas administradores.");
         }
-
-        return [
-            'status' => 'success',
-            'cor' => $cor,
-            'total' => count($pulseiras),
-            'data' => $pulseiras,
-        ];
+        $pulseira = Pulseira::findOne($id);
+        if ($pulseira) {
+            $pulseira->delete();
+            return ['status' => 'success'];
+        }
+        throw new NotFoundHttpException("Não encontrada.");
     }
-    public function actionPendentes($auth_key = null)
-    {
-        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-
-        if (!$auth_key) {
-            return ['status' => 'error', 'message' => 'Auth key não fornecida.', 'data' => []];
-        }
-
-        $user = \common\models\User::findOne(['auth_key' => $auth_key]);
-        if (!$user) {
-            return ['status' => 'error', 'message' => 'Acesso negado. Auth key inválida.', 'data' => []];
-        }
-
-        try {
-            // 🔹 Busca pulseiras cuja prioridade esteja vazia OU seja 'Pendente'
-            $pulseiras = \common\models\Pulseira::find()
-                ->alias('p')
-                ->joinWith('userprofile up')
-                ->where(['or',
-                    ['p.prioridade' => 'Pendente'],
-                    ['p.prioridade' => '']
-                ])
-                ->orderBy(['p.tempoentrada' => SORT_DESC])
-                ->asArray()
-                ->all();
-
-            if (!$pulseiras) {
-                return [
-                    'status' => 'success',
-                    'message' => 'Nenhuma pulseira pendente encontrada.',
-                    'data' => []
-                ];
-            }
-
-            // 🔹 Monta o resultado
-            $data = [];
-            foreach ($pulseiras as $p) {
-                $data[] = [
-                    'id' => $p['id'],
-                    'codigo' => $p['codigo'],
-                    'nome' => $p['userprofile']['nome'] ?? 'Desconhecido',
-                    'sns' => $p['userprofile']['sns'] ?? 'N/A',
-                    'prioridade' => $p['prioridade'] ?: 'Pendente',
-                    'hora' => date('H:i', strtotime($p['tempoentrada'])),
-                    'status' => $p['status'],
-                ];
-            }
-
-            return [
-                'status' => 'success',
-                'message' => 'Pulseiras pendentes encontradas.',
-                'data' => $data
-            ];
-
-        } catch (\Throwable $e) {
-            return [
-                'status' => 'error',
-                'message' => 'Erro ao obter pulseiras pendentes: ' . $e->getMessage(),
-                'data' => []
-            ];
-        }
-    }
-
 }

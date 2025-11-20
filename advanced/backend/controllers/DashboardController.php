@@ -34,14 +34,17 @@ class DashboardController extends Controller
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
-        return [
-            'vermelho' => (int) $manchester['vermelho'],
-            'laranja'  => (int) $manchester['laranja'],
-            'amarelo'  => (int) $manchester['amarelo'],
-            'verde'    => (int) $manchester['verde'],
-            'azul'     => (int) $manchester['azul'],
+        $manchester = [
+            'vermelho' => Pulseira::find()->where(['prioridade' => 'Vermelho'])->count(),
+            'laranja'  => Pulseira::find()->where(['prioridade' => 'Laranja'])->count(),
+            'amarelo'  => Pulseira::find()->where(['prioridade' => 'Amarelo'])->count(),
+            'verde'    => Pulseira::find()->where(['prioridade' => 'Verde'])->count(),
+            'azul'     => Pulseira::find()->where(['prioridade' => 'Azul'])->count(),
         ];
+
+        return $manchester;
     }
+
 
     /**
      * 🔥 Dados do dashboard para ADMIN
@@ -50,12 +53,22 @@ class DashboardController extends Controller
     {
         // Estatísticas
         $stats = [
-            'espera' => Pulseira::find()->where(['status' => 'Em espera'])->count(),
-            'ativas' => Pulseira::find()->where(['status' => 'Em atendimento'])->count(),
+            'espera' => Pulseira::find()
+                ->where(['status' => 'Em espera'])
+                ->count(),
+
+            'ativas' => Pulseira::find()
+                ->where(['status' => 'Em atendimento'])
+                ->count(),
+
             'atendidosHoje' => Pulseira::find()
                 ->where(['status' => 'Atendido'])
-                ->andWhere(['>=', 'tempoentrada', date('Y-m-d 00:00:00')])
+                ->andWhere(['between', 'tempoentrada',
+                    date('Y-m-d 00:00:00'),
+                    date('Y-m-d 23:59:59')
+                ])
                 ->count(),
+
             'salasDisponiveis' => 4,
             'salasTotal' => 6,
         ];
@@ -126,6 +139,22 @@ class DashboardController extends Controller
             'pacientes' => $pacientes,
             'ultimas' => $ultimas,
             'notificacoes' => $notificacoes,
+        ];
+    }
+    public function actionStats()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        return [
+            'espera' => Pulseira::find()->where(['status' => 'Em espera'])->count(),
+            'ativas' => Pulseira::find()->where(['status' => 'Em atendimento'])->count(),
+            'atendidosHoje' => Pulseira::find()
+                ->where(['status' => 'Atendido'])
+                ->andWhere(['between', 'tempoentrada',
+                    date('Y-m-d 00:00:00'),
+                    date('Y-m-d 23:59:59')
+                ])
+                ->count(),
         ];
     }
 }
