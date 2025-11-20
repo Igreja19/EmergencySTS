@@ -3,7 +3,6 @@
 namespace backend\modules\api\controllers;
 
 use Yii;
-
 use yii\rest\ActiveController;
 use yii\web\Response;
 use common\models\User;
@@ -16,34 +15,39 @@ class PacienteController extends ActiveController
     public function behaviors()
     {
         $behaviors = parent::behaviors();
-
-        // Resposta JSON
         $behaviors['contentNegotiator']['formats']['application/json'] = Response::FORMAT_JSON;
-
         return $behaviors;
     }
 
+    public function verbs()
+    {
+        return [
+            'update' => ['POST', 'PUT', 'PATCH'],
+            'perfil' => ['GET']
+        ];
+    }
+
+    public function actions()
+    {
+        $actions = parent::actions();
+        // Desativar a ação de update padrão do Yii para usares a tua personalizada
+        unset($actions['update']);
+        return $actions;
+    }
+
     /**
-     * GET /backend/web/api/paciente/perfil?id=XX
+     * GET /api/paciente/perfil?id=XX
      */
     public function actionPerfil($id)
     {
-        // User
         $user = User::findOne($id);
         if (!$user) {
-            return [
-                "status" => false,
-                "message" => "Utilizador não encontrado."
-            ];
+            return ["status" => false, "message" => "Utilizador não encontrado."];
         }
 
-        // UserProfile
         $perfil = UserProfile::findOne(['user_id' => $id]);
         if (!$perfil) {
-            return [
-                "status" => false,
-                "message" => "Perfil não encontrado."
-            ];
+            return ["status" => false, "message" => "Perfil não encontrado."];
         }
 
         return [
@@ -51,7 +55,7 @@ class PacienteController extends ActiveController
             "data" => [
                 "id" => $user->id,
                 "username" => $user->username,
-                "email" => $user->email,
+                "email" => $user->email, // Lê do USER
 
                 "nome" => $perfil->nome,
                 "morada" => $perfil->morada,
@@ -64,37 +68,30 @@ class PacienteController extends ActiveController
         ];
     }
 
-    public function verbs()
-    {
-        return [
-            'update' => ['PUT', 'PATCH'], // <– Yii REQUER isto
-            'perfil' => ['GET']
-        ];
-    }
-
+    /**
+     * POST /api/paciente/update
+     * Body: { id: 1, nome: "...", email: "...", ... }
+     */
     public function actionUpdate()
     {
-        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-
         $id = Yii::$app->request->post('id');
 
         if (!$id) {
             return ['status' => false, 'message' => 'ID em falta'];
         }
 
-        $user = \common\models\User::findOne($id);
-        $profile = \common\models\UserProfile::find()->where(['user_id' => $id])->one();
+        $user = User::findOne($id);
+        $profile = UserProfile::findOne(['user_id' => $id]);
 
         if (!$user || !$profile) {
             return ['status' => false, 'message' => 'Utilizador não encontrado'];
         }
 
-        // ----------- CAMPOS DO USER -----------
+        // USER
         $user->username = Yii::$app->request->post('username');
-        // Se quiseres validar email no user, podes pôr aqui,
-        // mas tu disseste que email está no profile.
+        $user->email    = Yii::$app->request->post('email'); // ⚠️ O Email deve ser guardado no USER
 
-        // ----------- CAMPOS DO PROFILE -----------
+        // PROFILE
         $profile->nome = Yii::$app->request->post('nome');
         $profile->telefone = Yii::$app->request->post('telefone');
         $profile->datanascimento = Yii::$app->request->post('datanascimento');
@@ -102,10 +99,11 @@ class PacienteController extends ActiveController
         $profile->sns = Yii::$app->request->post('sns');
         $profile->nif = Yii::$app->request->post('nif');
         $profile->morada = Yii::$app->request->post('morada');
-        $profile->email = Yii::$app->request->post('email'); // 👈 aqui está correto
 
-        // ----------- GUARDAR -----------
-        if ($user->save(false) && $profile->save(false)) {
+        // VALIDAR E GUARDAR
+        if ($user->validate() && $profile->validate()) {
+            $user->save(false);
+            $profile->save(false);
 
             return [
                 'status' => true,
@@ -113,10 +111,9 @@ class PacienteController extends ActiveController
                 'data' => [
                     'id' => $user->id,
                     'username' => $user->username,
+                    'email' => $user->email,
 
-                    // PROFILE DATA
                     'nome' => $profile->nome,
-                    'email' => $profile->email,
                     'genero' => $profile->genero,
                     'datanascimento' => $profile->datanascimento,
                     'telefone' => $profile->telefone,
@@ -129,12 +126,11 @@ class PacienteController extends ActiveController
 
         return [
             'status' => false,
-            'message' => 'Erro ao atualizar',
+            'message' => 'Erro ao validar dados',
             'errors' => [
                 'user' => $user->errors,
                 'profile' => $profile->errors
             ]
         ];
     }
-
 }

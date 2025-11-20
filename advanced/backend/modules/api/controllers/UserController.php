@@ -59,8 +59,10 @@ class UserController extends ActiveController
             throw new ForbiddenHttpException("Apenas administradores podem criar utilizadores.");
         }
 
-        // Lógica de criar User + UserProfile
-        // (Isto é um exemplo básico, precisa da sua lógica do SignupForm aqui)
+        /**
+        * Lógica de criar User + UserProfile
+        * (Isto é um exemplo básico, precisa da sua lógica do SignupForm aqui)
+         * */
         
         $request = Yii::$app->getRequest();
         $params = $request->getBodyParams();
@@ -106,8 +108,6 @@ class UserController extends ActiveController
 
     /**
      * Lista perfis. (GET /api/user)
-     * - Se for Admin, lista TODOS.
-     * - Se for Paciente, lista SÓ O SEU.
      */
     public function actionIndex()
     {
@@ -133,8 +133,6 @@ class UserController extends ActiveController
 
     /**
      * Vê um perfil. (GET /api/user/<id>)
-     * - Se for Admin, pode ver QUALQUER ID.
-     * - Se for Paciente, pode ver SÓ O SEU ID.
      */
     public function actionView($id) 
     {

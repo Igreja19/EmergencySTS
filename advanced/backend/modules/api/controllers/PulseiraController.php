@@ -5,12 +5,10 @@ namespace backend\modules\api\controllers;
 use Yii;
 use yii\rest\ActiveController;
 use yii\web\Response;
-// ⬇️ ESTES SÃO ESSENCIAIS PARA EVITAR ERRO 500 ⬇️
 use yii\web\NotFoundHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\BadRequestHttpException;
 use yii\filters\auth\QueryParamAuth;
-// ⬇️ MODELOS IMPORTADOS ⬇️
 use common\models\Pulseira;
 use common\models\UserProfile;
 
@@ -38,9 +36,7 @@ class PulseiraController extends ActiveController
         return $actions;
     }
 
-    // ----------------------------------------------------------------
     // LISTAR (GET)
-    // ----------------------------------------------------------------
     public function actionIndex()
     {
         $user = Yii::$app->user;
@@ -89,9 +85,9 @@ class PulseiraController extends ActiveController
         return ['status' => 'success', 'total' => count($data), 'data' => $data];
     }
 
-    // ----------------------------------------------------------------
+
     // VER UMA (GET ID)
-    // ----------------------------------------------------------------
+
     public function actionView($id)
     {
         $pulseira = Pulseira::findOne($id);
@@ -109,39 +105,34 @@ class PulseiraController extends ActiveController
         return ['status' => 'success', 'data' => $pulseira];
     }
 
-    // ----------------------------------------------------------------
+
     // ATUALIZAR (PUT ID) - AQUI ESTAVA O ERRO
-    // ----------------------------------------------------------------
+
     public function actionUpdate($id)
     {
-        // 1. Permissão
+        // Permissão
         if (!Yii::$app->user->can('enfermeiro') && !Yii::$app->user->can('medico') && !Yii::$app->user->can('admin')) {
             throw new ForbiddenHttpException("Apenas profissionais de saúde podem alterar pulseiras.");
         }
 
-        // 2. Encontrar
+        // Encontrar
         $pulseira = Pulseira::findOne($id);
         if (!$pulseira) {
             throw new NotFoundHttpException("Pulseira não encontrada.");
         }
 
-        // 3. Ler Dados (CORREÇÃO: Usar getBodyParams para PUT)
+        //  Ler Dados ( getBodyParams )
         $data = Yii::$app->request->getBodyParams();
-
-        // Fallback se o JSON falhar
         if (empty($data)) {
             $data = Yii::$app->request->post();
         }
-
-        // 4. Atualizar
         if (isset($data['prioridade'])) {
             $pulseira->prioridade = $data['prioridade'];
         }
         if (isset($data['status'])) {
             $pulseira->status = $data['status'];
         }
-
-        // 5. Guardar
+        // Guardar
         if ($pulseira->save()) {
             return [
                 'status' => 'success',
@@ -154,9 +145,7 @@ class PulseiraController extends ActiveController
         return ['status' => 'error', 'errors' => $pulseira->getErrors()];
     }
 
-    // ----------------------------------------------------------------
     // APAGAR (DELETE)
-    // ----------------------------------------------------------------
     public function actionDelete($id)
     {
         if (!Yii::$app->user->can('admin')) {
