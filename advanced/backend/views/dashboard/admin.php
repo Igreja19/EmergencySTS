@@ -45,7 +45,6 @@ if (donut) {
             cutout: "65%"
         }
     });
-}
 
 // LINHA – EVOLUÇÃO DAS TRIAGENS
 const line = document.getElementById("chartEvolucao");

@@ -3,7 +3,7 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 
 $this->title = 'Painel do Médico';
-$this->registerCssFile(Yii::$app->request->baseUrl . '/css/dashboard.css');
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/dashboard/medico.css');
 ?>
 
 <div class="dashboard-container">
