@@ -131,11 +131,14 @@ class SiteController extends Controller
     {
         $model = new ContactForm();
 
-        if ($model->load(Yii::$app->request->post())) {
-            // Simulação de envio do email
-            Yii::$app->session->setFlash('success', 'O email foi enviado, iremos contactá-lo o mais brevemente possível.');
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+            if ($model->sendEmail(Yii::$app->params['adminEmail'])) {
+                Yii::$app->session->setFlash('success', 'Obrigado por entrar em contacto connosco. Entraremos em contacto consigo o mais breve possível.');
+            } else {
+                Yii::$app->session->setFlash('error', 'Houve um erro ao enviar a sua mensagem. Por favor, tente novamente mais tarde.');
+            }
 
-            return $this->redirect(['site/index']);
+            return $this->refresh();
         }
 
         return $this->render('contact', [

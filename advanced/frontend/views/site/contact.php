@@ -40,7 +40,7 @@ $this->params['breadcrumbs'][] = $this->title;
                             <div class="col-lg-12">
                                 <?php $form = ActiveForm::begin([
                                         'id' => 'contact-form',
-                                        'action' => Url::to(['site/index']) // vai para uma ação que simula envio
+                                        'action' => Url::to(['site/contact']) // Submit to the contact action
                                 ]); ?>
 
                                 <?= $form->field($model, 'name')->textInput([
