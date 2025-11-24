@@ -18,9 +18,8 @@ return [
     'controllerNamespace' => 'backend\controllers',
     'bootstrap' => ['log'],
 
-    // ----------------------------------------------------------
-    // 🔒 BLOQUEIO DE ACESSO AO BACKEND (INTERFACE WEB)
-    // ----------------------------------------------------------
+    //  BLOQUEIO DE ACESSO AO BACKEND (INTERFACE WEB)
+    
     'on beforeRequest' => function () {
         $route = Yii::$app->requestedRoute ?? '';
 
@@ -105,9 +104,8 @@ return [
             'class' => 'yii\rbac\DbManager',
         ],
 
-        // ----------------------------------------------------------
-        // 🔗 URL MANAGER DA API
-        // ----------------------------------------------------------
+        //  URL MANAGER DA API
+        
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
@@ -146,12 +144,12 @@ return [
                     'extraPatterns' => [
                         'GET prioridade' => 'prioridade',
                     ],
-                ], // <--- AQUI ESTAVA O ERRO: Faltava fechar este array e a vírgula
+                ], 
 
                 // Página Base da API
                 'GET api' => 'api/default/index',
 
-                // Rotas extra de paciente (caso existam no futuro)
+                // Rotas extra de paciente 
                 'GET api/paciente/perfil' => 'api/paciente/perfil',
                 'PUT api/paciente/update/<id:\d+>' => 'api/paciente/update',
             ],
