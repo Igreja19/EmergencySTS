@@ -1,8 +1,10 @@
 <?php
 
 namespace common\models;
-use common\models\UserProfile; // adiciona no topo se ainda não tiver
+
 use Yii;
+use common\models\UserProfile;
+use common\models\Pulseira; // <--- ISTO ESTAVA A FALTAR E CAUSAVA O ERRO 500!
 
 /**
  * Esta é a classe modelo para a tabela "triagem".
@@ -22,22 +24,15 @@ use Yii;
  * @property Pulseira $pulseira
  * @property UserProfile $userProfile
  */
-
-
 class Triagem extends \yii\db\ActiveRecord
 {
-    /**
-     * {@inheritdoc}
-     */
+    public $prioridade_pulseira;
+
     public static function tableName()
     {
         return 'triagem';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public $prioridade_pulseira;
     public function rules()
     {
         return [
@@ -50,17 +45,13 @@ class Triagem extends \yii\db\ActiveRecord
             [['prioridade_pulseira'], 'string'],
 
             // Relações
-            [['pulseira_id'], 'exist', 'skipOnError' => true,
+            [['pulseira_id'], 'exist', 'skipOnError' => true, 
                 'targetClass' => Pulseira::class, 'targetAttribute' => ['pulseira_id' => 'id']],
-            [['userprofile_id'], 'exist', 'skipOnError' => true,
+            [['userprofile_id'], 'exist', 'skipOnError' => true, 
                 'targetClass' => UserProfile::class, 'targetAttribute' => ['userprofile_id' => 'id']],
-
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function attributeLabels()
     {
         return [
@@ -78,23 +69,19 @@ class Triagem extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * 🔹 Relação com a pulseira criada nesta triagem
-     */
     public function getPulseira()
     {
-        return $this->hasOne(\common\models\Pulseira::class, ['id' => 'pulseira_id']);
+        return $this->hasOne(Pulseira::class, ['id' => 'pulseira_id']);
     }
 
-    /**
-     * 🔹 Relação com o perfil do utilizador
-     */
     public function getUserprofile()
     {
         return $this->hasOne(UserProfile::class, ['id' => 'userprofile_id']);
     }
+    
     public function getConsulta()
     {
+        // Certifique-se que Consulta existe ou use caminho completo se falhar
         return $this->hasOne(\common\models\Consulta::class, ['triagem_id' => 'id']);
     }
 }
