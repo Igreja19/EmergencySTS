@@ -138,7 +138,8 @@ return [
                         'api/pulseira',
                         'api/consulta',
                         'api/prescricao',
-                        'api/notificacao'
+                        'api/notificacao',
+                        'api/medicamento'
                     ],
                     'pluralize' => false,
                     'extraPatterns' => [
