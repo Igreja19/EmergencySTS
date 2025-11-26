@@ -72,9 +72,12 @@ class Triagem extends \yii\db\ActiveRecord
     public function afterFind()
     {
         parent::afterFind();
-
         if (!empty($this->iniciosintomas) && $this->iniciosintomas !== '0000-00-00 00:00:00') {
-            $this->iniciosintomas = date('Y-m-d\TH:i', strtotime($this->iniciosintomas));
+            try {
+                $date = new \DateTime($this->iniciosintomas);
+                $this->iniciosintomas = $date->format('Y-m-d\TH:i');
+            } catch (\Exception $e) {
+            }
         }
     }
 
