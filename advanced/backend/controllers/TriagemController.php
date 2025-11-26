@@ -3,6 +3,7 @@
 namespace backend\controllers;
 
 use common\models\Notificacao;
+use common\models\Pulseira;
 use common\models\Triagem;
 use common\models\TriagemSearch;
 use yii\web\Controller;
@@ -101,12 +102,16 @@ class TriagemController extends Controller
                 // =====================================================
                 // ❌ VERIFICAR SE PACIENTE JÁ TEM PULSEIRA ATRIBUÍDA
                 // =====================================================
-                $pulseiraExistente = \common\models\Pulseira::find()
+                $pulseiraExistente = Pulseira::find()
                     ->where(['userprofile_id' => $model->userprofile_id])
-                    ->andWhere(['IS NOT', 'prioridade', null]) // pulseiras já classificadas
+                    ->andWhere(['in', 'prioridade', ['Vermelho','Laranja','Amarelo','Verde','Azul']])
                     ->one();
 
                 if ($pulseiraExistente) {
+                    /*if ($pulseiraExistente) {
+                        die("PACIENTE JÁ TEM PULSEIRA ➜ prioridade = {$pulseiraExistente->prioridade}");
+                    }*/
+
                     Yii::$app->session->setFlash(
                         'danger',
                         "Este paciente já tem uma pulseira atribuída. Não pode criar nova triagem."
@@ -123,6 +128,9 @@ class TriagemController extends Controller
                     ->one();
 
                 if ($triagemExistente) {
+                    /*if ($triagemExistente) {
+                        die("PACIENTE JÁ TEM TRIAGEM PENDENTE");
+                    }*/
                     Yii::$app->session->setFlash(
                         'danger',
                         "Este paciente já tem uma triagem pendente. Deve atribuir uma pulseira antes de criar nova triagem."
@@ -144,7 +152,7 @@ class TriagemController extends Controller
 
                         if ($pulseira) {
                             $pulseira->prioridade = $model->prioridade_pulseira;
-                            $pulseira->status = "Em atendimento"; // opcional
+                            $pulseira->status = "Em espera"; // opcional
                             $pulseira->save(false);
                         }
                     }
@@ -172,13 +180,17 @@ class TriagemController extends Controller
                         );
                     }
 
-                    return $this->redirect(['view', 'id' => $model->id]);
+                    return $this->redirect(['index']);
                 }
             }
         }
 
         // Carregar valores por defeito
         $model->loadDefaultValues();
+
+        if ($model->iniciosintomas) {
+            $model->iniciosintomas = date('Y-m-d\TH:i', strtotime($model->iniciosintomas));
+        }
 
         return $this->render('create', [
             'model' => $model,
@@ -213,8 +225,23 @@ class TriagemController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($this->request->isPost && $model->load($this->request->post())) {
+
+            // Atualizar prioridade da pulseira
+            if (!empty($model->prioridade_pulseira)) {
+
+                $pulseira = \common\models\Pulseira::findOne($model->pulseira_id);
+
+                if ($pulseira) {
+                    $pulseira->prioridade = $model->prioridade_pulseira;
+                    $pulseira->status = "Em espera";
+                    $pulseira->save(false);
+                }
+            }
+
+            if ($model->save(false)) {
+                return $this->redirect(['view', 'id' => $model->id]);
+            }
         }
 
         return $this->render('update', [

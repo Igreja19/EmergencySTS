@@ -9,21 +9,25 @@ use yii\bootstrap5\Html;
 $this->title = 'EmergencySTS | Sistema de Triagem';
 ?>
 
+
 <?php if (Yii::$app->session->get('firstLogin')): ?>
     <?php
-    // ⚙️ Só mostra o alerta uma vez
     Yii::$app->session->remove('firstLogin');
 
-    // ✅ Verifica se o utilizador tem um perfil associado
     $userProfile = Yii::$app->user->identity->userprofile ?? null;
-
-    // Se existir perfil → vai para view, se não → para create
     $profileUrl = $userProfile
-            ? \yii\helpers\Url::to(['user-profile/view', 'id' => $userProfile->id])
-            : \yii\helpers\Url::to(['user-profile/create']);
+            ? \yii\helpers\Url::to(['user-profile/update', 'id' => $userProfile->id], true)
+            : \yii\helpers\Url::to(['user-profile/create'], true);
     ?>
+
+    <script>
+        window.firstLoginProfileUrl = <?= json_encode($profileUrl) ?>;
+    </script>
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<?php endif; ?>
+<?php endif;
+
+?>
 
 <!-- HERO SECTION -->
 <section class="hero">
@@ -266,5 +270,5 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
     </div>
 </div>
 <?php
-$this->registerJsFile(Yii::$app->request->baseUrl . '/js/site/index.js', ['depends' => [\yii\web\JqueryAsset::class]]);
+$this->registerJsFile(Yii::$app->request->baseUrl . '/js/site/index.js?v=123', ['depends' => [\yii\web\JqueryAsset::class]]);
 ?>

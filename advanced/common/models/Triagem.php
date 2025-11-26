@@ -69,6 +69,15 @@ class Triagem extends \yii\db\ActiveRecord
         ];
     }
 
+    public function afterFind()
+    {
+        parent::afterFind();
+
+        if (!empty($this->iniciosintomas) && $this->iniciosintomas !== '0000-00-00 00:00:00') {
+            $this->iniciosintomas = date('Y-m-d\TH:i', strtotime($this->iniciosintomas));
+        }
+    }
+
     public function getPulseira()
     {
         return $this->hasOne(Pulseira::class, ['id' => 'pulseira_id']);

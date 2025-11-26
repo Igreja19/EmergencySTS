@@ -111,4 +111,9 @@ class UserProfile extends \yii\db\ActiveRecord
         return $this->hasOne(User::class, ['id' => 'user_id']);
     }
 
+    public function getPulseiras()
+    {
+        return $this->hasMany(\common\models\Pulseira::class, ['userprofile_id' => 'id']);
+    }
+
 }

@@ -1,6 +1,8 @@
 <?php
 
 use yii\helpers\Html;
+use yii\helpers\Url;
+use yii\web\View;
 use yii\widgets\ActiveForm;
 
 /** @var yii\web\View $this */
@@ -20,11 +22,19 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/_form.css');
 
         <?php if ($model->isNewRecord): ?>
 
+            <?php
+            // Buscar apenas pacientes que têm pulseira pendente
+            $pacientesComPulseiraPendente = \common\models\UserProfile::find()
+                    ->joinWith('pulseiras')
+                    ->where(['pulseira.prioridade' => 'Pendente'])
+                    ->all();
+            ?>
+
             <!-- CREATE — escolher paciente -->
             <div class="col-md-6">
                 <?= $form->field($model, 'userprofile_id')->dropDownList(
                         \yii\helpers\ArrayHelper::map(
-                                \common\models\UserProfile::find()->all(),
+                                $pacientesComPulseiraPendente,
                                 'id',
                                 'nome'
                         ),
@@ -36,41 +46,34 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/_form.css');
             <div class="col-md-6">
                 <?= $form->field($model, 'pulseira_id')->dropDownList(
                         [],
-                        ['prompt' => 'Selecione primeiro o paciente', 'id' => 'dropdown-pulseiras']
+                        ['prompt' => 'Selecione primeiro o paciente']
                 )->label('<i class="bi bi-upc-scan me-2"></i> Código da Pulseira') ?>
             </div>
 
         <?php else: ?>
 
-            <!-- UPDATE — mostrar nome do paciente -->
+            <!-- UPDATE — nome do paciente -->
             <div class="col-md-6">
-                <label class="form-label fw-bold">
-                    <i class="bi bi-person me-2"></i> Paciente
-                </label>
-                <input type="text"
-                       class="form-control fw-bold"
-                       value="<?= $model->userprofile->nome ?? '—' ?>"
-                       readonly>
+                <label class="form-label fw-bold">Paciente</label>
+                <input type="text" class="form-control fw-bold"
+                       value="<?= $model->userprofile->nome ?>" readonly>
             </div>
 
-            <!-- UPDATE — mostrar código da pulseira -->
+            <!-- UPDATE — código da pulseira -->
             <div class="col-md-6">
-                <label class="form-label fw-bold">
-                    <i class="bi bi-upc-scan me-2"></i> Código da Pulseira
-                </label>
-                <input type="text"
-                       class="form-control fw-bold"
-                       value="<?= $model->pulseira->codigo ?? '—' ?>"
-                       readonly>
+                <label class="form-label fw-bold">Código da Pulseira</label>
+                <input type="text" class="form-control fw-bold"
+                       value="<?= $model->pulseira->codigo ?>" readonly>
             </div>
 
-            <!-- Hidden inputs para manter IDs no POST -->
-            <?= Html::hiddenInput('Triagem[userprofile_id]', $model->userprofile_id) ?>
-            <?= Html::hiddenInput('Triagem[pulseira_id]', $model->pulseira_id) ?>
+            <!-- Hidden para manter os IDs -->
+            <?= $form->field($model, 'userprofile_id')->hiddenInput()->label(false) ?>
+            <?= $form->field($model, 'pulseira_id')->hiddenInput()->label(false) ?>
 
         <?php endif; ?>
 
     </div>
+
 
     <h5><i class="bi bi-flag me-2"></i> Classificação de Prioridade</h5>
 
@@ -82,7 +85,7 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/_form.css');
                     'Amarelo'  => 'Amarelo',
                     'Verde'    => 'Verde',
                     'Azul'     => 'Azul',
-            ], ['class' => 'form-select'])
+            ], ['prompt' => 'Selecione a Prioridade', 'class' => 'form-select'])
              ?>
         </div>
     </div>
@@ -106,11 +109,32 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/_form.css');
     <div class="row g-3 mt-1">
         <div class="col-md-6">
             <?= $form->field($model, 'iniciosintomas')
-                    ->input('datetime-local', ['placeholder' => 'Data e hora do início dos sintomas']) ?>
+                    ->input('datetime-local', [
+                            'placeholder' => 'Data e hora do início dos sintomas',
+                            'onkeydown' => 'return false',
+                            'onpaste' => 'return false',
+                            'onclick' => 'this.showPicker()', // força a abrir o calendario
+                    ]) ?>
         </div>
         <div class="col-md-6">
             <?= $form->field($model, 'intensidadedor')
-                    ->input('number', ['min' => 0, 'max' => 10, 'placeholder' => 'Intensidade da dor (0-10)']) ?>
+                    ->dropDownList([
+                            0 => '0 - Sem Dor',
+                            1 => '1 - Muito Leve',
+                            2 => '2 - Leve',
+                            3 => '3 - Moderada',
+                            4 => '4 - Moderada a Forte',
+                            5 => '5 - Forte',
+                            6 => '6 - Bastante Forte',
+                            7 => '7 - Muito Forte',
+                            8 => '8 - Intensa',
+                            9 => '9 - Muito Intensa',
+                            10 => '10 - Insuportável'
+                    ], [
+                            'prompt' => 'Selecione a intensidade da dor',
+                            'class' => 'form-select rounded-3 shadow-sm'
+                    ])
+                    ->label('<i class="bi bi-emoji-expressionless me-2"></i> Intensidade da Dor (0-10)') ?>
         </div>
     </div>
 
@@ -128,7 +152,12 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/_form.css');
     <div class="row g-3 mt-1">
         <div class="col-md-6">
             <?= $form->field($model, 'datatriagem')
-                    ->input('datetime-local', ['placeholder' => 'Data e hora da triagem']) ?>
+                    ->input('datetime-local', [
+                            'placeholder' => 'Data e hora do início dos sintomas',
+                            'onkeydown' => 'return false',
+                            'onpaste' => 'return false',
+                            'onclick' => 'this.showPicker()', // força a abrir o calendario
+                    ]) ?>
         </div>
     </div>
 
@@ -137,6 +166,13 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/_form.css');
     </div>
 
     <?php
+    // Gera a URL correta para o AJAX
+    $ajaxUrl = Url::to(['triagem/pulseiras-por-paciente']);
+    // Define a variável JS GLOBAL
+    $this->registerJs(
+            "window.triagemPulseirasUrl = " . json_encode($ajaxUrl) . ";",
+            View::POS_HEAD
+    );
     $this->registerJsFile(Yii::$app->request->baseUrl . '/js/triagem/_form.js', ['depends' => [\yii\web\JqueryAsset::class]]);
     ?>
     <?php ActiveForm::end(); ?>
