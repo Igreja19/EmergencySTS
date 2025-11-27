@@ -87,11 +87,11 @@ class PulseiraController extends Controller
 
                 if ($model->save(false)) {
 
-                    // 🔔 Notificação ao paciente
+                    // 🔔 CORREÇÃO AQUI ⬇⬇⬇⬇⬇⬇⬇
                     Notificacao::enviar(
                         $model->userprofile_id,
                         "Pulseira atribuída",
-                        "Foi criada uma nova pulseira pendente para o paciente " . $model->userProfile->nome . ".",
+                        "Foi criada uma nova pulseira pendente para o paciente " . $model->userprofile->nome . ".",
                         "Consulta"
                     );
 
@@ -122,11 +122,6 @@ class PulseiraController extends Controller
             'triagem' => $triagem,
         ]);
     }
-
-
-
-
-
     /**
      * ============================
      *   UPDATE
@@ -177,10 +172,43 @@ class PulseiraController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        $pulseira = $this->findModel($id);
+
+        // Triagem associada
+        $triagem = \common\models\Triagem::find()
+            ->where(['pulseira_id' => $pulseira->id])
+            ->one();
+
+        if ($triagem) {
+
+            // CONSULTAS associadas
+            $consultas = \common\models\Consulta::find()
+                ->where(['triagem_id' => $triagem->id])
+                ->all();
+
+            foreach ($consultas as $consulta) {
+
+                // PRESCRIÇÕES
+                foreach ($consulta->prescricoes as $p) {
+                    $p->delete();
+                }
+
+                $consulta->delete();
+            }
+
+            // Apagar triagem
+            $triagem->delete();
+        }
+
+        // Finalmente apagar pulseira
+        $pulseira->delete();
+
+        Yii::$app->session->setFlash('success',
+            'Pulseira e todos os dados associados foram eliminados.'
+        );
+
         return $this->redirect(['index']);
     }
-
     /**
      * FIND MODEL
      */

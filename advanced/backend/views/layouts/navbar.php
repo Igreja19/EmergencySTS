@@ -26,16 +26,16 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/layouts/navbar.css');
                 <a href="<?= Url::to(['/user-profile/index']) ?>" class="nav-link top-link">Utilizadores</a>
             </li>
         <?php endif; ?>
-
+        
         <?php if ($isAdmin || $isEnfermeiro): ?>
             <li class="nav-item d-none d-sm-inline-block">
-                <a href="<?= Url::to(['/triagem/index']) ?>" class="nav-link top-link">Triagem</a>
+                <a href="<?= Url::to(['/pulseira/index']) ?>" class="nav-link top-link">Pulseira</a>
             </li>
         <?php endif; ?>
 
         <?php if ($isAdmin || $isEnfermeiro): ?>
             <li class="nav-item d-none d-sm-inline-block">
-                <a href="<?= Url::to(['/pulseira/index']) ?>" class="nav-link top-link">Pulseira</a>
+                <a href="<?= Url::to(['/triagem/index']) ?>" class="nav-link top-link">Triagem</a>
             </li>
         <?php endif; ?>
 

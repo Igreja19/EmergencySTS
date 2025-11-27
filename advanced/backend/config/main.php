@@ -114,7 +114,7 @@ return [
                 // --- 1. ROTAS ESPECIAIS (Mapeamento Manual) ---
 
                 // Login
-                'POST api/login'    => 'api/auth/login',
+                'POST api/auth/login'    => 'api/auth/login',
 
                 //Signup
                 'POST api/auth/signup' => 'api/auth/signup',
