@@ -3,10 +3,12 @@
 namespace backend\controllers;
 
 use common\models\Notificacao;
+use common\models\UserProfile;
 use Yii;
 use common\models\Consulta;
 use common\models\ConsultaSearch;
 use common\models\Triagem;
+use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -237,23 +239,27 @@ class ConsultaController extends Controller
 
     public function actionHistorico()
     {
-        // Buscar todos os médicos via RBAC
+        // IDs dos médicos via RBAC
         $medicoAssignments = Yii::$app->authManager->getUserIdsByRole('medico');
 
         // Perfis dos médicos
-        $medicos = \common\models\UserProfile::find()
+        $medicos = UserProfile::find()
             ->where(['user_id' => $medicoAssignments])
             ->all();
 
-        // Consultas encerradas
-        $consultas = \common\models\Consulta::find()
-            ->where(['estado' => 'Encerrada'])
-            ->orderBy(['data_encerramento' => SORT_DESC])
-            ->all();
+        // Criar o dataProvider para o GridView
+        $dataProvider = new ActiveDataProvider([
+            'query' => \common\models\Consulta::find()
+                ->where(['estado' => 'Encerrada'])
+                ->orderBy(['data_encerramento' => SORT_DESC]),
+            'pagination' => [
+                'pageSize' => 10,
+            ],
+        ]);
 
         return $this->render('historico', [
             'medicos' => $medicos,
-            'consultas' => $consultas,
+            'dataProvider' => $dataProvider,
         ]);
     }
 
