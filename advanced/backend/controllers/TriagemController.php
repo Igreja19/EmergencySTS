@@ -252,11 +252,37 @@ class TriagemController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        $triagem = $this->findModel($id);
+
+        // CONSULTAS associadas
+        $consultas = \common\models\Consulta::find()
+            ->where(['triagem_id' => $triagem->id])
+            ->all();
+
+        foreach ($consultas as $consulta) {
+
+            // PRESCRIÇÕES associadas
+            foreach ($consulta->prescricoes as $p) {
+                $p->delete();
+            }
+
+            $consulta->delete();
+        }
+
+        // Pulseira associada
+        if ($triagem->pulseira) {
+            $triagem->pulseira->delete();
+        }
+
+        // Apagar triagem
+        $triagem->delete();
+
+        Yii::$app->session->setFlash('success',
+            'Triagem e todos os registos associados foram eliminados.'
+        );
 
         return $this->redirect(['index']);
     }
-
     /**
      * Procurar Triagem
      */

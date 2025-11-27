@@ -273,10 +273,35 @@ class ConsultaController extends Controller
 
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
-        Yii::$app->session->setFlash('success', 'Consulta eliminada com sucesso.');
+        $consulta = $this->findModel($id);
+
+        // 1️⃣ Apagar prescrições associadas à consulta
+        foreach ($consulta->prescricoes as $p) {
+            $p->delete();
+        }
+
+        // Guardar referência à triagem antes de apagar a consulta
+        $triagem = $consulta->triagem;
+        $pulseira = $triagem->pulseira ?? null;
+
+        // 2️⃣ Agora SIM: apagar a consulta primeiro (porque depende da triagem)
+        $consulta->delete();
+
+        // 3️⃣ Depois apagar a triagem (já não há FK a bloquear)
+        if ($triagem) {
+            $triagem->delete();
+        }
+
+        // 4️⃣ Por fim apagar a pulseira
+        if ($pulseira) {
+            $pulseira->delete();
+        }
+
+        Yii::$app->session->setFlash('success', 'Consulta, triagem e pulseira eliminadas com sucesso.');
         return $this->redirect(['index']);
     }
+
+
 
     protected function findModel($id)
     {
