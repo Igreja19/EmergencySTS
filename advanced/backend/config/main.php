@@ -116,6 +116,9 @@ return [
                 // Login
                 'POST api/login'    => 'api/auth/login',
 
+                //Signup
+                'POST api/auth/signup' => 'api/auth/signup',
+
                 // Perfil
                 'GET api/profile'   => 'api/user/index',
 
