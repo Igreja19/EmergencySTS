@@ -78,13 +78,18 @@ class PrescricaoController extends Controller
     {
         $model = $this->findModel($id);
 
-        // opcional: já traz os medicamentos carregados
-        $model->populateRelation('medicamentos', $model->medicamentos);
+        // Carrega os dados pivot (medicamentos + posologia)
+        $prescricaoMedicamentos = Prescricaomedicamento::find()
+            ->where(['prescricao_id' => $model->id])
+            ->with('medicamento') // traz o nome do medicamento
+            ->all();
 
         return $this->render('view', [
             'model' => $model,
+            'prescricaoMedicamentos' => $prescricaoMedicamentos,
         ]);
     }
+
 
     /**
      * Cria uma nova prescrição
@@ -92,29 +97,29 @@ class PrescricaoController extends Controller
     public function actionCreate()
     {
         $model = new Prescricao();
-        $prescricaoMedicamentos = [new Prescricaomedicamento()];
 
         $consultas = Consulta::find()
-            ->where(['<>', 'estado', 'Encerrada'])
+            ->where(['estado' => Consulta::ESTADO_EM_CURSO]) // apenas consultas ativas
             ->select(['id'])
+            ->orderBy(['id' => SORT_DESC])
             ->indexBy('id')
             ->column();
 
-        $medicamentos = Medicamento::find()
-            ->select(['nome'])
-            ->indexBy('id')
-            ->column();
+        $medicamentosDropdown = Medicamento::find()->select(['nome'])->indexBy('id')->column();
+
+        // Array inicial vazio
+        $prescricaoMedicamentos = [new Prescricaomedicamento];
 
         if ($model->load(Yii::$app->request->post())) {
 
             $prescricaoMedicamentos = ModelHelper::createMultiple(
-                Prescricaomedicamento::class,
-                $prescricaoMedicamentos
+                Prescricaomedicamento::class
             );
 
             ModelHelper::loadMultiple($prescricaoMedicamentos, Yii::$app->request->post());
 
-            if ($model->save()) {
+            if ($model->save(false)) {
+
                 foreach ($prescricaoMedicamentos as $pm) {
                     $pm->prescricao_id = $model->id;
                     $pm->save(false);
@@ -128,10 +133,11 @@ class PrescricaoController extends Controller
         return $this->render('create', [
             'model' => $model,
             'consultas' => $consultas,
-            'medicamentosDropdown' => $medicamentos,
+            'medicamentosDropdown' => $medicamentosDropdown,
             'prescricaoMedicamentos' => $prescricaoMedicamentos,
         ]);
     }
+
 
 
     /**
@@ -141,7 +147,13 @@ class PrescricaoController extends Controller
     {
         $model = $this->findModel($id);
 
-        $consultas = Consulta::find()->select(['id'])->indexBy('id')->column();
+        $consultas = Consulta::find()
+            ->where(['estado' => Consulta::ESTADO_EM_CURSO]) // apenas consultas ativas
+            ->select(['id'])
+            ->orderBy(['id' => SORT_DESC])
+            ->indexBy('id')
+            ->column();
+
         $medicamentos = Medicamento::find()->select(['nome'])->indexBy('id')->column();
 
         $prescricaoMedicamentos = Prescricaomedicamento::find()

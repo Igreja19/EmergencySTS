@@ -109,7 +109,7 @@ class PulseiraController extends Controller
                     $triagem->save(false);
 
                     Yii::$app->session->setFlash('success', 'Pulseira pendente criada com triagem associada.');
-                    return $this->redirect(['index']);
+                        return $this->redirect(['index']);
                 }
 
                 Yii::$app->session->setFlash('error', 'Erro ao criar a pulseira.');
@@ -139,9 +139,9 @@ class PulseiraController extends Controller
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
-        return $this->render('update', [
-            'model' => $model,
-        ]);
+            return $this->render('update', [
+                'model' => $model,
+            ]);
     }
 
     /**

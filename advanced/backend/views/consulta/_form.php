@@ -88,19 +88,43 @@ $isNew = $model->isNewRecord;
         </div>
     </div>
 
-    <!-- ===================== -->
-    <!-- OBSERVAÇÕES -->
-    <!-- ===================== -->
-    <div class="section-title mt-4 mb-3">
-        <i class="bi bi-journal-text text-success me-2"></i>
-        <span class="fw-semibold text-success">Observações</span>
-    </div>
+    <!-- UPDATE -->
 
-    <?= $form->field($model, 'observacoes')->textarea([
+    <!-- OBSERVAÇÕES -->
+    <?php if (!$isNew): ?>
+
+        <div class="section-title mt-4 mb-3">
+            <i class="bi bi-journal-text text-success me-2"></i>
+            <span class="fw-semibold text-success">Observações</span>
+        </div>
+
+        <?= $form->field($model, 'observacoes')->textarea([
             'rows' => 4,
             'class' => 'form-control rounded-3 shadow-sm',
             'placeholder' => 'Registe aqui notas importantes...'
-    ])->label(false) ?>
+             ])->label(false) ?>
+
+        <!-- PRESCRIÇÃO -->
+        <div class="mt-3">
+
+            <?php if ($model->prescricao): ?>
+                <?= Html::a(
+                        '<i class="bi bi-eye-fill me-1"></i> Ver Prescrição',
+                        ['prescricao/update', 'id' => $model->prescricao->id],
+                        ['class' => 'btn btn-success px-4 rounded-3 fw-semibold']
+                ) ?>
+            <?php else: ?>
+                <?= Html::a(
+                        '<i class="bi bi-plus-circle me-1"></i> Adicionar Prescrição',
+                        ['prescricao/create', 'consulta_id' => $model->id],
+                        ['class' => 'btn btn-primary px-4 rounded-3 fw-semibold']
+                ) ?>
+            <?php endif; ?>
+
+        </div>
+
+    <?php endif; ?>
+
 
     <!-- BOTÕES -->
     <div class="d-flex justify-content-end mt-4 gap-2">
@@ -121,35 +145,6 @@ $isNew = $model->isNewRecord;
 
 <?php
 $triagemInfoUrl = Url::to(['consulta/triagem-info']);
-$js = <<<JS
-
-// AJAX para preencher nome do paciente
-$('#triagem-select').on('change', function() {
-    let triagemId = $(this).val();
-
-    if (!triagemId) {
-        $('#userprofile-id').val('');
-        $('#userprofile-nome').val('');
-        return;
-    }
-
-    $.get('$triagemInfoUrl', {id: triagemId}, function(data) {
-        $('#userprofile-id').val(data.userprofile_id || '');
-        $('#userprofile-nome').val(data.user_nome || '');
-    });
-});
-
-// Mostrar/esconder campo de encerramento
-$('#estado-select').on('change', function() {
-    if ($(this).val() === 'Encerrada') {
-        $('#campo-encerramento').slideDown();
-    } else {
-        $('#campo-encerramento').slideUp();
-        $('#consulta-data_encerramento').val('');
-    }
-});
-JS;
-
-$this->registerJs($js);
+$this->registerJsFile(Yii::$app->request->baseUrl . '/js/consulta/_form.js', ['depends' => [\yii\web\JqueryAsset::class]]);
 ?>
 

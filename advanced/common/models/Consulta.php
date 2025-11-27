@@ -142,4 +142,9 @@ class Consulta extends \yii\db\ActiveRecord
     {
         return $this->hasMany(Prescricao::class, ['consulta_id' => 'id']);
     }
+
+    public function getPrescricao()
+    {
+        return $this->hasOne(Prescricao::class, ['consulta_id' => 'id']);
+    }
 }

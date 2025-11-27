@@ -8,41 +8,75 @@ use yii\helpers\ArrayHelper;
 
 class ModelHelper
 {
+    /**
+     * Cria múltiplos modelos, garantindo que não há índices fora do array
+     */
     public static function createMultiple($modelClass, $multipleModels = [])
     {
         $model = new $modelClass;
         $formName = $model->formName();
-        $post = Yii::$app->request->post($formName);
+
+        $post = Yii::$app->request->post($formName, []);
 
         $models = [];
 
-        // Se não há POST, devolve o modelo inicial
-        if (empty($post)) {
-            return $multipleModels;
-        }
+        // 🔥 Reindexar o POST — SEMPRE
+        $post = array_values($post);
 
-        // Reindexa corretamente modelos existentes
+        // Para actualización
         if (!empty($multipleModels)) {
-            $existingIDs = ArrayHelper::map($multipleModels, 'id', 'id');
-        } else {
-            $existingIDs = [];
-        }
+            $multipleModels = array_values($multipleModels); // 🔥 Reindexa modelos antigos
 
-        foreach ($post as $i => $item) {
-            if (isset($item['id']) && isset($existingIDs[$item['id']])) {
-                // modelo existente
-                $models[] = $multipleModels[array_search($item['id'], $existingIDs)];
-            } else {
-                // novo modelo
-                $models[] = new $modelClass;
+            foreach ($post as $i => $item) {
+                if (isset($item['id']) && !empty($item['id'])) {
+
+                    // procurar modelo existente com esse ID
+                    foreach ($multipleModels as $old) {
+                        if ($old->id == $item['id']) {
+                            $models[$i] = $old;
+                            break;
+                        }
+                    }
+
+                    // Se não encontrar um modelo correspondente → cria novo
+                    if (!isset($models[$i])) {
+                        $models[$i] = new $modelClass;
+                    }
+                } else {
+                    // Novo item (sem ID)
+                    $models[$i] = new $modelClass;
+                }
+            }
+
+        } else {
+            // CREATE — só novos modelos
+            foreach ($post as $i => $item) {
+                $models[$i] = new $modelClass;
             }
         }
 
         return $models;
     }
 
-    public static function loadMultiple($models, $data)
+    /**
+     * Carrega vários modelos
+     */
+    public static function loadMultiple(&$models, $data)
     {
-        return Model::loadMultiple($models, $data);
+        $firstModel = reset($models);
+        $formName = $firstModel->formName();
+
+        if (!isset($data[$formName])) {
+            return false;
+        }
+
+        foreach ($models as $i => $model) {
+            if (isset($data[$formName][$i])) {
+                $model->load([$formName => $data[$formName][$i]]);
+            }
+        }
+
+        return true;
     }
+
 }

@@ -79,14 +79,20 @@ class ConsultaController extends Controller
     {
         $model = new Consulta();
 
-        // 🔹 Triagens com pulseira (pacientes aptos a consulta)
         $triagensDisponiveis = ArrayHelper::map(
             Triagem::find()
                 ->joinWith('pulseira')
-                ->where(['not', ['pulseira.id' => null]])
+                ->where(['not', ['pulseira.prioridade' => 'Pendente']])
+                ->andWhere(['not', ['pulseira.prioridade' => null]])
+                ->andWhere(['pulseira.status' => 'Em espera'])
+                ->groupBy('pulseira.id') // <-- Para evitar repetidos
                 ->all(),
             'id',
-            fn($t) => 'Pulseira: ' . ($t->pulseira->codigo ?? '—')
+            function($t) {
+                $cor = $t->pulseira->prioridade ?? '—';
+                $codigo = $t->pulseira->codigo ?? 'Sem código';
+                return "Pulseira: {$cor} ({$codigo})";
+            }
         );
 
         if ($model->load(Yii::$app->request->post())) {
@@ -106,7 +112,7 @@ class ConsultaController extends Controller
                 }
 
                 Yii::$app->session->setFlash('success', 'Consulta criada com sucesso!');
-                return $this->redirect(['index']);
+                return $this->redirect(['update', 'id' => $model->id]);
             }
 
             Yii::$app->session->setFlash('error', 'Erro ao guardar consulta.');

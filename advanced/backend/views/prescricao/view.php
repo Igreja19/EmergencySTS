@@ -81,27 +81,38 @@ $this->params['breadcrumbs'][] = $this->title;
                 <i class="bi bi-capsule me-2"></i> Medicamentos
             </h5>
 
-            <?php if (empty($model->prescricaoMedicamentos)): ?>
+            <?php if (empty($prescricaoMedicamentos)): ?>
                 <p class="text-muted">Nenhum medicamento associado.</p>
+
             <?php else: ?>
 
                 <div class="list-group">
 
-                    <?php foreach ($model->prescricaoMedicamentos as $pm): ?>
+                    <?php foreach ($prescricaoMedicamentos as $pm): ?>
                         <div class="list-group-item mb-2 shadow-sm" style="border-radius: 8px;">
+
+                            <!-- Nome + dosagem -->
                             <div class="fw-bold text-success mb-1">
-                                <?= Html::encode($pm->medicamento->nome) ?> (<?= Html::encode($pm->medicamento->dosagem) ?>)
+                                <?= Html::encode($pm->medicamento->nome) ?>
+                                <?php if (!empty($pm->medicamento->dosagem)): ?>
+                                    (<?= Html::encode($pm->medicamento->dosagem) ?>)
+                                <?php endif; ?>
                             </div>
 
+                            <!-- Posologia -->
                             <div class="text-muted">
-                                <strong>Posologia:</strong> <?= Html::encode($pm->posologia) ?>
+                                <strong>Posologia:</strong>
+                                <?= Html::encode($pm->posologia) ?>
                             </div>
+
                         </div>
                     <?php endforeach; ?>
 
                 </div>
 
             <?php endif; ?>
+
+            <!-- BOTÃO PDF -->
             <?php if ($model->consulta->estado === 'Encerrada'): ?>
                 <?= Html::a(
                         '<i class="bi bi-filetype-pdf"></i> PDF',
@@ -113,6 +124,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     <i class="bi bi-filetype-pdf"></i> PDF (disponível após encerrar)
                 </button>
             <?php endif; ?>
+
         </div>
     </div>
 </div>
