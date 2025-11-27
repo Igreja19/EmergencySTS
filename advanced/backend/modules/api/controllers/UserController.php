@@ -44,10 +44,22 @@ class UserController extends ActiveController
      */
     public function checkAccess($action, $model = null, $params = [])
     {
-        if ($action === 'update' || $action === 'delete') {
+        if ($action === 'update') {
+            // Se for Admin -> Pode tudo
+            if (Yii::$app->user->can('admin')) {
+                return;
+            }
+            // Se for o PRÓPRIO utilizador -> Pode editar
+            if ($model && $model->user_id == Yii::$app->user->id) {
+                return;
+            }
+            // Se não for nem Admin nem o Dono -> Bloqueia
+            throw new ForbiddenHttpException("Não tem permissão para editar este perfil.");
+        }
+        // Se a ação for 'delete'
+        if ($action === 'delete') {
             if (!Yii::$app->user->can('admin')) {
-                // ...lança um erro 403 (Proibido).
-                throw new ForbiddenHttpException("Apenas administradores podem executar esta ação.");
+                throw new ForbiddenHttpException("Apenas administradores podem apagar utilizadores.");
             }
         }
     }
