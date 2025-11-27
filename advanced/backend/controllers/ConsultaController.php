@@ -96,26 +96,29 @@ class ConsultaController extends Controller
             }
         );
 
-        if ($model->save(false)) {
+        if ($model->load(Yii::$app->request->post())) {
 
-            // Atualizar pulseira para "Em atendimento"
-            if ($model->triagem && $model->triagem->pulseira) {
-                $pulseira = $model->triagem->pulseira;
-                $pulseira->status = "Em atendimento";
-                $pulseira->save(false);
+            if ($model->save(false)) {
+
+                // Atualizar pulseira para "Em atendimento"
+                if ($model->triagem && $model->triagem->pulseira) {
+                    $pulseira = $model->triagem->pulseira;
+                    $pulseira->status = "Em atendimento";
+                    $pulseira->save(false);
+                }
+
+                // Notificação
+                $userId = $model->triagem->userprofile_id;
+                Notificacao::enviar(
+                    $userId,
+                    "Consulta iniciada",
+                    "A sua consulta foi iniciada.",
+                    "Consulta"
+                );
+
+                Yii::$app->session->setFlash('success', 'Consulta criada com sucesso!');
+                return $this->redirect(['update', 'id' => $model->id]);
             }
-
-            // 🔥 Notificação — consulta criada
-            $userId = $model->triagem->userprofile_id;
-            Notificacao::enviar(
-                $userId,
-                "Consulta iniciada",
-                "A sua consulta foi iniciada.",
-                "Consulta"
-            );
-
-            Yii::$app->session->setFlash('success', 'Consulta criada com sucesso!');
-            return $this->redirect(['update', 'id' => $model->id]);
         }
 
 

@@ -48,7 +48,7 @@ class MedicamentoController extends ActiveController
             $query->where(['like', 'nome', $nome]);
         }
 
-        // Mostra todos os medicamentos ou podemos limitar de 20 para não sobrecarregar a App
+        // Mostra todos os medicamentos ou podemos limitar a 20 para não sobrecarregar a App
         $medicamentos = $query->limit(40)->all();
 
         return [

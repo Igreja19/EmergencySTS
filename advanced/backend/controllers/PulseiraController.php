@@ -87,11 +87,11 @@ class PulseiraController extends Controller
 
                 if ($model->save(false)) {
 
-                    // 🔔 Notificação ao paciente
+                    // 🔔 CORREÇÃO AQUI ⬇⬇⬇⬇⬇⬇⬇
                     Notificacao::enviar(
                         $model->userprofile_id,
                         "Pulseira atribuída",
-                        "Foi criada uma nova pulseira pendente para o paciente " . $model->userProfile->nome . ".",
+                        "Foi criada uma nova pulseira pendente para o paciente " . $model->userprofile->nome . ".",
                         "Consulta"
                     );
 
@@ -122,11 +122,6 @@ class PulseiraController extends Controller
             'triagem' => $triagem,
         ]);
     }
-
-
-
-
-
     /**
      * ============================
      *   UPDATE
