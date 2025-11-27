@@ -9,7 +9,7 @@ $this->title = "Histórico de Consultas";
 
 ?>
 
-<div class="card shadow p-4">
+<div class="card shadow p-4">   
 
     <h3 class="text-success fw-bold mb-3">
         <i class="bi bi-clock-history"></i> Histórico de Consultas
