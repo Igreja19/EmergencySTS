@@ -1,40 +1,52 @@
 /* ===== EmergencySTS Theme (alinhado ao frontend HTMLCodex) ===== */
 :root{
-    --brand: #198754;         /* verde principal */
-    --brand-2: #22c55e;       /* verde gradiente */
-    --heading: #0f172a;       /* títulos */
-    --text: #334155;          /* texto */
-    --muted: #64748b;         /* texto secundário */
-    --radius: 1rem;           /* arredondamentos */
+    --brand: #198754;
+    --brand-2: #22c55e;
+    --heading: #0f172a;
+    --text: #334155;
+    --muted: #64748b;
+    --radius: 1rem;
     --shadow: 0 10px 30px rgba(0,0,0,.08);
-    --bg-soft: #f8fafc;       /* fundo suave */
+    --bg-soft: #f8fafc;
 }
 
-/* Tipografia semelhante ao HTMLCodex (altera se usares outra) */
 body { color: var(--text); }
 h1,h2,h3,h4 { color: var(--heading); letter-spacing:.2px; }
 
-/* Navbar e Sidebar (branding) */
+/* Navbar e Sidebar */
 .navbar-white.navbar-light { border-bottom: 1px solid rgba(0,0,0,.05); }
 .brand-link { border-bottom: 1px solid rgba(255,255,255,.08); }
 .brand-link .brand-text { font-weight:600; letter-spacing:.2px; }
 
 /* Botões, cards, caixas */
-.card, .info-box, .small-box, .btn, .modal-content { border-radius: var(--radius) !important; }
+.card, .info-box, .small-box, .btn, .modal-content {
+    border-radius: var(--radius) !important;
+}
 .card { box-shadow: var(--shadow); border: 0; }
-.btn-success, .bg-success, .badge-success { background-color: var(--brand) !important; border-color: var(--brand) !important; }
+
+.btn-success, .bg-success, .badge-success {
+    background-color: var(--brand) !important;
+    border-color: var(--brand) !important;
+}
+
 a, .btn-link { color: var(--brand); }
 
-/* Conteúdo: cabeçalho “sticky” tipo frontend */
-.content-header { position: sticky; top: 0; z-index: 10; backdrop-filter: blur(6px); background: rgba(255,255,255,.6); }
+/* Conteúdo */
+.content-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    backdrop-filter: blur(6px);
+    background: rgba(255,255,255,.6);
+}
 .content-header .container-fluid { padding-top:.5rem; padding-bottom:.5rem; }
 
-/* Tabelas clean e legíveis */
+/* Tabelas */
 .table { font-size: .95rem; }
 .table th { white-space: nowrap; }
 .table td { vertical-align: middle; }
 
-/* Sidebar — hover/active com gradiente à HTMLCodex */
+/* Sidebar */
 .nav-sidebar .nav-link.active {
     background: linear-gradient(90deg, var(--brand) 0%, var(--brand-2) 100%);
     color:#fff !important;
@@ -44,32 +56,40 @@ a, .btn-link { color: var(--brand); }
     color:#0f5132;
 }
 .nav-sidebar .nav-link.active .nav-icon,
-.nav-sidebar .nav-link.active .right { color:#fff !important; }
+.nav-sidebar .nav-link.active .right {
+    color:#fff !important;
+}
 
-/* Badges/labels mais “chip” */
-.badge { border-radius: 999px; padding: .35rem .55rem; }
+/* Badges */
+.badge {
+    border-radius: 999px;
+    padding: .35rem .55rem;
+}
 
-/* Login mais moderno (card arredondado como no frontend) */
+/* Login */
 .login-page { background: var(--bg-soft); }
-.login-page .card { border-radius: 1.25rem; box-shadow: var(--shadow); }
+.login-page .card {
+    border-radius: 1.25rem;
+    box-shadow: var(--shadow);
+}
 .login-logo a { color: var(--brand); }
 
 /* Dark mode */
 .dark-mode body { color: #cbd5e1; }
 .dark-mode .content-header { background: rgba(15,23,42,.6); }
-.dark-mode .nav-sidebar .nav-link:hover { background: rgba(255,255,255,.08); }
+.dark-mode .nav-sidebar .nav-link:hover {
+    background: rgba(255,255,255,.08);
+}
 .dark-mode .nav-sidebar .nav-link.active {
     background: linear-gradient(90deg, #059669 0%, #10b981 100%);
 }
 
-/* Filas/colunas tipo frontend */
-.section-title { font-weight: 700; margin-bottom: .75rem; }
-.text-muted-soft { color: var(--muted) !important; }
+/* Pesquisas */
+.main-header .form-control {
+    border-radius: .75rem;
+}
 
-/* Inputs da top-search */
-.main-header .form-control { border-radius: .75rem; }
-
-/* Header fixo com fundo transparente */
+/* Header fixo */
 .sticky-header {
     position: sticky;
     top: 0;
@@ -78,14 +98,12 @@ a, .btn-link { color: var(--brand); }
     background-color: rgba(255, 255, 255, 0.6);
     transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
-
-/* Quando faz scroll */
 .sticky-header.scrolled {
     background-color: rgba(255, 255, 255, 0.9);
     box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
 }
 
-/* NAVBAR PREMIUM ESCURA */
+/* NAVBAR PREMIUM */
 .custom-navbar {
     background: linear-gradient(90deg, #128e55, #208756);
     height: 68px;
@@ -96,7 +114,7 @@ a, .btn-link { color: var(--brand); }
     box-shadow: 0 4px 14px rgba(0,0,0,0.18);
 }
 
-/* LINKS COMO BOTÕES INDIVIDUAIS */
+/* LINKS */
 .custom-navbar .top-link {
     color: #e9ffe9 !important;
     font-weight: 600;
@@ -105,10 +123,7 @@ a, .btn-link { color: var(--brand); }
     border-radius: 12px;
     transition: all 0.25s ease;
     font-size: 15px;
-    line-height: 18px;
 }
-
-/* HOVER — botão fica mais claro */
 .custom-navbar .top-link:hover {
     background: rgba(255, 255, 255, 0.18);
     box-shadow: 0 4px 10px rgba(0,0,0,0.25);
@@ -116,29 +131,94 @@ a, .btn-link { color: var(--brand); }
     color: #ffffff !important;
 }
 
-/* ÍCONES BRANCOS */
+/* Ícones */
 .custom-navbar .nav-link i {
     color: white !important;
     font-size: 20px;
     transition: .2s;
 }
-
-/* Hover do ícone */
 .custom-navbar .nav-link i:hover {
     transform: scale(1.15);
     opacity: 0.85;
 }
 
-/* Usuário (direita) */
+/* User menú */
 .custom-navbar .navbar-nav .nav-link {
     color: white !important;
 }
 
-#navbarNotifBadge {
-    display:none;
+/* ========================================================== */
+/* 🔔 NOTIFICAÇÕES (COMPATÍVEL COM NAVBAR SSE)                */
+/* ========================================================== */
+
+.notif-btn {
+    position: relative;
 }
 
-#navbarNotifList {
-    max-height:260px;
-    overflow-y:auto;
+/* Badge vermelha (criada via JS) */
+.notif-btn .notif-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: #dc3545;
+    color: #fff;
+    padding: 4px 7px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: bold;
+    box-shadow: 0 0 6px rgba(0,0,0,0.3);
+}
+
+/* Dropdown de notificações */
+.notif-header {
+    font-weight: 600;
+    font-size: 15px;
+}
+.notif-header .badge {
+    font-size: 12px;
+    padding: 4px 8px;
+}
+
+.notif-body {
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+/* Cada item */
+.notif-item {
+    display: flex;
+    padding: 10px 14px;
+    border-radius: 10px;
+    transition: background .2s;
+}
+.notif-item:hover {
+    background: rgba(25,135,84,.08);
+}
+
+/* Ícone do item */
+.notif-item .notif-icon i {
+    font-size: 20px;
+    color: var(--brand);
+}
+
+/* Título */
+.notif-title {
+    font-weight: 600;
+    font-size: 14px;
+}
+/* REMOVER FUNDO BRANCO DO BOTÃO DE NOTIFICAÇÃO */
+.custom-navbar .notif-btn {
+    background: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+}
+
+.custom-navbar .notif-btn:hover {
+    background: rgba(255,255,255,0.18) !important;
+    border-radius: 12px !important;
+}
+
+/* Ícone sempre branco (corrigir override do AdminLTE) */
+.custom-navbar .notif-btn i {
+    color: #ffffff !important;
 }

@@ -69,7 +69,6 @@ class PulseiraController extends Controller
         $model = new Pulseira();
         $triagem = new Triagem();
 
-        // Lista de pacientes para o dropdown
         $pacientes = \yii\helpers\ArrayHelper::map(
             UserProfile::find()->all(),
             'id',
@@ -80,9 +79,7 @@ class PulseiraController extends Controller
 
             if ($model->load(Yii::$app->request->post())) {
 
-                // ================================
-                // 1️⃣ Criar Pulseira (igual ao frontend)
-                // ================================
+                // Criar pulseira pendente
                 $model->codigo = strtoupper(substr(md5(uniqid()), 0, 8));
                 $model->prioridade = 'Pendente';
                 $model->tempoentrada = date('Y-m-d H:i:s');
@@ -90,14 +87,18 @@ class PulseiraController extends Controller
 
                 if ($model->save(false)) {
 
-                    // ================================
-                    // 2️⃣ Criar Triagem automática
-                    // ================================
+                    // 🔔 Notificação ao paciente
+                    Notificacao::enviar(
+                        $model->userprofile_id,
+                        "Pulseira atribuída",
+                        "Foi criada uma nova pulseira pendente para o paciente " . $model->userProfile->nome . ".",
+                        "Consulta"
+                    );
+
+                    // Criar triagem automática
                     $triagem->userprofile_id = $model->userprofile_id;
                     $triagem->pulseira_id = $model->id;
                     $triagem->datatriagem = date('Y-m-d H:i:s');
-
-                    // Campos clínicos vazios (como no frontend)
                     $triagem->motivoconsulta = '';
                     $triagem->queixaprincipal = '';
                     $triagem->descricaosintomas = '';
@@ -105,11 +106,10 @@ class PulseiraController extends Controller
                     $triagem->intensidadedor = 0;
                     $triagem->alergias = '';
                     $triagem->medicacao = '';
-
                     $triagem->save(false);
 
                     Yii::$app->session->setFlash('success', 'Pulseira pendente criada com triagem associada.');
-                        return $this->redirect(['index']);
+                    return $this->redirect(['index']);
                 }
 
                 Yii::$app->session->setFlash('error', 'Erro ao criar a pulseira.');
@@ -126,6 +126,7 @@ class PulseiraController extends Controller
 
 
 
+
     /**
      * ============================
      *   UPDATE
@@ -135,13 +136,40 @@ class PulseiraController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        $oldPriority = $model->prioridade; // guardar prioridade antiga
+
+        if ($model->load(Yii::$app->request->post()) && $model->save(false)) {
+
+            $newPriority = $model->prioridade;
+
+            // Notificação se a prioridade mudou
+            if ($newPriority !== $oldPriority) {
+
+                // Notificação normal
+                Notificacao::enviar(
+                    $model->userprofile_id,
+                    "Prioridade atualizada",
+                    "A pulseira foi atualizada para prioridade " . $newPriority . ".",
+                    "Geral"
+                );
+
+                // Notificação crítica
+                if (in_array($newPriority, ['Vermelho', 'Laranja'])) {
+                    Notificacao::enviar(
+                        $model->userprofile_id,
+                        "⚠ PRIORIDADE CRÍTICA: " . $newPriority,
+                        "O paciente encontra-se agora em prioridade " . $newPriority . ".",
+                        "Prioridade"
+                    );
+                }
+            }
+
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
-            return $this->render('update', [
-                'model' => $model,
-            ]);
+        return $this->render('update', [
+            'model' => $model,
+        ]);
     }
 
     /**

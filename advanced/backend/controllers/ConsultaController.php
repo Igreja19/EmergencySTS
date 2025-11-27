@@ -2,6 +2,7 @@
 
 namespace backend\controllers;
 
+use common\models\Notificacao;
 use Yii;
 use common\models\Consulta;
 use common\models\ConsultaSearch;
@@ -95,28 +96,28 @@ class ConsultaController extends Controller
             }
         );
 
-        if ($model->load(Yii::$app->request->post())) {
+        if ($model->save(false)) {
 
-            // Dados automáticos
-            $model->data_consulta = date('Y-m-d H:i:s');
-            $model->estado = Consulta::ESTADO_EM_CURSO;
-            $model->data_encerramento = null;
-
-            if ($model->save(false)) {
-
-                // Atualizar pulseira para "Em atendimento"
-                if ($model->triagem && $model->triagem->pulseira) {
-                    $pulseira = $model->triagem->pulseira;
-                    $pulseira->status = "Em atendimento";
-                    $pulseira->save(false);
-                }
-
-                Yii::$app->session->setFlash('success', 'Consulta criada com sucesso!');
-                return $this->redirect(['update', 'id' => $model->id]);
+            // Atualizar pulseira para "Em atendimento"
+            if ($model->triagem && $model->triagem->pulseira) {
+                $pulseira = $model->triagem->pulseira;
+                $pulseira->status = "Em atendimento";
+                $pulseira->save(false);
             }
 
-            Yii::$app->session->setFlash('error', 'Erro ao guardar consulta.');
+            // 🔥 Notificação — consulta criada
+            $userId = $model->triagem->userprofile_id;
+            Notificacao::enviar(
+                $userId,
+                "Consulta iniciada",
+                "A sua consulta foi iniciada.",
+                "Consulta"
+            );
+
+            Yii::$app->session->setFlash('success', 'Consulta criada com sucesso!');
+            return $this->redirect(['update', 'id' => $model->id]);
         }
+
 
         return $this->render('create', [
             'model' => $model,
@@ -176,16 +177,38 @@ class ConsultaController extends Controller
 
             if ($model->save(false)) {
 
+                $userId = $model->triagem->userprofile_id;  // paciente
+                $estado = $model->estado;
+
                 // Atualizar estado da pulseira
                 if ($model->triagem && $model->triagem->pulseira) {
                     $pulseira = $model->triagem->pulseira;
 
                     $pulseira->status =
-                        $model->estado === Consulta::ESTADO_ENCERRADA
+                        $estado === Consulta::ESTADO_ENCERRADA
                             ? "Atendido"
                             : "Em atendimento";
 
                     $pulseira->save(false);
+                }
+
+                // 🔥 Notificações baseadas no estado
+                if ($estado === Consulta::ESTADO_EM_CURSO) {
+                    Notificacao::enviar(
+                        $userId,
+                        "Consulta retomada",
+                        "A consulta foi retomada.",
+                        "Consulta"
+                    );
+                }
+
+                if ($estado === Consulta::ESTADO_ENCERRADA) {
+                    Notificacao::enviar(
+                        $userId,
+                        "Consulta encerrada",
+                        "A consulta foi encerrada.",
+                        "Consulta"
+                    );
                 }
 
                 Yii::$app->session->setFlash('success', 'Consulta atualizada com sucesso!');
@@ -224,9 +247,22 @@ class ConsultaController extends Controller
     public function actionEncerrar($id)
     {
         $model = $this->findModel($id);
-        $model->estado = 'Encerrada';
+
+        $model->estado = Consulta::ESTADO_ENCERRADA;
         $model->data_encerramento = date('Y-m-d H:i:s');
         $model->save(false);
+
+        // 🔔 Notificação ao paciente
+        if ($model->triagem) {
+            $userId = $model->triagem->userprofile_id;
+
+            Notificacao::enviar(
+                $userId,
+                "Consulta encerrada",
+                "A sua consulta foi encerrada.",
+                "Consulta"
+            );
+        }
 
         Yii::$app->session->setFlash('success', 'Consulta encerrada com sucesso!');
         return $this->redirect(['index']);

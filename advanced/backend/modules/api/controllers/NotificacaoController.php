@@ -2,17 +2,30 @@
 
 namespace backend\modules\api\controllers;
 
+use yii\filters\auth\HttpBasicAuth;
+use yii\filters\auth\QueryParamAuth;
 use yii\rest\Controller;
+use yii\web\NotFoundHttpException;
 use yii\web\Response;
 use common\models\Notificacao;
 use common\models\User;
+use Yii;
 
 class NotificacaoController extends Controller
 {
     public function behaviors()
     {
         $behaviors = parent::behaviors();
-        $behaviors['contentNegotiator']['formats']['application/json'] = Response::FORMAT_JSON;
+
+        // Resposta em JSON
+        $behaviors['contentNegotiator']['formats']['text/html'] = Response::FORMAT_JSON;
+
+        // Autenticação via auth_key
+        $behaviors['authenticator'] = [
+            'class' => QueryParamAuth::class,
+            'tokenParam' => 'auth_key',
+        ];
+
         return $behaviors;
     }
 
@@ -20,23 +33,23 @@ class NotificacaoController extends Controller
      * 🔹 Lista as notificações do utilizador autenticado
      * GET api/notificacao/list?auth_key=XXXX
      */
-    public function actionList($auth_key)
+    public function actionList()
     {
-        $user = User::findIdentityByAccessToken($auth_key);
+        $user = Yii::$app->user->identity;
 
-        if (!$user) {
+        if (!$user || !$user->userprofile) {
             return ['status' => 'error', 'message' => 'Token inválido'];
         }
 
         $notificacoes = Notificacao::find()
             ->where(['userprofile_id' => $user->userprofile->id])
             ->orderBy(['id' => SORT_DESC])
-            ->asArray()
             ->all();
 
         return [
             'status' => 'success',
-            'data' => $notificacoes
+            'total' => count($notificacoes),
+            'data'  => $notificacoes
         ];
     }
 
@@ -46,15 +59,24 @@ class NotificacaoController extends Controller
      */
     public function actionLer($id)
     {
-        $n = Notificacao::findOne($id);
+        $user = Yii::$app->user->identity;
 
-        if (!$n) {
-            return ['status' => 'error', 'message' => 'Notificação não encontrada'];
+        if (!$user || !$user->userprofile) {
+            return ['status' => 'error', 'message' => 'Token inválido'];
         }
 
-        $n->lida = 1;
-        $n->save(false);
+        $notificacao = Notificacao::findOne($id);
 
-        return ['status' => 'success', 'message' => 'Notificação marcada como lida'];
+        if (!$notificacao || $notificacao->userprofile_id != $user->userprofile->id) {
+            throw new NotFoundHttpException("Notificação não encontrada.");
+        }
+
+        $notificacao->lida = 1;
+        $notificacao->save(false);
+
+        return [
+            'status' => 'success',
+            'message' => 'Notificação marcada como lida'
+        ];
     }
 }
