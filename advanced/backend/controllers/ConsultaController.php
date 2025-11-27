@@ -80,13 +80,14 @@ class ConsultaController extends Controller
     {
         $model = new Consulta();
 
+        // 🔹 Triagens disponíveis (somente pulseiras em espera e já coloridas)
         $triagensDisponiveis = ArrayHelper::map(
             Triagem::find()
                 ->joinWith('pulseira')
                 ->where(['not', ['pulseira.prioridade' => 'Pendente']])
                 ->andWhere(['not', ['pulseira.prioridade' => null]])
                 ->andWhere(['pulseira.status' => 'Em espera'])
-                ->groupBy('pulseira.id') // <-- Para evitar repetidos
+                ->groupBy('pulseira.id') // evita duplicados
                 ->all(),
             'id',
             function($t) {
@@ -96,28 +97,36 @@ class ConsultaController extends Controller
             }
         );
 
-        if ($model->save(false)) {
+        // ⬇️ SUPER IMPORTANTE — carregar o POST!
+        if ($model->load(Yii::$app->request->post())) {
 
-            // Atualizar pulseira para "Em atendimento"
-            if ($model->triagem && $model->triagem->pulseira) {
-                $pulseira = $model->triagem->pulseira;
-                $pulseira->status = "Em atendimento";
-                $pulseira->save(false);
+            // valores automáticos
+            $model->data_consulta = date('Y-m-d H:i:s');
+            $model->estado = Consulta::ESTADO_EM_CURSO;
+            $model->data_encerramento = null;
+
+            if ($model->save(false)) {
+
+                // Atualizar pulseira
+                if ($model->triagem && $model->triagem->pulseira) {
+                    $pulseira = $model->triagem->pulseira;
+                    $pulseira->status = "Em atendimento";
+                    $pulseira->save(false);
+                }
+
+                // Notificação para o paciente
+                $userId = $model->triagem->userprofile_id;
+                Notificacao::enviar(
+                    $userId,
+                    "Consulta iniciada",
+                    "A sua consulta foi iniciada.",
+                    "Consulta"
+                );
+
+                Yii::$app->session->setFlash('success', 'Consulta criada com sucesso!');
+                return $this->redirect(['update', 'id' => $model->id]);
             }
-
-            // 🔥 Notificação — consulta criada
-            $userId = $model->triagem->userprofile_id;
-            Notificacao::enviar(
-                $userId,
-                "Consulta iniciada",
-                "A sua consulta foi iniciada.",
-                "Consulta"
-            );
-
-            Yii::$app->session->setFlash('success', 'Consulta criada com sucesso!');
-            return $this->redirect(['update', 'id' => $model->id]);
         }
-
 
         return $this->render('create', [
             'model' => $model,
@@ -132,16 +141,20 @@ class ConsultaController extends Controller
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
-        $triagem = Triagem::findOne($id);
+        $triagem = Triagem::find()
+            ->where(['triagem.id' => $id])
+            ->joinWith(['userprofile', 'pulseira']) // garante carregamento
+            ->one();
 
-        if ($triagem) {
-            return [
-                'userprofile_id' => $triagem->userprofile_id,
-                'user_nome'      => $triagem->userprofile->nome ?? '',
-            ];
+        if (!$triagem) {
+            return ['error' => 'Triagem não encontrada'];
         }
 
-        return [];
+        return [
+            'userprofile_id' => $triagem->userprofile_id ?? $triagem->pulseira->userprofile_id ?? null,
+            'user_nome'      => $triagem->userprofile->nome
+                ?? $triagem->pulseira->userprofile->nome ?? '—',
+        ];
     }
 
     /**

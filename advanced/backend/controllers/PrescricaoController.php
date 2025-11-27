@@ -95,9 +95,18 @@ class PrescricaoController extends Controller
     /**
      * Cria uma nova prescrição
      */
-    public function actionCreate()
+    public function actionCreate($consulta_id = null)
     {
         $model = new Prescricao();
+
+
+        // Recebe consulta_id da URL (se existir)
+        $consultaId = Yii::$app->request->get('consulta_id');
+
+        // Preenche o campo automaticamente
+        if ($consultaId) {
+            $model->consulta_id = $consultaId;
+        }
 
         $consultas = Consulta::find()
             ->where(['estado' => Consulta::ESTADO_EM_CURSO])

@@ -1,5 +1,9 @@
-// AJAX para preencher nome do paciente
-$('#triagem-select').on('change', function() {
+// JS carregado
+console.log("JS DA CONSULTA CARREGADO!");
+
+// AJAX: quando o utilizador seleciona uma triagem
+$('#triagem-select').on('change', function () {
+
     let triagemId = $(this).val();
 
     if (!triagemId) {
@@ -8,14 +12,21 @@ $('#triagem-select').on('change', function() {
         return;
     }
 
-    $.get('$triagemInfoUrl', {id: triagemId}, function(data) {
-        $('#userprofile-id').val(data.userprofile_id || '');
-        $('#userprofile-nome').val(data.user_nome || '');
-    });
+    $.get(triagemInfoUrl, { id: triagemId })
+        .done(function (data) {
+            console.log("Resposta AJAX:", data);
+
+            $('#userprofile-id').val(data.userprofile_id || '');
+            $('#userprofile-nome').val(data.user_nome || '');
+        })
+        .fail(function (err) {
+            console.error("ERRO AJAX:", err);
+        });
 });
 
+
 // Mostrar/esconder campo de encerramento
-$('#estado-select').on('change', function() {
+$('#estado-select').on('change', function () {
     if ($(this).val() === 'Encerrada') {
         $('#campo-encerramento').slideDown();
     } else {
