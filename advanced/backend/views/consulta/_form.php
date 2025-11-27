@@ -2,6 +2,7 @@
 use yii\helpers\Html;
 use yii\bootstrap5\ActiveForm;
 use yii\helpers\Url;
+use yii\web\View;
 
 /** @var yii\web\View $this */
 /** @var common\models\Consulta $model */
@@ -143,8 +144,13 @@ $isNew = $model->isNewRecord;
     <?php ActiveForm::end(); ?>
 </div>
 
+
 <?php
-$triagemInfoUrl = Url::to(['consulta/triagem-info']);
+$triagemInfoUrl = Url::to(['consulta/triagem-info'], true);
+$this->registerJs("var triagemInfoUrl = '$triagemInfoUrl';", View::POS_HEAD);
+?>
+
+<?php
 $this->registerJsFile(Yii::$app->request->baseUrl . '/js/consulta/_form.js', ['depends' => [\yii\web\JqueryAsset::class]]);
 ?>
 

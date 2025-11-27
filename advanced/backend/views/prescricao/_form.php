@@ -36,12 +36,16 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/prescricao/_form.css'
 
         <div class="mb-3">
             <?= $form->field($model, 'consulta_id')->dropDownList(
-                    $consultas,                                // ✔ agora correto
+                    $consultas,
                     [
                             'class' => 'form-select shadow-sm',
-                            'prompt' => 'Selecione uma consulta...'
+                            'prompt' => 'Selecione uma consulta...',
+                            'disabled' => $model->consulta_id ? true : false
                     ]
             ) ?>
+
+            <!-- Campo hidden para manter o valor no POST -->
+            <?= Html::hiddenInput('Prescricao[consulta_id]', $model->consulta_id) ?>
         </div>
 
     </div>
