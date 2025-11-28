@@ -36,6 +36,7 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/consulta/index.css');
                         [
                                 'attribute' => 'id',
                                 'label' => 'ID',
+                                'enableSorting' => false,
                                 'headerOptions' => ['style' => 'width:80px;'],
                         ],
                         [
@@ -61,6 +62,7 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/consulta/index.css');
                         [
                                 'attribute' => 'data_consulta',
                                 'label' => 'Data da Consulta',
+                                'enableSorting' => false,
                                 'format' => ['datetime', 'php:d/m/Y H:i'],
                                 'headerOptions' => ['style' => 'min-width:160px; text-align:center;'],
                                 'contentOptions' => ['style' => 'text-align:center;'],

@@ -47,7 +47,7 @@ $assetDir = Yii::$app->assetManager->getPublishedUrl('@vendor/almasaeed2010/admi
 
 <body class="hold-transition sidebar-mini layout-fixed">
 
-<audio id="notifSound" src="/platf/EmergencySTS/advanced/backend/web/sounds/notificacao.mp3" preload="auto"></audio>
+<audio id="notifSound" src="/pws/EmergencySTS/advanced/backend/web/sounds/notificacao.mp3" preload="auto"></audio>
 
 <?php
 $auth = Yii::$app->authManager;

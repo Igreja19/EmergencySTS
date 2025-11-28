@@ -225,7 +225,7 @@ class PrescricaoController extends Controller
                 }
 
                 Yii::$app->session->setFlash('success', 'Prescrição atualizada com sucesso!');
-                
+
                 return $this->redirect([
                     'consulta/view',
                     'id' => $model->consulta_id

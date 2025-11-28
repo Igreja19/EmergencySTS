@@ -132,18 +132,24 @@ $this->params['breadcrumbs'][] = $this->title;
         <?php else: ?>
 
             <?php foreach ($model->prescricaos as $p): ?>
-                <div class="border rounded p-3 mb-2 d-flex justify-content-between">
-                    <div>
-                        <strong>Prescrição #<?= $p->id ?></strong><br>
-                        <?= $p->tipo ?? 'Sem tipo' ?>
+                <div class="d-flex justify-content-between align-items-center border rounded-3 p-3 mb-3 shadow-sm">
+
+                    <div class="fw-semibold">
+                        <i class="bi bi-capsule-pill text-success me-1"></i>
+                        Prescrição #<?= $p->id ?>
                     </div>
 
-                    <?= Html::a('Ver', ['prescricao/view', 'id' => $p->id],
-                            ['class' => 'btn btn-outline-success btn-sm']) ?>
+                    <?= Html::a(
+                            '<i class="bi bi-eye-fill me-1"></i> Ver Prescrição',
+                            ['prescricao/view', 'id' => $p->id],
+                            ['class' => 'btn btn-success px-4 rounded-3 fw-semibold']
+                    ) ?>
+
                 </div>
             <?php endforeach; ?>
 
         <?php endif; ?>
+
     </div>
 
 </div>

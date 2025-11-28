@@ -3,6 +3,7 @@
 namespace backend\controllers;
 
 use common\models\Notificacao;
+use common\models\Prescricaomedicamento;
 use common\models\UserProfile;
 use Yii;
 use common\models\Consulta;
@@ -239,7 +240,7 @@ class ConsultaController extends Controller
 
     public function actionHistorico()
     {
-        // IDs dos médicos via RBAC
+        //  IDs dos médicos via RBAC
         $medicoAssignments = Yii::$app->authManager->getUserIdsByRole('medico');
 
         // Perfis dos médicos
@@ -271,6 +272,12 @@ class ConsultaController extends Controller
         $model->data_encerramento = date('Y-m-d H:i:s');
         $model->save(false);
 
+        if ($model->triagem && $model->triagem->pulseira) {
+            $pulseira = $model->triagem->pulseira;
+            $pulseira->status = 'Atendido';
+            $pulseira->save(false);
+        }
+
         // 🔔 Notificação ao paciente
         if ($model->triagem) {
             $userId = $model->triagem->userprofile_id;
@@ -291,31 +298,33 @@ class ConsultaController extends Controller
     {
         $consulta = $this->findModel($id);
 
-        // 1️⃣ Apagar prescrições associadas à consulta
-        foreach ($consulta->prescricoes as $p) {
-            $p->delete();
-        }
-
-        // Guardar referência à triagem antes de apagar a consulta
         $triagem = $consulta->triagem;
         $pulseira = $triagem->pulseira ?? null;
 
-        // 2️⃣ Agora SIM: apagar a consulta primeiro (porque depende da triagem)
+        foreach ($consulta->prescricoes as $prescricao) {
+
+            Prescricaomedicamento::deleteAll([
+                'prescricao_id' => $prescricao->id
+            ]);
+
+            $prescricao->delete();
+        }
+
         $consulta->delete();
 
-        // 3️⃣ Depois apagar a triagem (já não há FK a bloquear)
         if ($triagem) {
             $triagem->delete();
         }
 
-        // 4️⃣ Por fim apagar a pulseira
         if ($pulseira) {
             $pulseira->delete();
         }
 
-        Yii::$app->session->setFlash('success', 'Consulta, triagem e pulseira eliminadas com sucesso.');
-        return $this->redirect(['index']);
+        Yii::$app->session->setFlash('success', 'Consulta, triagem, prescrição e pulseira eliminadas com sucesso.');
+        return $this->redirect(['historico']);
     }
+
+
 
 
 
