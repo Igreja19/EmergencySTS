@@ -55,10 +55,14 @@ class PulseiraController extends ActiveController
         $request = Yii::$app->request;
 
         if ($user->can('enfermeiro') || $user->can('medico') || $user->can('admin')) {
-            // Use o namespace completo para garantir que não há erro de importação
+            
             $query = \common\models\Pulseira::find();
             if ($status = $request->get('status')) {
-                $query->where(['status' => $status]);
+                $query->andWhere(['status' => $status]); 
+            }
+
+            if ($prioridade = $request->get('prioridade')) {
+                $query->andWhere(['prioridade' => $prioridade]);
             }
             $pulseiras = $query->orderBy(['tempoentrada' => SORT_ASC])->all();
         } else {
