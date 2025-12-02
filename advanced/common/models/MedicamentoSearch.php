@@ -20,8 +20,6 @@ class MedicamentoSearch extends Medicamento
                     'nome',
                     'dosagem',
                     'indicacao',
-                    'quantidade_diaria',
-                    'duracao_tratamento'
                 ],
                 'safe'
             ],
@@ -64,9 +62,7 @@ class MedicamentoSearch extends Medicamento
 
         $query->andFilterWhere(['like', 'nome', $this->nome])
             ->andFilterWhere(['like', 'dosagem', $this->dosagem])
-            ->andFilterWhere(['like', 'indicacao', $this->indicacao])
-            ->andFilterWhere(['like', 'quantidade_diaria', $this->quantidade_diaria])
-            ->andFilterWhere(['like', 'duracao_tratamento', $this->duracao_tratamento]);
+            ->andFilterWhere(['like', 'indicacao', $this->indicacao]);
 
         return $dataProvider;
     }

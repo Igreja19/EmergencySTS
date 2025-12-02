@@ -72,7 +72,20 @@ $this->params['breadcrumbs'][] = $this->title;
         </table>
     </div>
 
-    <div class="text-center">
-        <?= Html::a('<i class="bi bi-arrow-left-circle me-1"></i> Voltar', ['index'], ['class' => 'btn btn-back']) ?>
+    <div class="d-flex justify-content-center gap-3 mt-4 butoes">
+
+        <?= Html::a(
+                '<i class="bi bi-arrow-left-circle me-1"></i> Voltar',
+                ['index'],
+                ['class' => 'btn btn-voltar']
+        ) ?>
+
+        <?= Html::a(
+                '<i class="bi bi-pencil-square me-1"></i> Editar',
+                ['update', 'id' => $model->id],
+                ['class' => 'btn btn-editar']
+        ) ?>
+
     </div>
+
 </div>

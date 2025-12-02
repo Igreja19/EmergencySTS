@@ -5,6 +5,7 @@ namespace backend\controllers;
 use Yii;
 use common\models\Medicamento;
 use common\models\MedicamentoSearch;
+use yii\filters\VerbFilter;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 
@@ -28,7 +29,7 @@ class MedicamentoController extends Controller
                             'actions' => ['error', 'login'],
                         ],
 
-                        // 👉 permitir apenas ADMIN, MÉDICO e ENFERMEIRO
+                        // 👉 permitir o ADMIN, MÉDICO e ENFERMEIRO
                         [
                             'allow' => true,
                             'roles' => ['admin', 'medico', 'enfermeiro'],
@@ -41,7 +42,7 @@ class MedicamentoController extends Controller
 
                 // 🔧 VerbFilter já existia, continua igual
                 'verbs' => [
-                    'class' => \yii\filters\VerbFilter::class,
+                    'class' => VerbFilter::class,
                     'actions' => [
                         'delete' => ['POST'],
                         'chart-data' => ['GET'],

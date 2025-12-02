@@ -1,3 +1,36 @@
+/*   BOTÃO VOLTAR (AZUL)  */
+.btn-voltar {
+    background: linear-gradient(90deg, #0d6efd 0%, #3b8bff 100%);
+    color: #fff !important;
+    font-weight: 600;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3);
+    transition: 0.2s;
+}
+.btn-voltar:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+    color: #fff !important;
+}
+
+/*   BOTÃO EDITAR AMARELO */
+.btn-editar {
+    background: linear-gradient(90deg, #ffc107 0%, #ffcd39 100%);
+    color: #000 !important;
+    font-weight: 600;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(255, 193, 7, 0.3);
+    transition: 0.2s;
+}
+.btn-editar:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+    color: #000 !important;
+}
+.butoes {
+    padding: 15px;
+}
+
 .triagem-view {
     max-width: 1000px;
     margin: 0 auto;
@@ -33,18 +66,6 @@
     vertical-align: middle;
     padding: 10px 14px;
     border-bottom: 1px solid #e9ecef;
-}
-.btn-back {
-    background: #198754;
-    color: #fff;
-    border-radius: 10px;
-    padding: 10px 20px;
-    font-weight: 600;
-    transition: .2s;
-}
-.btn-back:hover {
-    opacity: .9;
-    transform: translateY(-2px);
 }
 .badge-prio {
     padding: 6px 10px;

@@ -20,7 +20,11 @@ $this->params['breadcrumbs'][] = 'Editar';
             'model' => $model,
     ]) ?>
 
-    <div class="text-center mt-3">
-        <?= Html::a('<i class="bi bi-arrow-left-circle me-1"></i> Voltar', ['index'], ['class' => 'btn btn-back']) ?>
+    <div class="text-center mt-3 butao">
+        <?= Html::a(
+                '<i class="bi bi-arrow-left-circle me-1"></i> Voltar',
+                ['index'],
+                ['class' => 'btn btn-voltar']
+        ) ?>
     </div>
 </div>

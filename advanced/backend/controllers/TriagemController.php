@@ -3,6 +3,7 @@
 namespace backend\controllers;
 
 use common\models\Notificacao;
+use common\models\Prescricaomedicamento;
 use common\models\Pulseira;
 use common\models\Triagem;
 use common\models\TriagemSearch;
@@ -254,35 +255,39 @@ class TriagemController extends Controller
     {
         $triagem = $this->findModel($id);
 
-        // CONSULTAS associadas
         $consultas = \common\models\Consulta::find()
             ->where(['triagem_id' => $triagem->id])
             ->all();
 
         foreach ($consultas as $consulta) {
 
-            // PRESCRIÇÕES associadas
-            foreach ($consulta->prescricoes as $p) {
-                $p->delete();
+            foreach ($consulta->prescricoes as $prescricao) {
+
+                Prescricaomedicamento::deleteAll([
+                    'prescricao_id' => $prescricao->id
+                ]);
+
+                $prescricao->delete();
             }
 
             $consulta->delete();
         }
 
-        // Pulseira associada
-        if ($triagem->pulseira) {
-            $triagem->pulseira->delete();
-        }
+        $pulseira = $triagem->pulseira;
 
-        // Apagar triagem
         $triagem->delete();
 
+        if ($pulseira) {
+            $pulseira->delete();
+        }
+
         Yii::$app->session->setFlash('success',
-            'Triagem e todos os registos associados foram eliminados.'
+            'Triagem, consultas, prescrições e pulseira eliminadas com sucesso.'
         );
 
         return $this->redirect(['index']);
     }
+
     /**
      * Procurar Triagem
      */

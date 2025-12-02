@@ -44,9 +44,13 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/medicamento/index.css
                         'class' => 'btn btn-success w-100'
                 ]) ?>
 
-                <?= Html::a('<i class="bi bi-x-circle"></i> Limpar', ['index'], [
-                        'class' => 'btn btn-outline-secondary w-100'
-                ]) ?>
+                <?= Html::a(
+                        '<i class="bi bi-x-circle"></i> Limpar',
+                        ['index'],
+                        [
+                                'class' => 'btn btn-outline-secondary w-100 d-flex limpar-btn'
+                        ]
+                ) ?>
             </div>
 
         </div>

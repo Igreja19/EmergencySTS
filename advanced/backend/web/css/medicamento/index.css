@@ -52,6 +52,14 @@
     transform: scale(1.12);
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
+.limpar-btn {
+    height: 48px !important;
+    font-size: 16px;
+    align-items: center;
+    justify-content: center;
+    padding: 0 !important;
+    gap: 6px;
+}
 
 /* cores */
 .btn-view { background:#0d6efd; color:#fff; }

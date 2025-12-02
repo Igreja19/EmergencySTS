@@ -76,41 +76,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/pulseira/view.css');
                         ],
                 ],
         ]) ?>
-
-        <!-- ================================
-             DADOS COMPLETOS DA TRIAGEM
-        ================================= -->
-        <?php if ($model->triagem): ?>
-            <hr class="my-4">
-
-            <h4 class="triagem-title">
-                <i class="bi bi-clipboard-pulse"></i>
-                Dados da Triagem
-            </h4>
-
-            <?= DetailView::widget([
-                    'model' => $model->triagem,
-                    'attributes' => [
-                            'id',
-                            [
-                                    'attribute' => 'datatriagem',
-                                    'label' => 'Data da Triagem',
-                                    'format' => ['datetime', 'php:d/m/Y H:i']
-                            ],
-                            'motivoconsulta',
-                            'queixaprincipal',
-                            'descricaosintomas:ntext',
-                            'iniciosintomas',
-                            'alergias:ntext',
-                            'medicacao:ntext',
-                            [
-                                    'label' => 'Paciente',
-                                    'value' => $model->triagem->userprofile->nome ?? '—'
-                            ],
-                    ],
-            ]) ?>
-        <?php endif; ?>
-
         <div class="mt-4 text-center">
             <?= Html::a('<i class="bi bi-pencil-square me-1"></i> Editar', ['update', 'id' => $model->id], ['class' => 'btn btn-warning text-white me-2']) ?>
             <?= Html::a('<i class="bi bi-trash me-1"></i> Eliminar', ['delete', 'id' => $model->id], [
