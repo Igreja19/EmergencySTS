@@ -62,6 +62,8 @@ $pacientes = UserProfile::find()
                         'Em espera'        => '⏳ A aguardar Atendimento',
                         'Em atendimento'   => '🩺 Em Atendimento',
                         'Atendido'         => '✅ Atendido',
+                ], [
+                        'disabled' => true,
                 ])->label('Estado') ?>
             </div>
 

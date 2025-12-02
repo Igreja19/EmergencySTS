@@ -25,6 +25,7 @@ class Medicamento extends ActiveRecord
     {
         return [
             [['nome', 'dosagem'], 'required'],
+            [['indicacao'], 'string'],
             [['nome', 'dosagem'], 'string', 'max' => 255],
         ];
     }
@@ -35,6 +36,7 @@ class Medicamento extends ActiveRecord
             'id' => 'ID',
             'nome' => 'Nome do Medicamento',
             'dosagem' => 'Dosagem',
+            'indicacao' => 'Indicacao',
         ];
     }
 

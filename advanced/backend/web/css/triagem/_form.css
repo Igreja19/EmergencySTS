@@ -35,7 +35,7 @@
 /* Botões principais */
 .btn-save {
     background: linear-gradient(90deg, #198754 0%, #28a745 100%);
-    color: #fff;
+    color: #fff !important;
     font-weight: 600;
     border-radius: 12px;
     padding: 10px 25px;

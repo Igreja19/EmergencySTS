@@ -23,15 +23,20 @@
     align-items: center;
     gap: 6px;
 }
-.btn-back {
-    background: #198754;
-    color: #fff;
-    border-radius: 10px;
-    padding: 10px 20px;
+/*   BOTÃO VOLTAR (AZUL)  */
+.btn-voltar {
+    background: linear-gradient(90deg, #0d6efd 0%, #3b8bff 100%);
+    color: #fff !important;
     font-weight: 600;
-    transition: .2s;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3);
+    transition: 0.2s;
 }
-.btn-back:hover {
-    opacity: .9;
+.btn-voltar:hover {
+    opacity: 0.9;
     transform: translateY(-2px);
+    color: #fff !important;
+}
+.butao {
+    padding: 15px;
 }

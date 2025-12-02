@@ -56,8 +56,8 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/medicamento/_form.css
     <!-- BOTÕES -->
     <div class="mt-3 d-flex justify-content-end gap-2">
         <?= Html::submitButton(
-                '<i class="bi bi-save2 me-1"></i> Guardar',
-                ['class' => 'btn btn-save']
+                '<i class="bi bi-check-circle me-1"></i> Guardar',
+                ['class' => 'btn btn-success px-4 py-2']
         ) ?>
 
         <?= Html::a(
