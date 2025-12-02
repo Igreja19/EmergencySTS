@@ -2,6 +2,7 @@
 
 namespace backend\controllers;
 
+use common\models\Notificacao;
 use Yii;
 use common\models\Prescricao;
 use common\models\PrescricaoSearch;
@@ -94,12 +95,21 @@ class PrescricaoController extends Controller
     /**
      * Cria uma nova prescrição
      */
-    public function actionCreate()
+    public function actionCreate($consulta_id = null)
     {
         $model = new Prescricao();
 
+
+        // Recebe consulta_id da URL (se existir)
+        $consultaId = Yii::$app->request->get('consulta_id');
+
+        // Preenche o campo automaticamente
+        if ($consultaId) {
+            $model->consulta_id = $consultaId;
+        }
+
         $consultas = Consulta::find()
-            ->where(['estado' => Consulta::ESTADO_EM_CURSO]) // apenas consultas ativas
+            ->where(['estado' => Consulta::ESTADO_EM_CURSO])
             ->select(['id'])
             ->orderBy(['id' => SORT_DESC])
             ->indexBy('id')
@@ -107,15 +117,11 @@ class PrescricaoController extends Controller
 
         $medicamentosDropdown = Medicamento::find()->select(['nome'])->indexBy('id')->column();
 
-        // Array inicial vazio
         $prescricaoMedicamentos = [new Prescricaomedicamento];
 
         if ($model->load(Yii::$app->request->post())) {
 
-            $prescricaoMedicamentos = ModelHelper::createMultiple(
-                Prescricaomedicamento::class
-            );
-
+            $prescricaoMedicamentos = ModelHelper::createMultiple(Prescricaomedicamento::class);
             ModelHelper::loadMultiple($prescricaoMedicamentos, Yii::$app->request->post());
 
             if ($model->save(false)) {
@@ -125,8 +131,26 @@ class PrescricaoController extends Controller
                     $pm->save(false);
                 }
 
+                // 🔥 NOTIFICAÇÃO AO PACIENTE
+                if ($model->consulta && $model->consulta->triagem) {
+
+                    $userId = $model->consulta->triagem->userprofile_id;
+                    $nomePaciente = $model->consulta->triagem->userprofile->nome;
+
+                    Notificacao::enviar(
+                        $userId,
+                        "Nova prescrição",
+                        "Foi emitida uma nova prescrição para o paciente {$nomePaciente}.",
+                        "Consulta"
+                    );
+                }
+
                 Yii::$app->session->setFlash('success', 'Prescrição criada com sucesso!');
-                return $this->redirect(['view', 'id' => $model->id]);
+
+                return $this->redirect([
+                    'consulta/view',
+                    'id' => $model->consulta_id
+                ]);
             }
         }
 
@@ -140,6 +164,7 @@ class PrescricaoController extends Controller
 
 
 
+
     /**
      * Atualiza uma prescrição existente
      */
@@ -148,7 +173,7 @@ class PrescricaoController extends Controller
         $model = $this->findModel($id);
 
         $consultas = Consulta::find()
-            ->where(['estado' => Consulta::ESTADO_EM_CURSO]) // apenas consultas ativas
+            ->where(['estado' => Consulta::ESTADO_EM_CURSO])
             ->select(['id'])
             ->orderBy(['id' => SORT_DESC])
             ->indexBy('id')
@@ -172,20 +197,39 @@ class PrescricaoController extends Controller
             ModelHelper::loadMultiple($prescricaoMedicamentos, Yii::$app->request->post());
 
             $newIDs = array_filter(array_column($prescricaoMedicamentos, 'id'));
-
             $deletedIDs = array_diff($oldIDs, $newIDs);
+
             if (!empty($deletedIDs)) {
                 Prescricaomedicamento::deleteAll(['id' => $deletedIDs]);
             }
 
-            if ($model->save()) {
+            if ($model->save(false)) {
+
                 foreach ($prescricaoMedicamentos as $pm) {
                     $pm->prescricao_id = $model->id;
                     $pm->save(false);
                 }
 
+                // 🔥 NOTIFICAÇÃO DE ATUALIZAÇÃO
+                if ($model->consulta && $model->consulta->triagem) {
+
+                    $userId = $model->consulta->triagem->userprofile_id;
+                    $nomePaciente = $model->consulta->triagem->userprofile->nome;
+
+                    Notificacao::enviar(
+                        $userId,
+                        "Prescrição atualizada",
+                        "A prescrição do paciente {$nomePaciente} foi atualizada.",
+                        "Consulta"
+                    );
+                }
+
                 Yii::$app->session->setFlash('success', 'Prescrição atualizada com sucesso!');
-                return $this->redirect(['view', 'id' => $model->id]);
+
+                return $this->redirect([
+                    'consulta/view',
+                    'id' => $model->consulta_id
+                ]);
             }
         }
 
@@ -196,6 +240,7 @@ class PrescricaoController extends Controller
             'prescricaoMedicamentos' => $prescricaoMedicamentos,
         ]);
     }
+
 
     /**
      * Apaga uma prescrição

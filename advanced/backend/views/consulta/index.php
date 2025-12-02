@@ -36,6 +36,7 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/consulta/index.css');
                         [
                                 'attribute' => 'id',
                                 'label' => 'ID',
+                                'enableSorting' => false,
                                 'headerOptions' => ['style' => 'width:80px;'],
                         ],
                         [
@@ -61,6 +62,7 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/consulta/index.css');
                         [
                                 'attribute' => 'data_consulta',
                                 'label' => 'Data da Consulta',
+                                'enableSorting' => false,
                                 'format' => ['datetime', 'php:d/m/Y H:i'],
                                 'headerOptions' => ['style' => 'min-width:160px; text-align:center;'],
                                 'contentOptions' => ['style' => 'text-align:center;'],
@@ -88,7 +90,7 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/consulta/index.css');
                         [
                                 'class' => 'yii\grid\ActionColumn',
                                 'header' => 'Ações',
-                                'template' => '{view} {update} {delete}',
+                                'template' => '{view} {update}',
                                 'contentOptions' => ['style' => 'white-space:nowrap; text-align:center; vertical-align:middle;'],
                                 'buttons' => [
                                         'view' => fn($url) => Html::a('<i class="bi bi-eye"></i>', $url, [
@@ -96,11 +98,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/consulta/index.css');
                                         ]),
                                         'update' => fn($url) => Html::a('<i class="bi bi-pencil"></i>', $url, [
                                                 'class' => 'btn-action btn-edit', 'title' => 'Editar'
-                                        ]),
-                                        'delete' => fn($url) => Html::a('<i class="bi bi-trash"></i>', $url, [
-                                                'class' => 'btn-action btn-delete', 'title' => 'Eliminar',
-                                                'data-confirm' => 'Tens a certeza que queres eliminar esta consulta?',
-                                                'data-method' => 'post',
                                         ]),
                                 ],
                         ],

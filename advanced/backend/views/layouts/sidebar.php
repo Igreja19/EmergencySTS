@@ -54,6 +54,14 @@ $isEnfermeiro = in_array('enfermeiro', $roleNames);
                                     'options' => ['class' => 'is-users'],
                                     'visible' => $isAdmin,
                             ],
+                        // PULSEIRAS
+                            [
+                                    'label' => 'Pulseiras',
+                                    'icon' => 'id-card',
+                                    'url' => ['/pulseira/index'],
+                                    'options' => ['class' => 'is-pulseira'],
+                                    'visible' => $isAdmin || $isEnfermeiro,
+                            ],
 
                         // TRIAGEM
                             [
@@ -64,16 +72,7 @@ $isEnfermeiro = in_array('enfermeiro', $roleNames);
                                     'visible' => $isAdmin || $isEnfermeiro,
                             ],
 
-                        // PULSEIRAS
-                            [
-                                    'label' => 'Pulseiras',
-                                    'icon' => 'id-card',
-                                    'url' => ['/pulseira/index'],
-                                    'options' => ['class' => 'is-pulseira'],
-                                    'visible' => $isAdmin || $isEnfermeiro,
-                            ],
-
-                        // CONSULTAS ( agora com submenu )
+                        // CONSULTAS (agora com submenu)
                             [
                                     'label' => 'Consultas',
                                     'icon' => 'notes-medical',

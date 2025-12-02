@@ -160,22 +160,20 @@ class TriagemController extends Controller
                     // =====================================================
                     // 🔔 NOTIFICAÇÕES AUTOMÁTICAS
                     // =====================================================
-                    $userId = $model->userprofile_id;
-
-                    // 1️⃣ Notificação geral
                     Notificacao::enviar(
-                        $userId,
+                        $model->userprofile_id,
                         "Triagem registada",
                         "Foi registada uma nova triagem para o paciente " . $model->userprofile->nome . ".",
                         "Consulta"
                     );
 
-                    // 2️⃣ Notificação crítica
-                    if ($model->prioridade_pulseira === "Vermelho" || $model->prioridade_pulseira === "Laranja") {
+                    // 6️⃣ NOTIFICAÇÃO CRÍTICA — usar prioridade REAL
+                    if (!empty($pulseira) && in_array($pulseira->prioridade, ['Vermelho','Laranja'])) {
+
                         Notificacao::enviar(
-                            $userId,
-                            "Prioridade " . $model->prioridade_pulseira,
-                            "O paciente " . $model->userprofile->nome . " encontra-se em prioridade " . $model->prioridade_pulseira . ".",
+                            $model->userprofile_id,
+                            "Prioridade " . $pulseira->prioridade,
+                            "O paciente " . $model->userprofile->nome . " encontra-se em prioridade " . $pulseira->prioridade . ".",
                             "Prioridade"
                         );
                     }
@@ -254,11 +252,37 @@ class TriagemController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        $triagem = $this->findModel($id);
+
+        // CONSULTAS associadas
+        $consultas = \common\models\Consulta::find()
+            ->where(['triagem_id' => $triagem->id])
+            ->all();
+
+        foreach ($consultas as $consulta) {
+
+            // PRESCRIÇÕES associadas
+            foreach ($consulta->prescricoes as $p) {
+                $p->delete();
+            }
+
+            $consulta->delete();
+        }
+
+        // Pulseira associada
+        if ($triagem->pulseira) {
+            $triagem->pulseira->delete();
+        }
+
+        // Apagar triagem
+        $triagem->delete();
+
+        Yii::$app->session->setFlash('success',
+            'Triagem e todos os registos associados foram eliminados.'
+        );
 
         return $this->redirect(['index']);
     }
-
     /**
      * Procurar Triagem
      */

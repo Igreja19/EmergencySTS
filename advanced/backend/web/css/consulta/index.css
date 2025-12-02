@@ -50,20 +50,16 @@
 
 /* Links no cabeçalho */
 .table-modern th a {
-    color: #fff !important;
     text-decoration: none;
     font-weight: 600;
 }
 
 /* 🔹 Texto preto nas células */
-.table-modern td,
-.table-modern th {
-    color: #212529 !important;
-}
-
+/* Células normais: texto preto */
 .table-modern td {
     text-align: center;
     vertical-align: middle;
+    color: #212529 !important;
 }
 
 /* Badges de prioridade */
