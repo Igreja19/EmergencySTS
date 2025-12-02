@@ -8,10 +8,8 @@ use yii\web\Response;
 use yii\web\NotFoundHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\filters\auth\QueryParamAuth;
-use yii\filters\auth\HttpBearerAuth;
-use yii\filters\auth\CompositeAuth; 
+use yii\data\ActiveDataProvider;
 use common\models\Pulseira;
-use common\models\Triagem;
 use common\models\UserProfile;
 
 class PulseiraController extends ActiveController
@@ -19,132 +17,103 @@ class PulseiraController extends ActiveController
     public $modelClass = 'common\models\Pulseira';
     public $enableCsrfValidation = false;
 
+    // 🔹 CONFIGURAÇÃO DO SERIALIZER (IMPORTANTE!)
+    // Isto obriga a API a devolver { "data": [...] } em vez de [...]
+    public $serializer = [
+        'class' => 'yii\rest\Serializer',
+        'collectionEnvelope' => 'data',
+    ];
+
     public function behaviors()
     {
         $behaviors = parent::behaviors();
         unset($behaviors['authenticator']);
         
         $behaviors['contentNegotiator']['formats']['text/html'] = Response::FORMAT_JSON;
-        
-        // CONFIGURAÇÃO DE AUTENTICAÇÃO CORRIGIDA
+
         $behaviors['authenticator'] = [
-            'class' => CompositeAuth::class,
-            'authMethods' => [
-                HttpBearerAuth::class, 
-                [
-                    'class' => QueryParamAuth::class, 
-                    'tokenParam' => 'access-token',   
-                ],
-            ],
+            'class' => QueryParamAuth::class,
+            // 'tokenParam' => 'auth_key', // <--- REMOVI ISTO!
+            // O padrão é 'access-token', que é exatamente o que a tua App Android envia.
         ];
+        
         return $behaviors;
     }
 
     public function actions()
     {
         $actions = parent::actions();
-        // Desativar as ações padrão para usarmos as nossas personalizadas
         unset($actions['index'], $actions['view'], $actions['create'], $actions['update'], $actions['delete']);
         return $actions;
     }
 
-    // LISTAR (GET)
+    // GET /api/pulseira
     public function actionIndex()
     {
         $user = Yii::$app->user;
-        $request = Yii::$app->request;
+        $query = Pulseira::find();
 
-        if ($user->can('enfermeiro') || $user->can('medico') || $user->can('admin')) {
-            
-            $query = \common\models\Pulseira::find();
-            if ($status = $request->get('status')) {
-                $query->andWhere(['status' => $status]); 
-            }
+        // Filtros
+        $status = Yii::$app->request->get('status');
+        if ($status) {
+            $query->andWhere(['status' => $status]);
+        }
 
-            if ($prioridade = $request->get('prioridade')) {
-                $query->andWhere(['prioridade' => $prioridade]);
-            }
-            $pulseiras = $query->orderBy(['tempoentrada' => SORT_ASC])->all();
+        $prioridade = Yii::$app->request->get('prioridade');
+        if ($prioridade) {
+            $query->andWhere(['prioridade' => $prioridade]);
+        }
+
+        // Permissões
+        if ($user->can('admin') || $user->can('medico') || $user->can('enfermeiro')) {
+            // Vê tudo
         } else {
-            $profile = \common\models\UserProfile::findOne(['user_id' => $user->id]);
-            if (!$profile) throw new NotFoundHttpException("Perfil não encontrado.");
-
-            $pulseiras = \common\models\Pulseira::find()
-                ->where(['userprofile_id' => $profile->id])
-                ->orderBy(['tempoentrada' => SORT_DESC])
-                ->all();
+            // Paciente vê só as suas
+            $profile = UserProfile::findOne(['user_id' => $user->id]);
+            if ($profile) {
+                $query->andWhere(['userprofile_id' => $profile->id]);
+            } else {
+                throw new NotFoundHttpException("Perfil não encontrado.");
+            }
         }
 
-        // Formatar JSON com SEGURANÇA TOTAL
-        $data = [];
-        foreach ($pulseiras as $pulseira) {
-            
-            $triagemId = null;
-            
-            // Só tenta buscar triagem se a classe existir (evita crash se faltar ficheiro)
-            if (class_exists('\common\models\Triagem')) {
-                // Tenta via relação primeiro (mais eficiente e seguro)
-                if ($pulseira->getTriagem()->exists()) {
-                     $triagemId = $pulseira->triagem->id;
-                } 
-                // Fallback: Tenta buscar manualmente se a relação falhar
-                else {
-                    $t = \common\models\Triagem::findOne(['pulseira_id' => $pulseira->id]);
-                    if ($t) $triagemId = $t->id;
-                }
-            }
+        $query->orderBy(['tempoentrada' => SORT_DESC]);
 
-            // Nome do Paciente (com proteção contra nulos)
-            $nomePaciente = 'Desconhecido';
-            $snsPaciente = 'N/A';
-            
-            // Verifica se a relação userprofile existe e não é nula
-            if (!empty($pulseira->userprofile)) {
-                $nomePaciente = $pulseira->userprofile->nome;
-                $snsPaciente = $pulseira->userprofile->sns;
-            }
-
-            $data[] = [
-                'id'            => $pulseira->id,
-                'codigo'        => $pulseira->codigo,
-                'status'        => $pulseira->status,
-                'prioridade'    => $pulseira->prioridade,
-                'tempoentrada'  => $pulseira->tempoentrada,
-                'paciente'      => [
-                    'nome' => $nomePaciente,
-                    'sns'  => $snsPaciente,
-                ],
-                'triagem_id'    => $triagemId,
-            ];
-        }
-
-        return ['status' => 'success', 'total' => count($data), 'data' => $data];
+        // Retorna DataProvider
+        // Graças ao 'collectionEnvelope' lá em cima, o Yii vai meter isto dentro de "data": [...]
+        // E o expand=triagem vai funcionar automaticamente!
+        return new ActiveDataProvider([
+            'query' => $query,
+            'pagination' => false,
+        ]);
     }
 
-
-    // VER UMA (GET ID)
+    // GET /api/pulseira/{id}
     public function actionView($id)
     {
-        $pulseira = Pulseira::findOne($id);
-        if (!$pulseira) throw new NotFoundHttpException("Pulseira não encontrada.");
+        $pulseira = Pulseira::find()->where(['id' => $id])->one();
 
+        if (!$pulseira) {
+            throw new NotFoundHttpException("Pulseira não encontrada.");
+        }
+
+        // Segurança
         $user = Yii::$app->user;
-        if (!$user->can('enfermeiro') && !$user->can('medico') && !$user->can('admin')) {
+        if (!$user->can('admin') && !$user->can('medico') && !$user->can('enfermeiro')) {
             $profile = UserProfile::findOne(['user_id' => $user->id]);
-            if (!$profile || $pulseira->userprofile_id != $profile->id) {
-                throw new ForbiddenHttpException("Acesso negado.");
+            if ($pulseira->userprofile_id != $profile->id) {
+                throw new ForbiddenHttpException("Sem permissão.");
             }
         }
 
-        return ['status' => 'success', 'data' => $pulseira];
+        return $pulseira; 
     }
 
-
-    // ATUALIZAR (PUT ID)
+    // PUT /api/pulseira/{id}
     public function actionUpdate($id)
     {
         if (!Yii::$app->user->can('enfermeiro') && !Yii::$app->user->can('medico') && !Yii::$app->user->can('admin')) {
-            throw new ForbiddenHttpException("Apenas profissionais de saúde podem alterar pulseiras.");
+            throw new ForbiddenHttpException("Apenas profissionais de saúde.");
         }
 
         $pulseira = Pulseira::findOne($id);
@@ -152,27 +121,13 @@ class PulseiraController extends ActiveController
             throw new NotFoundHttpException("Pulseira não encontrada.");
         }
 
-        $data = Yii::$app->request->getBodyParams();
-        if (empty($data)) {
-            $data = Yii::$app->request->post();
-        }
-        
-        if (isset($data['prioridade'])) {
-            $pulseira->prioridade = $data['prioridade'];
-        }
-        if (isset($data['status'])) {
-            $pulseira->status = $data['status'];
-        }
+        $data = Yii::$app->request->post();
+        $pulseira->load($data, '');
 
         if ($pulseira->save()) {
-            return [
-                'status' => 'success',
-                'message' => 'Pulseira atualizada.',
-                'data' => $pulseira
-            ];
+            return $pulseira;
         }
 
-        Yii::$app->response->statusCode = 422;
         return ['status' => 'error', 'errors' => $pulseira->getErrors()];
     }
 
