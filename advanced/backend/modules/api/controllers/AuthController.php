@@ -108,14 +108,15 @@ class AuthController extends Controller
             // Criar Perfil
             $profile = new UserProfile();
             $profile->user_id = $user->id;
-            $profile->nome = $data['nome'] ?? $user->username;
+            $profileData = $data['profile'] ?? [];
+
+            $profile->nome = $profileData['nome'] ?? $user->username;
             $profile->email = $user->email;
-            // Campos opcionais (a App pode enviar depois no Editar Perfil)
-            $profile->nif = $data['nif'] ?? null;
-            $profile->sns = $data['sns'] ?? null;
-            $profile->telefone = $data['telefone'] ?? null;
-            $profile->genero = $data['genero'] ?? null;
-            $profile->datanascimento = $data['datanascimento'] ?? null;
+            $profile->nif = $profileData['nif'] ?? null;
+            $profile->sns = $profileData['sns'] ?? null;
+            $profile->telefone = $profileData['telefone'] ?? null;
+            $profile->genero = $profileData['genero'] ?? null;
+            $profile->datanascimento = $profileData['datanascimento'] ?? null;
 
             if (!$profile->save()) {
                 throw new \Exception("Erro no perfil: " . json_encode($profile->errors));
