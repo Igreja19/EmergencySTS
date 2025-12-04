@@ -70,6 +70,11 @@ class Pulseira extends \yii\db\ActiveRecord
         return $this->hasOne(\common\models\UserProfile::class, ['id' => 'userprofile_id']);
     }
 
+    public function getPaciente()
+    {
+        return $this->getUserprofile();
+    }
+
     /**
      * 🔹 Relação com a triagem (uma triagem cria uma pulseira)
      */
@@ -102,4 +107,10 @@ class Pulseira extends \yii\db\ActiveRecord
 
         return parent::beforeSave($insert);
     }
+
+    public function extraFields()
+{
+    // Permite usar ?expand=triagem,paciente
+    return ['triagem', 'paciente', 'userprofile'];
+}
 }

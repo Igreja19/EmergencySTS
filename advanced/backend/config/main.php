@@ -118,6 +118,7 @@ return [
 
                 //Signup
                 'POST api/auth/signup' => 'api/auth/signup',
+                'POST api/user/profile/update' => 'api/user/profile/update',
 
                 // Perfil
                 'GET api/profile'   => 'api/user/index',

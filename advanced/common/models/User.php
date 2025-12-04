@@ -63,6 +63,20 @@ class User extends ActiveRecord implements IdentityInterface
         ];
     }
 
+    public function fields()
+    {
+        return [
+            'id',
+            'username',
+            'email',
+            'status',
+            'created_at',
+            'perfil' => function ($model) {
+                return $model->userprofile;
+            },
+        ];
+    }
+
     public function init()
     {
         parent::init();

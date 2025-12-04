@@ -8,6 +8,7 @@ use yii\web\Response;
 use yii\web\NotFoundHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\BadRequestHttpException;
+use yii\data\ActiveDataProvider;
 use yii\filters\auth\QueryParamAuth;
 use common\models\Triagem;
 use common\models\UserProfile;
@@ -21,11 +22,7 @@ class TriagemController extends ActiveController
     public function behaviors()
     {
         $behaviors = parent::behaviors();
-
-        // Remove autenticação padrão para usar a nossa configuração
         unset($behaviors['authenticator']);
-
-        // Força sempre resposta em JSON
         $behaviors['contentNegotiator']['formats']['text/html'] = Response::FORMAT_JSON;
 
         // Configura autenticação por ?auth_key=...
@@ -33,7 +30,6 @@ class TriagemController extends ActiveController
             'class' => QueryParamAuth::class,
             'tokenParam' => 'auth_key',
         ];
-
         return $behaviors;
     }
 
@@ -49,54 +45,58 @@ class TriagemController extends ActiveController
     public function actionIndex()
     {
         $user = Yii::$app->user;
+        
+        // Iniciar a query
+        $query = Triagem::find();
 
-        // 1. Se for Profissional de Saúde (Admin/Médico/Enfermeiro) vê TODAS
-        if ($user->can('admin') || $user->can('medico') || $user->can('enfermeiro')) {
-            $triagens = Triagem::find()->asArray()->all();
+        // Filtro Específico para a APP ANDROID (filtrar por pulseira)
+        $pulseiraId = Yii::$app->request->get('pulseira_id');
+        if ($pulseiraId) {
+            $query->andWhere(['pulseira_id' => $pulseiraId]);
         }
-        // 2. Se for Paciente, vê SÓ AS SUAS
-        else {
+
+        // Permissões
+        if ($user->can('admin') || $user->can('medico') || $user->can('enfermeiro')) {
+            // Profissionais veem tudo (ou o que filtraram acima)
+        } else {
+            // Pacientes veem SÓ AS SUAS
             $profile = UserProfile::findOne(['user_id' => $user->id]);
             if (!$profile) {
-                throw new NotFoundHttpException("Perfil de utilizador não encontrado.");
+                throw new NotFoundHttpException("Perfil não encontrado.");
             }
-
-            $triagens = Triagem::find()
-                ->where(['userprofile_id' => $profile->id])
-                ->orderBy(['datatriagem' => SORT_DESC]) // Mais recentes primeiro
-                ->asArray()
-                ->all();
+            $query->andWhere(['userprofile_id' => $profile->id]);
         }
 
-        return [
-            'status' => 'success',
-            'total' => count($triagens),
-            'data' => $triagens,
-        ];
+        // Ordenação
+        $query->orderBy(['datatriagem' => SORT_DESC]);
+
+        // Ao usar ActiveDataProvider, o Yii gere automaticamente o expand e a serialização
+        return new ActiveDataProvider([
+            'query' => $query,
+            'pagination' => false, // Desativa paginação para vir tudo de uma vez se necessário
+        ]);
     }
 
     //  VER UMA TRIAGEM (GET /api/triagem/{id})
     public function actionView($id)
     {
-        $triagem = Triagem::find()->where(['id' => $id])->asArray()->one();
+        // Encontra triagem
+        $triagem = Triagem::find()->where(['id' => $id])->one();
 
         if (!$triagem) {
             throw new NotFoundHttpException("Triagem não encontrada.");
         }
 
-        // Segurança: Paciente só pode ver se for dele
+        // Segurança
         $user = Yii::$app->user;
         if (!$user->can('admin') && !$user->can('medico') && !$user->can('enfermeiro')) {
             $profile = UserProfile::findOne(['user_id' => $user->id]);
-            if ($triagem['userprofile_id'] != $profile->id) {
-                throw new ForbiddenHttpException("Não tem permissão para ver esta triagem.");
+            if ($triagem->userprofile_id != $profile->id) {
+                throw new ForbiddenHttpException("Não tem permissão.");
             }
         }
 
-        return [
-            'status' => 'success',
-            'data' => $triagem,
-        ];
+        return $triagem; 
     }
 
     //  CRIAR TRIAGEM + PULSEIRA AUTOMÁTICA (POST /api/triagem)
@@ -173,9 +173,8 @@ class TriagemController extends ActiveController
     //  ATUALIZAR (PUT /api/triagem/{id})
     public function actionUpdate($id)
     {
-        // Apenas profissionais
         if (!Yii::$app->user->can('enfermeiro') && !Yii::$app->user->can('medico') && !Yii::$app->user->can('admin')) {
-            throw new ForbiddenHttpException("Apenas profissionais de saúde podem alterar triagens.");
+            throw new ForbiddenHttpException("Apenas profissionais de saúde.");
         }
 
         $triagem = Triagem::findOne($id);
@@ -187,11 +186,7 @@ class TriagemController extends ActiveController
         $triagem->load($data, '');
 
         if ($triagem->save()) {
-            return [
-                'status' => 'success',
-                'message' => 'Triagem atualizada.',
-                'data' => $triagem
-            ];
+            return $triagem; 
         }
 
         return ['status' => 'error', 'errors' => $triagem->getErrors()];
