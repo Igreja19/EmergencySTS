@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Tempo de geração: 26-Nov-2025 às 14:56
+-- Tempo de geração: 04-Dez-2025 às 17:13
 -- Versão do servidor: 9.1.0
 -- versão do PHP: 8.3.14
 
@@ -55,7 +55,8 @@ INSERT INTO `auth_assignment` (`item_name`, `user_id`, `created_at`) VALUES
 ('paciente', '26', 1763312479),
 ('paciente', '27', 1763724679),
 ('paciente', '28', 1763724723),
-('paciente', '29', 1763725618);
+('paciente', '29', 1763725618),
+('paciente', '38', 1764848165);
 
 -- --------------------------------------------------------
 
@@ -149,18 +150,7 @@ CREATE TABLE IF NOT EXISTS `consulta` (
   PRIMARY KEY (`id`),
   KEY `fk_consulta_triagem_idx` (`triagem_id`),
   KEY `fk_userprofile_consulta` (`userprofile_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Extraindo dados da tabela `consulta`
---
-
-INSERT INTO `consulta` (`id`, `data_consulta`, `estado`, `observacoes`, `userprofile_id`, `triagem_id`, `data_encerramento`, `relatorio_pdf`) VALUES
-(5, '2025-11-18 00:52:17', 'Encerrada', 'bfhb', 8, 16, '2025-11-18 18:59:35', NULL),
-(7, '2025-11-18 17:49:18', 'Encerrada', 'dfsdf', 9, 11, '2025-11-19 14:17:21', NULL),
-(8, '2025-11-19 14:18:41', 'Encerrada', 'sc', 9, 11, '2025-11-20 12:12:31', NULL),
-(10, '2025-11-20 11:43:12', 'Encerrada', 'teste', 8, 16, '2025-11-20 11:44:51', NULL),
-(12, '2025-11-26 14:53:39', 'Em curso', 'zxv', 10, 13, NULL, NULL);
+) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -174,8 +164,6 @@ CREATE TABLE IF NOT EXISTS `medicamento` (
   `nome` varchar(255) NOT NULL,
   `dosagem` varchar(255) NOT NULL,
   `indicacao` text,
-  `quantidade_diaria` varchar(100) DEFAULT NULL,
-  `duracao_tratamento` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -183,47 +171,47 @@ CREATE TABLE IF NOT EXISTS `medicamento` (
 -- Extraindo dados da tabela `medicamento`
 --
 
-INSERT INTO `medicamento` (`id`, `nome`, `dosagem`, `indicacao`, `quantidade_diaria`, `duracao_tratamento`) VALUES
-(1, 'Paracetamol', '500mg', 'Alívio da dor e febre', '1 comprimido 3x ao dia', '3–5 dias'),
-(2, 'Paracetamol', '1g', 'Dor moderada e febre alta', '1 comprimido 2x ao dia', '3–5 dias'),
-(3, 'Ibuprofeno', '400mg', 'Dor inflamatória, febre', '1 comprimido 2–3x ao dia', '5–7 dias'),
-(4, 'Ibuprofeno', '600mg', 'Inflamação e dor intensa', '1 comprimido 2x ao dia', '5 dias'),
-(5, 'Aspirina', '500mg', 'Dor leve, febre, anti-inflamatório', '1 comprimido 2–3x ao dia', '3–7 dias'),
-(6, 'Amoxicilina', '500mg', 'Infeções bacterianas (vias respiratórias, urinárias)', '1 comprimido 3x ao dia', '7 dias'),
-(7, 'Amoxicilina', '875mg', 'Infeções moderadas a graves', '1 comprimido 2x ao dia', '7–10 dias'),
-(8, 'Clavulanato + Amoxicilina', '875mg/125mg', 'Sinusite, otite, infeções respiratórias e urinárias', '1 comprimido 2x ao dia', '7 dias'),
-(9, 'Azitromicina', '500mg', 'Infeções respiratórias e genitais', '1 comprimido 1x ao dia', '3 dias'),
-(10, 'Ciprofloxacina', '500mg', 'Infeções urinárias e gastrointestinais', '1 comprimido 2x ao dia', '5–7 dias'),
-(11, 'Metformina', '850mg', 'Diabetes tipo 2', '1 comprimido 2x ao dia', 'Uso contínuo'),
-(12, 'Metformina', '1000mg', 'Diabetes tipo 2', '1 comprimido 1–2x ao dia', 'Uso contínuo'),
-(13, 'Omeprazol', '20mg', 'Refluxo, gastrite', '1 comprimido 1x ao dia', '14 dias'),
-(14, 'Pantoprazol', '40mg', 'Refluxo grave, esofagite', '1 comprimido 1x ao dia', '14–28 dias'),
-(15, 'Losartan', '50mg', 'Hipertensão', '1 comprimido 1x ao dia', 'Uso contínuo'),
-(16, 'Losartan', '100mg', 'Hipertensão', '1 comprimido 1x ao dia', 'Uso contínuo'),
-(17, 'Amlodipina', '5mg', 'Hipertensão, angina', '1 comprimido 1x ao dia', 'Uso contínuo'),
-(18, 'Amlodipina', '10mg', 'Hipertensão resistente', '1 comprimido 1x ao dia', 'Uso contínuo'),
-(19, 'Enalapril', '20mg', 'Hipertensão, insuficiência cardíaca', '1 comprimido 1–2x ao dia', 'Uso contínuo'),
-(20, 'Simvastatina', '20mg', 'Colesterol elevado', '1 comprimido 1x ao dia (à noite)', 'Uso contínuo'),
-(21, 'Simvastatina', '40mg', 'Colesterol muito elevado', '1 comprimido 1x ao dia (à noite)', 'Uso contínuo'),
-(22, 'Atorvastatina', '20mg', 'Colesterol elevado', '1 comprimido 1x ao dia', 'Uso contínuo'),
-(23, 'Atorvastatina', '40mg', 'Colesterol muito elevado', '1 comprimido 1x ao dia', 'Uso contínuo'),
-(24, 'Furosemida', '40mg', 'Retenção de líquidos, hipertensão', '1 comprimido 1x ao dia', '3–7 dias'),
-(25, 'Prednisolona', '20mg', 'Inflamações graves, alergias, crises respiratórias', '1 comprimido 1x ao dia', '3–5 dias'),
-(26, 'Dexametasona', '4mg', 'Inflamação, alergias graves', '1 comprimido 1x ao dia', '2–5 dias'),
-(27, 'Insulina Rápida', '100 UI', 'Diabetes tipo 1 e 2', 'Dose conforme glicemia', 'Uso contínuo'),
-(28, 'Insulina Basal', '100 UI', 'Diabetes tipo 1 e 2', '1 dose diária', 'Uso contínuo'),
-(29, 'Dipirona', '500mg', 'Dor intensa e febre', '1 comprimido 3–4x ao dia', '3–5 dias'),
-(30, 'Cetirizina', '10mg', 'Alergias, rinite', '1 comprimido 1x ao dia', '7–14 dias'),
-(31, 'Loratadina', '10mg', 'Rinite alérgica, urticária', '1 comprimido 1x ao dia', '7–14 dias'),
-(32, 'Salbutamol', '100mcg', 'Crise de asma, broncoespasmo', '2 jatos até 4x ao dia', 'Uso conforme sintomas'),
-(33, 'Budesonida + Formoterol', '160/4.5mcg', 'Asma e DPOC', '2 jatos 2x ao dia', 'Uso contínuo'),
-(34, 'Tramadol', '50mg', 'Dor moderada a intensa', '1 comprimido 2x ao dia', '3–5 dias'),
-(35, 'Codeína', '30mg', 'Dor moderada e tosse persistente', '1 comprimido 2–3x ao dia', '3–5 dias'),
-(36, 'Clonazepam', '2.5mg/mL', 'Ansiedade, epilepsia', '5–10 gotas à noite', '5–14 dias'),
-(37, 'Diazepam', '10mg', 'Ansiedade, espasmos musculares', '1 comprimido 1–2x ao dia', '5–10 dias'),
-(38, 'Sertralina', '50mg', 'Depressão, ansiedade', '1 comprimido 1x ao dia', 'Uso contínuo'),
-(39, 'Sertralina', '100mg', 'Depressão, ansiedade', '1 comprimido 1x ao dia', 'Uso contínuo'),
-(40, 'Fluoxetina', '20mg', 'Depressão, ansiedade, compulsão alimentar', '1 comprimido 1x ao dia', 'Uso contínuo');
+INSERT INTO `medicamento` (`id`, `nome`, `dosagem`, `indicacao`) VALUES
+(1, 'Paracetamol', '500mg', 'Alívio da dor e febre'),
+(2, 'Paracetamol', '1g', 'Dor moderada e febre alta'),
+(3, 'Ibuprofeno', '400mg', 'Dor inflamatória, febre'),
+(4, 'Ibuprofeno', '600mg', 'Inflamação e dor intensa'),
+(5, 'Aspirina', '500mg', 'Dor leve, febre, anti-inflamatório'),
+(6, 'Amoxicilina', '500mg', 'Infeções bacterianas (vias respiratórias, urinárias)'),
+(7, 'Amoxicilina', '875mg', 'Infeções moderadas a graves'),
+(8, 'Clavulanato + Amoxicilina', '875mg/125mg', 'Sinusite, otite, infeções respiratórias e urinárias'),
+(9, 'Azitromicina', '500mg', 'Infeções respiratórias e genitais'),
+(10, 'Ciprofloxacina', '500mg', 'Infeções urinárias e gastrointestinais'),
+(11, 'Metformina', '850mg', 'Diabetes tipo 2'),
+(12, 'Metformina', '1000mg', 'Diabetes tipo 2'),
+(13, 'Omeprazol', '20mg', 'Refluxo, gastrite'),
+(14, 'Pantoprazol', '40mg', 'Refluxo grave, esofagite'),
+(15, 'Losartan', '50mg', 'Hipertensão'),
+(16, 'Losartan', '100mg', 'Hipertensão'),
+(17, 'Amlodipina', '5mg', 'Hipertensão, angina'),
+(18, 'Amlodipina', '10mg', 'Hipertensão resistente'),
+(19, 'Enalapril', '20mg', 'Hipertensão, insuficiência cardíaca'),
+(20, 'Simvastatina', '20mg', 'Colesterol elevado'),
+(21, 'Simvastatina', '40mg', 'Colesterol muito elevado'),
+(22, 'Atorvastatina', '20mg', 'Colesterol elevado'),
+(23, 'Atorvastatina', '40mg', 'Colesterol muito elevado'),
+(24, 'Furosemida', '40mg', 'Retenção de líquidos, hipertensão'),
+(25, 'Prednisolona', '20mg', 'Inflamações graves, alergias, crises respiratórias'),
+(26, 'Dexametasona', '4mg', 'Inflamação, alergias graves'),
+(27, 'Insulina Rápida', '100 UI', 'Diabetes tipo 1 e 2'),
+(28, 'Insulina Basal', '100 UI', 'Diabetes tipo 1 e 2'),
+(29, 'Dipirona', '500mg', 'Dor intensa e febre'),
+(30, 'Cetirizina', '10mg', 'Alergias, rinite'),
+(31, 'Loratadina', '10mg', 'Rinite alérgica, urticária'),
+(32, 'Salbutamol', '100mcg', 'Crise de asma, broncoespasmo'),
+(33, 'Budesonida + Formoterol', '160/4.5mcg', 'Asma e DPOC'),
+(34, 'Tramadol', '50mg', 'Dor moderada a intensa'),
+(35, 'Codeína', '30mg', 'Dor moderada e tosse persistente'),
+(36, 'Clonazepam', '2.5mg/mL', 'Ansiedade, epilepsia'),
+(37, 'Diazepam', '10mg', 'Ansiedade, espasmos musculares'),
+(38, 'Sertralina', '50mg', 'Depressão, ansiedade'),
+(39, 'Sertralina', '100mg', 'Depressão, ansiedade'),
+(40, 'Fluoxetina', '20mg', 'Depressão, ansiedade, compulsão alimentar');
 
 -- --------------------------------------------------------
 
@@ -254,15 +242,28 @@ INSERT INTO `migration` (`version`, `apply_time`) VALUES
 DROP TABLE IF EXISTS `notificacao`;
 CREATE TABLE IF NOT EXISTS `notificacao` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `titulo` varchar(150) DEFAULT NULL,
-  `mensagem` text NOT NULL,
-  `tipo` enum('Consulta','Prioridade','Geral') NOT NULL DEFAULT 'Geral',
+  `titulo` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `mensagem` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `tipo` enum('Consulta','Prioridade','Geral') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `dataenvio` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `lida` tinyint(1) NOT NULL DEFAULT '0',
   `userprofile_id` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_notificacao_userprofile_id` (`userprofile_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Extraindo dados da tabela `notificacao`
+--
+
+INSERT INTO `notificacao` (`id`, `titulo`, `mensagem`, `tipo`, `dataenvio`, `lida`, `userprofile_id`) VALUES
+(19, 'Pulseira atribuída', 'Foi criada uma nova pulseira pendente para o paciente teste2.', 'Consulta', '2025-11-27 16:00:57', 0, 20),
+(20, 'Triagem registada', 'Foi registada uma nova triagem para o paciente teste2.', 'Consulta', '2025-11-27 16:04:59', 0, 20),
+(21, 'Prioridade Vermelho', 'O paciente teste2 encontra-se em prioridade Vermelho.', 'Prioridade', '2025-11-27 16:04:59', 0, 20),
+(22, 'Pulseira atribuída', 'Foi criada uma nova pulseira pendente para o paciente henrique3.', 'Consulta', '2025-11-27 16:56:56', 0, 10),
+(23, 'Pulseira atribuída', 'Foi criada uma nova pulseira pendente para o paciente henrique3.', 'Consulta', '2025-11-27 16:57:57', 0, 10),
+(24, 'Pulseira atribuída', 'Foi criada uma nova pulseira pendente para o paciente henrique.', 'Consulta', '2025-11-27 16:58:05', 0, 8),
+(25, 'Pulseira atribuída', 'Foi criada uma nova pulseira pendente para o paciente zezoca.', 'Consulta', '2025-11-27 17:10:38', 0, 12);
 
 -- --------------------------------------------------------
 
@@ -279,14 +280,6 @@ CREATE TABLE IF NOT EXISTS `prescricao` (
   PRIMARY KEY (`id`),
   KEY `fk_consulta_prescricao` (`consulta_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=latin1;
-
---
--- Extraindo dados da tabela `prescricao`
---
-
-INSERT INTO `prescricao` (`id`, `observacoes`, `dataprescricao`, `consulta_id`) VALUES
-(8, 'teste', '2025-11-20 11:39:25', 8),
-(9, 'teste', '2025-11-20 11:44:21', 10);
 
 -- --------------------------------------------------------
 
@@ -305,15 +298,6 @@ CREATE TABLE IF NOT EXISTS `prescricaomedicamento` (
   KEY `fk_prescricaoMed_medicamento` (`medicamento_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
---
--- Extraindo dados da tabela `prescricaomedicamento`
---
-
-INSERT INTO `prescricaomedicamento` (`id`, `posologia`, `prescricao_id`, `medicamento_id`) VALUES
-(1, '1', 8, 1),
-(2, '1', 9, 16),
-(3, '2', 9, 6);
-
 -- --------------------------------------------------------
 
 --
@@ -330,18 +314,18 @@ CREATE TABLE IF NOT EXISTS `pulseira` (
   `userprofile_id` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_userprofile_pulseira` (`userprofile_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=latin1;
 
 --
 -- Extraindo dados da tabela `pulseira`
 --
 
 INSERT INTO `pulseira` (`id`, `codigo`, `prioridade`, `status`, `tempoentrada`, `userprofile_id`) VALUES
-(4, '9D3AA8E5', 'Azul', 'Em atendimento', '2025-10-29 20:45:21', 9),
-(5, '97A510BD', 'Vermelho', 'Em atendimento', '2025-10-30 15:07:38', 9),
-(6, 'B2882746', 'Verde', 'Em atendimento', '2025-10-30 16:40:46', 10),
-(7, '34CC9466', 'Amarelo', 'Em atendimento', '2025-10-31 11:32:55', 8),
-(8, 'C3FC873E', 'Pendente', 'Em espera', '2025-11-18 17:36:55', 20);
+(16, '735598F5', 'Vermelho', 'Em espera', '2025-11-27 16:00:57', 20),
+(17, '35D18F02', 'Pendente', 'Em espera', '2025-11-27 16:56:56', 10),
+(18, 'E3ADB0C8', 'Pendente', 'Em espera', '2025-11-27 16:57:57', 10),
+(19, '617CB8EE', 'Pendente', 'Em espera', '2025-11-27 16:58:05', 8),
+(20, '71CD4F12', 'Verde', 'Em espera', '2025-11-27 17:10:38', 12);
 
 -- --------------------------------------------------------
 
@@ -365,18 +349,19 @@ CREATE TABLE IF NOT EXISTS `triagem` (
   PRIMARY KEY (`id`),
   KEY `fk_pulseira_id` (`pulseira_id`),
   KEY `fk_triagem_userprofile_id` (`userprofile_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=latin1;
 
 --
 -- Extraindo dados da tabela `triagem`
 --
 
 INSERT INTO `triagem` (`id`, `motivoconsulta`, `queixaprincipal`, `descricaosintomas`, `iniciosintomas`, `intensidadedor`, `alergias`, `medicacao`, `datatriagem`, `userprofile_id`, `pulseira_id`) VALUES
-(11, 'Dor no Queixo', 'sdf', 'sdfs', '4333-03-12 23:32:00', 3, 'sdf', 'sdf', '2025-10-29 20:45:21', 9, 4),
-(12, 'gfhfgh', 'fghfh', 'dghfh', '4334-03-12 03:23:00', 10, 'efsg', 'dfg', '2025-10-30 15:07:38', 9, 5),
-(13, 'Dor no Queixo de baixo', 'Sangue no queixo', 'Doi ao tocar na testa', '3222-05-04 05:08:00', 10, 'nao tenoh', 'viogrum', '2025-10-30 16:40:46', 10, 6),
-(16, 'teste', 'teste', 'teste', '2343-04-23 03:23:00', 10, 'teste', 'teste', '2025-10-31 11:32:55', 8, 7),
-(17, 'dfs', 'fdg', 'dfg', '2005-03-14 23:54:00', 3, 'dsf', 'sdf', '2025-11-18 17:36:55', 20, 8);
+(24, '', '', '', NULL, 0, '', '', '2025-11-27 16:00:57', 20, 16),
+(25, 'sdf', 'sdf', 'sdf', '2025-11-27 16:04:00', 5, 'sdf', 'sdf', '2025-11-27 16:04:00', 20, 16),
+(26, '', '', '', NULL, 0, '', '', '2025-11-27 16:56:56', 10, 17),
+(27, '', '', '', NULL, 0, '', '', '2025-11-27 16:57:57', 10, 18),
+(28, '', '', '', NULL, 0, '', '', '2025-11-27 16:58:05', 8, 19),
+(29, '', '', '', NULL, 0, '', '', '2025-11-27 17:10:38', 12, 20);
 
 -- --------------------------------------------------------
 
@@ -401,7 +386,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   UNIQUE KEY `username` (`username`),
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `password_reset_token` (`password_reset_token`)
-) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 --
 -- Extraindo dados da tabela `user`
@@ -418,7 +403,8 @@ INSERT INTO `user` (`id`, `username`, `auth_key`, `password_hash`, `password_res
 (26, 'teste2', 'swgEKZYTj4noVicIu0Gn9iULcVNsNeTJ', '$2y$13$LegFdmCEgQ5yL4kw7pgv4OJh.Xn2nY3ZWugAz8XgFUlPVxBdHStfq', NULL, 'teste@gmail.com', 10, 1763312479, 1763312485, NULL, 0),
 (27, 'ola2@gmail.com', 'Y-qUHx2nCqaDQu0rxleO5EcS725__7mC', '$2y$13$GmI0U5WV8lbz7/0W71n6V.tyUf4P12MGBeVPLIeO63Y493s77eEga', NULL, 'ola2@gmail.com', 9, 1763724679, 1763724679, NULL, 1),
 (28, 'adeus', '0WWI6J8aDsR2EyrAMJWaYZ90h2HiXh6z', '$2y$13$jo8yz97ypxvJsl1WBT6B3e/NibA5YydIayWoUsi1dXfdf8iN6nwKy', NULL, 'adeus@gmail.com', 10, 1763724723, 1763724731, NULL, 0),
-(29, 'etapa1', 'MZQU4ZPuWK0wmVm9qWsGLuilc1bTTJxX', '$2y$13$AmPI9mrqg79mm9sGS1W1peFwGuxS1RDihg55.QHBis6GaNeb0YNKK', NULL, 'etapa1@gmail.com', 10, 1763725618, 1763725618, NULL, 1);
+(29, 'etapa1', 'MZQU4ZPuWK0wmVm9qWsGLuilc1bTTJxX', '$2y$13$AmPI9mrqg79mm9sGS1W1peFwGuxS1RDihg55.QHBis6GaNeb0YNKK', NULL, 'etapa1@gmail.com', 10, 1763725618, 1763725618, NULL, 1),
+(38, 'teste4', 'if_KivTRbYHHa6QPMPjYepjMDHUz539h', '$2y$13$x.DME2O2orblwyWdvpNnquamLS1T4rAZgP9KUjJ5pIqqx2eqREz9C', NULL, 'teste4@gmail.com', 10, 1764848165, 1764848165, NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -441,7 +427,7 @@ CREATE TABLE IF NOT EXISTS `userprofile` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`),
   KEY `fk_userprofile_user` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=latin1;
 
 --
 -- Extraindo dados da tabela `userprofile`
@@ -458,7 +444,8 @@ INSERT INTO `userprofile` (`id`, `nome`, `email`, `morada`, `nif`, `sns`, `datan
 (20, 'teste2', 'teste@gmail.com', 's', 'sdf', 'sdf', '2005-04-13', 'M', 'sdf', 26),
 (21, 'ola', 'ola2@gmail.com', 'leiria', '876', '463', '2025-11-21', 'M', '912881282', 27),
 (22, 'adeus', 'adeus@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, 28),
-(23, 'etapa1', 'etapa1@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, 29);
+(23, 'etapa1', 'etapa1@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, 29),
+(24, 'João Teste', 'teste4@gmail.com', NULL, '123476543', '987654321', '1999-05-10', 'M', '912345678', 38);
 
 --
 -- Restrições para despejos de tabelas
@@ -481,8 +468,8 @@ ALTER TABLE `auth_item_child`
 -- Limitadores para a tabela `consulta`
 --
 ALTER TABLE `consulta`
-  ADD CONSTRAINT `fk_consulta_triagem` FOREIGN KEY (`triagem_id`) REFERENCES `triagem` (`id`) ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_consulta_utilizador` FOREIGN KEY (`userprofile_id`) REFERENCES `userprofile` (`id`) ON UPDATE CASCADE;
+  ADD CONSTRAINT `consulta_ibfk_1` FOREIGN KEY (`triagem_id`) REFERENCES `triagem` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  ADD CONSTRAINT `consulta_ibfk_2` FOREIGN KEY (`userprofile_id`) REFERENCES `userprofile` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 --
 -- Limitadores para a tabela `notificacao`
@@ -501,20 +488,20 @@ ALTER TABLE `prescricao`
 --
 ALTER TABLE `prescricaomedicamento`
   ADD CONSTRAINT `fk_prescricaoMed_medicamento` FOREIGN KEY (`medicamento_id`) REFERENCES `medicamento` (`id`),
-  ADD CONSTRAINT `fk_prescricaoMed_prescricao` FOREIGN KEY (`prescricao_id`) REFERENCES `prescricao` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+  ADD CONSTRAINT `fk_prescricaoMed_prescricao` FOREIGN KEY (`prescricao_id`) REFERENCES `prescricao` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Limitadores para a tabela `pulseira`
 --
 ALTER TABLE `pulseira`
-  ADD CONSTRAINT `fk_userprofile_pulseira` FOREIGN KEY (`userprofile_id`) REFERENCES `userprofile` (`id`);
+  ADD CONSTRAINT `pulseira_ibfk_1` FOREIGN KEY (`userprofile_id`) REFERENCES `userprofile` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 --
 -- Limitadores para a tabela `triagem`
 --
 ALTER TABLE `triagem`
-  ADD CONSTRAINT `fk_pulseira_id` FOREIGN KEY (`pulseira_id`) REFERENCES `pulseira` (`id`),
-  ADD CONSTRAINT `fk_triagem_userprofile_id` FOREIGN KEY (`userprofile_id`) REFERENCES `userprofile` (`id`);
+  ADD CONSTRAINT `triagem_ibfk_1` FOREIGN KEY (`pulseira_id`) REFERENCES `pulseira` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  ADD CONSTRAINT `triagem_ibfk_2` FOREIGN KEY (`userprofile_id`) REFERENCES `userprofile` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 --
 -- Limitadores para a tabela `userprofile`
