@@ -20,11 +20,17 @@ $this->params['breadcrumbs'][] = 'Editar';
             'model' => $model,
     ]) ?>
 
+    <?php $fromPulseira = Yii::$app->request->get('fromPulseira'); ?>
+
     <div class="text-center mt-3 butao">
+
         <?= Html::a(
                 '<i class="bi bi-arrow-left-circle me-1"></i> Voltar',
-                ['index'],
+                $fromPulseira
+                        ? ['triagem/view', 'id' => $model->id, 'pulseira_id' => $fromPulseira]
+                        : ['view', 'id' => $model->id],
                 ['class' => 'btn btn-voltar']
         ) ?>
+
     </div>
 </div>

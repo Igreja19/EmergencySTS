@@ -74,17 +74,27 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <div class="d-flex justify-content-center gap-3 mt-4 butoes">
 
-        <?= Html::a(
-                '<i class="bi bi-arrow-left-circle me-1"></i> Voltar',
-                ['index'],
-                ['class' => 'btn btn-voltar']
-        ) ?>
+        <?php $fromPulseira = Yii::$app->request->get('pulseira_id'); ?>
 
-        <?= Html::a(
-                '<i class="bi bi-pencil-square me-1"></i> Editar',
-                ['update', 'id' => $model->id],
-                ['class' => 'btn btn-editar']
-        ) ?>
+        <div class="text-center mt-3 butao">
+
+            <?= Html::a(
+                    '<i class="bi bi-arrow-left-circle me-1"></i> Voltar',
+                    $fromPulseira
+                            ? ['pulseira/update', 'id' => $fromPulseira]
+                            : ['index'],
+                    ['class' => 'btn btn-voltar']
+            ) ?>
+
+            <?= Html::a(
+                    '<i class="bi bi-pencil-square me-1"></i> Editar',
+                    $fromPulseira
+                            ? ['triagem/update', 'id' => $model->id, 'fromPulseira' => $fromPulseira]
+                            : ['triagem/update', 'id' => $model->id],
+                    ['class' => 'btn btn-editar']
+            ) ?>
+
+        </div>
 
     </div>
 

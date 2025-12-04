@@ -70,7 +70,10 @@ if (!$userProfile) {
                        value="<?= Html::encode($userProfile->datanascimento ?? '') ?>"
                        min="1900-01-01"
                        max="<?= date('Y-m-d') ?>"
-                       readonly>
+                       onkeydown="return false"
+                       onpaste="return false"
+                       onclick="this.showPicker()"
+                >
             </div>
 
             <!-- SNS -->
@@ -120,6 +123,9 @@ if (!$userProfile) {
                 <?= $form->field($model, 'iniciosintomas')
                         ->input('datetime-local', [
                                 'id' => 'triagem-iniciosintomas',
+                                'onkeydown' => 'return false',
+                                'onpaste' => 'return false',
+                                'onclick' => 'this.showPicker()', // força a abrir o calendario
                         ])
                         ->label('<i class="bi bi-clock-history me-2"></i> Início dos Sintomas') ?>
             </div>

@@ -140,6 +140,9 @@
       <path value="$PROJECT_DIR$/advanced/vendor/vendor/symfony" />
       <path value="$PROJECT_DIR$/advanced/vendor/vendor/theseer" />
       <path value="$PROJECT_DIR$/advanced/vendor/vendor/yiisoft" />
+      <path value="$PROJECT_DIR$/advanced/vendor/kartik-v/yii2-widget-select2" />
+      <path value="$PROJECT_DIR$/advanced/vendor/kartik-v/yii2-krajee-base" />
+      <path value="$PROJECT_DIR$/advanced/vendor/select2/select2" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="7.4">

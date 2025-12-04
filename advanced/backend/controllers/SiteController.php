@@ -2,13 +2,17 @@
 
 namespace backend\controllers;
 
+use common\helpers\IpHelper;
+use common\models\Consulta;
 use common\models\LoginForm;
+use common\models\LoginHistory;
+use common\models\Notificacao;
+use common\models\Pulseira;
+use common\models\Triagem;
 use Yii;
-use yii\filters\VerbFilter;
-use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\Response;
-use common\models\Notificacao;
+
 /**
  * Site controller
  */
@@ -36,7 +40,7 @@ class SiteController extends Controller
                     [
                         'actions' => ['logout'],
                         'allow' => true,
-                        'roles' => ['@'],   // <--- ESTA É A SOLUÇÃO
+                        'roles' => ['@'],
                     ],
                 ],
             ],
@@ -68,13 +72,21 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
+        $user = Yii::$app->user->identity;
+        $isAdmin = Yii::$app->authManager->checkAccess($user->id, 'admin');
+        $isEnfermeiro = Yii::$app->authManager->checkAccess($user->id, 'enfermeiro');
+        $isMedico = Yii::$app->authManager->checkAccess($user->id, 'medico');
+
         // ===== Estatísticas principais =====
         $stats = [
-            'espera' => \common\models\Pulseira::find()->where(['status' => 'Em espera'])->count(),
-            'ativas' => \common\models\Pulseira::find()->where(['status' => 'Em atendimento'])->count(),
-            'atendidosHoje' => \common\models\Pulseira::find()
-                ->where(['status' => 'Atendido'])
-                ->andWhere(['>=', 'tempoentrada', date('Y-m-d 00:00:00')])
+            'espera' => Pulseira::find()->where(['status' => 'Em espera'])->count(),
+            'ativas' => Pulseira::find()->where(['status' => 'Em atendimento'])->count(),
+            'atendidosHoje' => Consulta::find()
+                ->where(['estado' => 'Encerrada'])
+                ->andWhere(['between', 'data_encerramento', date('Y-m-d 00:00:00'), date('Y-m-d 23:59:59')])
+                ->count(),
+            'triagensPendentes' => Pulseira::find()
+                ->where(['prioridade' => 'Pendente'])
                 ->count(),
             'salasDisponiveis' => 4, // podes ajustar se tiveres tabela de salas
             'salasTotal' => 6,
@@ -82,11 +94,11 @@ class SiteController extends Controller
 
         // ===== Contagem por prioridade (Manchester) =====
         $manchester = [
-            'vermelho' => \common\models\Pulseira::find()->where(['prioridade' => 'Vermelho'])->count(),
-            'laranja'  => \common\models\Pulseira::find()->where(['prioridade' => 'Laranja'])->count(),
-            'amarelo'  => \common\models\Pulseira::find()->where(['prioridade' => 'Amarelo'])->count(),
-            'verde'    => \common\models\Pulseira::find()->where(['prioridade' => 'Verde'])->count(),
-            'azul'     => \common\models\Pulseira::find()->where(['prioridade' => 'Azul'])->count(),
+            'vermelho' => Pulseira::find()->where(['prioridade' => 'Vermelho'])->count(),
+            'laranja'  => Pulseira::find()->where(['prioridade' => 'Laranja'])->count(),
+            'amarelo'  => Pulseira::find()->where(['prioridade' => 'Amarelo'])->count(),
+            'verde'    => Pulseira::find()->where(['prioridade' => 'Verde'])->count(),
+            'azul'     => Pulseira::find()->where(['prioridade' => 'Azul'])->count(),
         ];
 
         // =================================================================
@@ -104,7 +116,7 @@ class SiteController extends Controller
             $fim    = $dataFiltro . ' 23:59:59';
 
             $evolucaoLabels[] = date('d/m/Y', strtotime($dataFiltro));
-            $evolucaoData[] = \common\models\Triagem::find()
+            $evolucaoData[] = Triagem::find()
                 ->where(['between', 'datatriagem', $inicio, $fim])
                 ->count();
 
@@ -115,7 +127,7 @@ class SiteController extends Controller
                 $dia = date('Y-m-d', strtotime("-$i days"));
                 $evolucaoLabels[] = date('d/m', strtotime($dia));
 
-                $count = \common\models\Triagem::find()
+                $count = Triagem::find()
                     ->where(['between', 'datatriagem', $dia . ' 00:00:00', $dia . ' 23:59:59'])
                     ->count();
 
@@ -124,15 +136,16 @@ class SiteController extends Controller
         }
 
         // ===== Pacientes em triagem =====
-        $pacientes = \common\models\Triagem::find()
+        $pacientes = Triagem::find()
             ->joinWith(['userprofile', 'pulseira'])
+            ->where(['in', 'pulseira.status', ['Em espera', 'Em atendimento']])
             ->orderBy(['datatriagem' => SORT_DESC])
             ->limit(10)
             ->asArray()
             ->all();
 
         // ===== Últimas triagens =====
-        $ultimas = \common\models\Triagem::find()
+        $ultimas = Triagem::find()
             ->joinWith(['userprofile', 'pulseira'])
             ->orderBy(['id' => SORT_DESC])
             ->limit(5)
@@ -156,6 +169,17 @@ class SiteController extends Controller
                 ->all();
         }
 
+        $logins = [];
+
+        if ($isAdmin) {
+            $logins = LoginHistory::find()
+                ->joinWith('user')
+                ->orderBy(['data_login' => SORT_DESC])
+                ->limit(20)
+                ->asArray()
+                ->all();
+        }
+
         // ===== Renderiza a view =====
         return $this->render('index', [
             'stats'          => $stats,
@@ -165,6 +189,10 @@ class SiteController extends Controller
             'pacientes'      => $pacientes,
             'ultimas'        => $ultimas,
             'notificacoes'   => $notificacoes,
+            'isAdmin'        => $isAdmin,
+            'isEnfermeiro'   => $isEnfermeiro,
+            'isMedico'       => $isMedico,
+            'logins' => $logins,
         ]);
     }
 
@@ -218,6 +246,12 @@ class SiteController extends Controller
                 // Mostrar página de acesso restrito
                 return $this->redirect(['/site/acesso-restrito']);
             }
+
+            $history = new LoginHistory();
+            $history->user_id = Yii::$app->user->id;
+            $history->ip = Yii::$app->request->userIP;
+            $history->user_agent = Yii::$app->request->userAgent;
+            $history->save(false);
 
             return $this->goBack();
         }

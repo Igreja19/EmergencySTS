@@ -198,7 +198,7 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
             </div>
 
             <div class="col-lg-6 text-center">
-                <img src="img/feature.jpg" class="img-fluid rounded-3 shadow-lg" alt="Equipa médica em triagem hospitalar">
+                <img src="<?= yii::getAlias("@web/"). 'img/feature.jpg'?>" class="img-fluid rounded-3 shadow-lg" alt="Equipa médica em triagem hospitalar">
             </div>
         </div>
     </div>
@@ -216,7 +216,7 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
             <a href="<?= Yii::$app->urlManager->createUrl(['doutor/view', 'id' => 1]) ?>" class="text-decoration-none text-dark">
                 <div class="card border-0 shadow-sm doctor-card">
                     <div class="position-relative overflow-hidden">
-                        <img src="img/doctor2.jpg" class="card-img-top" alt="Dr. João Silva">
+                        <img src="<?= yii::getAlias("@web/"). 'img/doctor1.jpg'?>" class="card-img-top" alt="Dr. João Silva">
                     </div>
                     <div class="card-body text-center">
                         <h5 class="card-title fw-bold mb-1">Dr. João Silva</h5>
@@ -230,7 +230,7 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
             <a href="<?= Yii::$app->urlManager->createUrl(['doutor/view', 'id' => 2]) ?>" class="text-decoration-none text-dark">
                 <div class="card border-0 shadow-sm doctor-card">
                     <div class="position-relative overflow-hidden">
-                        <img src="img/doctor1.jpg" class="card-img-top" alt="Dra. Marta Costa">
+                        <img src="<?= yii::getAlias("@web/"). 'img/doctor2.jpg'?>" class="card-img-top" alt="Dra. Marta Costa">
                     </div>
                     <div class="card-body text-center">
                         <h5 class="card-title fw-bold mb-1">Dra. Marta Costa</h5>
@@ -244,7 +244,7 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
             <a href="<?= Yii::$app->urlManager->createUrl(['doutor/view', 'id' => 3]) ?>" class="text-decoration-none text-dark">
                 <div class="card border-0 shadow-sm doctor-card">
                     <div class="position-relative overflow-hidden">
-                        <img src="img/doctor3.jpg" class="card-img-top" alt="Dra. Inês Duarte">
+                        <img src="<?= yii::getAlias("@web/"). 'img/doctor3.jpg'?>" class="card-img-top" alt="Dra. Inês Duarte">
                     </div>
                     <div class="card-body text-center">
                         <h5 class="card-title fw-bold mb-1">Dra. Inês Duarte</h5>
@@ -258,7 +258,7 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
             <a href="<?= Yii::$app->urlManager->createUrl(['doutor/view', 'id' => 4]) ?>" class="text-decoration-none text-dark">
                 <div class="card border-0 shadow-sm doctor-card">
                     <div class="position-relative overflow-hidden">
-                        <img src="img/doctor4.jpg" class="card-img-top" alt="Dr. Ricardo Matos">
+                        <img src="<?= yii::getAlias("@web/"). 'img/doctor4.jpg'?>" class="card-img-top" alt="Dr. Ricardo Matos">
                     </div>
                     <div class="card-body text-center">
                         <h5 class="card-title fw-bold mb-1">Dr. Ricardo Matos</h5>

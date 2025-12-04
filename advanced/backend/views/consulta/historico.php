@@ -52,22 +52,21 @@ $this->title = "Histórico de Consultas";
                                 'contentOptions' => ['style' => 'width:60px; font-weight:bold; color:#1f9d55;']
                         ],
 
-                    // Paciente
-                        [
-                                'label' => 'Paciente',
-                                'value' => function($model){
-                                    return $model->userprofile->nome ?? '-';
-                                }
-                        ],
+                        // Paciente
+                            [
+                                    'label' => 'Paciente',
+                                    'value' => function($model){
+                                        return $model->userprofile->nome ?? '-';
+                                    }
+                            ],
 
-                    // Médico
-                        [
-                                'label' => 'Médico',
-                                'value' => function($model){
-                                    // Médico é o userprofile associado à triagem
-                                    return $model->triagem->userprofile->nome ?? '-';
-                                }
-                        ],
+                        // Médico
+                            [
+                                    'label' => 'Médico',
+                                    'value' => function($model){
+                                        return $model->medico->nome ?? '-';
+                                    }
+                            ],
 
                     // Data da consulta
                         [

@@ -181,6 +181,13 @@ class ConsultaController extends Controller
 
         if ($model->load(Yii::$app->request->post())) {
 
+            // OBRIGATÓRIO TER PRESCRIÇÃO
+            if (!$model->prescricao) {
+                Yii::$app->session->setFlash('error', 'É obrigatório adicionar uma prescrição antes de guardar a consulta.');
+                return $this->redirect(['consulta/update', 'id' => $model->id]);
+
+            }
+
             // Se volta para "Em curso"
             if ($model->estado === Consulta::ESTADO_EM_CURSO) {
                 $model->data_encerramento = null;
@@ -270,6 +277,12 @@ class ConsultaController extends Controller
 
         $model->estado = Consulta::ESTADO_ENCERRADA;
         $model->data_encerramento = date('Y-m-d H:i:s');
+
+        // 🔥 Guarda o médico que encerrou a consulta
+        if (Yii::$app->user && Yii::$app->user->identity->userprofile) {
+            $model->medicouserprofile_id = Yii::$app->user->identity->userprofile->id;
+        }
+
         $model->save(false);
 
         if ($model->triagem && $model->triagem->pulseira) {
@@ -313,6 +326,10 @@ class ConsultaController extends Controller
         $consulta->delete();
 
         if ($triagem) {
+            // remover a ligação à pulseira para evitar erro
+            $triagem->pulseira_id = null;
+            $triagem->save(false);
+
             $triagem->delete();
         }
 
@@ -323,10 +340,6 @@ class ConsultaController extends Controller
         Yii::$app->session->setFlash('success', 'Consulta, triagem, prescrição e pulseira eliminadas com sucesso.');
         return $this->redirect(['historico']);
     }
-
-
-
-
 
     protected function findModel($id)
     {

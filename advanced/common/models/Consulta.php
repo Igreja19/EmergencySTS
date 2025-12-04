@@ -86,6 +86,16 @@ class Consulta extends \yii\db\ActiveRecord
         return $this->hasMany(Prescricao::class, ['consulta_id' => 'id']);
     }
 
+    public function getPrescricoes()
+    {
+        return $this->hasMany(Prescricao::class, ['consulta_id' => 'id']);
+    }
+
+    public function getPrescricao()
+    {
+        return $this->hasOne(Prescricao::class, ['consulta_id' => 'id']);
+    }
+
     public function getTriagem()
     {
         return $this->hasOne(Triagem::class, ['id' => 'triagem_id']);
@@ -94,6 +104,11 @@ class Consulta extends \yii\db\ActiveRecord
     public function getUserprofile()
     {
         return $this->hasOne(Userprofile::class, ['id' => 'userprofile_id']);
+    }
+
+    public function getMedico()
+    {
+        return $this->hasOne(UserProfile::class, ['id' => 'medicouserprofile_id']);
     }
 
     public static function optsEstado()
@@ -137,14 +152,5 @@ class Consulta extends \yii\db\ActiveRecord
         }
 
         return parent::beforeSave($insert);
-    }
-    public function getPrescricoes()
-    {
-        return $this->hasMany(Prescricao::class, ['consulta_id' => 'id']);
-    }
-
-    public function getPrescricao()
-    {
-        return $this->hasOne(Prescricao::class, ['consulta_id' => 'id']);
     }
 }

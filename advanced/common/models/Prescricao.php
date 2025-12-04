@@ -34,7 +34,7 @@ class Prescricao extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['observacoes', 'consulta_id'], 'required'],
+            [['consulta_id'], 'required'],
             [['observacoes'], 'string'],
             [['dataprescricao'], 'safe'],
             [['consulta_id'], 'integer'],

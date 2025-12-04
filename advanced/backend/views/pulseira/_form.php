@@ -76,13 +76,14 @@ $pacientes = UserProfile::find()
             </div>
 
             <!-- TRIAGEM -->
+            <?php $fromPulseira = Yii::$app->request->get('pulseira_id'); ?>
             <div class="col-md-6">
                 <label class="form-label fw-bold">Triagem Associada</label>
                 <div class="pt-2">
                     <?= $model->triagem
                             ? Html::a(
                                     'Ver Triagem #' . $model->triagem->id,
-                                    ['triagem/view', 'id' => $model->triagem->id],
+                                    ['triagem/view', 'id' => $model->triagem->id, 'pulseira_id' => $model->id],
                                     ['class' => 'text-success fw-semibold']
                             )
                             : '<span class="text-muted">—</span>'; ?>

@@ -108,6 +108,13 @@ $isNew = $model->isNewRecord;
         <!-- PRESCRIÇÃO -->
         <div class="mt-3">
 
+            <?php if (!$model->prescricao): ?>
+                <div class="alert alert-warning mt-3">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    Para finalizar a consulta, é necessário adicionar uma prescrição.
+                </div>
+            <?php endif; ?>
+
             <?php if ($model->prescricao): ?>
                 <?= Html::a(
                         '<i class="bi bi-eye-fill me-1"></i> Ver Prescrição',
@@ -125,7 +132,6 @@ $isNew = $model->isNewRecord;
         </div>
 
     <?php endif; ?>
-
 
     <!-- BOTÕES -->
     <div class="d-flex justify-content-end mt-4 gap-2">

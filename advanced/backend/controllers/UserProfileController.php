@@ -132,7 +132,7 @@ class UserProfileController extends Controller
 
         if ($model->load(Yii::$app->request->post())) {
 
-            if ($model->save(false)) {
+            if ($model->save()) {
                 // Atualizar email do User base
                 if ($oldEmail !== $model->email && $model->user_id) {
                     if ($user = \common\models\User::findOne($model->user_id)) {

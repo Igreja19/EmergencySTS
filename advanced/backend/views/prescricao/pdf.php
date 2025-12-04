@@ -179,7 +179,7 @@ $logoPath = Yii::getAlias('@backend/web/img/logo.png');
 <div class="card">
     <div class="section-title">Medicamentos Prescritos</div>
 
-    <?php foreach ($model->prescricaoMedicamentos as $pm): ?>
+    <?php foreach ($model->prescricaomedicamentos as $pm): ?>
         <div class="med-card">
             <strong style="color:#1f9d55; font-size:14px;">
                 <?= Html::encode($pm->medicamento->nome) ?>

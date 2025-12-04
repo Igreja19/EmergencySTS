@@ -15,7 +15,7 @@ $this->title = 'EmergencySTS Dev Team';
         <!-- Membro 1 -->
         <div class="col-md-4">
             <div class="card border-0 shadow-sm text-center team-card overflow-hidden">
-                <img src="img/Miguel.jpg" class="card-img-top" alt="Miguel Tobias">
+                <img src="<?= yii::getAlias("@web/"). 'img/Miguel.jpg'?>" class="card-img-top" alt="Miguel Tobias">
                 <div class="card-body">
                     <h5 class="fw-bold text-success mb-1">Miguel Tobias</h5>
                     <p class="text-muted mb-1">Front-end • Back-end • Full-Stack Developer</p>
@@ -34,7 +34,7 @@ $this->title = 'EmergencySTS Dev Team';
         <!-- Membro 2 -->
         <div class="col-md-4">
             <div class="card border-0 shadow-sm text-center team-card overflow-hidden">
-                <img src="img/dev2.jpg" class="card-img-top" alt="Fábio Almeida">
+                <img src="<?= yii::getAlias("@web/"). ''?>" class="card-img-top" alt="Fábio Almeida">
                 <div class="card-body">
                     <h5 class="fw-bold text-success mb-1">Fábio Almeida</h5>
                     <p class="text-muted mb-1">Front-end • Back-end • Full-Stack Developer</p>

@@ -1,7 +1,11 @@
 <?php
 
+use kartik\select2\Select2Asset;
+Select2Asset::register($this);
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
+use kartik\select2\Select2;
+
 
 /** @var yii\web\View $this */
 /** @var common\models\Prescricao $model */
@@ -74,12 +78,21 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/prescricao/_form.css'
 
                     <div class="col-md-5">
                         <label class="form-label fw-bold text-secondary">Medicamento</label>
-                        <?= Html::dropDownList(
-                                "Prescricaomedicamento[$i][medicamento_id]",
-                                $pm->medicamento_id,
-                                $medicamentosDropdown,
-                                ['class' => 'form-select shadow-sm', 'required' => true]
-                        ) ?>
+                        <?= Select2::widget([
+                                'bsVersion' => '5.x',
+                                'name' => "Prescricaomedicamento[$i][medicamento_id]",
+                                'value' => $pm->medicamento_id,
+                                'data' => $medicamentosDropdown,
+                                'options' => [
+                                        'placeholder' => 'Selecione um medicamento...',
+                                        'required' => true,
+                                        'class' => 'shadow-sm select2-medicamento',
+                                ],
+                                'pluginOptions' => [
+                                        'allowClear' => true,
+                                        'width' => '100%',
+                                ],
+                        ]) ?>
                     </div>
 
                     <div class="col-md-6">
@@ -104,29 +117,35 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/prescricao/_form.css'
                     <?= Html::hiddenInput("Prescricaomedicamento[$i][id]", $pm->id); ?>
                 </div>
             <?php endforeach; ?>
-
         </div>
-
     </div>
 </div>
 
 <!-- BOTÕES FINAIS -->
-<div class="d-flex justify-content-end mt-4 gap-2">
-    <?= Html::a(
-            '<i class="bi bi-arrow-left-circle"></i> Cancelar',
-            ['index'],
-            ['class' => 'btn btn-outline-secondary btn-lg px-4 shadow-sm']
-    ) ?>
+<div class="d-flex justify-content-end mt-4 gap-2" style="padding-bottom: 20px">
 
     <?= Html::submitButton(
             $model->isNewRecord
-                    ? '<i class="bi bi-check-circle"></i> Criar Prescrição'
-                    : '<i class="bi bi-save"></i> Guardar Alterações',
-            ['class' => 'btn btn-success btn-lg px-4 shadow-sm']
+                    ? '<i class="bi bi-check2-circle me-1"></i>Criar Prescrição'
+                    : '<i class="bi bi-check2-circle me-1"></i>Guardar Alterações',
+            [
+                    'class' => 'btn btn-success px-4 rounded-3 fw-semibold'
+            ]
     ) ?>
+
+    <?= Html::a(
+            '<i class="bi bi-x-circle me-1"></i>Cancelar',
+            ['index'],
+            [
+                    'class' => 'btn btn-outline-secondary px-4 rounded-3 fw-semibold'
+            ]
+    ) ?>
+
 </div>
 
 <?php ActiveForm::end(); ?>
+
+<?php $this->registerJsFile(Yii::$app->request->baseUrl . '/js/prescricao/_form.js', ['depends' => [\yii\web\JqueryAsset::class]]); ?>
 
 <!-- JAVASCRIPT DOS CAMPOS DINÂMICOS -->
 <script>
@@ -137,38 +156,49 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/prescricao/_form.css'
         let container = document.getElementById('medicamentos-container');
 
         let html = `
-        <div class="row g-3 medicamento-item border rounded p-3 mb-3 shadow-sm">
+            <div class="row g-3 medicamento-item border rounded p-3 mb-3 shadow-sm">
 
-            <div class="col-md-5">
-                <label class="form-label fw-bold text-secondary">Medicamento</label>
-                <select class="form-select shadow-sm"
-                        name="Prescricaomedicamento[${index}][medicamento_id]" required>
-                    <option value="">Selecione...</option>
-                    <?php foreach ($medicamentosDropdown as $id => $nome): ?>
-                        <option value="<?= $id ?>"><?= $nome ?></option>
-                    <?php endforeach; ?>
-                </select>
+                <div class="col-md-5">
+                    <label class="form-label fw-bold text-secondary">Medicamento</label>
+                    <select name="Prescricaomedicamento[${index}][medicamento_id]"
+                            class="form-select shadow-sm select2-medicamento"
+                            required>
+                        <option value="">Selecione um medicamento...</option>
+                        <?php foreach ($medicamentosDropdown as $id => $nome): ?>
+                            <option value="<?= $id ?>"><?= $nome ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-bold text-secondary">Posologia</label>
+                    <input type="text"
+                           name="Prescricaomedicamento[${index}][posologia]"
+                           class="form-control shadow-sm"
+                           placeholder="Ex: 1 comprimido 2x ao dia"
+                           required>
+                </div>
+
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="button" class="btn btn-danger remover w-100 shadow-sm">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+
             </div>
+        `;
 
-            <div class="col-md-6">
-                <label class="form-label fw-bold text-secondary">Posologia</label>
-                <input type="text"
-                       class="form-control shadow-sm"
-                       name="Prescricaomedicamento[${index}][posologia]"
-                       placeholder="Ex: 1 comprimido 2x ao dia"
-                       required>
-            </div>
+        $("#medicamentos-container").append(html);
 
-            <div class="col-md-1 d-flex align-items-end">
-                <button type="button" class="btn btn-danger remover w-100 shadow-sm">
-                    <i class="bi bi-trash"></i>
-                </button>
-            </div>
+        // Inicializa o último adicionado
+        $(".select2-medicamento").last().select2({
+            allowClear: true,
+            width: '100%',
+            placeholder: "Selecione um medicamento..."
+        });
 
-        </div>
-    `;
+        counter++;
 
-        container.insertAdjacentHTML('beforeend', html);
         index++;
     });
 

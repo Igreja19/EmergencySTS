@@ -5,15 +5,10 @@ use yii\helpers\Html;
 /** @var yii\web\View $this */
 /** @var common\models\Prescricao $model */
 
-$this->title = 'Prescrição #' . $model->id;
-$this->params['breadcrumbs'][] = ['label' => 'Prescrições', 'url' => ['index']];
-$this->params['breadcrumbs'][] = $this->title;
-
 ?>
 
 <div class="prescricao-view">
 
-    <h1 class="page-title"><?= Html::encode($this->title) ?></h1>
 
     <div class="card shadow-sm" style="border-radius: 12px; max-width: 900px; margin: auto;">
 

@@ -24,6 +24,8 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile/_form.cs
 
         <?php $form = ActiveForm::begin([
                 'id' => 'userprofile-form',
+                'action' => ['user-profile/update', 'id' => $model->id],
+                'method' => 'post',
                 'options' => ['class' => 'needs-validation'],
         ]); ?>
 
@@ -51,6 +53,9 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile/_form.cs
                         ->input('date', [
                                 'min' => '1900-01-01',
                                 'max' => date('Y-m-d'),
+                                'onkeydown' => 'return false',
+                                'onpaste' => 'return false',
+                                'onclick' => 'this.showPicker()', // força a abrir o calendario
                         ])
                         ->label('<i class="bi bi-calendar me-2"></i> <span class="short-label">Data Nascimento</span>') ?>
             </div>
@@ -73,7 +78,9 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile/_form.cs
 
             <div class="col-md-6">
                 <?= $form->field($model, 'telefone')
-                        ->textInput(['maxlength' => true, 'placeholder' => 'Telefone'])
+                        ->textInput(['maxlength' => true,
+                                'placeholder' => 'Telefone',
+                                'oninput' => 'this.value = this.value.replace(/[^0-9]/g, "")'])
                         ->label('<i class="bi bi-telephone me-2"></i> Telefone') ?>
             </div>
         </div>
@@ -89,13 +96,19 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile/_form.cs
         <div class="row g-3 mb-4">
             <div class="col-md-6">
                 <?= $form->field($model, 'nif')
-                        ->textInput(['maxlength' => true, 'placeholder' => 'NIF'])
+                        ->textInput([
+                                'placeholder' => 'NIF',
+                                'oninput' => 'this.value = this.value.replace(/[^0-9]/g, "")'
+                        ])
                         ->label('<i class="bi bi-credit-card-2-front me-2"></i> NIF') ?>
             </div>
 
             <div class="col-md-6">
                 <?= $form->field($model, 'sns')
-                        ->textInput(['maxlength' => true, 'placeholder' => 'Número de Utente (SNS)'])
+                        ->textInput([
+                                'placeholder' => 'Número de Utente (SNS)',
+                                'oninput' => 'this.value = this.value.replace(/[^0-9]/g, "")'
+                        ])
                         ->label('<i class="bi bi-hospital me-2"></i> Nº SNS') ?>
             </div>
         </div>
