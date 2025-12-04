@@ -43,7 +43,6 @@ class AuthController extends Controller
         if (!$username || !$password) {
             return ['status' => false, 'message' => 'Credenciais em falta.', 'data' => null];
         }
-
         $user = User::findByUsername($username);
 
         if (!$user || !$user->validatePassword($password)) {
