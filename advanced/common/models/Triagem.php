@@ -4,7 +4,7 @@ namespace common\models;
 
 use Yii;
 use common\models\UserProfile;
-use common\models\Pulseira; // <--- ISTO ESTAVA A FALTAR E CAUSAVA O ERRO 500!
+use common\models\Pulseira;
 
 /**
  * Esta é a classe modelo para a tabela "triagem".
@@ -22,7 +22,7 @@ use common\models\Pulseira; // <--- ISTO ESTAVA A FALTAR E CAUSAVA O ERRO 500!
  * @property int|null $pulseira_id
  *
  * @property Pulseira $pulseira
- * @property UserProfile $userProfile
+ * @property UserProfile $userprofile
  */
 class Triagem extends \yii\db\ActiveRecord
 {
@@ -45,10 +45,20 @@ class Triagem extends \yii\db\ActiveRecord
             [['prioridade_pulseira'], 'string'],
 
             // Relações
-            [['pulseira_id'], 'exist', 'skipOnError' => true, 
-                'targetClass' => Pulseira::class, 'targetAttribute' => ['pulseira_id' => 'id']],
-            [['userprofile_id'], 'exist', 'skipOnError' => true, 
-                'targetClass' => UserProfile::class, 'targetAttribute' => ['userprofile_id' => 'id']],
+            [
+                ['pulseira_id'],
+                'exist',
+                'skipOnError' => true,
+                'targetClass' => Pulseira::class,
+                'targetAttribute' => ['pulseira_id' => 'id']
+            ],
+            [
+                ['userprofile_id'],
+                'exist',
+                'skipOnError' => true,
+                'targetClass' => UserProfile::class,
+                'targetAttribute' => ['userprofile_id' => 'id']
+            ],
         ];
     }
 
@@ -69,6 +79,7 @@ class Triagem extends \yii\db\ActiveRecord
         ];
     }
 
+    /** FORMATAÇÃO AUTOMÁTICA DA DATA AO LER */
     public function afterFind()
     {
         parent::afterFind();
@@ -76,10 +87,11 @@ class Triagem extends \yii\db\ActiveRecord
             try {
                 $date = new \DateTime($this->iniciosintomas);
                 $this->iniciosintomas = $date->format('Y-m-d\TH:i');
-            } catch (\Exception $e) {
-            }
+            } catch (\Exception $e) {}
         }
     }
+
+    /** RELAÇÕES */
 
     public function getPulseira()
     {
@@ -90,10 +102,29 @@ class Triagem extends \yii\db\ActiveRecord
     {
         return $this->hasOne(UserProfile::class, ['id' => 'userprofile_id']);
     }
-    
+
     public function getConsulta()
     {
-        // Certifique-se que Consulta existe ou use caminho completo se falhar
         return $this->hasOne(\common\models\Consulta::class, ['triagem_id' => 'id']);
+    }
+
+    /** CAMPOS DEVOLVIDOS SEMPRE NO JSON */
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        // Remover os IDs porque já vais enviar objetos completos
+        unset($fields['userprofile_id'], $fields['pulseira_id']);
+
+        // Incluir automaticamente as relações
+        $fields['userprofile'] = function ($model) {
+            return $model->userprofile;
+        };
+
+        $fields['pulseira'] = function ($model) {
+            return $model->pulseira;
+        };
+
+        return $fields;
     }
 }

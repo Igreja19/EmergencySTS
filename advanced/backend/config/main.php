@@ -105,7 +105,7 @@ return [
         ],
 
         //  URL MANAGER DA API
-        
+
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
@@ -114,20 +114,23 @@ return [
                 // --- 1. ROTAS ESPECIAIS (Mapeamento Manual) ---
 
                 // Login
-                'POST api/auth/login'    => 'api/auth/login',
+                'POST api/auth/login' => 'api/auth/login',
 
-                //Signup
+                // Signup
                 'POST api/auth/signup' => 'api/auth/signup',
                 'POST api/user/profile/update' => 'api/user/profile/update',
 
                 // Perfil
-                'GET api/profile'   => 'api/user/index',
+                'GET api/profile' => 'api/user/index',
 
                 // Histórico de Consultas
                 'GET api/userprofiles/<id:\d+>/consultas' => 'api/consulta/historico',
 
-                // Validação de Token (Opcional)
-                'GET api/auth/validate'  => 'api/auth/validate',
+                // Histórico de Triagens (NOVO)
+                'GET api/triagem/historico' => 'api/triagem/historico',
+
+                // Validação de Token
+                'GET api/auth/validate' => 'api/auth/validate',
 
                 // Notificações
                 'GET api/notificacao/list' => 'api/notificacao/list',
@@ -149,16 +152,17 @@ return [
                     'extraPatterns' => [
                         'GET prioridade' => 'prioridade',
                     ],
-                ], 
+                ],
 
                 // Página Base da API
                 'GET api' => 'api/default/index',
 
-                // Rotas extra de paciente 
+                // Rotas extra de paciente
                 'GET api/paciente/perfil' => 'api/paciente/perfil',
                 'PUT api/paciente/update/<id:\d+>' => 'api/paciente/update',
             ],
         ],
+
     ],
 
     'params' => $params,
