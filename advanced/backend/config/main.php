@@ -136,6 +136,9 @@ return [
                 // Perfil do paciente autenticado
                 'GET api/paciente/perfil' => 'api/paciente/perfil',
 
+                // Perfil do Enfermeiro autenticado
+                'GET api/enfermeiro/perfil' => 'api/enfermeiro/perfil',
+
                 // Atualizar perfil do paciente
                 'PUT api/paciente/update/<id:\d+>' => 'api/paciente/update',
 
@@ -150,6 +153,8 @@ return [
                         'api/notificacao',
                         'api/medicamento',
                         'api/paciente',
+                        'api/enfermeiro',
+
                     ],
                     'pluralize' => false,
                     'extraPatterns' => [
