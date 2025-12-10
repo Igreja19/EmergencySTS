@@ -225,7 +225,7 @@ class TriagemController extends ActiveController
         }
 
         if ($triagem->pulseira_id) {
-            Pulseira::findOne($triagem->pulseira_id)?->delete();
+            Pulseira::findOne($triagem->pulseira_id)->delete();
         }
 
         $triagem->delete();

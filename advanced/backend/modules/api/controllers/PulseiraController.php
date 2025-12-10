@@ -33,8 +33,7 @@ class PulseiraController extends ActiveController
 
         $behaviors['authenticator'] = [
             'class' => QueryParamAuth::class,
-            // 'tokenParam' => 'auth_key', // <--- REMOVI ISTO!
-            // O padrão é 'access-token', que é exatamente o que a tua App Android envia.
+
         ];
         
         return $behaviors;
