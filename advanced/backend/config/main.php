@@ -146,7 +146,8 @@ return [
                         'api/consulta',
                         'api/prescricao',
                         'api/notificacao',
-                        'api/medicamento'
+                        'api/medicamento',
+                        'api/paciente',
                     ],
                     'pluralize' => false,
                     'extraPatterns' => [
