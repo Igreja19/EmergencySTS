@@ -18,7 +18,7 @@ use Yii;
  *
  * @property Prescricao[] $prescricaos
  * @property Triagem $triagem
- * @property Userprofile $userprofile
+ * @property UserProfile $userprofile   ← CORRETO AGORA
  */
 class Consulta extends \yii\db\ActiveRecord
 {
@@ -63,7 +63,7 @@ class Consulta extends \yii\db\ActiveRecord
 
             // relações
             [['triagem_id'], 'exist', 'skipOnError' => true, 'targetClass' => Triagem::class, 'targetAttribute' => ['triagem_id' => 'id']],
-            [['userprofile_id'], 'exist', 'skipOnError' => true, 'targetClass' => Userprofile::class, 'targetAttribute' => ['userprofile_id' => 'id']],
+            [['userprofile_id'], 'exist', 'skipOnError' => true, 'targetClass' => UserProfile::class, 'targetAttribute' => ['userprofile_id' => 'id']],
         ];
     }
 
@@ -103,7 +103,7 @@ class Consulta extends \yii\db\ActiveRecord
 
     public function getUserprofile()
     {
-        return $this->hasOne(Userprofile::class, ['id' => 'userprofile_id']);
+        return $this->hasOne(UserProfile::class, ['id' => 'userprofile_id']);
     }
 
     public function getMedico()
