@@ -1,0 +1,5 @@
+actor: AcceptanceTester
+suite_namespace: \Acceptance
+modules:
+    # enable helpers as array
+    enabled: []

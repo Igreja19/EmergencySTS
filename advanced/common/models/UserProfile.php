@@ -25,6 +25,7 @@ use Yii;
 class UserProfile extends \yii\db\ActiveRecord
 {
     public $role;
+    public $password;
 
     /**
      * {@inheritdoc}
@@ -50,6 +51,7 @@ class UserProfile extends \yii\db\ActiveRecord
             [['genero'], 'string', 'max' => 1],
             [['telefone'], 'string', 'max' => 30],
             [['sns', 'nif'], 'string', 'max' => 9, 'min' => 9],
+            ['password', 'string', 'min' => 6],
 
 
             [['email'], 'unique'],

@@ -72,11 +72,17 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile.css');
                 ['prompt' => '— Selecionar função —']
         )->label('Função / Role') ?>
     </div>
+    <div class="col-md-6">
+        <?= $form->field($model, 'password')->passwordInput([
+                'placeholder' => $model->isNewRecord
+                        ? 'Definir password'
+                        : 'Deixe em branco para manter a password atual',
+        ]) ?>
+    </div>
 </div>
-
-<div class="mt-4 d-flex gap-2">
-    <?= Html::submitButton('Guardar', ['class' => 'btn btn-success']) ?>
-    <?= Html::a('Cancelar', ['index'], ['class' => 'btn btn-outline-secondary']) ?>
-</div>
+    <div class="mt-4 d-flex gap-2">
+        <?= Html::submitButton('Guardar', ['class' => 'btn btn-success']) ?>
+        <?= Html::a('Cancelar', ['index'], ['class' => 'btn btn-outline-secondary']) ?>
+    </div>
 
 <?php ActiveForm::end(); ?>

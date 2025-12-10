@@ -79,7 +79,7 @@ class UserProfileController extends Controller
                 $user = new \common\models\User();
                 $user->username = $model->email;
                 $user->email = $model->email;
-                $user->setPassword('123456'); // senha padrão
+                $user->setPassword('admin123'); // senha padrão
                 $user->generateAuthKey();
 
                 if (!$user->save()) {
@@ -130,33 +130,44 @@ class UserProfileController extends Controller
             $roleOptions[$name] = ucfirst($name);
         }
 
-        if ($model->load(Yii::$app->request->post())) {
+        $model->password = '';
 
-            if ($model->save()) {
-                // Atualizar email do User base
-                if ($oldEmail !== $model->email && $model->user_id) {
-                    if ($user = \common\models\User::findOne($model->user_id)) {
-                        $user->email = $model->email;
-                        $user->username = $model->email;
-                        $user->save(false);
-                    }
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+
+            // === Sempre buscar o USER associado ===
+            $user = \common\models\User::findOne($model->user_id);
+
+            if ($user) {
+
+                // --- Atualizar email e username se mudou ---
+                if ($oldEmail !== $model->email) {
+                    $user->email = $model->email;
+                    $user->username = $model->email;
                 }
 
-                // Atualizar role
-                if (!empty($model->role)) {
-                    $auth = Yii::$app->authManager;
-                    $auth->revokeAll($model->user_id);
-                    $role = $auth->getRole($model->role);
-                    if ($role) {
-                        $auth->assign($role, $model->user_id);
-                    }
+                // --- Atualizar password se preenchida ---
+                if (!empty($model->password)) {
+                    $user->setPassword($model->password);
+                    $user->generateAuthKey();
                 }
 
-                Yii::$app->session->setFlash('success', 'Perfil atualizado com sucesso!');
-                return $this->redirect(['index']);
-            } else {
-                Yii::$app->session->setFlash('error', 'Erro ao atualizar perfil.');
+                // Guardar alterações no User
+                $user->save(false);
             }
+
+            // --- Atualizar role ---
+            if (!empty($model->role)) {
+                $auth = Yii::$app->authManager;
+                $auth->revokeAll($model->user_id);
+                $role = $auth->getRole($model->role);
+
+                if ($role) {
+                    $auth->assign($role, $model->user_id);
+                }
+            }
+
+            Yii::$app->session->setFlash('success', 'Perfil atualizado com sucesso!');
+            return $this->redirect(['index']);
         }
 
         return $this->render('update', [
