@@ -222,4 +222,20 @@ class PacienteController extends ActiveController
             'errors' => array_merge($user->errors, $profile->errors),
         ];
     }
+    public function actionPerfil()
+    {
+        $userId = Yii::$app->user->id;
+
+        $perfil = UserProfile::find()
+            ->where(['user_id' => $userId])
+            ->asArray()
+            ->one();
+
+        if (!$perfil) {
+            throw new NotFoundHttpException("Perfil do paciente não encontrado.");
+        }
+
+        return $perfil;
+    }
+
 }
