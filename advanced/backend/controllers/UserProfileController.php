@@ -2,6 +2,7 @@
 
 namespace backend\controllers;
 
+use common\models\Notificacao;
 use Yii;
 use common\models\UserProfile;
 use common\models\UserProfileSearch;
@@ -95,6 +96,7 @@ class UserProfileController extends Controller
 
             // Guardar perfil
             if ($model->save(false)) {
+
                 // Atribuir role, se selecionada
                 if (!empty($model->role)) {
                     $auth = Yii::$app->authManager;
@@ -105,11 +107,21 @@ class UserProfileController extends Controller
                     }
                 }
 
+                // 🔔 Notificação envia para o ADMIN (não para o user criado)
+                $adminProfileId = Yii::$app->user->identity->userprofile->id;
+
+                Notificacao::enviar(
+                    $adminProfileId,
+                    "Novo utilizador criado",
+                    "Foi criada uma nova conta: {$model->nome}",
+                    "Geral"
+                );
+
                 Yii::$app->session->setFlash('success', 'Utilizador criado com sucesso!');
                 return $this->redirect(['index']);
-            } else {
-                Yii::$app->session->setFlash('error', 'Erro ao guardar o perfil: ' . json_encode($model->getErrors()));
             }
+
+            Yii::$app->session->setFlash('error', 'Erro ao guardar o perfil: ' . json_encode($model->getErrors()));
         }
 
         return $this->render('create', [
@@ -117,6 +129,7 @@ class UserProfileController extends Controller
             'roleOptions' => $roleOptions,
         ]);
     }
+
 
     public function actionUpdate($id)
     {

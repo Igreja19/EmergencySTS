@@ -222,4 +222,42 @@ class PacienteController extends ActiveController
             'errors' => array_merge($user->errors, $profile->errors),
         ];
     }
+    /**
+     * GET /api/paciente/perfil?id=X
+     * X = user_id
+     */
+    public function actionPerfil($id)
+    {
+        $user = User::findOne($id);
+
+        if (!$user) {
+            return [
+                "status" => false,
+                "message" => "Utilizador não encontrado"
+            ];
+        }
+
+        $profile = $user->profile;
+
+        if (!$profile) {
+            return [
+                "status" => false,
+                "message" => "Perfil não encontrado"
+            ];
+        }
+
+        return [
+            "status" => true,
+            "id" => $profile->id,
+            "user_id" => $user->id,
+            "nome" => $profile->nome,
+            "email" => $user->email,
+            "morada" => $profile->morada,
+            "nif" => $profile->nif,
+            "sns" => $profile->sns,
+            "datanascimento" => $profile->datanascimento,
+            "genero" => $profile->genero,
+            "telefone" => $profile->telefone
+        ];
+    }
 }

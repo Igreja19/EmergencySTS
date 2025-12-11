@@ -3,10 +3,12 @@
 namespace backend\controllers;
 
 use Yii;
+use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use common\models\Notificacao;
+use yii\web\Response;
 
 class NotificacaoController extends Controller
 {
@@ -17,8 +19,8 @@ class NotificacaoController extends Controller
             [
                 // 🔐 Acesso apenas para utilizadores autenticados com roles válidos
                 'access' => [
-                    'class' => \yii\filters\AccessControl::class,
-                    'only' => ['index', 'lida', 'ler-todas', 'stream'],
+                    'class' => AccessControl::class,
+                    'only' => ['index', 'lida', 'ler-todas', 'stream', 'lista', 'lida-ajax'],
                     'rules' => [
                         [
                             'allow' => true,
@@ -46,6 +48,7 @@ class NotificacaoController extends Controller
      */
     public function actionIndex()
     {
+
         $user = Yii::$app->user->identity->userprofile ?? null;
         if (!$user) {
             return $this->redirect(['/site/login']);
@@ -131,5 +134,47 @@ class NotificacaoController extends Controller
 
             usleep(500000); // 0.5 segundos
         }
+    }
+
+    public function actionLista()
+    {
+        $this->layout = false; // 👈 impede que o layout carregue
+
+        if (Yii::$app->user->isGuest || !Yii::$app->user->identity->userprofile) {
+            return "Erro: Utilizador sem perfil associado.";
+        }
+
+        $userId = Yii::$app->user->identity->userprofile->id;
+
+        $notificacoes = Notificacao::find()
+            ->where(['userprofile_id' => $userId])
+            ->orderBy(['dataenvio' => SORT_DESC])
+            ->limit(20)
+            ->all();
+
+        return $this->renderPartial('_lista', [
+            'notificacoes' => $notificacoes
+        ]);
+    }
+
+
+    public function actionLidaAjax($id)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $n = Notificacao::findOne($id);
+
+        if (!$n) {
+            return ['success' => false, 'error' => 'Notificação não encontrada'];
+        }
+
+        if ($n->userprofile_id != Yii::$app->user->identity->userprofile->id) {
+            return ['success' => false, 'error' => 'Acesso negado'];
+        }
+
+        $n->lida = 1;
+        $n->save(false);
+
+        return ['success' => true];
     }
 }

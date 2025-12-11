@@ -66,13 +66,18 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/layouts/navbar.css');
             <li class="nav-item dropdown">
 
                 <!-- Botão da campainha -->
-                <a class="nav-link text-white notif-btn" href="#" role="button" data-bs-toggle="dropdown">
+                <a class="nav-link text-white notif-btn position-relative"
+                   href="javascript:void(0)"
+                   role="button"
+                   data-bs-toggle="dropdown"
+                   data-url="<?= Url::to(['/notificacao/lista']) ?>">
                     <i class="far fa-bell"></i>
-                    <!-- .notif-badge inserido via JS -->
+                    <!-- aqui depois podemos pôr o badge -->
                 </a>
 
                 <!-- Dropdown -->
-                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0 shadow-lg" style="width:380px;">
+                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0 shadow-lg"
+                     style="width:380px;" data-bs-auto-close="outside">
 
                     <!-- Cabeçalho -->
                     <div class="notif-header d-flex justify-content-between align-items-center p-2 bg-light border-bottom">
@@ -134,3 +139,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/layouts/navbar.css');
         </li>
     </ul>
 </nav>
+<?php
+$this->registerJsFile(Yii::$app->request->baseUrl . '/js/layout/navbar.js', ['depends' => [\yii\web\JqueryAsset::class]]);
+?>
