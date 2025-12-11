@@ -15,20 +15,39 @@ use common\models\Triagem;
 use common\models\UserProfile;
 use common\models\Pulseira;
 
+require_once __DIR__ . '/../mqtt/phpMQTT.php';
+use backend\modules\api\mqtt\phpMQTT;
+
 class TriagemController extends ActiveController
 {
     public $modelClass = 'common\models\Triagem';
     public $enableCsrfValidation = false;
+
+    private function publishMqtt($topic, $payload)
+    {
+        $server = '127.0.0.1';
+        $port = 1883;
+        $clientId = 'emergencysts-' . rand(1000,9999);
+
+        $mqtt = new phpMQTT($server, $port, $clientId);
+
+        if (!$mqtt->connect(true, NULL)) {
+            return false;
+        }
+
+        $mqtt->publish($topic, $payload, 0);
+        $mqtt->close();
+
+        return true;
+    }
 
     public function behaviors()
     {
         $behaviors = parent::behaviors();
         unset($behaviors['authenticator']);
 
-        // output default JSON
         $behaviors['contentNegotiator']['formats']['text/html'] = Response::FORMAT_JSON;
 
-        // Auth por ?auth_key=
         $behaviors['authenticator'] = [
             'class' => QueryParamAuth::class,
             'tokenParam' => 'auth_key',
@@ -52,8 +71,17 @@ class TriagemController extends ActiveController
         return $actions;
     }
 
-    //  LISTAR TODAS AS TRIAGENS (APLICAÇÃO PROFISSIONAL)
+    //  TESTE MQTT
+    public function actionTestMqtt()
+    {
+        $ok = $this->publishMqtt("triagem/teste", "Mensagem enviada do backend!");
 
+        return [
+            "status" => $ok ? "ok" : "erro"
+        ];
+    }
+
+    //  INDEX
     public function actionIndex()
     {
         $user = Yii::$app->user;
@@ -62,12 +90,10 @@ class TriagemController extends ActiveController
             ->with(['userprofile', 'pulseira'])
             ->orderBy(['datatriagem' => SORT_DESC]);
 
-        // Filtro por pulseira se vier do GET
         if ($pulseiraId = Yii::$app->request->get('pulseira_id')) {
             $query->andWhere(['pulseira_id' => $pulseiraId]);
         }
 
-        // Paciente: só vê as próprias triagens
         if (!$user->can('admin') && !$user->can('medico') && !$user->can('enfermeiro')) {
             $profile = UserProfile::findOne(['user_id' => $user->id]);
             if (!$profile) {
@@ -82,19 +108,17 @@ class TriagemController extends ActiveController
         ]);
     }
 
-    //  HISTÓRICO DE TRIAGENS APENAS DE CONSULTAS ENCERRADAS
-
+    //  HISTÓRICO
     public function actionHistorico()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
 
         $query = Triagem::find()
-            ->joinWith(['consulta']) // junta tabela consulta
+            ->joinWith(['consulta'])
             ->where(['consulta.estado' => 'encerrada'])
             ->with(['pulseira', 'userprofile'])
             ->orderBy(['triagem.datatriagem' => SORT_DESC]);
 
-        // Paciente vê só as suas triagens
         $user = Yii::$app->user;
         if (!$user->can('admin') && !$user->can('medico') && !$user->can('enfermeiro')) {
             $profile = UserProfile::findOne(['user_id' => $user->id]);
@@ -105,7 +129,6 @@ class TriagemController extends ActiveController
     }
 
     //  VIEW
-
     public function actionView($id)
     {
         $triagem = Triagem::find()
@@ -130,7 +153,6 @@ class TriagemController extends ActiveController
     }
 
     //  CREATE
-
     public function actionCreate()
     {
         $data = Yii::$app->request->post();
@@ -144,7 +166,6 @@ class TriagemController extends ActiveController
         $transaction = Yii::$app->db->beginTransaction();
 
         try {
-            // Criar Triagem
             $triagem = new Triagem();
             $triagem->load($data, '');
             $triagem->userprofile_id = $profile->id;
@@ -154,7 +175,6 @@ class TriagemController extends ActiveController
                 throw new \Exception(json_encode($triagem->errors));
             }
 
-            // Criar Pulseira
             $pulseira = new Pulseira([
                 'userprofile_id' => $profile->id,
                 'codigo' => 'P-' . strtoupper(substr(uniqid(), -5)),
@@ -167,11 +187,22 @@ class TriagemController extends ActiveController
                 throw new \Exception(json_encode($pulseira->errors));
             }
 
-            // Associar pulseira
             $triagem->pulseira_id = $pulseira->id;
             $triagem->save();
 
             $transaction->commit();
+
+            // MQTT — nova triagem criada
+            $this->publishMqtt(
+                "triagem/atualizada/" . $triagem->id,
+                json_encode([
+                    "evento" => "triagem criada",
+                    "triagem_id" => $triagem->id,
+                    "pulseira_codigo" => $pulseira->codigo,
+                    "prioridade" => $pulseira->prioridade,
+                    "hora" => date('Y-m-d H:i:s'),
+                ])
+            );
 
             return [
                 'status' => 'success',
@@ -191,7 +222,6 @@ class TriagemController extends ActiveController
     }
 
     //  UPDATE
-
     public function actionUpdate($id)
     {
         if (!Yii::$app->user->can('enfermeiro') &&
@@ -208,11 +238,21 @@ class TriagemController extends ActiveController
         $triagem->load(Yii::$app->request->post(), '');
         $triagem->save();
 
+        // MQTT — triagem atualizada
+        $this->publishMqtt(
+            "triagem/atualizada/" . $triagem->id,
+            json_encode([
+                "evento" => "triagem atualizada",
+                "triagem_id" => $triagem->id,
+                "dados" => $triagem->attributes,
+                "hora" => date('Y-m-d H:i:s'),
+            ])
+        );
+
         return $triagem;
     }
 
     //  DELETE
-
     public function actionDelete($id)
     {
         if (!Yii::$app->user->can('admin') && !Yii::$app->user->can('enfermeiro')) {
@@ -229,6 +269,16 @@ class TriagemController extends ActiveController
         }
 
         $triagem->delete();
+
+        // MQTT — triagem removida
+        $this->publishMqtt(
+            "triagem/atualizada/" . $id,
+            json_encode([
+                "evento" => "triagem apagada",
+                "triagem_id" => $id,
+                "hora" => date('Y-m-d H:i:s'),
+            ])
+        );
 
         return ['status' => 'success', 'message' => 'Triagem apagada.'];
     }

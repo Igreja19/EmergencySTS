@@ -9,20 +9,48 @@ use yii\web\NotFoundHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\BadRequestHttpException;
 use yii\filters\auth\QueryParamAuth;
+
 use common\models\Consulta;
 use common\models\UserProfile;
 use common\models\Triagem;
+
+// MQTT
+require_once __DIR__ . '/../mqtt/phpMQTT.php';
+use backend\modules\api\mqtt\phpMQTT;
 
 class ConsultaController extends ActiveController
 {
     public $modelClass = 'common\models\Consulta';
     public $enableCsrfValidation = false;
 
+    // ---------------------------------------------------------
+    // MQTT FUNCTION
+    // ---------------------------------------------------------
+    private function publishMqtt($topic, $payload)
+    {
+        $server = '127.0.0.1';
+        $port = 1883;
+        $clientId = 'emergencysts-consulta-' . rand(1000,9999);
+
+        $mqtt = new phpMQTT($server, $port, $clientId);
+
+        if (!$mqtt->connect(true, NULL)) {
+            return false;
+        }
+
+        $mqtt->publish($topic, $payload, 0);
+        $mqtt->close();
+        return true;
+    }
+
+    // ---------------------------------------------------------
     public function behaviors()
     {
         $behaviors = parent::behaviors();
         unset($behaviors['authenticator']);
+
         $behaviors['contentNegotiator']['formats']['text/html'] = Response::FORMAT_JSON;
+
         $behaviors['authenticator'] = [
             'class' => QueryParamAuth::class,
             'tokenParam' => 'auth_key',
@@ -33,34 +61,31 @@ class ConsultaController extends ActiveController
     public function actions()
     {
         $actions = parent::actions();
-        // Desligamos as ações padrão para controlar a lógica manualmente
         unset($actions['index'], $actions['view'], $actions['create'], $actions['update'], $actions['delete']);
         return $actions;
     }
 
-   
-    //  HISTÓRICO DE CONSULTAS (GET /api/userprofiles/{id}/consultas)
-   
+    // ---------------------------------------------------------
+    // HISTÓRICO
+    // ---------------------------------------------------------
     public function actionHistorico($id)
     {
-
         $profile = UserProfile::findOne($id);
         if (!$profile) {
             throw new NotFoundHttpException("Perfil de utilizador não encontrado.");
         }
 
         $user = Yii::$app->user;
-        if (!$user->can('enfermeiro') && !$user->can('medico') && !$user->can('admin')) {
-            // Se for paciente, verifica se é o dono do perfil
+        if (!$user->can('admin') && !$user->can('medico') && !$user->can('enfermeiro')) {
             $myProfile = UserProfile::findOne(['user_id' => $user->id]);
             if (!$myProfile || $myProfile->id != $id) {
-                throw new ForbiddenHttpException("Não tem permissão para ver o histórico deste paciente.");
+                throw new ForbiddenHttpException("Sem permissão.");
             }
         }
 
         $consultas = Consulta::find()
             ->where(['userprofile_id' => $id])
-            ->orderBy(['data_consulta' => SORT_DESC]) 
+            ->orderBy(['data_consulta' => SORT_DESC])
             ->all();
 
         $data = [];
@@ -68,10 +93,9 @@ class ConsultaController extends ActiveController
             $data[] = [
                 'id' => $consulta->id,
                 'data' => $consulta->data_consulta,
-                'estado' => $consulta->estado, 
+                'estado' => $consulta->estado,
                 'observacoes' => $consulta->observacoes,
                 'relatorio_pdf' => $consulta->relatorio_pdf,
-            
                 'triagem' => $consulta->triagem ? [
                     'queixa' => $consulta->triagem->queixaprincipal,
                     'prioridade' => $consulta->triagem->prioridadeatribuida ?? 'N/A'
@@ -85,8 +109,10 @@ class ConsultaController extends ActiveController
             'data' => $data
         ];
     }
-    
-    //  INICIAR CONSULTA (POST /api/consulta)
+
+    // ---------------------------------------------------------
+    // CREATE (INICIAR CONSULTA)
+    // ---------------------------------------------------------
     public function actionCreate()
     {
         if (!Yii::$app->user->can('medico') && !Yii::$app->user->can('admin')) {
@@ -94,10 +120,9 @@ class ConsultaController extends ActiveController
         }
 
         $data = Yii::$app->request->post();
-        
-    
+
         if (empty($data['triagem_id'])) {
-            throw new BadRequestHttpException("É necessário indicar o 'triagem_id'.");
+            throw new BadRequestHttpException("É necessário enviar 'triagem_id'.");
         }
 
         $triagem = Triagem::findOne($data['triagem_id']);
@@ -105,23 +130,38 @@ class ConsultaController extends ActiveController
             throw new NotFoundHttpException("Triagem não encontrada.");
         }
 
-
         $consulta = new Consulta();
         $consulta->triagem_id = $triagem->id;
         $consulta->userprofile_id = $triagem->userprofile_id;
         $consulta->data_consulta = date('Y-m-d H:i:s');
-        $consulta->estado = 'Em curso'; 
-        
+        $consulta->estado = 'Em curso';
+
         if (isset($data['observacoes'])) {
             $consulta->observacoes = $data['observacoes'];
         }
 
         if ($consulta->save()) {
-        
+
+            // Atualizar pulseira → Em atendimento
             if ($triagem->pulseira) {
                 $triagem->pulseira->status = 'Em atendimento';
                 $triagem->pulseira->save();
             }
+
+            // -------------------------------------------------
+            // MQTT – consulta criada
+            // -------------------------------------------------
+            $this->publishMqtt(
+                "consulta/criada/" . $consulta->id,
+                json_encode([
+                    "evento" => "consulta_criada",
+                    "consulta_id" => $consulta->id,
+                    "userprofile_id" => $consulta->userprofile_id,
+                    "triagem_id" => $consulta->triagem_id,
+                    "estado" => $consulta->estado,
+                    "hora" => date('Y-m-d H:i:s'),
+                ])
+            );
 
             return [
                 'status' => 'success',
@@ -134,9 +174,9 @@ class ConsultaController extends ActiveController
         return ['status' => 'error', 'errors' => $consulta->getErrors()];
     }
 
-    
-    //  ATUALIZAR / ENCERRAR (PUT /api/consulta/{id})
-    
+    // ---------------------------------------------------------
+    // UPDATE (ENCERRAR OU ALTERAR CONSULTA)
+    // ---------------------------------------------------------
     public function actionUpdate($id)
     {
         if (!Yii::$app->user->can('medico') && !Yii::$app->user->can('admin')) {
@@ -150,7 +190,6 @@ class ConsultaController extends ActiveController
 
         $data = Yii::$app->request->getBodyParams() ?: Yii::$app->request->post();
 
-        // Atualizar campos
         if (isset($data['observacoes'])) {
             $consulta->observacoes = $data['observacoes'];
         }
@@ -159,32 +198,54 @@ class ConsultaController extends ActiveController
         }
 
         if ($consulta->save()) {
-            
-            $debugMsg = "Consulta guardada.";
 
-            // Se a consulta for encerrada, atualizar a pulseira para "Atendido"
+            // -------------------------------------------------
+            // MQTT – consulta atualizada
+            // -------------------------------------------------
+            $this->publishMqtt(
+                "consulta/atualizada/" . $consulta->id,
+                json_encode([
+                    "evento" => "consulta_atualizada",
+                    "consulta_id" => $consulta->id,
+                    "estado" => $consulta->estado,
+                    "hora" => date('Y-m-d H:i:s')
+                ])
+            );
+
+            // Se ENCERRADA → atualizar pulseira para "Atendido"
             if ($consulta->estado === 'Encerrada') {
                 $triagem = Triagem::findOne($consulta->triagem_id);
-                
-                if ($triagem) {
-                    if ($triagem->pulseira) {
-                        $triagem->pulseira->status = 'Atendido';
-                        if ($triagem->pulseira->save()) {
-                            $debugMsg .= " Pulseira ID {$triagem->pulseira->id} atualizada para Atendido.";
-                        } else {
-                            $debugMsg .= " ERRO ao guardar Pulseira: " . json_encode($triagem->pulseira->getErrors());
-                        }
-                    } else {
-                        $debugMsg .= " AVISO: Triagem {$triagem->id} não tem pulseira associada (pulseira_id nulo ou inválido).";
-                    }
-                } else {
-                    $debugMsg .= " ERRO: Triagem {$consulta->triagem_id} não encontrada.";
+
+                if ($triagem && $triagem->pulseira) {
+                    $triagem->pulseira->status = 'Atendido';
+                    $triagem->pulseira->save();
+
+                    // MQTT: pulseira atualizada
+                    $this->publishMqtt(
+                        "pulseira/" . $triagem->pulseira->id,
+                        json_encode([
+                            "evento" => "pulseira_atualizada",
+                            "pulseira_id" => $triagem->pulseira->id,
+                            "status" => "Atendido",
+                            "hora" => date('Y-m-d H:i:s')
+                        ])
+                    );
+
+                    // MQTT: consulta encerrada
+                    $this->publishMqtt(
+                        "consulta/encerrada/" . $consulta->id,
+                        json_encode([
+                            "evento" => "consulta_encerrada",
+                            "consulta_id" => $consulta->id,
+                            "hora" => date('Y-m-d H:i:s')
+                        ])
+                    );
                 }
             }
 
             return [
                 'status' => 'success',
-                'message' => $debugMsg, // A mensagem vai dizer-nos o que aconteceu!
+                'message' => "Consulta atualizada.",
                 'data' => $consulta
             ];
         }
