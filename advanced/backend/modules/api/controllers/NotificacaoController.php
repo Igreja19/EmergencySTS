@@ -2,13 +2,11 @@
 
 namespace backend\modules\api\controllers;
 
-use yii\filters\auth\HttpBasicAuth;
 use yii\filters\auth\QueryParamAuth;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
 use common\models\Notificacao;
-use common\models\User;
 use Yii;
 
 class NotificacaoController extends Controller
@@ -17,10 +15,10 @@ class NotificacaoController extends Controller
     {
         $behaviors = parent::behaviors();
 
-        // Resposta em JSON
+        // JSON
         $behaviors['contentNegotiator']['formats']['text/html'] = Response::FORMAT_JSON;
 
-        // Autenticação via auth_key
+        // auth_key
         $behaviors['authenticator'] = [
             'class' => QueryParamAuth::class,
             'tokenParam' => 'auth_key',
@@ -30,7 +28,7 @@ class NotificacaoController extends Controller
     }
 
     /**
-     * 🔹 Lista as notificações do utilizador autenticado
+     * LISTAR NOTIFICAÇÕES
      * GET api/notificacao/list?auth_key=XXXX
      */
     public function actionList()
@@ -46,16 +44,27 @@ class NotificacaoController extends Controller
             ->orderBy(['id' => SORT_DESC])
             ->all();
 
+        // MQTT — opcional: avisar que as notificações foram lidas da API
+        Yii::$app->mqtt->publish(
+            "notificacao/lista/{$user->id}",
+            json_encode([
+                'evento'     => 'notificacoes_listadas',
+                'user_id'    => $user->id,
+                'quantidade' => count($notificacoes),
+                'hora'       => date('Y-m-d H:i:s'),
+            ])
+        );
+
         return [
             'status' => 'success',
-            'total' => count($notificacoes),
-            'data'  => $notificacoes
+            'total'  => count($notificacoes),
+            'data'   => $notificacoes
         ];
     }
 
     /**
-     * 🔹 Marca notificação como lida
-     * POST api/notificacao/ler/ID
+     * MARCAR COMO LIDA
+     * POST api/notificacao/ler/ID?auth_key=XXXX
      */
     public function actionLer($id)
     {
@@ -74,8 +83,19 @@ class NotificacaoController extends Controller
         $notificacao->lida = 1;
         $notificacao->save(false);
 
+        // MQTT — notificação lida
+        Yii::$app->mqtt->publish(
+            "notificacao/lida/{$id}",
+            json_encode([
+                'evento'          => 'notificacao_lida',
+                'notificacao_id'  => $id,
+                'userprofile_id'  => $notificacao->userprofile_id,
+                'hora'            => date('Y-m-d H:i:s'),
+            ])
+        );
+
         return [
-            'status' => 'success',
+            'status'  => 'success',
             'message' => 'Notificação marcada como lida'
         ];
     }

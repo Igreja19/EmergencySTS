@@ -185,4 +185,70 @@ class TriagemController extends ActiveController
 
         return ["status"=>"success"];
     }
+    public function actionHistorico()
+    {
+        $user = Yii::$app->user;
+
+        // Carregar triagens + pulseira + consulta
+        $query = Triagem::find()
+            ->joinWith(['consulta'])        // NECESSÁRIO PARA FILTRAR CONSULTAS
+            ->with(['userprofile', 'pulseira'])
+            ->where(['consulta.estado' => 'Encerrada'])  // Só triagens com consulta encerrada
+            ->orderBy(['triagem.datatriagem' => SORT_DESC]);
+
+        // Se o user NÃO for admin/enfermeiro/medico → mostrar só as dele
+        if (!$user->can('admin') && !$user->can('medico') && !$user->can('enfermeiro')) {
+
+            $profile = UserProfile::findOne(['user_id' => $user->id]);
+
+            if (!$profile) {
+                throw new NotFoundHttpException("Perfil não encontrado.");
+            }
+
+            $query->andWhere(['triagem.userprofile_id' => $profile->id]);
+        }
+
+        $triagens = $query->all();
+
+        // Serialização manual
+        $result = [];
+        foreach ($triagens as $t) {
+            $result[] = [
+                'id'                => $t->id,
+                'datatriagem'       => $t->datatriagem,
+                'motivoconsulta'    => $t->motivoconsulta,
+                'queixaprincipal'   => $t->queixaprincipal,
+                'descricaosintomas' => $t->descricaosintomas,
+                'iniciosintomas'    => $t->iniciosintomas,
+                'alergias'          => $t->alergias,
+                'medicacao'         => $t->medicacao,
+
+                // relação consulta (agora disponível)
+                'consulta' => $t->consulta ? [
+                    'id'        => $t->consulta->id,
+                    'estado'    => $t->consulta->estado,
+                    'data'      => $t->consulta->data_consulta,
+                ] : null,
+
+                'userprofile' => $t->userprofile ? [
+                    'id'        => $t->userprofile->id,
+                    'nome'      => $t->userprofile->nome,
+                    'sns'       => $t->userprofile->sns,
+                    'telefone'  => $t->userprofile->telefone,
+                    'email'     => $t->userprofile->email,
+                ] : null,
+
+                'pulseira' => $t->pulseira ? [
+                    'id'          => $t->pulseira->id,
+                    'codigo'      => $t->pulseira->codigo,
+                    'prioridade'  => $t->pulseira->prioridade,
+                    'status'      => $t->pulseira->status,
+                    'tempoentrada'=> $t->pulseira->tempoentrada,
+                ] : null
+            ];
+        }
+
+        return $result;
+    }
+
 }
