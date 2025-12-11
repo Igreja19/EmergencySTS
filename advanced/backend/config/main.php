@@ -110,35 +110,40 @@ return [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
-
-                // --- 1. ROTAS ESPECIAIS (Mapeamento Manual) ---
-
-                // Login
-                'POST api/auth/login' => 'api/auth/login',
-
-                // Signup
+                // Autenticação
+                'POST api/auth/login'  => 'api/auth/login',
                 'POST api/auth/signup' => 'api/auth/signup',
-                'POST api/user/profile/update' => 'api/user/profile/update',
 
-                // Perfil
+                // Perfil do user (genérico)
                 'GET api/profile' => 'api/user/index',
 
-                // Histórico de Consultas
+                // Atualizar perfil geral
+                'POST api/user/profile/update' => 'api/user/profile/update',
+
+                // Histórico de consultas
                 'GET api/userprofiles/<id:\d+>/consultas' => 'api/consulta/historico',
 
-                // Histórico de Triagens (NOVO)
+                // Histórico de triagens
                 'GET api/triagem/historico' => 'api/triagem/historico',
 
-                // Validação de Token
+                // Validação de token
                 'GET api/auth/validate' => 'api/auth/validate',
 
                 // Notificações
-                'GET api/notificacao/list' => 'api/notificacao/list',
+                'GET api/notificacao/list'       => 'api/notificacao/list',
                 'POST api/notificacao/ler/<id:\d+>' => 'api/notificacao/ler',
 
-                // --- 2. ROTAS REST AUTOMÁTICAS ---
+                // Perfil do paciente autenticado
+                'GET api/paciente/perfil' => 'api/paciente/perfil',
+
+                // Perfil do Enfermeiro autenticado
+                'GET api/enfermeiro/perfil' => 'api/enfermeiro/perfil',
+
+                // Atualizar perfil do paciente
+                'PUT api/paciente/update/<id:\d+>' => 'api/paciente/update',
+
                 [
-                    'class' => UrlRule::class,
+                    'class' => 'yii\rest\UrlRule',
                     'controller' => [
                         'api/user',
                         'api/triagem',
@@ -146,7 +151,10 @@ return [
                         'api/consulta',
                         'api/prescricao',
                         'api/notificacao',
-                        'api/medicamento'
+                        'api/medicamento',
+                        'api/paciente',
+                        'api/enfermeiro',
+
                     ],
                     'pluralize' => false,
                     'extraPatterns' => [
@@ -154,12 +162,8 @@ return [
                     ],
                 ],
 
-                // Página Base da API
+                // Página base da API
                 'GET api' => 'api/default/index',
-
-                // Rotas extra de paciente
-                'GET api/paciente/perfil' => 'api/paciente/perfil',
-                'PUT api/paciente/update/<id:\d+>' => 'api/paciente/update',
             ],
         ],
 
