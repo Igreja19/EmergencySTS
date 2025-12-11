@@ -23,17 +23,15 @@ class ConsultaController extends Controller
             parent::behaviors(),
             [
 
-                // 🔒 CONTROLO DE ACESSO (protege rotas)
+                // CONTROLO DE ACESSO
                 'access' => [
                     'class' => \yii\filters\AccessControl::class,
-                    'only' => ['index','view','create','update','delete','chart-data', 'historico'],
+                    'only' => ['index','view','create','update','delete','chart-data', 'historico', 'encerrar'],
                     'rules' => [
-
                         [
                             'allow' => true,
                             'actions' => ['error', 'login'],
                         ],
-
                         [
                             'allow' => true,
                             'roles' => ['admin', 'medico', 'enfermeiro'],
@@ -44,7 +42,7 @@ class ConsultaController extends Controller
                     },
                 ],
 
-                // 🔧 VerbFilter
+                // Métodos permitidos
                 'verbs' => [
                     'class' => VerbFilter::class,
                     'actions' => [
@@ -74,11 +72,7 @@ class ConsultaController extends Controller
         ]);
     }
 
-    /**
-     * =============================================
-     * 🚀 CRIAR CONSULTA
-     * =============================================
-     */
+     //CRIAR CONSULTA + MQTT
     public function actionCreate()
     {
         $model = new Consulta();
@@ -89,34 +83,28 @@ class ConsultaController extends Controller
                 ->where(['not', ['pulseira.prioridade' => 'Pendente']])
                 ->andWhere(['not', ['pulseira.prioridade' => null]])
                 ->andWhere(['pulseira.status' => 'Em espera'])
-                ->groupBy('pulseira.id') // evita duplicados
+                ->groupBy('pulseira.id')
                 ->all(),
             'id',
-            function($t) {
-                $cor = $t->pulseira->prioridade ?? '—';
-                $codigo = $t->pulseira->codigo ?? 'Sem código';
-                return "Pulseira: {$cor} ({$codigo})";
-            }
+            fn($t) => "Pulseira: {$t->pulseira->prioridade} ({$t->pulseira->codigo})"
         );
 
-        // ⬇️ SUPER IMPORTANTE — carregar o POST!
         if ($model->load(Yii::$app->request->post())) {
 
-            // valores automáticos
             $model->data_consulta = date('Y-m-d H:i:s');
             $model->estado = Consulta::ESTADO_EM_CURSO;
             $model->data_encerramento = null;
 
             if ($model->save(false)) {
 
-                // Atualizar pulseira
+                // Atualiza pulseira para Em atendimento
                 if ($model->triagem && $model->triagem->pulseira) {
                     $pulseira = $model->triagem->pulseira;
                     $pulseira->status = "Em atendimento";
                     $pulseira->save(false);
                 }
 
-                // Notificação para o paciente
+                // Notificação ao paciente
                 $userId = $model->triagem->userprofile_id;
                 Notificacao::enviar(
                     $userId,
@@ -125,11 +113,23 @@ class ConsultaController extends Controller
                     "Consulta"
                 );
 
+                //MQTT — CONSULTA CRIADA
+                Yii::$app->mqtt->publish(
+                    "consulta/criada/{$model->id}",
+                    json_encode([
+                        "evento" => "consulta_criada_backend",
+                        "consulta_id" => $model->id,
+                        "triagem_id" => $model->triagem_id,
+                        "userprofile_id" => $model->userprofile_id,
+                        "estado" => $model->estado,
+                        "hora" => date('Y-m-d H:i:s')
+                    ])
+                );
+
                 Yii::$app->session->setFlash('success', 'Consulta criada com sucesso!');
                 return $this->redirect(['update', 'id' => $model->id]);
             }
         }
-
 
         return $this->render('create', [
             'model' => $model,
@@ -137,16 +137,15 @@ class ConsultaController extends Controller
         ]);
     }
 
-    /**
-     * AJAX — devolve info da triagem
-     */
+
+     //AJAX TRIAGEM INFO
     public function actionTriagemInfo($id)
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
         $triagem = Triagem::find()
             ->where(['triagem.id' => $id])
-            ->joinWith(['userprofile', 'pulseira']) // garante carregamento
+            ->joinWith(['userprofile', 'pulseira'])
             ->one();
 
         if (!$triagem) {
@@ -154,83 +153,80 @@ class ConsultaController extends Controller
         }
 
         return [
-            'userprofile_id' => $triagem->userprofile_id ?? $triagem->pulseira->userprofile_id ?? null,
-            'user_nome'      => $triagem->userprofile->nome
-                ?? $triagem->pulseira->userprofile->nome ?? '—',
+            'userprofile_id' => $triagem->userprofile_id,
+            'user_nome'      => $triagem->userprofile->nome ?? '—',
         ];
     }
 
-    /**
-     * =============================================
-     * ✏ EDITAR CONSULTA
-     * =============================================
-     */
+     //EDITAR CONSULTA + MQTT
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
 
-        // 🔹 Triagens com pulseira — faltava no update!
         $triagensDisponiveis = ArrayHelper::map(
-            Triagem::find()
-                ->joinWith('pulseira')
-                ->where(['not', ['pulseira.id' => null]])
-                ->all(),
+            Triagem::find()->joinWith('pulseira')->where(['not',['pulseira.id'=>null]])->all(),
             'id',
-            fn($t) => 'Pulseira: ' . ($t->pulseira->codigo ?? '—')
+            fn($t) => "Pulseira: " . ($t->pulseira->codigo ?? '—')
         );
 
         if ($model->load(Yii::$app->request->post())) {
 
-            // OBRIGATÓRIO TER PRESCRIÇÃO
+            // Consulta deve ter prescrição
             if (!$model->prescricao) {
-                Yii::$app->session->setFlash('error', 'É obrigatório adicionar uma prescrição antes de guardar a consulta.');
-                return $this->redirect(['consulta/update', 'id' => $model->id]);
-
+                Yii::$app->session->setFlash('error', 'É obrigatório adicionar uma prescrição antes de guardar.');
+                return $this->redirect(['update', 'id' => $model->id]);
             }
 
-            // Se volta para "Em curso"
+            // Atualiza datas
             if ($model->estado === Consulta::ESTADO_EM_CURSO) {
                 $model->data_encerramento = null;
             }
 
-            // Se encerra e data ainda não existe
             if ($model->estado === Consulta::ESTADO_ENCERRADA && empty($model->data_encerramento)) {
                 $model->data_encerramento = date('Y-m-d H:i:s');
             }
 
             if ($model->save(false)) {
 
-                $userId = $model->triagem->userprofile_id;  // paciente
+                $userId = $model->triagem->userprofile_id;
                 $estado = $model->estado;
 
-                // Atualizar estado da pulseira
+                // Atualiza pulseira
                 if ($model->triagem && $model->triagem->pulseira) {
                     $pulseira = $model->triagem->pulseira;
-
-                    $pulseira->status =
-                        $estado === Consulta::ESTADO_ENCERRADA
-                            ? "Atendido"
-                            : "Em atendimento";
-
+                    $pulseira->status = $estado === Consulta::ESTADO_ENCERRADA ? "Atendido" : "Em atendimento";
                     $pulseira->save(false);
                 }
 
-                // 🔥 Notificações baseadas no estado
+                // Notificação conforme estado
                 if ($estado === Consulta::ESTADO_EM_CURSO) {
-                    Notificacao::enviar(
-                        $userId,
-                        "Consulta retomada",
-                        "A consulta foi retomada.",
-                        "Consulta"
-                    );
+                    Notificacao::enviar($userId, "Consulta retomada", "A consulta foi retomada.", "Consulta");
                 }
 
                 if ($estado === Consulta::ESTADO_ENCERRADA) {
-                    Notificacao::enviar(
-                        $userId,
-                        "Consulta encerrada",
-                        "A consulta foi encerrada.",
-                        "Consulta"
+                    Notificacao::enviar($userId, "Consulta encerrada", "A sua consulta foi encerrada.", "Consulta");
+                }
+
+                // MQTT — CONSULTA ATUALIZADA
+                Yii::$app->mqtt->publish(
+                    "consulta/atualizada/{$model->id}",
+                    json_encode([
+                        "evento" => "consulta_atualizada_backend",
+                        "consulta_id" => $model->id,
+                        "estado" => $model->estado,
+                        "hora" => date('Y-m-d H:i:s')
+                    ])
+                );
+
+                // MQTT — CONSULTA ENCERRADA
+                if ($estado === Consulta::ESTADO_ENCERRADA) {
+                    Yii::$app->mqtt->publish(
+                        "consulta/encerrada/{$model->id}",
+                        json_encode([
+                            "evento" => "consulta_encerrada_backend",
+                            "consulta_id" => $model->id,
+                            "hora" => date('Y-m-d H:i:s')
+                        ])
                     );
                 }
 
@@ -241,28 +237,24 @@ class ConsultaController extends Controller
 
         return $this->render('update', [
             'model' => $model,
-            'triagensDisponiveis' => $triagensDisponiveis, // 🔥 FIX AQUI
+            'triagensDisponiveis' => $triagensDisponiveis,
         ]);
     }
 
+    //HISTÓRICO DE CONSULTAS
     public function actionHistorico()
     {
-        //  IDs dos médicos via RBAC
         $medicoAssignments = Yii::$app->authManager->getUserIdsByRole('medico');
 
-        // Perfis dos médicos
         $medicos = UserProfile::find()
             ->where(['user_id' => $medicoAssignments])
             ->all();
 
-        // Criar o dataProvider para o GridView
         $dataProvider = new ActiveDataProvider([
-            'query' => \common\models\Consulta::find()
-                ->where(['estado' => 'Encerrada'])
+            'query' => Consulta::find()
+                ->where(['estado' => Consulta::ESTADO_ENCERRADA])
                 ->orderBy(['data_encerramento' => SORT_DESC]),
-            'pagination' => [
-                'pageSize' => 10,
-            ],
+            'pagination' => ['pageSize' => 10],
         ]);
 
         return $this->render('historico', [
@@ -271,6 +263,7 @@ class ConsultaController extends Controller
         ]);
     }
 
+     //ENCERRAR CONSULTA + MQTT
     public function actionEncerrar($id)
     {
         $model = $this->findModel($id);
@@ -278,7 +271,6 @@ class ConsultaController extends Controller
         $model->estado = Consulta::ESTADO_ENCERRADA;
         $model->data_encerramento = date('Y-m-d H:i:s');
 
-        // 🔥 Guarda o médico que encerrou a consulta
         if (Yii::$app->user && Yii::$app->user->identity->userprofile) {
             $model->medicouserprofile_id = Yii::$app->user->identity->userprofile->id;
         }
@@ -291,22 +283,27 @@ class ConsultaController extends Controller
             $pulseira->save(false);
         }
 
-        // 🔔 Notificação ao paciente
+        // Notificação
         if ($model->triagem) {
             $userId = $model->triagem->userprofile_id;
-
-            Notificacao::enviar(
-                $userId,
-                "Consulta encerrada",
-                "A sua consulta foi encerrada.",
-                "Consulta"
-            );
+            Notificacao::enviar($userId, "Consulta encerrada", "A sua consulta foi encerrada.", "Consulta");
         }
+
+        // MQTT — CONSULTA ENCERRADA
+        Yii::$app->mqtt->publish(
+            "consulta/encerrada/{$model->id}",
+            json_encode([
+                "evento" => "consulta_encerrada_backend",
+                "consulta_id" => $model->id,
+                "hora" => date('Y-m-d H:i:s')
+            ])
+        );
 
         Yii::$app->session->setFlash('success', 'Consulta encerrada com sucesso!');
         return $this->redirect(['index']);
     }
 
+     //DELETE CONSULTA + MQTT
     public function actionDelete($id)
     {
         $consulta = $this->findModel($id);
@@ -314,32 +311,42 @@ class ConsultaController extends Controller
         $triagem = $consulta->triagem;
         $pulseira = $triagem->pulseira ?? null;
 
+        // apagar prescrições
         foreach ($consulta->prescricoes as $prescricao) {
-
             Prescricaomedicamento::deleteAll([
                 'prescricao_id' => $prescricao->id
             ]);
-
             $prescricao->delete();
         }
 
         $consulta->delete();
 
+        // apagar triagem
         if ($triagem) {
-            // remover a ligação à pulseira para evitar erro
             $triagem->pulseira_id = null;
             $triagem->save(false);
-
             $triagem->delete();
         }
 
+        // apagar pulseira
         if ($pulseira) {
             $pulseira->delete();
         }
 
-        Yii::$app->session->setFlash('success', 'Consulta, triagem, prescrição e pulseira eliminadas com sucesso.');
+        // MQTT — CONSULTA APAGADA
+        Yii::$app->mqtt->publish(
+            "consulta/apagada/{$id}",
+            json_encode([
+                "evento" => "consulta_apagada_backend",
+                "consulta_id" => $id,
+                "hora" => date('Y-m-d H:i:s')
+            ])
+        );
+
+        Yii::$app->session->setFlash('success', 'Consulta, triagem e pulseira eliminadas com sucesso.');
         return $this->redirect(['historico']);
     }
+
 
     protected function findModel($id)
     {

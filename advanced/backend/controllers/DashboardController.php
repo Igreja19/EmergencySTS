@@ -47,7 +47,7 @@ class DashboardController extends Controller
 
 
     /**
-     * 🔥 Dados do dashboard para ADMIN
+     * Dados do dashboard para ADMIN
      */
     private function getAdminData()
     {
@@ -83,7 +83,7 @@ class DashboardController extends Controller
         ];
 
         /**
-         * 📊 CORRIGIDO — EVOLUÇÃO DIÁRIA DOS ÚLTIMOS 7 DIAS
+         * CORRIGIDO — EVOLUÇÃO DIÁRIA DOS ÚLTIMOS 7 DIAS
          * O gráfico exibe:
          *   - Nº de triagens por dia
          *   - Se não houver triagens → 0

@@ -30,7 +30,6 @@ class PulseiraController extends Controller
                     ],
                     'denyCallback' => fn() => Yii::$app->response->redirect(['/site/login']),
                 ],
-
                 'verbs' => [
                     'class' => VerbFilter::class,
                     'actions' => [
@@ -59,11 +58,6 @@ class PulseiraController extends Controller
         ]);
     }
 
-    /**
-     * ============================
-     *   CREATE PULSEIRA
-     * ============================
-     */
     public function actionCreate()
     {
         $model = new Pulseira();
@@ -79,7 +73,6 @@ class PulseiraController extends Controller
 
             if ($model->load(Yii::$app->request->post())) {
 
-                // Criar pulseira pendente
                 $model->codigo = strtoupper(substr(md5(uniqid()), 0, 8));
                 $model->prioridade = 'Pendente';
                 $model->tempoentrada = date('Y-m-d H:i:s');
@@ -87,15 +80,13 @@ class PulseiraController extends Controller
 
                 if ($model->save(false)) {
 
-                    // 🔔 CORREÇÃO AQUI ⬇⬇⬇⬇⬇⬇⬇
                     Notificacao::enviar(
                         $model->userprofile_id,
                         "Pulseira atribuída",
-                        "Foi criada uma nova pulseira pendente para o paciente " . $model->userprofile->nome . ".",
+                        "Foi criada uma nova pulseira pendente.",
                         "Consulta"
                     );
 
-                    // Criar triagem automática
                     $triagem->userprofile_id = $model->userprofile_id;
                     $triagem->pulseira_id = $model->id;
                     $triagem->datatriagem = date('Y-m-d H:i:s');
@@ -107,6 +98,16 @@ class PulseiraController extends Controller
                     $triagem->alergias = '';
                     $triagem->medicacao = '';
                     $triagem->save(false);
+
+                    Yii::$app->mqtt->publish(
+                        "pulseira/criada/{$model->id}",
+                        json_encode([
+                            'evento' => 'pulseira_criada_backend',
+                            'pulseira_id' => $model->id,
+                            'userprofile_id' => $model->userprofile_id,
+                            'hora' => date('Y-m-d H:i:s')
+                        ])
+                    );
 
                     Yii::$app->session->setFlash('success', 'Pulseira pendente criada com triagem associada.');
                     return $this->redirect(['index']);
@@ -122,25 +123,19 @@ class PulseiraController extends Controller
             'triagem' => $triagem,
         ]);
     }
-    /**
-     * ============================
-     *   UPDATE
-     * ============================
-     */
+
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
 
-        $oldPriority = $model->prioridade; // guardar prioridade antiga
+        $oldPriority = $model->prioridade;
 
         if ($model->load(Yii::$app->request->post()) && $model->save(false)) {
 
             $newPriority = $model->prioridade;
 
-            // Notificação se a prioridade mudou
             if ($newPriority !== $oldPriority) {
 
-                // Notificação normal
                 Notificacao::enviar(
                     $model->userprofile_id,
                     "Prioridade atualizada",
@@ -148,47 +143,49 @@ class PulseiraController extends Controller
                     "Geral"
                 );
 
-                // Notificação crítica
                 if (in_array($newPriority, ['Vermelho', 'Laranja'])) {
                     Notificacao::enviar(
                         $model->userprofile_id,
-                        "⚠ PRIORIDADE CRÍTICA: " . $newPriority,
-                        "O paciente encontra-se agora em prioridade " . $newPriority . ".",
+                        "Prioridade crítica: " . $newPriority,
+                        "O paciente encontra-se agora em prioridade crítica.",
                         "Prioridade"
                     );
                 }
             }
 
+            Yii::$app->mqtt->publish(
+                "pulseira/atualizada/{$model->id}",
+                json_encode([
+                    'evento' => 'pulseira_atualizada_backend',
+                    'pulseira_id' => $model->id,
+                    'prioridade' => $model->prioridade,
+                    'status' => $model->status,
+                    'hora' => date('Y-m-d H:i:s'),
+                ])
+            );
+
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
-        return $this->render('update', [
-            'model' => $model,
-        ]);
+        return $this->render('update', ['model' => $model]);
     }
 
-    /**
-     * DELETE
-     */
     public function actionDelete($id)
     {
         $pulseira = $this->findModel($id);
 
-        // Triagem associada
-        $triagem = \common\models\Triagem::find()
+        $triagem = Triagem::find()
             ->where(['pulseira_id' => $pulseira->id])
             ->one();
 
         if ($triagem) {
 
-            // CONSULTAS associadas
             $consultas = \common\models\Consulta::find()
                 ->where(['triagem_id' => $triagem->id])
                 ->all();
 
             foreach ($consultas as $consulta) {
 
-                // PRESCRIÇÕES
                 foreach ($consulta->prescricoes as $p) {
                     $p->delete();
                 }
@@ -196,28 +193,29 @@ class PulseiraController extends Controller
                 $consulta->delete();
             }
 
-            // Apagar triagem
             $triagem->delete();
         }
 
-        // Finalmente apagar pulseira
         $pulseira->delete();
 
-        Yii::$app->session->setFlash('success',
-            'Pulseira e todos os dados associados foram eliminados.'
+        Yii::$app->mqtt->publish(
+            "pulseira/apagada/{$id}",
+            json_encode([
+                'evento' => 'pulseira_apagada_backend',
+                'pulseira_id' => $id,
+                'hora' => date('Y-m-d H:i:s'),
+            ])
         );
 
+        Yii::$app->session->setFlash('success', 'Pulseira e todos os dados associados foram eliminados.');
         return $this->redirect(['index']);
     }
-    /**
-     * FIND MODEL
-     */
+
     protected function findModel($id)
     {
         if (($model = Pulseira::findOne($id)) !== null) {
             return $model;
         }
-
         throw new NotFoundHttpException("A pulseira não existe.");
     }
 }

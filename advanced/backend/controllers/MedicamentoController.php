@@ -16,36 +16,21 @@ class MedicamentoController extends Controller
         return array_merge(
             parent::behaviors(),
             [
-
-                // 🔒 CONTROLO DE ACESSO (protege rotas)
                 'access' => [
                     'class' => \yii\filters\AccessControl::class,
-                    'only' => ['index','view','create','update','delete','chart-data'], // rotas protegidas
+                    'only' => ['index','view','create','update','delete'],
                     'rules' => [
-
-                        // 👉 login e error apenas no SiteController (ignora aqui)
-                        [
-                            'allow' => true,
-                            'actions' => ['error', 'login'],
-                        ],
-
-                        // 👉 permitir o ADMIN, MÉDICO e ENFERMEIRO
                         [
                             'allow' => true,
                             'roles' => ['admin', 'medico', 'enfermeiro'],
                         ],
                     ],
-                    'denyCallback' => function () {
-                        return Yii::$app->response->redirect(['/site/login']);
-                    },
+                    'denyCallback' => fn() => Yii::$app->response->redirect(['/site/login']),
                 ],
-
-                // 🔧 VerbFilter já existia, continua igual
                 'verbs' => [
                     'class' => VerbFilter::class,
                     'actions' => [
                         'delete' => ['POST'],
-                        'chart-data' => ['GET'],
                     ],
                 ],
             ]
@@ -74,7 +59,19 @@ class MedicamentoController extends Controller
     {
         $model = new Medicamento();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post()) && $model->save(false)) {
+
+            Yii::$app->mqtt->publish(
+                "medicamento/criado/{$model->id}",
+                json_encode([
+                    'evento' => 'medicamento_criado_backend',
+                    'medicamento_id' => $model->id,
+                    'nome' => $model->nome,
+                    'dosagem' => $model->dosagem,
+                    'hora' => date('Y-m-d H:i:s')
+                ])
+            );
+
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
@@ -87,7 +84,19 @@ class MedicamentoController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post()) && $model->save(false)) {
+
+            Yii::$app->mqtt->publish(
+                "medicamento/atualizado/{$model->id}",
+                json_encode([
+                    'evento' => 'medicamento_atualizado_backend',
+                    'medicamento_id' => $model->id,
+                    'nome' => $model->nome,
+                    'dosagem' => $model->dosagem,
+                    'hora' => date('Y-m-d H:i:s')
+                ])
+            );
+
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
@@ -99,6 +108,15 @@ class MedicamentoController extends Controller
     public function actionDelete($id)
     {
         $this->findModel($id)->delete();
+
+        Yii::$app->mqtt->publish(
+            "medicamento/apagado/{$id}",
+            json_encode([
+                'evento' => 'medicamento_apagado_backend',
+                'medicamento_id' => $id,
+                'hora' => date('Y-m-d H:i:s')
+            ])
+        );
 
         return $this->redirect(['index']);
     }

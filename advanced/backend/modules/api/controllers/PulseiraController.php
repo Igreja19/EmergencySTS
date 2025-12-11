@@ -13,36 +13,16 @@ use yii\data\ActiveDataProvider;
 use common\models\Pulseira;
 use common\models\UserProfile;
 
-require_once __DIR__ . '/../mqtt/phpMQTT.php';
-use backend\modules\api\mqtt\phpMQTT;
-
 class PulseiraController extends ActiveController
 {
     public $modelClass = 'common\models\Pulseira';
     public $enableCsrfValidation = false;
 
+    // Envelope "data": [...]
     public $serializer = [
         'class' => 'yii\rest\Serializer',
         'collectionEnvelope' => 'data',
     ];
-
-    private function publishMqtt($topic, $payload)
-    {
-        $server = '127.0.0.1';
-        $port = 1883;
-        $clientId = 'emergencysts-pulseira-' . rand(1000,9999);
-
-        $mqtt = new phpMQTT($server, $port, $clientId);
-
-        if (!$mqtt->connect(true, NULL)) {
-            return false;
-        }
-
-        $mqtt->publish($topic, $payload, 0);
-        $mqtt->close();
-
-        return true;
-    }
 
     public function behaviors()
     {
@@ -53,6 +33,7 @@ class PulseiraController extends ActiveController
 
         $behaviors['authenticator'] = [
             'class' => QueryParamAuth::class,
+            'tokenParam' => 'auth_key',
         ];
 
         return $behaviors;
@@ -65,20 +46,27 @@ class PulseiraController extends ActiveController
         return $actions;
     }
 
+    // GET /api/pulseira
     public function actionIndex()
     {
         $user = Yii::$app->user;
         $query = Pulseira::find();
 
-        if ($status = Yii::$app->request->get('status')) {
+        // filtros
+        $status = Yii::$app->request->get('status');
+        if ($status) {
             $query->andWhere(['status' => $status]);
         }
 
-        if ($prioridade = Yii::$app->request->get('prioridade')) {
+        $prioridade = Yii::$app->request->get('prioridade');
+        if ($prioridade) {
             $query->andWhere(['prioridade' => $prioridade]);
         }
 
-        if (!$user->can('admin') && !$user->can('medico') && !$user->can('enfermeiro')) {
+        // permissões
+        if ($user->can('admin') || $user->can('medico') || $user->can('enfermeiro')) {
+            // vê tudo
+        } else {
             $profile = UserProfile::findOne(['user_id' => $user->id]);
             if (!$profile) {
                 throw new NotFoundHttpException("Perfil não encontrado.");
@@ -94,10 +82,10 @@ class PulseiraController extends ActiveController
         ]);
     }
 
+    // GET /api/pulseira/{id}
     public function actionView($id)
     {
         $pulseira = Pulseira::findOne($id);
-
         if (!$pulseira) {
             throw new NotFoundHttpException("Pulseira não encontrada.");
         }
@@ -105,7 +93,7 @@ class PulseiraController extends ActiveController
         $user = Yii::$app->user;
         if (!$user->can('admin') && !$user->can('medico') && !$user->can('enfermeiro')) {
             $profile = UserProfile::findOne(['user_id' => $user->id]);
-            if ($pulseira->userprofile_id != $profile->id) {
+            if (!$profile || $pulseira->userprofile_id != $profile->id) {
                 throw new ForbiddenHttpException("Sem permissão.");
             }
         }
@@ -113,9 +101,12 @@ class PulseiraController extends ActiveController
         return $pulseira;
     }
 
+    // PUT /api/pulseira/{id}
     public function actionUpdate($id)
     {
-        if (!Yii::$app->user->can('enfermeiro') && !Yii::$app->user->can('medico') && !Yii::$app->user->can('admin')) {
+        if (!Yii::$app->user->can('enfermeiro') &&
+            !Yii::$app->user->can('medico') &&
+            !Yii::$app->user->can('admin')) {
             throw new ForbiddenHttpException("Apenas profissionais de saúde.");
         }
 
@@ -124,29 +115,34 @@ class PulseiraController extends ActiveController
             throw new NotFoundHttpException("Pulseira não encontrada.");
         }
 
-        $pulseira->load(Yii::$app->request->post(), '');
+        $data = Yii::$app->request->post();
+        $pulseira->load($data, '');
 
         if ($pulseira->save()) {
 
-            // MQTT — pulseira atualizada
-            $this->publishMqtt(
-                "pulseira/atualizada/" . $pulseira->id,
+            // MQTT – pulseira atualizada
+            Yii::$app->mqtt->publish(
+                "pulseira/atualizada/{$pulseira->id}",
                 json_encode([
-                    "evento" => "pulseira_atualizada",
-                    "pulseira_id" => $pulseira->id,
-                    "prioridade" => $pulseira->prioridade,
-                    "status" => $pulseira->status,
-                    "userprofile_id" => $pulseira->userprofile_id,
-                    "hora" => date('Y-m-d H:i:s'),
+                    'evento'        => 'pulseira_atualizada',
+                    'pulseira_id'   => $pulseira->id,
+                    'prioridade'    => $pulseira->prioridade,
+                    'status'        => $pulseira->status,
+                    'userprofile_id'=> $pulseira->userprofile_id,
+                    'hora'          => date('Y-m-d H:i:s'),
                 ])
             );
 
             return $pulseira;
         }
 
-        return ['status' => 'error', 'errors' => $pulseira->getErrors()];
+        return [
+            'status' => 'error',
+            'errors' => $pulseira->getErrors(),
+        ];
     }
 
+    // DELETE /api/pulseira/{id}
     public function actionDelete($id)
     {
         if (!Yii::$app->user->can('admin')) {
@@ -155,22 +151,18 @@ class PulseiraController extends ActiveController
 
         $pulseira = Pulseira::findOne($id);
         if (!$pulseira) {
-            throw new NotFoundHttpException("Pulseira não encontrada.");
+            throw new NotFoundHttpException("Não encontrada.");
         }
-
-        $pulseiraId = $pulseira->id;
-        $userProfileId = $pulseira->userprofile_id;
 
         $pulseira->delete();
 
-        // MQTT — pulseira eliminada
-        $this->publishMqtt(
-            "pulseira/apagada/" . $pulseiraId,
+        // MQTT – pulseira apagada
+        Yii::$app->mqtt->publish(
+            "pulseira/apagada/{$id}",
             json_encode([
-                "evento" => "pulseira_apagada",
-                "pulseira_id" => $pulseiraId,
-                "userprofile_id" => $userProfileId,
-                "hora" => date('Y-m-d H:i:s'),
+                'evento'      => 'pulseira_apagada',
+                'pulseira_id' => $id,
+                'hora'        => date('Y-m-d H:i:s'),
             ])
         );
 

@@ -65,6 +65,13 @@ return [
 
     'components' => [
 
+        'mqtt' => [
+            'class' => 'backend\components\MqttService',
+            'server' => '127.0.0.1',
+            'port' => 1883,
+            'clientId' => 'backend-' . rand(1000,9999),
+        ],
+
         'response' => [
             'class' => yii\web\Response::class,
         ],

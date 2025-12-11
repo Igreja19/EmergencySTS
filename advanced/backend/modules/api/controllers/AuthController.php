@@ -6,60 +6,31 @@ use Yii;
 use yii\rest\Controller;
 use yii\web\Response;
 use yii\web\BadRequestHttpException;
-use yii\web\UnauthorizedHttpException;
-use common\models\User;
-use common\models\UserProfile;
 use yii\filters\auth\QueryParamAuth;
 
-// MQTT
-require_once __DIR__ . '/../mqtt/phpMQTT.php';
-use backend\modules\api\mqtt\phpMQTT;
+use common\models\User;
+use common\models\UserProfile;
 
 class AuthController extends Controller
 {
     public $enableCsrfValidation = false;
 
-    // -------------------------------------------------------------
-    // MQTT FUNCTION
-    // -------------------------------------------------------------
-    private function publishMqtt($topic, $payload)
-    {
-        $server = '127.0.0.1';
-        $port = 1883;
-        $clientId = 'emergencysts-auth-' . rand(1000,9999);
-
-        $mqtt = new phpMQTT($server, $port, $clientId);
-
-        if (!$mqtt->connect(true, NULL)) {
-            return false;
-        }
-
-        $mqtt->publish($topic, $payload, 0);
-        $mqtt->close();
-        return true;
-    }
-
-    // -------------------------------------------------------------
-    // BEHAVIORS
-    // -------------------------------------------------------------
     public function behaviors()
     {
-        $behaviors = parent::behaviors();
+        $b = parent::behaviors();
 
-        $behaviors['contentNegotiator']['formats']['text/html'] = Response::FORMAT_JSON;
+        $b['contentNegotiator']['formats']['text/html'] = Response::FORMAT_JSON;
 
-        $behaviors['authenticator'] = [
-            'class' => QueryParamAuth::class,
+        $b['authenticator'] = [
+            'class'      => QueryParamAuth::class,
             'tokenParam' => 'auth_key',
-            'optional' => ['login', 'signup', 'validate'],
+            'optional'   => ['login', 'signup', 'validate'],
         ];
 
-        return $behaviors;
+        return $b;
     }
 
-    // -------------------------------------------------------------
     // LOGIN
-    // -------------------------------------------------------------
     public function actionLogin()
     {
         $data = Yii::$app->request->post();
@@ -71,48 +42,32 @@ class AuthController extends Controller
         }
 
         $user = User::findByUsername($username);
-
         if (!$user || !$user->validatePassword($password)) {
             return ['status' => false, 'message' => 'Utilizador ou palavra-passe incorretos.', 'data' => null];
         }
 
-        // Buscar a Role
-        $role = Yii::$app->db->createCommand("
-            SELECT item_name FROM auth_assignment WHERE user_id = :user_id LIMIT 1
-        ")
-            ->bindValue(':user_id', $user->id)
+        $role = Yii::$app->db
+            ->createCommand("SELECT item_name FROM auth_assignment WHERE user_id = :uid LIMIT 1")
+            ->bindValue(':uid', $user->id)
             ->queryScalar();
 
         $profile = UserProfile::findOne(['user_id' => $user->id]);
 
-        // MQTT — login efetuado
-        $this->publishMqtt(
-            "user/login/" . $user->id,
-            json_encode([
-                "evento" => "user_login",
-                "user_id" => $user->id,
-                "username" => $user->username,
-                "hora" => date('Y-m-d H:i:s')
-            ])
-        );
-
         return [
-            'status' => true,
+            'status'  => true,
             'message' => 'Login efetuado com sucesso.',
-            'data' => [
-                'user_id' => $user->id,
+            'data'    => [
+                'user_id'        => $user->id,
                 'userprofile_id' => $profile ? $profile->id : null,
-                'username' => $user->username,
-                'email' => $user->email,
-                'role' => $role ?? 'paciente',
-                'token' => $user->auth_key,
+                'username'       => $user->username,
+                'email'          => $user->email,
+                'role'           => $role ?? 'paciente',
+                'token'          => $user->auth_key,
             ],
         ];
     }
 
-    // -------------------------------------------------------------
     // SIGNUP
-    // -------------------------------------------------------------
     public function actionSignup()
     {
         $data = Yii::$app->request->post();
@@ -121,100 +76,94 @@ class AuthController extends Controller
             throw new BadRequestHttpException("Faltam dados obrigatórios (username, email, password).");
         }
 
-        $transaction = Yii::$app->db->beginTransaction();
+        $tx = Yii::$app->db->beginTransaction();
 
         try {
             $user = new User();
             $user->username = $data['username'];
-            $user->email = $data['email'];
+            $user->email    = $data['email'];
             $user->setPassword($data['password']);
             $user->generateAuthKey();
-            $user->status = 10;
+            $user->status   = 10;
 
             if (!$user->save()) {
                 throw new \Exception("Erro no utilizador: " . json_encode($user->errors));
             }
 
-            // Atribuir role paciente
+            // role (default: paciente)
             $auth = Yii::$app->authManager;
-            $rolePac = $auth->getRole('paciente');
-            if ($rolePac) {
-                $auth->assign($rolePac, $user->id);
+            $roleName = $data['role'] ?? 'paciente';
+            $role = $auth->getRole($roleName);
+            if ($role) {
+                $auth->assign($role, $user->id);
             }
 
-            // Criar perfil
-            $profile = new UserProfile();
-            $profile->user_id = $user->id;
-
+            // perfil
             $profileData = $data['profile'] ?? [];
-
-            $profile->nome = $profileData['nome'] ?? $user->username;
-            $profile->email = $user->email;
-            $profile->nif = $profileData['nif'] ?? null;
-            $profile->sns = $profileData['sns'] ?? null;
-            $profile->telefone = $profileData['telefone'] ?? null;
-            $profile->genero = $profileData['genero'] ?? null;
-            $profile->datanascimento = $profileData['datanascimento'] ?? null;
+            $profile = new UserProfile();
+            $profile->user_id       = $user->id;
+            $profile->nome          = $profileData['nome'] ?? $user->username;
+            $profile->email         = $user->email;
+            $profile->nif           = $profileData['nif'] ?? null;
+            $profile->sns           = $profileData['sns'] ?? null;
+            $profile->telefone      = $profileData['telefone'] ?? null;
+            $profile->genero        = $profileData['genero'] ?? null;
+            $profile->datanascimento= $profileData['datanascimento'] ?? null;
 
             if (!$profile->save()) {
                 throw new \Exception("Erro no perfil: " . json_encode($profile->errors));
             }
 
-            $transaction->commit();
+            $tx->commit();
 
-            // MQTT — user criado
-            $this->publishMqtt(
-                "user/criado/" . $user->id,
+            // MQTT – utilizador criado
+            Yii::$app->mqtt->publish(
+                "user/criado/{$user->id}",
                 json_encode([
-                    "evento" => "user_criado",
-                    "user_id" => $user->id,
-                    "username" => $user->username,
-                    "email" => $user->email,
-                    "nome" => $profile->nome,
-                    "hora" => date('Y-m-d H:i:s'),
+                    'evento'   => 'user_criado',
+                    'user_id'  => $user->id,
+                    'username' => $user->username,
+                    'email'    => $user->email,
+                    'nome'     => $profile->nome,
+                    'role'     => $roleName,
+                    'hora'     => date('Y-m-d H:i:s'),
                 ])
             );
 
             return [
-                'status' => true,
+                'status'  => true,
                 'message' => 'Conta criada com sucesso.',
-                'data' => [
-                    'user_id' => $user->id,
+                'data'    => [
+                    'user_id'        => $user->id,
                     'userprofile_id' => $profile->id,
-                    'username' => $user->username,
-                    'token' => $user->auth_key
-                ]
+                    'username'       => $user->username,
+                    'token'          => $user->auth_key,
+                ],
             ];
 
         } catch (\Exception $e) {
-            $transaction->rollBack();
+            $tx->rollBack();
             Yii::$app->response->statusCode = 422;
             return ['status' => false, 'message' => $e->getMessage()];
         }
     }
 
-    // -------------------------------------------------------------
     // VALIDATE TOKEN
-    // -------------------------------------------------------------
     public function actionValidate($auth_key)
     {
         $user = User::findOne(['auth_key' => $auth_key]);
-
         if (!$user) {
-            return [
-                'status' => false,
-                'message' => 'Token inválido ou expirado.',
-            ];
+            return ['status' => false, 'message' => 'Token inválido ou expirado.'];
         }
 
         return [
-            'status' => true,
+            'status'  => true,
             'message' => 'Token válido.',
-            'data' => [
-                'id' => $user->id,
+            'data'    => [
+                'id'       => $user->id,
                 'username' => $user->username,
-                'email' => $user->email
-            ]
+                'email'    => $user->email,
+            ],
         ];
     }
 }
