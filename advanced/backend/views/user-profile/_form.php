@@ -54,7 +54,12 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile.css');
         ], ['prompt' => '— Selecionar —']) ?>
     </div>
     <div class="col-md-4">
-        <?= $form->field($model, 'datanascimento')->input('date') ?>
+        <?= $form->field($model, 'datanascimento')
+                ->input('date', [
+                        'onkeydown' => 'return false',
+                        'onpaste' => 'return false',
+                        'onclick' => 'this.showPicker()', // força a abrir o calendario
+                ]) ?>
     </div>
     <div class="col-md-4">
         <?= $form->field($model, 'morada')->textInput([

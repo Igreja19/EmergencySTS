@@ -111,13 +111,6 @@ class PrescricaoController extends Controller
                 if ($model->consulta && $model->consulta->triagem) {
                     $userId = $model->consulta->triagem->userprofile_id;
                     $nomePaciente = $model->consulta->triagem->userprofile->nome;
-
-                    Notificacao::enviar(
-                        $userId,
-                        "Nova prescrição",
-                        "Foi emitida uma nova prescrição para o paciente {$nomePaciente}.",
-                        "Consulta"
-                    );
                 }
 
                 Yii::$app->mqtt->publish(

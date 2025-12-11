@@ -91,22 +91,6 @@ class TriagemController extends Controller
                     }
                 }
 
-                Notificacao::enviar(
-                    $model->userprofile_id,
-                    "Triagem registada",
-                    "Foi registada uma nova triagem para o paciente.",
-                    "Consulta"
-                );
-
-                if (!empty($pulseira) && in_array($pulseira->prioridade, ['Vermelho','Laranja'])) {
-                    Notificacao::enviar(
-                        $model->userprofile_id,
-                        "Prioridade " . $pulseira->prioridade,
-                        "O paciente encontra-se em prioridade crítica.",
-                        "Prioridade"
-                    );
-                }
-
                 Yii::$app->mqtt->publish(
                     "triagem/criada/{$model->id}",
                     json_encode([

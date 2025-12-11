@@ -190,6 +190,9 @@ a, .btn-link { color: var(--brand); }
     padding: 10px 14px;
     border-radius: 10px;
     transition: background .2s;
+    white-space: normal !important;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 .notif-item:hover {
     background: rgba(25,135,84,.08);

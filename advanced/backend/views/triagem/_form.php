@@ -1,5 +1,7 @@
 <?php
 
+use common\models\UserProfile;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\web\View;
@@ -24,7 +26,7 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/_form.css');
 
             <?php
             // Buscar apenas pacientes que têm pulseira pendente
-            $pacientesComPulseiraPendente = \common\models\UserProfile::find()
+            $pacientesComPulseiraPendente = UserProfile::find()
                     ->joinWith('pulseiras')
                     ->where(['pulseira.prioridade' => 'Pendente'])
                     ->all();
@@ -33,7 +35,7 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/_form.css');
             <!-- CREATE — escolher paciente -->
             <div class="col-md-6">
                 <?= $form->field($model, 'userprofile_id')->dropDownList(
-                        \yii\helpers\ArrayHelper::map(
+                        ArrayHelper::map(
                                 $pacientesComPulseiraPendente,
                                 'id',
                                 'nome'
@@ -46,7 +48,10 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/_form.css');
             <div class="col-md-6">
                 <?= $form->field($model, 'pulseira_id')->dropDownList(
                         [],
-                        ['prompt' => 'Selecione primeiro o paciente']
+                        [
+                                'prompt' => 'Selecione primeiro o paciente',
+                                'style' => 'height: auto;'
+                        ]
                 )->label('<i class="bi bi-upc-scan me-2"></i> Código da Pulseira') ?>
             </div>
 

@@ -143,8 +143,10 @@ class UserProfileController extends Controller
             $roleOptions[$name] = ucfirst($name);
         }
 
+        // Para evitar mostrar hash da password
         $model->password = '';
 
+        // 🔹 PROCESSAMENTO DO SUBMIT
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
 
             // === Sempre buscar o USER associado ===
@@ -183,11 +185,21 @@ class UserProfileController extends Controller
             return $this->redirect(['index']);
         }
 
+        // 🔹 ANTES DE RENDERIZAR → obter role atual do user
+        $auth = Yii::$app->authManager;
+        $userRoles = $auth->getRolesByUser($model->user_id);
+
+        if (!empty($userRoles)) {
+            // pega só a primeira role
+            $model->role = array_keys($userRoles)[0];
+        }
+
         return $this->render('update', [
             'model' => $model,
             'roleOptions' => $roleOptions,
         ]);
     }
+
 
     public function actionDelete($id)
     {
@@ -199,6 +211,16 @@ class UserProfileController extends Controller
         if ($userId) {
             Yii::$app->authManager->revokeAll($userId);
         }
+
+        // 🔔 Notificação envia para o ADMIN (não para o user criado)
+        $adminProfileId = Yii::$app->user->identity->userprofile->id;
+
+        Notificacao::enviar(
+            $adminProfileId,
+            "Utilizador eliminado",
+            "Uma conta foi apagada: {$model->nome}",
+            "Geral"
+        );
 
         Yii::$app->session->setFlash('success', 'Utilizador eliminado.');
         return $this->redirect(['index']);

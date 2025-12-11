@@ -104,15 +104,6 @@ class ConsultaController extends Controller
                     $pulseira->save(false);
                 }
 
-                // Notificação ao paciente
-                $userId = $model->triagem->userprofile_id;
-                Notificacao::enviar(
-                    $userId,
-                    "Consulta iniciada",
-                    "A sua consulta foi iniciada.",
-                    "Consulta"
-                );
-
                 //MQTT — CONSULTA CRIADA
                 Yii::$app->mqtt->publish(
                     "consulta/criada/{$model->id}",
@@ -198,15 +189,6 @@ class ConsultaController extends Controller
                     $pulseira->save(false);
                 }
 
-                // Notificação conforme estado
-                if ($estado === Consulta::ESTADO_EM_CURSO) {
-                    Notificacao::enviar($userId, "Consulta retomada", "A consulta foi retomada.", "Consulta");
-                }
-
-                if ($estado === Consulta::ESTADO_ENCERRADA) {
-                    Notificacao::enviar($userId, "Consulta encerrada", "A sua consulta foi encerrada.", "Consulta");
-                }
-
                 // MQTT — CONSULTA ATUALIZADA
                 Yii::$app->mqtt->publish(
                     "consulta/atualizada/{$model->id}",
@@ -283,12 +265,6 @@ class ConsultaController extends Controller
             $pulseira->save(false);
         }
 
-        // Notificação
-        if ($model->triagem) {
-            $userId = $model->triagem->userprofile_id;
-            Notificacao::enviar($userId, "Consulta encerrada", "A sua consulta foi encerrada.", "Consulta");
-        }
-
         // MQTT — CONSULTA ENCERRADA
         Yii::$app->mqtt->publish(
             "consulta/encerrada/{$model->id}",
@@ -308,6 +284,9 @@ class ConsultaController extends Controller
     {
         $consulta = $this->findModel($id);
 
+        // Guardar dados antes de apagar (caso precises da info)
+        $consultaNome = $consulta->nome ?? "Consulta #$id";
+
         $triagem = $consulta->triagem;
         $pulseira = $triagem->pulseira ?? null;
 
@@ -319,14 +298,22 @@ class ConsultaController extends Controller
             $prescricao->delete();
         }
 
+        // apagar consulta
         $consulta->delete();
 
-        // apagar triagem
+        // Libertar TODAS as triagens que usam esta pulseira (segurança extra)
+        if ($pulseira) {
+            \common\models\Triagem::updateAll(
+                ['pulseira_id' => null],
+                ['pulseira_id' => $pulseira->id]
+            );
+        }
+
+        // Agora apaga triagem
         if ($triagem) {
-            $triagem->pulseira_id = null;
-            $triagem->save(false);
             $triagem->delete();
         }
+
 
         // apagar pulseira
         if ($pulseira) {
@@ -343,9 +330,20 @@ class ConsultaController extends Controller
             ])
         );
 
+        // 🔔 Notificação envia para o ADMIN (não para o user criado)
+        $adminProfileId = Yii::$app->user->identity->userprofile->id;
+
+        Notificacao::enviar(
+            $adminProfileId,
+            "Consulta eliminada",
+            "A '{$consultaNome}' foi apagada do histórico.",
+            "Geral"
+        );
+
         Yii::$app->session->setFlash('success', 'Consulta, triagem e pulseira eliminadas com sucesso.');
         return $this->redirect(['historico']);
     }
+
 
 
     protected function findModel($id)

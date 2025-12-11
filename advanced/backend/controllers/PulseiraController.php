@@ -2,6 +2,7 @@
 
 namespace backend\controllers;
 
+use common\models\Consulta;
 use common\models\Notificacao;
 use common\models\Pulseira;
 use common\models\PulseiraSearch;
@@ -80,13 +81,6 @@ class PulseiraController extends Controller
 
                 if ($model->save(false)) {
 
-                    Notificacao::enviar(
-                        $model->userprofile_id,
-                        "Pulseira atribuída",
-                        "Foi criada uma nova pulseira pendente.",
-                        "Consulta"
-                    );
-
                     $triagem->userprofile_id = $model->userprofile_id;
                     $triagem->pulseira_id = $model->id;
                     $triagem->datatriagem = date('Y-m-d H:i:s');
@@ -132,27 +126,6 @@ class PulseiraController extends Controller
 
         if ($model->load(Yii::$app->request->post()) && $model->save(false)) {
 
-            $newPriority = $model->prioridade;
-
-            if ($newPriority !== $oldPriority) {
-
-                Notificacao::enviar(
-                    $model->userprofile_id,
-                    "Prioridade atualizada",
-                    "A pulseira foi atualizada para prioridade " . $newPriority . ".",
-                    "Geral"
-                );
-
-                if (in_array($newPriority, ['Vermelho', 'Laranja'])) {
-                    Notificacao::enviar(
-                        $model->userprofile_id,
-                        "Prioridade crítica: " . $newPriority,
-                        "O paciente encontra-se agora em prioridade crítica.",
-                        "Prioridade"
-                    );
-                }
-            }
-
             Yii::$app->mqtt->publish(
                 "pulseira/atualizada/{$model->id}",
                 json_encode([
@@ -180,7 +153,7 @@ class PulseiraController extends Controller
 
         if ($triagem) {
 
-            $consultas = \common\models\Consulta::find()
+            $consultas = Consulta::find()
                 ->where(['triagem_id' => $triagem->id])
                 ->all();
 

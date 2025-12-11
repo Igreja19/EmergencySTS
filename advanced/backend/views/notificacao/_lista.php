@@ -36,7 +36,6 @@ if (empty($notificacoes)): ?>
                     </a>
                 <?php endif; ?>
             </div>
-
         </div>
     <?php endforeach; ?>
 <?php endif; ?>
