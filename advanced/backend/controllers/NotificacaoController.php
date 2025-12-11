@@ -17,7 +17,6 @@ class NotificacaoController extends Controller
         return array_merge(
             parent::behaviors(),
             [
-                // 🔐 Acesso apenas para utilizadores autenticados com roles válidos
                 'access' => [
                     'class' => AccessControl::class,
                     'only' => ['index', 'lida', 'ler-todas', 'stream', 'lista', 'lida-ajax'],
@@ -43,16 +42,10 @@ class NotificacaoController extends Controller
         );
     }
 
-    /**
-     * 📌 LISTAGEM DE TODAS AS NOTIFICAÇÕES
-     */
     public function actionIndex()
     {
-
         $user = Yii::$app->user->identity->userprofile ?? null;
-        if (!$user) {
-            return $this->redirect(['/site/login']);
-        }
+        if (!$user) return $this->redirect(['/site/login']);
 
         $userId = $user->id;
 
@@ -69,9 +62,6 @@ class NotificacaoController extends Controller
         ]);
     }
 
-    /**
-     * 📌 MARCAR UMA NOTIFICAÇÃO COMO LIDA
-     */
     public function actionLida($id)
     {
         $n = Notificacao::findOne($id);
@@ -86,12 +76,20 @@ class NotificacaoController extends Controller
         $n->lida = 1;
         $n->save(false);
 
+        // MQTT
+        Yii::$app->mqtt->publish(
+            "notificacao/lida/{$id}",
+            json_encode([
+                'evento' => 'notificacao_lida',
+                'notificacao_id' => $id,
+                'userprofile_id' => $n->userprofile_id,
+                'hora' => date('Y-m-d H:i:s'),
+            ])
+        );
+
         return $this->redirect(['index']);
     }
 
-    /**
-     * 📌 MARCAR TODAS COMO LIDAS
-     */
     public function actionLerTodas()
     {
         $userId = Yii::$app->user->identity->userprofile->id;
@@ -100,12 +98,19 @@ class NotificacaoController extends Controller
             'userprofile_id' => $userId,
         ]);
 
+        // MQTT
+        Yii::$app->mqtt->publish(
+            "notificacao/lidas-todas/{$userId}",
+            json_encode([
+                'evento' => 'todas_notificacoes_lidas',
+                'userprofile_id' => $userId,
+                'hora' => date('Y-m-d H:i:s'),
+            ])
+        );
+
         return $this->redirect(['index']);
     }
 
-    /**
-     * 📡 SSE — STREAM DE NOTIFICAÇÕES EM TEMPO REAL
-     */
     public function actionStream()
     {
         $user = Yii::$app->user->identity->userprofile ?? null;
@@ -113,10 +118,19 @@ class NotificacaoController extends Controller
 
         $userId = $user->id;
 
-        // Headers obrigatórios SSE:
         header('Content-Type: text/event-stream');
         header('Cache-Control: no-cache');
         header('Connection: keep-alive');
+
+        // MQTT
+        Yii::$app->mqtt->publish(
+            "notificacao/stream/{$userId}",
+            json_encode([
+                'evento' => 'stream_ativado',
+                'userprofile_id' => $userId,
+                'hora' => date('Y-m-d H:i:s'),
+            ])
+        );
 
         while (true) {
 
@@ -128,23 +142,32 @@ class NotificacaoController extends Controller
                 ->all();
 
             echo "data: " . json_encode($notificacoes) . "\n\n";
-
             ob_flush();
             flush();
 
-            usleep(500000); // 0.5 segundos
+            usleep(500000);
         }
     }
 
     public function actionLista()
     {
-        $this->layout = false; // 👈 impede que o layout carregue
+        $this->layout = false;
 
         if (Yii::$app->user->isGuest || !Yii::$app->user->identity->userprofile) {
             return "Erro: Utilizador sem perfil associado.";
         }
 
         $userId = Yii::$app->user->identity->userprofile->id;
+
+        // MQTT
+        Yii::$app->mqtt->publish(
+            "notificacao/lista/{$userId}",
+            json_encode([
+                'evento' => 'notificacao_lista',
+                'userprofile_id' => $userId,
+                'hora' => date('Y-m-d H:i:s'),
+            ])
+        );
 
         $notificacoes = Notificacao::find()
             ->where(['userprofile_id' => $userId])
@@ -156,7 +179,6 @@ class NotificacaoController extends Controller
             'notificacoes' => $notificacoes
         ]);
     }
-
 
     public function actionLidaAjax($id)
     {
@@ -174,6 +196,17 @@ class NotificacaoController extends Controller
 
         $n->lida = 1;
         $n->save(false);
+
+        // MQTT
+        Yii::$app->mqtt->publish(
+            "notificacao/lida-ajax/{$id}",
+            json_encode([
+                'evento' => 'notificacao_lida_ajax',
+                'notificacao_id' => $id,
+                'userprofile_id' => $n->userprofile_id,
+                'hora' => date('Y-m-d H:i:s'),
+            ])
+        );
 
         return ['success' => true];
     }
