@@ -187,32 +187,34 @@ class PacienteController extends ActiveController
     // -------------------------------------------------------------
     public function actionUpdate($id)
     {
-        // 1. Procurar perfil (pelo user_id)
-        $profile = UserProfile::findOne(['user_id' => $id]);
-        if (!$profile) {
-            $profile = UserProfile::findOne($id); // Fallback
-        }
+        // 1. Procurar perfil (pelo user_id ou id)
+    $profile = UserProfile::findOne(['user_id' => $id]);
+    if (!$profile) {
+        $profile = UserProfile::findOne($id);
+    }
 
-        if (!$profile) {
-            throw new NotFoundHttpException("Perfil não encontrado.");
-        }
+    if (!$profile) {
+        throw new NotFoundHttpException("Perfil não encontrado.");
+    }
 
-        $this->checkAccess('update', $profile);
+    $this->checkAccess('update', $profile);
 
-        // 2. Receber dados
-        $dados = Yii::$app->request->post('Paciente');
-        if (!$dados) {
-            $dados = Yii::$app->request->getBodyParams();
-        }
+    // --- MUDANÇA AQUI: Ler JSON diretamente se vier no Body ---
+    $dados = Yii::$app->request->getBodyParams();
+    
+    // Se por acaso vier dentro da chave 'Paciente' (formulário antigo), tiramos de lá.
+    if (isset($dados['Paciente'])) {
+        $dados = $dados['Paciente'];
+    }
+    // -----------------------------------------------------------
 
-        // 3. Atualizar campos
-        if (isset($dados['nome']))      $profile->nome      = $dados['nome'];
-        if (isset($dados['telefone']))  $profile->telefone  = $dados['telefone'];
-        if (isset($dados['nif']))       $profile->nif       = $dados['nif'];
-        if (isset($dados['sns']))       $profile->sns       = $dados['sns'];
-        if (isset($dados['morada']))    $profile->morada    = $dados['morada'];
-        if (isset($dados['datanascimento'])) $profile->datanascimento = $dados['datanascimento'];
-
+    // 3. Atualizar campos (Agora $dados tem o array limpo: ['nome' => 'Joao', ...])
+    if (isset($dados['nome']))      $profile->nome      = $dados['nome'];
+    if (isset($dados['telefone']))  $profile->telefone  = $dados['telefone'];
+    if (isset($dados['nif']))       $profile->nif       = $dados['nif'];
+    if (isset($dados['sns']))       $profile->sns       = $dados['sns'];
+    if (isset($dados['morada']))    $profile->morada    = $dados['morada'];
+    if (isset($dados['datanascimento'])) $profile->datanascimento = $dados['datanascimento'];
         // 4. Atualizar Email (Ignorando validações de password)
         if (isset($dados['email'])) {
             $user = User::findOne($profile->user_id);
