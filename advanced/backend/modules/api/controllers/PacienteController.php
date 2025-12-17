@@ -30,6 +30,16 @@ class PacienteController extends ActiveController
         return $b;
     }
 
+    /**
+     * Autoriza POST, PUT e PATCH na ação update.
+     */
+    protected function verbs()
+    {
+        $verbs = parent::verbs();
+        $verbs['update'] = ['POST', 'PUT', 'PATCH'];
+        return $verbs;
+    }
+
     public function actions()
     {
         $a = parent::actions();
@@ -43,10 +53,12 @@ class PacienteController extends ActiveController
             return;
         }
 
-        if ($action === 'view' || $action === 'update') {
+        if ($action === 'view' || $action === 'update' || $action === 'perfil') {
             if ($model && $model->user_id == Yii::$app->user->id) {
                 return;
             }
+            if ($action === 'perfil') return;
+
             throw new ForbiddenHttpException("Não tem permissão para aceder a este perfil.");
         }
 
@@ -55,7 +67,7 @@ class PacienteController extends ActiveController
         }
     }
 
-    // GET /api/paciente (com filtro nif opcional)
+    // GET /api/paciente (index)
     public function actionIndex()
     {
         $user = Yii::$app->user;
@@ -63,10 +75,7 @@ class PacienteController extends ActiveController
 
         if (!empty($nif)) {
             $paciente = UserProfile::find()->where(['nif' => $nif])->asArray()->one();
-            if (!$paciente) {
-                return [];
-            }
-            return [$paciente];
+            return $paciente ? [$paciente] : [];
         }
 
         if ($user->can('admin')) {
@@ -77,11 +86,7 @@ class PacienteController extends ActiveController
                 ->where(['aa.item_name' => 'paciente'])
                 ->asArray()
                 ->all();
-
-            return [
-                'total' => count($pacientes),
-                'data'  => $pacientes,
-            ];
+            return ['total' => count($pacientes), 'data' => $pacientes];
         }
 
         $meuPerfil = UserProfile::find()->where(['user_id' => $user->id])->asArray()->one();
@@ -92,12 +97,27 @@ class PacienteController extends ActiveController
     public function actionView($id)
     {
         $model = UserProfile::findOne($id);
-        if (!$model) {
-            throw new NotFoundHttpException("Paciente não encontrado.");
-        }
-
+        if (!$model) throw new NotFoundHttpException("Paciente não encontrado.");
         $this->checkAccess('view', $model);
         return $model;
+    }
+
+    // GET /api/paciente/perfil
+    public function actionPerfil()
+    {
+        $userId = Yii::$app->user->id;
+        $perfil = UserProfile::find()->where(['user_id' => $userId])->asArray()->one();
+
+        if (!$perfil) {
+            throw new NotFoundHttpException("Perfil do paciente não encontrado.");
+        }
+
+        $user = User::findOne($userId);
+        if ($user) {
+            $perfil['email'] = $user->email;
+        }
+
+        return $perfil;
     }
 
     // POST /api/paciente/create
@@ -117,9 +137,7 @@ class PacienteController extends ActiveController
         $tx = Yii::$app->db->beginTransaction();
 
         try {
-            if (!$user->save()) {
-                throw new \Exception(json_encode($user->errors));
-            }
+            if (!$user->save()) throw new \Exception(json_encode($user->errors));
 
             $profile = new UserProfile();
             $profile->user_id  = $user->id;
@@ -128,9 +146,7 @@ class PacienteController extends ActiveController
             $profile->sns      = $params['sns'] ?? null;
             $profile->telefone = $params['telefone'] ?? null;
 
-            if (!$profile->save()) {
-                throw new \Exception(json_encode($profile->errors));
-            }
+            if (!$profile->save()) throw new \Exception(json_encode($profile->errors));
 
             $auth = Yii::$app->authManager;
             $rolePaciente = $auth->getRole('paciente');
@@ -139,101 +155,105 @@ class PacienteController extends ActiveController
             $tx->commit();
             Yii::$app->response->statusCode = 201;
 
-            // MQTT – paciente criado
-            Yii::$app->mqtt->publish(
-                "user/criado/{$user->id}",
-                json_encode([
-                    'evento'   => 'user_criado',
-                    'user_id'  => $user->id,
-                    'username' => $user->username,
-                    'email'    => $user->email,
-                    'nome'     => $profile->nome,
-                    'role'     => 'paciente',
-                    'hora'     => date('Y-m-d H:i:s'),
-                ])
-            );
+            // MQTT (Protegido com Try-Catch)
+            try {
+                if (isset(Yii::$app->mqtt)) {
+                    Yii::$app->mqtt->publish("user/criado/{$user->id}", json_encode([
+                        'evento'   => 'user_criado',
+                        'user_id'  => $user->id,
+                        'username' => $user->username,
+                        'email'    => $user->email,
+                        'nome'     => $profile->nome,
+                        'role'     => 'paciente',
+                        'hora'     => date('Y-m-d H:i:s'),
+                    ]));
+                }
+            } catch (\Exception $e) {
+                Yii::error("Erro MQTT Create: " . $e->getMessage());
+            }
 
-            return [
-                'status'  => true,
-                'message' => 'Paciente criado com sucesso',
-                'data'    => $profile,
-            ];
+            return ['status' => true, 'message' => 'Paciente criado', 'data' => $profile];
 
         } catch (\Exception $e) {
             $tx->rollBack();
             Yii::$app->response->statusCode = 422;
-            return [
-                'status'  => false,
-                'message' => $e->getMessage(),
-            ];
+            return ['status' => false, 'message' => $e->getMessage()];
         }
     }
 
+
+    // -------------------------------------------------------------
     // POST /api/paciente/update?id=X
+    // -------------------------------------------------------------
     public function actionUpdate($id)
     {
-        $profile = UserProfile::findOne($id);
+        // 1. Procurar perfil (pelo user_id)
+        $profile = UserProfile::findOne(['user_id' => $id]);
+        if (!$profile) {
+            $profile = UserProfile::findOne($id); // Fallback
+        }
+
         if (!$profile) {
             throw new NotFoundHttpException("Perfil não encontrado.");
         }
 
         $this->checkAccess('update', $profile);
 
-        $params = Yii::$app->request->getBodyParams();
-        $user   = $profile->user;
-
-        if (isset($params['username'])) $user->username = $params['username'];
-        if (isset($params['email']))    $user->email    = $params['email'];
-
-        if (isset($params['nome']))      $profile->nome      = $params['nome'];
-        if (isset($params['telefone']))  $profile->telefone  = $params['telefone'];
-        if (isset($params['nif']))       $profile->nif       = $params['nif'];
-        if (isset($params['sns']))       $profile->sns       = $params['sns'];
-
-        if ($user->validate() && $profile->validate()) {
-            $user->save(false);
-            $profile->save(false);
-
-            // MQTT – paciente atualizado
-            Yii::$app->mqtt->publish(
-                "user/atualizado/{$user->id}",
-                json_encode([
-                    'evento'   => 'user_atualizado',
-                    'user_id'  => $user->id,
-                    'username' => $user->username,
-                    'email'    => $user->email,
-                    'nome'     => $profile->nome,
-                    'hora'     => date('Y-m-d H:i:s'),
-                ])
-            );
-
-            return [
-                'status'  => true,
-                'message' => 'Dados atualizados.',
-                'data'    => $profile,
-            ];
+        // 2. Receber dados
+        $dados = Yii::$app->request->post('Paciente');
+        if (!$dados) {
+            $dados = Yii::$app->request->getBodyParams();
         }
 
-        return [
-            'status' => false,
-            'errors' => array_merge($user->errors, $profile->errors),
-        ];
-    }
+        // 3. Atualizar campos
+        if (isset($dados['nome']))      $profile->nome      = $dados['nome'];
+        if (isset($dados['telefone']))  $profile->telefone  = $dados['telefone'];
+        if (isset($dados['nif']))       $profile->nif       = $dados['nif'];
+        if (isset($dados['sns']))       $profile->sns       = $dados['sns'];
+        if (isset($dados['morada']))    $profile->morada    = $dados['morada'];
+        if (isset($dados['datanascimento'])) $profile->datanascimento = $dados['datanascimento'];
 
-    // GET /api/paciente/perfil
-    public function actionPerfil()
-    {
-        $userId = Yii::$app->user->id;
-
-        $perfil = UserProfile::find()
-            ->where(['user_id' => $userId])
-            ->asArray()
-            ->one();
-
-        if (!$perfil) {
-            throw new NotFoundHttpException("Perfil do paciente não encontrado.");
+        // 4. Atualizar Email (Ignorando validações de password)
+        if (isset($dados['email'])) {
+            $user = User::findOne($profile->user_id);
+            if ($user) {
+                $user->email = $dados['email'];
+                $user->save(false);
+            }
         }
 
-        return $perfil;
+        // 5. Guardar
+        if ($profile->save()) {
+
+            // --- PROTEÇÃO CONTRA ERRO 500 (Try-Catch) ---
+            try {
+                if (isset(Yii::$app->mqtt)) {
+                    $user = User::findOne($profile->user_id);
+
+                    if ($user) {
+                        Yii::$app->mqtt->publish(
+                            "user/atualizado/{$profile->user_id}",
+                            json_encode([
+                                'evento'   => 'user_atualizado',
+                                'user_id'  => $profile->user_id,
+                                'username' => $user->username,
+                                'email'    => $user->email,
+                                'nome'     => $profile->nome,
+                                'hora'     => date('Y-m-d H:i:s'),
+                            ])
+                        );
+                    }
+                }
+            } catch (\Exception $e) {
+                // Se o MQTT falhar, ignoramos o erro e continuamos.
+                Yii::error("Erro no MQTT Update: " . $e->getMessage());
+            }
+            // -------------------------------------------
+
+            return $profile;
+        } else {
+            Yii::$app->response->statusCode = 422;
+            return $profile->getErrors();
+        }
     }
 }
