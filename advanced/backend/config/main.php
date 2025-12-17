@@ -146,7 +146,12 @@ return [
                 // Perfil do Enfermeiro autenticado
                 'GET api/enfermeiro/perfil' => 'api/enfermeiro/perfil',
 
-                // Atualizar perfil do paciente
+                // --- NOVA LINHA AQUI ---
+                // Diz ao servidor: "Se receberes um POST em api/enfermeiro/{id}, vai para a função actionUpdate"
+                'POST api/enfermeiro/<id:\d+>' => 'api/enfermeiro/update',
+                // -----------------------
+
+                // Atualizar perfil do paciente (manténs este como estava)
                 'PUT api/paciente/update/<id:\d+>' => 'api/paciente/update',
 
                 [
