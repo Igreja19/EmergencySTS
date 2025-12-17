@@ -7,7 +7,7 @@ use yii\rest\ActiveController;
 use yii\filters\auth\QueryParamAuth;
 use yii\web\NotFoundHttpException;
 use yii\web\ForbiddenHttpException;
-use common\models\User;          // Importante para editar o email
+use common\models\User;
 use common\models\UserProfile;
 
 class EnfermeiroController extends ActiveController
@@ -31,22 +31,29 @@ class EnfermeiroController extends ActiveController
         return $b;
     }
 
+    // --- ADICIONADO AQUI ---
+    protected function verbs()
+    {
+        $verbs = parent::verbs();
+        // Permite que o Android envie POST para o update
+        $verbs['update'] = ['POST', 'PUT', 'PATCH'];
+        return $verbs;
+    }
+    // -----------------------
+
     public function actions()
     {
         $a = parent::actions();
-        // Removemos update para criar o nosso personalizado
         unset($a['index'], $a['view'], $a['create'], $a['update'], $a['delete']);
         return $a;
     }
 
     public function checkAccess($action, $model = null, $params = [])
     {
-        // Admin pode tudo
         if (Yii::$app->user->can('admin')) {
             return;
         }
 
-        // Utilizador normal só pode ver/editar o seu próprio perfil
         if ($action === 'view' || $action === 'perfil' || $action === 'update') {
             if ($model && $model->user_id == Yii::$app->user->id) {
                 return;
@@ -60,7 +67,6 @@ class EnfermeiroController extends ActiveController
     {
         $userId = Yii::$app->user->id;
 
-        // Procura o perfil pelo ID do utilizador logado
         $perfil = UserProfile::find()
             ->where(['user_id' => $userId])
             ->asArray()
@@ -78,11 +84,9 @@ class EnfermeiroController extends ActiveController
         return $perfil;
     }
 
-    // POST/PUT /api/enfermeiro/{id}
-    // O Android envia o userId na URL e os dados no body
+    // POST /api/enfermeiro/{id}
     public function actionUpdate($id)
     {
-        // 1. Encontrar o perfil pelo user_id (que vem na URL do Android)
         $model = UserProfile::findOne(['user_id' => $id]);
 
         if (!$model) {
@@ -91,7 +95,6 @@ class EnfermeiroController extends ActiveController
 
         $this->checkAccess('update', $model);
 
-        // O Android envia dentro de "Enfermeiro", ex: Enfermeiro[nome]
         $dados = Yii::$app->request->post('Enfermeiro');
 
         if (!$dados) {
@@ -112,7 +115,7 @@ class EnfermeiroController extends ActiveController
             $user = User::findOne($model->user_id);
             if ($user) {
                 $user->email = $dados['email'];
-                $user->save(false); // Save rápido sem validações pesadas
+                $user->save(false);
             }
         }
 
