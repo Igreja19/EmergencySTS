@@ -119,6 +119,7 @@
                 'rules' => [
                     // Autenticação
                     'POST api/auth/login'  => 'api/auth/login',
+                    'GET  api/auth/login'  => 'api/auth/login',
                     'POST api/auth/signup' => 'api/auth/signup',
     
                     // Perfil do user (genérico)
