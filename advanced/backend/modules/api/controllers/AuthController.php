@@ -33,11 +33,25 @@ class AuthController extends Controller
     // LOGIN
     public function actionLogin()
     {
-        $data = Yii::$app->request->post();
-        $username = $data['username'] ?? null;
-        $password = $data['password'] ?? null;
+        $request = Yii::$app->request;
 
-        if (!$username || !$password) {
+        // 1) JSON (application/json)
+        $data = $request->bodyParams;
+
+        // 2) Form-data / x-www-form-urlencoded
+        if (empty($data)) {
+            $data = $request->post();
+        }
+
+        // 3) GET query params (apenas para testes via browser)
+        if (empty($data)) {
+            $data = $request->get();
+        }
+
+        $username = trim($data['username'] ?? '');
+        $password = (string)($data['password'] ?? '');
+
+        if ($username === '' || $password === '') {
             return ['status' => false, 'message' => 'Credenciais em falta.', 'data' => null];
         }
 
