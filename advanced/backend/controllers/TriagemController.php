@@ -11,6 +11,7 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use Yii;
+use yii\web\Response;
 
 class TriagemController extends Controller
 {
@@ -116,18 +117,24 @@ class TriagemController extends Controller
 
     public function actionPulseirasPorPaciente($id)
     {
-        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        Yii::$app->response->format = Response::FORMAT_JSON;
 
         $pulseiras = Pulseira::find()
-            ->where(['userprofile_id' => $id])
+            ->where([
+                'userprofile_id' => $id,
+                'prioridade' => 'Pendente',
+            ])
             ->orderBy(['tempoentrada' => SORT_DESC])
             ->all();
 
         $result = [];
+
         foreach ($pulseiras as $p) {
             $result[] = [
                 'id' => $p->id,
-                'codigo' => $p->codigo . " — " . $p->prioridade . " — " . date("d/m/Y H:i", strtotime($p->tempoentrada))
+                'codigo' => $p->codigo
+                    . ' — ' . $p->prioridade
+                    . ' — ' . date('d/m/Y H:i', strtotime($p->tempoentrada)),
             ];
         }
 
@@ -213,7 +220,7 @@ class TriagemController extends Controller
 
     public function actionChartData($start = null, $end = null)
     {
-        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        Yii::$app->response->format = Response::FORMAT_JSON;
 
         $query = Triagem::find();
 
@@ -239,4 +246,31 @@ class TriagemController extends Controller
             'data'   => array_values($counts)
         ];
     }
+    public function actionDadosPulseira($id)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $pulseira = Pulseira::find()
+            ->with('triagem')
+            ->where(['id' => $id])
+            ->one();
+
+        if (!$pulseira || !$pulseira->triagem) {
+            return [];
+        }
+
+        $t = $pulseira->triagem;
+
+        return [
+            'prioridade'        => $pulseira->prioridade,
+            'motivoconsulta'    => $t->motivoconsulta,
+            'queixaprincipal'   => $t->queixaprincipal,
+            'descricaosintomas' => $t->descricaosintomas,
+            'iniciosintomas'    => $t->iniciosintomas,
+            'intensidadedor'    => $t->intensidadedor,
+            'alergias'          => $t->alergias,
+            'medicacao'         => $t->medicacao,
+        ];
+    }
+
 }

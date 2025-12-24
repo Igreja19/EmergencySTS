@@ -10,9 +10,13 @@ use yii\base\Model;
  */
 class LoginForm extends Model
 {
+    const SCENARIO_BACKEND  = 'backend';
+    const SCENARIO_FRONTEND = 'frontend';
+
     public $username;
     public $password;
     public $rememberMe = true;
+    public bool $acessoRestrito = false;
 
     private $_user;
 
@@ -30,6 +34,16 @@ class LoginForm extends Model
             // password is validated by validatePassword()
             ['password', 'validatePassword'],
         ];
+    }
+
+    public function scenarios()
+    {
+        $scenarios = parent::scenarios();
+
+        $scenarios[self::SCENARIO_BACKEND] = ['username', 'password', 'rememberMe'];
+        $scenarios[self::SCENARIO_FRONTEND] = ['username', 'password', 'rememberMe'];
+
+        return $scenarios;
     }
 
     /**
@@ -56,12 +70,48 @@ class LoginForm extends Model
      */
     public function login()
     {
-        if ($this->validate()) {
-            return Yii::$app->user->login($this->getUser(), $this->rememberMe ? 3600 * 24 * 30 : 0);
+        if (!$this->validate()) {
+            return false;
         }
-        
-        return false;
+
+        $user = $this->getUser();
+
+        if (!$user) {
+            return false;
+        }
+
+        // Roles permitidas no BACKEND
+        $allowedRoles = ['admin', 'medico', 'enfermeiro'];
+
+        $auth = Yii::$app->authManager;
+        $hasAccess = false;
+
+        foreach ($allowedRoles as $role) {
+            if ($auth->checkAccess($user->id, $role)) {
+                $hasAccess = true;
+                break;
+            }
+        }
+
+        if ($this->scenario === self::SCENARIO_BACKEND && !$hasAccess) {
+            $this->acessoRestrito = true;
+
+            // LIMPA erros antigos (password)
+            $this->clearErrors();
+
+            // Mensagem correta
+            $this->addError('username', 'Não tem permissões para aceder ao backoffice.');
+
+            return false;
+        }
+
+        // ✅ Só aqui é que o login acontece
+        return Yii::$app->user->login(
+            $user,
+            $this->rememberMe ? 3600 * 24 * 30 : 0
+        );
     }
+
 
     /**
      * Finds user by [[username]]

@@ -11,6 +11,12 @@ $this->title = 'Iniciar Sessão';
 $this->params['breadcrumbs'][] = $this->title;
 $this->registerCssFile(Yii::$app->request->baseUrl . '/css/site/login.css');
 ?>
+
+<script>
+    window.contaDesativada = <?= json_encode($contaDesativada ?? false) ?>;
+</script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <section class="min-vh-100 d-flex align-items-center justify-content-center login-bg">
     <div class="login card shadow-sm border-0 w-100 mx-3">
         <div class="card-body p-5">
@@ -61,3 +67,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/site/login.css');
         </div>
     </div>
 </section>
+<?php
+$this->registerJsFile(Yii::$app->request->baseUrl . '/js/site/login.js?v=123', ['depends' => [\yii\web\JqueryAsset::class]]);
+?>

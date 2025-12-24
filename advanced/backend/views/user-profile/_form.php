@@ -85,9 +85,38 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile.css');
         ]) ?>
     </div>
 </div>
-    <div class="mt-4 d-flex gap-2">
+<div class="mt-4 d-flex justify-content-between align-items-center">
+
+    <!-- Esquerda: Guardar / Cancelar -->
+    <div class="d-flex gap-2">
         <?= Html::submitButton('Guardar', ['class' => 'btn btn-success']) ?>
         <?= Html::a('Cancelar', ['index'], ['class' => 'btn btn-outline-secondary']) ?>
     </div>
+
+    <!-- ️ Direita: Ativar / Desativar -->
+    <div>
+        <?php if ($model->isAtivo()): ?>
+            <?= Html::a(
+                    '<i class="bi bi-person-x"></i> Desativar',
+                    ['desativar', 'id' => $model->id],
+                    [
+                            'class' => 'btn btn-danger fw-semibold',
+                            'data-confirm' => 'Tens a certeza que queres desativar este utilizador?',
+                            'data-method' => 'post',
+                    ]
+            ) ?>
+        <?php else: ?>
+            <?= Html::a(
+                    '<i class="bi bi-person-check"></i> Ativar',
+                    ['ativar', 'id' => $model->id],
+                    [
+                            'class' => 'btn btn-success fw-semibold',
+                            'data-confirm' => 'Queres reativar este utilizador?',
+                            'data-method' => 'post',
+                    ]
+            ) ?>
+        <?php endif; ?>
+    </div>
+</div>
 
 <?php ActiveForm::end(); ?>

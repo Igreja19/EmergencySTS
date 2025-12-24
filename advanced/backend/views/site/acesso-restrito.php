@@ -1,8 +1,15 @@
 <?php
+
+use yii\helpers\Html;
+
 $this->registerCssFile(Yii::$app->request->baseUrl . '/css/site/acesso-restrito.css');
 
 $this->title = "Acesso Restrito";
 ?>
+
+<script>
+    window.redirectHomeUrl = <?= json_encode(Yii::$app->homeUrl) ?>;
+</script>
 
 <div class="login-box premium-container" style="width: 480px;">
 
@@ -28,26 +35,18 @@ $this->title = "Acesso Restrito";
                 Será redirecionado em <b id="contador">10</b> segundos...
             </p>
 
-            <!-- 🔥 BOTÃO CORRIGIDO → FRONTEND -->
-            <a href="/PLATF/EmergencySTS/advanced/frontend/web/index.php" class="premium-button">
-                <i class="fas fa-home mr-2"></i> Ir para página inicial agora
-            </a>
+            <?= Html::a(
+                    '<i class="fas fa-home me-2"></i> Ir para página inicial agora',
+                    ['site/index'],
+                    ['class' => 'premium-button']
+            ) ?>
+
 
         </div>
     </div>
 </div>
 
-<!-- 🔥 Script Redirecionamento corrigido → FRONTEND -->
-<?php
-$this->registerJs("
-    var s = 10;
-    var intv = setInterval(function() {
-        s--;
-        $('#contador').text(s);
-        if (s <= 0) {
-            clearInterval(intv);
-            window.location.href = '/PLATF/EmergencySTS/advanced/frontend/web/index.php';
-        }
-    }, 1000);
-");
+<?php $this->registerJsFile(Yii::$app->request->baseUrl . '/js/site/acesso-restrito.js?v=123',
+        ['depends' => [\yii\web\JqueryAsset::class]]
+);
 ?>

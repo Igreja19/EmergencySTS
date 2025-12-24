@@ -37,7 +37,7 @@ class Triagem extends \yii\db\ActiveRecord
     {
         return [
             [['queixaprincipal', 'descricaosintomas', 'alergias', 'medicacao'], 'string'],
-            [['iniciosintomas', 'datatriagem'], 'safe'],
+            [['iniciosintomas', 'datatriagem', 'prioridade_pulseira'], 'safe'],
             [['intensidadedor', 'userprofile_id', 'pulseira_id'], 'integer'],
             [['userprofile_id'], 'required'],
             [['motivoconsulta'], 'string', 'max' => 255],
@@ -91,6 +91,15 @@ class Triagem extends \yii\db\ActiveRecord
         }
     }
 
+    public function beforeSave($insert)
+    {
+        if ($insert) {
+            $this->datatriagem = date('Y-m-d H:i:s');
+        }
+
+        return parent::beforeSave($insert);
+    }
+
     /** RELAÇÕES */
 
     public function getPulseira()
@@ -106,6 +115,10 @@ class Triagem extends \yii\db\ActiveRecord
     public function getConsulta()
     {
         return $this->hasOne(\common\models\Consulta::class, ['triagem_id' => 'id']);
+    }
+    public function getInicioSintomasFormatado()
+    {
+        return Yii::$app->formatter->asDatetime($this->iniciosintomas, 'php:d/m/Y H:i');
     }
 
     /** CAMPOS DEVOLVIDOS SEMPRE NO JSON */

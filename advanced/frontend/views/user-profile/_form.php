@@ -98,6 +98,7 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile/_form.cs
                 <?= $form->field($model, 'nif')
                         ->textInput([
                                 'placeholder' => 'NIF',
+                                'maxlength' => 9,
                                 'oninput' => 'this.value = this.value.replace(/[^0-9]/g, "")'
                         ])
                         ->label('<i class="bi bi-credit-card-2-front me-2"></i> NIF') ?>
@@ -107,6 +108,7 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile/_form.cs
                 <?= $form->field($model, 'sns')
                         ->textInput([
                                 'placeholder' => 'Número de Utente (SNS)',
+                                'maxlength' => 9,
                                 'oninput' => 'this.value = this.value.replace(/[^0-9]/g, "")'
                         ])
                         ->label('<i class="bi bi-hospital me-2"></i> Nº SNS') ?>

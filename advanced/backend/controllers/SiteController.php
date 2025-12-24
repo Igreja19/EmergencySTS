@@ -4,11 +4,13 @@ namespace backend\controllers;
 
 use common\helpers\IpHelper;
 use common\models\Consulta;
+use common\models\ForgotPasswordForm;
 use common\models\LoginForm;
 use common\models\LoginHistory;
 use common\models\Notificacao;
 use common\models\Pulseira;
 use common\models\Triagem;
+use common\models\User;
 use Yii;
 use yii\web\Controller;
 use yii\web\Response;
@@ -137,8 +139,15 @@ class SiteController extends Controller
 
         // ===== Pacientes em triagem =====
         $pacientes = Triagem::find()
-            ->joinWith(['userprofile', 'pulseira'])
+            ->joinWith([
+                'userprofile.user', // Faz JOIN das duas tabelas
+                'pulseira'
+            ])
             ->where(['in', 'pulseira.status', ['Em espera', 'Em atendimento']])
+            ->andWhere([
+                'user.status' => User::STATUS_ACTIVE,
+                'userprofile.estado' => 1,
+            ])
             ->orderBy(['datatriagem' => SORT_DESC])
             ->limit(10)
             ->asArray()
@@ -224,31 +233,23 @@ class SiteController extends Controller
      */
     public function actionLogin()
     {
-        if (!Yii::$app->user) {
+        $this->actionDestroyCookie();
+
+        if (!Yii::$app->user->isGuest) {
             return $this->goHome();
         }
 
         $this->layout = 'main-login';
         $model = new LoginForm();
+        $model->scenario = LoginForm::SCENARIO_BACKEND;
 
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
 
-            // 🔥 Verificar role antes de permitir login
-            $auth = Yii::$app->authManager;
-            $roles = $auth->getRolesByUser(Yii::$app->user->id);
+            $userId = Yii::$app->user->id;
 
-            // Apenas admin, médico e enfermeiro podem entrar
-            if (!isset($roles['admin']) && !isset($roles['medico']) && !isset($roles['enfermeiro'])) {
-
-                // Terminar sessão imediatamente
-                Yii::$app->user->logout();
-
-                // Mostrar página de acesso restrito
-                return $this->redirect(['/site/acesso-restrito']);
-            }
-
+            // Histórico de login
             $history = new LoginHistory();
-            $history->user_id = Yii::$app->user->id;
+            $history->user_id = $userId;
             $history->ip = Yii::$app->request->userIP;
             $history->user_agent = Yii::$app->request->userAgent;
             $history->save(false);
@@ -256,9 +257,18 @@ class SiteController extends Controller
             return $this->goBack();
         }
 
+        // Credenciais válidas mas sem permissões
+        if ($model->acessoRestrito) {
+            return $this->redirect(['/site/acesso-restrito']);
+        }
+
         $model->password = '';
-        return $this->render('login', ['model' => $model]);
+
+        return $this->render('login', [
+            'model' => $model,
+        ]);
     }
+
 
     /**
      * Logout action.
@@ -274,7 +284,7 @@ class SiteController extends Controller
 
     public function actionRequestPasswordReset()
     {
-        $model = new \common\models\ForgotPasswordForm();
+        $model = new ForgotPasswordForm();
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             if ($model->sendEmail()) {
@@ -293,9 +303,22 @@ class SiteController extends Controller
     }
     public function actionAcessoRestrito()
     {
-        $this->layout = 'main-login'; // 🔥 REMOVE navbar e sidebar
+        $this->layout = 'main-login';
+
+        $this->actionDestroyCookie();
 
         return $this->render('acesso-restrito');
+    }
+
+    private function actionDestroyCookie()
+    {
+        $cookies = Yii::$app->response->cookies;
+
+        // backend identity cookie
+        $cookies->remove('advanced-backend');
+
+        Yii::$app->user->logout(false);
+        Yii::$app->session->destroy();
     }
 
 }

@@ -3,12 +3,14 @@
 namespace backend\controllers;
 
 use common\models\Notificacao;
+use common\models\User;
 use Yii;
 use common\models\UserProfile;
 use common\models\UserProfileSearch;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\web\Controller;
+use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 
 class UserProfileController extends Controller
@@ -75,13 +77,14 @@ class UserProfileController extends Controller
         if ($model->load(Yii::$app->request->post())) {
 
             // Criar utilizador base se não existir
-            $user = \common\models\User::findOne(['email' => $model->email]);
+            $user = User::findOne(['email' => $model->email]);
             if (!$user) {
-                $user = new \common\models\User();
-                $user->username = $model->email;
+                $user = new User();
+                $user->username = $model->nome;
                 $user->email = $model->email;
                 $user->setPassword('admin123'); // senha padrão
                 $user->generateAuthKey();
+                $user->status = User::STATUS_ACTIVE;
 
                 if (!$user->save()) {
                     Yii::$app->session->setFlash('error', 'Erro ao criar utilizador base: ' . json_encode($user->getErrors()));
@@ -150,14 +153,16 @@ class UserProfileController extends Controller
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
 
             // === Sempre buscar o USER associado ===
-            $user = \common\models\User::findOne($model->user_id);
+            $user = User::findOne($model->user_id);
 
             if ($user) {
 
                 // --- Atualizar email e username se mudou ---
                 if ($oldEmail !== $model->email) {
                     $user->email = $model->email;
-                    $user->username = $model->email;
+                }
+                if (!empty($model->nome)) {
+                    $user->username = $model->nome;
                 }
 
                 // --- Atualizar password se preenchida ---
@@ -204,27 +209,41 @@ class UserProfileController extends Controller
     public function actionDelete($id)
     {
         $model = $this->findModel($id);
-        $userId = $model->user_id;
 
-        $model->delete();
+        // User associado (autenticação)
+        $user = $model->user;
 
-        if ($userId) {
-            Yii::$app->authManager->revokeAll($userId);
+        // Remover roles/permissões
+        if ($user) {
+            Yii::$app->authManager->revokeAll($user->id);
         }
 
-        // 🔔 Notificação envia para o ADMIN (não para o user criado)
+        //  Apagar UserProfile
+        $model->delete();
+
+        //  Apagar User
+        if ($user) {
+            $user->delete();
+        }
+
+        // Notificação (admin que executa a ação)
         $adminProfileId = Yii::$app->user->identity->userprofile->id;
 
         Notificacao::enviar(
             $adminProfileId,
-            "Utilizador eliminado",
-            "Uma conta foi apagada: {$model->nome}",
-            "Geral"
+            'Utilizador eliminado',
+            "A conta {$model->nome} foi eliminada.",
+            'Geral'
         );
 
-        Yii::$app->session->setFlash('success', 'Utilizador eliminado.');
+        Yii::$app->session->setFlash(
+            'success',
+            'Utilizador apagado com sucesso.'
+        );
+
         return $this->redirect(['index']);
     }
+
 
     protected function findModel($id)
     {
@@ -237,11 +256,11 @@ class UserProfileController extends Controller
     public function actionMeuPerfil()
     {
         if (Yii::$app->user->isGuest) {
-            throw new \yii\web\ForbiddenHttpException('Precisa de iniciar sessão.');
+            throw new ForbiddenHttpException('Precisa de iniciar sessão.');
         }
 
         $userId = Yii::$app->user->id;
-        $model = \common\models\UserProfile::findOne(['user_id' => $userId]);
+        $model = UserProfile::findOne(['user_id' => $userId]);
 
         if (!$model) {
             Yii::$app->session->setFlash('info', 'Ainda não possui um perfil. Crie um agora.');
@@ -253,10 +272,85 @@ class UserProfileController extends Controller
 
     protected function findModelByUser($userId)
     {
-        if (($model = \common\models\UserProfile::findOne(['user_id' => $userId])) !== null) {
+        if (($model = UserProfile::findOne(['user_id' => $userId])) !== null) {
             return $model;
         }
 
-        throw new \yii\web\NotFoundHttpException('Perfil não encontrado.');
+        throw new NotFoundHttpException('Perfil não encontrado.');
+    }
+    public function actionAtivar($id)
+    {
+        $model = $this->findModel($id);
+
+        // Já está ativo
+        if ($model->isAtivo()) {
+            Yii::$app->session->setFlash('info', 'Utilizador já está ativo.');
+            return $this->redirect(['update', 'id' => $model->id]);
+        }
+
+        $user = $model->user;
+
+        if ($user) {
+            // Permitir login
+            $user->status = User::STATUS_ACTIVE;
+            $user->save(false);
+        }
+
+        // Reativar perfil
+        $model->ativar();
+
+        // Notificação
+        $adminProfileId = Yii::$app->user->identity->userprofile->id;
+
+        Notificacao::enviar(
+            $adminProfileId,
+            'Utilizador ativado',
+            "A conta {$model->nome} foi ativada.",
+            'Geral'
+        );
+
+        Yii::$app->session->setFlash(
+            'success',
+            'Utilizador ativado com sucesso.'
+        );
+
+        return $this->redirect(['update', 'id' => $model->id]);
+    }
+    public function actionDesativar($id)
+    {
+        $model = $this->findModel($id);
+
+        if (!$model->isAtivo()) {
+            Yii::$app->session->setFlash('warning', 'Utilizador já está desativado.');
+            return $this->redirect(['update', 'id' => $model->id]);
+        }
+
+        $user = $model->user;
+
+        if ($user) {
+            $user->status = User::STATUS_INACTIVE;
+            $user->save(false);
+
+            Yii::$app->authManager->revokeAll($user->id);
+        }
+
+        $model->desativar();
+
+        // Notificação
+        $adminProfileId = Yii::$app->user->identity->userprofile->id;
+
+        Notificacao::enviar(
+            $adminProfileId,
+            'Utilizador ativado',
+            "A conta {$model->nome} foi ativada.",
+            'Geral'
+        );
+
+        Yii::$app->session->setFlash(
+            'success',
+            'Utilizador desativado com sucesso.'
+        );
+
+        return $this->redirect(['update', 'id' => $model->id]);
     }
 }

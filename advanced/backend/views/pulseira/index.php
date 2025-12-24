@@ -4,6 +4,7 @@ use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\widgets\Pjax;
 
+
 $this->title = 'Pulseiras';
 $this->params['breadcrumbs'][] = $this->title;
 $this->registerCssFile(Yii::$app->request->baseUrl . '/css/pulseira/index.css');
@@ -16,10 +17,11 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/pulseira/index.css');
     <!-- HEADER -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="page-title"><i class="bi bi-upc-scan"></i> Pulseiras</h1>
-
-        <?= Html::a('<i class="bi bi-plus-circle me-1"></i> Nova Pulseira', ['create'], [
-                'class' => 'btn-new'
-        ]) ?>
+        <?php if ($isAdmin): ?>
+            <?= Html::a('<i class="bi bi-plus-circle me-1"></i> Nova Pulseira', ['create'], [
+                    'class' => 'btn-new'
+            ]) ?>
+        <?php endif ?>
     </div>
 
     <!-- SEARCH + TABLE CARD -->

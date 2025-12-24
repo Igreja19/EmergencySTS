@@ -1,4 +1,4 @@
-<?php
+    <?php
 
 use common\models\UserProfile;
 use yii\helpers\ArrayHelper;
@@ -154,17 +154,7 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/_form.css');
         </div>
     </div>
 
-    <div class="row g-3 mt-1">
-        <div class="col-md-6">
-            <?= $form->field($model, 'datatriagem')
-                    ->input('datetime-local', [
-                            'placeholder' => 'Data e hora do início dos sintomas',
-                            'onkeydown' => 'return false',
-                            'onpaste' => 'return false',
-                            'onclick' => 'this.showPicker()', // força a abrir o calendario
-                    ]) ?>
-        </div>
-    </div>
+
 
     <div class="form-group text-center mt-4">
         <?= Html::submitButton('<i class="bi bi-check-circle me-1"></i> Guardar', ['class' => 'btn btn-save']) ?>
@@ -176,6 +166,12 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/_form.css');
     // Define a variável JS GLOBAL
     $this->registerJs(
             "window.triagemPulseirasUrl = " . json_encode($ajaxUrl) . ";",
+            View::POS_HEAD
+    );
+    $dadosPulseiraUrl = Url::to(['triagem/dados-pulseira']);
+
+    $this->registerJs(
+            "window.triagemDadosPulseiraUrl = " . json_encode($dadosPulseiraUrl) . ";",
             View::POS_HEAD
     );
     $this->registerJsFile(Yii::$app->request->baseUrl . '/js/triagem/_form.js', ['depends' => [\yii\web\JqueryAsset::class]]);

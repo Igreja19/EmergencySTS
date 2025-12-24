@@ -66,8 +66,11 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/index.css');
                         ],
                         'motivoconsulta',
                         [
-                                'attribute' => 'datatriagem',
-                                'format' => ['datetime', 'php:d/m/Y H:i'],
+                                'label' => 'Tempo Entrada',
+                                'value' => fn($m) =>
+                                $m->pulseira && $m->pulseira->tempoentrada
+                                        ? Yii::$app->formatter->asDatetime($m->pulseira->tempoentrada, 'php:d/m/Y H:i')
+                                        : '-',
                         ],
                         [
                                 'class' => 'yii\grid\ActionColumn',

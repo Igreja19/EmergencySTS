@@ -8,6 +8,8 @@ use common\models\Pulseira;
 use common\models\PulseiraSearch;
 use common\models\Triagem;
 use common\models\UserProfile;
+use yii\filters\AccessControl;
+use yii\helpers\ArrayHelper;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -21,7 +23,7 @@ class PulseiraController extends Controller
             parent::behaviors(),
             [
                 'access' => [
-                    'class' => \yii\filters\AccessControl::class,
+                    'class' => AccessControl::class,
                     'only' => ['index','view','create','update','delete'],
                     'rules' => [
                         [
@@ -45,10 +47,12 @@ class PulseiraController extends Controller
     {
         $searchModel = new PulseiraSearch();
         $dataProvider = $searchModel->search($this->request->queryParams);
+        $isAdmin = Yii::$app->user->can('admin');
 
         return $this->render('index', [
             'searchModel'  => $searchModel,
             'dataProvider' => $dataProvider,
+            'isAdmin'     => $isAdmin,
         ]);
     }
 
@@ -64,7 +68,7 @@ class PulseiraController extends Controller
         $model = new Pulseira();
         $triagem = new Triagem();
 
-        $pacientes = \yii\helpers\ArrayHelper::map(
+        $pacientes = ArrayHelper::map(
             UserProfile::find()->all(),
             'id',
             'nome'

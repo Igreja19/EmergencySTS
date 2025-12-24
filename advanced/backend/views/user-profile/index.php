@@ -71,6 +71,13 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile/index.cs
                                         ]),
                                 ],
                         ],
+                        [
+                                'attribute' => 'estado',
+                                'label' => 'Estado',
+                                'format' => 'raw',
+                                'value' => fn($model) => $model->getEstadoBadge(),
+                                'contentOptions' => ['style' => 'text-align:center; width:120px'],
+                        ]
                 ],
         ]); ?>
         <?php Pjax::end(); ?>

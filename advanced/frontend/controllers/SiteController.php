@@ -3,6 +3,7 @@
 namespace frontend\controllers;
 
 use common\models\LoginForm;
+use common\models\User;
 use frontend\models\ContactForm;
 use frontend\models\PasswordResetRequestForm;
 use frontend\models\ResendVerificationEmailForm;
@@ -90,25 +91,44 @@ class SiteController extends Controller
         }
 
         $model = new LoginForm();
+        $model->scenario = LoginForm::SCENARIO_FRONTEND;
+        $contaDesativada = false;
 
-        if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            $user = Yii::$app->user->identity;
+        if ($model->load(Yii::$app->request->post())) {
 
-            if ($user->primeiro_login) {
-                Yii::$app->session->set('firstLogin', true);
-                $user->primeiro_login = 0;
-                $user->save(false);
+            $user = User::findOne(['username' => $model->username]);
+
+            // Conta desativada
+            if ($user && $user->userprofile && !$user->userprofile->isAtivo()) {
+                $contaDesativada = true;
             }
+            // Tentar login normal
+            elseif ($model->login()) {
 
-            return $this->goBack();
+                $user = Yii::$app->user->identity;
+
+                if ($user->primeiro_login) {
+                    Yii::$app->session->set('firstLogin', true);
+                    $user->primeiro_login = 0;
+                    $user->save(false);
+                }
+
+                return $this->goBack();
+            }
+            // Login falhou (user/pass errados)
+            else {
+                $model->addError('password', 'Incorrect username or password.');
+            }
         }
 
         $model->password = '';
 
         return $this->render('login', [
             'model' => $model,
+            'contaDesativada' => $contaDesativada,
         ]);
     }
+
 
     /**
      * Logs out the current user.

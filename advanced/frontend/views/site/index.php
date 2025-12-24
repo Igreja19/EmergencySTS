@@ -3,6 +3,7 @@
 
 <?php
 use yii\bootstrap5\Html;
+use yii\helpers\Url;
 
 /** @var yii\web\View $this */
 
@@ -16,8 +17,8 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
 
     $userProfile = Yii::$app->user->identity->userprofile ?? null;
     $profileUrl = $userProfile
-            ? \yii\helpers\Url::to(['user-profile/update', 'id' => $userProfile->id], true)
-            : \yii\helpers\Url::to(['user-profile/create'], true);
+            ? Url::to(['user-profile/update', 'id' => $userProfile->id], true)
+            : Url::to(['user-profile/create'], true);
     ?>
 
     <script>

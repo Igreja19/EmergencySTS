@@ -27,6 +27,10 @@ class UserProfile extends \yii\db\ActiveRecord
     public $role;
     public $password;
 
+    /** Estados do perfil */
+    const ATIVO = 1;
+    const DESATIVO = 0;
+
     /**
      * {@inheritdoc}
      */
@@ -45,6 +49,9 @@ class UserProfile extends \yii\db\ActiveRecord
 
             [['datanascimento'], 'safe'],
             [['user_id'], 'integer'],
+
+            ['estado', 'boolean'],
+            ['estado', 'default', 'value' => self::ATIVO],
 
             [['nome', 'email'], 'string', 'max' => 100],
             [['morada'], 'string', 'max' => 255],
@@ -84,6 +91,7 @@ class UserProfile extends \yii\db\ActiveRecord
             'telefone' => 'Telefone',
             'role' => 'Função / Role',
             'user_id' => 'User ID',
+            'estado' => 'Ativo',
         ];
     }
 
@@ -122,4 +130,33 @@ class UserProfile extends \yii\db\ActiveRecord
         return $this->hasMany(\common\models\Pulseira::class, ['userprofile_id' => 'id']);
     }
 
+     // MÉTODOS DE ESTADO
+    public function desativar(): bool
+    {
+        $this->estado = self::DESATIVO;
+        return $this->save(false);
+    }
+
+    public function ativar(): bool
+    {
+        $this->estado = self::ATIVO;
+        return $this->save(false);
+    }
+
+    public function isAtivo(): bool
+    {
+        return (int)$this->estado === self::ATIVO;
+    }
+
+    public function getEstadoLabel(): string
+    {
+        return $this->isAtivo() ? 'Ativo' : 'Desativado';
+    }
+
+    public function getEstadoBadge(): string
+    {
+        return $this->isAtivo()
+            ? '<span class="badge bg-success"><i class="bi bi-check-circle"></i> Ativo</span>'
+            : '<span class="badge bg-secondary"><i class="bi bi-slash-circle"></i> Desativado</span>';
+    }
 }

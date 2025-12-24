@@ -47,11 +47,11 @@ $this->params['breadcrumbs'][] = $this->title;
             </tr>
             <tr>
                 <th>Descrição dos Sintomas</th>
-                <td><?= nl2br(Html::encode($model->descricaosintomas)) ?></td>
+                <td><?= nl2br(Html::encode($model->descricaosintomas)) ?></td><
             </tr>
             <tr>
                 <th>Início dos Sintomas</th>
-                <td><?= Html::encode($model->iniciosintomas) ?></td>
+                <td><?= $model->inicioSintomasFormatado ?></td>
             </tr>
             <tr>
                 <th>Intensidade da Dor</th>
