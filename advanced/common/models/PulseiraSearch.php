@@ -39,22 +39,21 @@ class PulseiraSearch extends Pulseira
      */
     public function search($params)
     {
-        // Query base
         $query = Pulseira::find()
-            ->joinWith(['userprofile', 'triagem t', 'triagem.consulta c']);
-
-        // 🔥 1) Mostrar apenas pulseiras SEM consulta associada (mantido do teu código)
-        $query->andWhere(['c.id' => null]);
-
-        // 🔥 2) Mostrar apenas pulseiras que JÁ TÊM PRIORIDADE REAL (ocultar PENDENTE)
-        $query->andWhere(['!=', 'pulseira.prioridade', 'Pendente']);
+            ->joinWith(['userprofile', 'triagem t', 'triagem.consulta c'], false)
+            ->andWhere([
+                'or',
+                ['c.id' => null],
+                ['<>', 'c.estado', 'Encerrada'],
+            ])
+            ->andWhere(['!=', 'pulseira.prioridade', 'Pendente']);
 
         // DataProvider
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
 
-        // 🔹 Ordenação personalizada Manchester
+        // 🔹 Ordenação personalizada Manchester (mantida)
         $dataProvider->sort->attributes['prioridade'] = [
             'asc' => [
                 new Expression("FIELD(pulseira.prioridade, 'Azul', 'Verde', 'Amarelo', 'Laranja', 'Vermelho')")
@@ -64,9 +63,9 @@ class PulseiraSearch extends Pulseira
             ],
         ];
 
-        // 🔹 Ordenação padrão (mais recentes primeiro)
+        // 🔹 Ordenação padrão
         $dataProvider->setSort([
-            'defaultOrder' => ['id' => SORT_DESC],
+            'defaultOrder' => ['pulseira.id' => SORT_DESC],
         ]);
 
         // ← carregar filtros
@@ -76,17 +75,23 @@ class PulseiraSearch extends Pulseira
             return $dataProvider;
         }
 
-        // === Filtros adicionais ===
+        // === Filtros adicionais (mantidos, mas prefixados corretamente) ===
         $query->andFilterWhere([
-            'id' => $this->id,
+            'pulseira.id' => $this->id,
         ]);
 
-        $query->andFilterWhere(['like', 'codigo', $this->codigo])
-            ->andFilterWhere(['like', 'prioridade', $this->prioridade])
-            ->andFilterWhere(['like', 'status', $this->status]);
+        $query->andFilterWhere(['like', 'pulseira.codigo', $this->codigo])
+            ->andFilterWhere(['like', 'pulseira.prioridade', $this->prioridade])
+            ->andFilterWhere(['like', 'pulseira.status', $this->status]);
 
+        // 🔥 Filtro de data CORRIGIDO (igual ao das consultas)
         if (!empty($this->tempoentrada)) {
-            $query->andFilterWhere(['like', 'tempoentrada', $this->tempoentrada]);
+            $query->andWhere([
+                'between',
+                'DATE(pulseira.tempoentrada)',
+                $this->tempoentrada,
+                $this->tempoentrada
+            ]);
         }
 
         return $dataProvider;

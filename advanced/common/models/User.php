@@ -60,6 +60,8 @@ class User extends ActiveRecord implements IdentityInterface
             ['status', 'default', 'value' => self::STATUS_INACTIVE],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_INACTIVE, self::STATUS_DELETED]],
             [['primeiro_login'], 'boolean'],
+            ['username', 'required'],
+            ['email', 'email'],
         ];
     }
 

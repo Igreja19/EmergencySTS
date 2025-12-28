@@ -14,6 +14,7 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\helpers\ArrayHelper;
+use yii\web\Response;
 
 class ConsultaController extends Controller
 {
@@ -95,6 +96,16 @@ class ConsultaController extends Controller
             $model->estado = Consulta::ESTADO_EM_CURSO;
             $model->data_encerramento = null;
 
+            $userId = Yii::$app->user->id;
+            $auth = Yii::$app->authManager;
+
+            if (
+                ($auth->checkAccess($userId, 'medico') || $auth->checkAccess($userId, 'admin')) &&
+                Yii::$app->user->identity->userprofile
+            ) {
+                $model->medicouserprofile_id = Yii::$app->user->identity->userprofile->id;
+            }
+
             if ($model->save(false)) {
 
                 // Atualiza pulseira para Em atendimento
@@ -132,7 +143,7 @@ class ConsultaController extends Controller
      //AJAX TRIAGEM INFO
     public function actionTriagemInfo($id)
     {
-        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        Yii::$app->response->format = Response::FORMAT_JSON;
 
         $triagem = Triagem::find()
             ->where(['triagem.id' => $id])
@@ -161,6 +172,19 @@ class ConsultaController extends Controller
         );
 
         if ($model->load(Yii::$app->request->post())) {
+
+            if (empty($model->medicouserprofile_id)) {
+
+                $userId = Yii::$app->user->id;
+                $auth = Yii::$app->authManager;
+
+                if (
+                    ($auth->checkAccess($userId, 'medico') || $auth->checkAccess($userId, 'admin')) &&
+                    Yii::$app->user->identity->userprofile
+                ) {
+                    $model->medicouserprofile_id = Yii::$app->user->identity->userprofile->id;
+                }
+            }
 
             // Consulta deve ter prescrição
             if (!$model->prescricao) {
@@ -249,6 +273,15 @@ class ConsultaController extends Controller
     public function actionEncerrar($id)
     {
         $model = $this->findModel($id);
+
+        // Não pode encerrar sem prescrição
+        if (empty($model->prescricoes)) {
+            Yii::$app->session->setFlash(
+                'error',
+                'Não é possível encerrar a consulta sem pelo menos uma prescrição.'
+            );
+            return $this->redirect(['index']);
+        }
 
         $model->estado = Consulta::ESTADO_ENCERRADA;
         $model->data_encerramento = date('Y-m-d H:i:s');
@@ -344,6 +377,57 @@ class ConsultaController extends Controller
         return $this->redirect(['historico']);
     }
 
+    public function actionPdf($id)
+    {
+        $consulta = $this->findModel($id);
+
+        // 🔒 Só permitir PDF se consulta estiver encerrada
+        if ($consulta->estado !== Consulta::ESTADO_ENCERRADA) {
+            Yii::$app->session->setFlash(
+                'error',
+                'Só é possível gerar o PDF após a consulta estar encerrada.'
+            );
+            return $this->redirect(['view', 'id' => $consulta->id]);
+        }
+
+        // 🧾 Prescrição associada à consulta
+        $prescricao = $consulta->prescricao;
+        if (!$prescricao) {
+            Yii::$app->session->setFlash(
+                'error',
+                'Esta consulta não tem prescrição associada.'
+            );
+            return $this->redirect(['view', 'id' => $consulta->id]);
+        }
+
+        // 👨‍⚕️ Médico
+        $medicoNome = $consulta->userprofile->nomecompleto
+            ?? $consulta->userprofile->username
+            ?? 'Profissional de Saúde';
+
+        // 📄 MPDF
+        $mpdf = new \Mpdf\Mpdf([
+            'default_font_size' => 12,
+            'default_font' => 'dejavusans'
+        ]);
+
+        $html = $this->renderPartial('pdf', [
+            'consulta'   => $consulta,
+            'prescricao' => $prescricao,
+            'medicoNome' => $medicoNome
+        ]);
+
+        if (ob_get_length()) {
+            ob_end_clean(); // 🔥 MUITO IMPORTANTE
+        }
+
+        $mpdf->WriteHTML($html);
+
+        return $mpdf->Output(
+            "Consulta_{$consulta->id}.pdf",
+            \Mpdf\Output\Destination::DOWNLOAD
+        );
+    }
 
 
     protected function findModel($id)

@@ -72,6 +72,15 @@ class Prescricao extends \yii\db\ActiveRecord
 
         return parent::beforeSave($insert);
     }
+    public function beforeValidate()
+    {
+        if ($this->isNewRecord) {
+            if (empty($this->dataprescricao)) {
+                $this->dataprescricao = date('Y-m-d H:i:s');
+            }
+        }
+        return parent::beforeValidate();
+    }
 
     public function getConsulta()
     {

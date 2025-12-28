@@ -1,5 +1,6 @@
 <?php
 
+use common\models\Consulta;
 use yii\grid\GridView;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -90,23 +91,57 @@ $this->title = "Histórico de Consultas";
                         [
                                 'class' => 'yii\grid\ActionColumn',
                                 'header' => 'Ações',
-                                'contentOptions' => ['style' => 'text-align:center; width:140px;'],
-                                'template' => '{view} {delete}',
+                                'contentOptions' => ['style' => 'text-align:center; width:180px;'],
+                                'template' => '{view} {pdf} {delete}',
                                 'buttons' => [
+
+                                    // 👁 VER
                                         'view' => function ($url, $model) {
                                             return Html::a(
                                                     '<i class="bi bi-eye"></i>',
                                                     ['view', 'id' => $model->id],
-                                                    ['class'=>'btn btn-success btn-sm']
+                                                    ['class' => 'btn btn-success btn-sm', 'title' => 'Ver consulta']
                                             );
                                         },
-                                        'delete' => function ($url) {
-                                            return Html::a('<i class="bi bi-trash"></i>', $url, [
-                                                    'class' => 'btn btn-danger btn-sm',
-                                                    'title' => 'Eliminar',
-                                                    'data-confirm' => 'Tem a certeza que deseja eliminar esta prescrição?',
-                                                    'data-method' => 'post'
-                                            ]);
+
+                                    // 📄 PDF
+                                        'pdf' => function ($url, $model) {
+                                            if ($model->estado !== Consulta::ESTADO_ENCERRADA) {
+                                                return Html::button(
+                                                        '<i class="bi bi-filetype-pdf"></i>',
+                                                        [
+                                                                'class' => 'btn btn-secondary btn-sm',
+                                                                'disabled' => true,
+                                                                'title' => 'Disponível após encerrar'
+                                                        ]
+                                                );
+                                            }
+
+                                            return Html::a(
+                                                    '<i class="bi bi-filetype-pdf"></i>',
+                                                    ['consulta/pdf', 'id' => $model->id],
+                                                    [
+                                                            'class' => 'btn btn-danger btn-sm',
+                                                            'title' => 'Gerar PDF',
+                                                            'style' => 'color:white;',
+                                                            'data-pjax' => '0',
+                                                            'target' => '_blank'
+                                                    ]
+                                            );
+                                        },
+
+                                    // 🗑 APAGAR
+                                        'delete' => function ($url, $model) {
+                                            return Html::a(
+                                                    '<i class="bi bi-trash"></i>',
+                                                    $url,
+                                                    [
+                                                            'class' => 'btn btn-danger btn-sm',
+                                                            'title' => 'Eliminar',
+                                                            'data-confirm' => 'Tem a certeza que deseja eliminar esta consulta?',
+                                                            'data-method' => 'post'
+                                                    ]
+                                            );
                                         },
                                 ],
                         ],

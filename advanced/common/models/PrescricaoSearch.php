@@ -60,11 +60,26 @@ class PrescricaoSearch extends Prescricao
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
-            'dataprescricao' => $this->dataprescricao,
             'consulta_id' => $this->consulta_id,
         ]);
 
-        $query->andFilterWhere(['like', 'observacoes', $this->observacoes]);
+        if (!empty($this->dataprescricao)) {
+
+            $data = \DateTime::createFromFormat('Y-m-d', $this->dataprescricao);
+
+            if ($data) {
+
+                $inicio = $data->format('Y-m-d 00:00:00');
+                $fim    = $data->format('Y-m-d 23:59:59');
+
+                $query->andFilterWhere([
+                    'between',
+                    'dataprescricao',
+                    $inicio,
+                    $fim
+                ]);
+            }
+        }
 
         return $dataProvider;
     }

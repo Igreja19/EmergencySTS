@@ -45,10 +45,11 @@ class UserProfile extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['nome', 'email', 'nif', 'sns', 'datanascimento', 'genero', 'telefone', 'user_id'], 'required'],
+            [['nome', 'email', 'nif', 'sns', 'datanascimento', 'genero', 'telefone', 'morada', 'user_id'], 'required'],
 
             [['datanascimento'], 'safe'],
             [['user_id'], 'integer'],
+            ['email', 'email'],
 
             ['estado', 'boolean'],
             ['estado', 'default', 'value' => self::ATIVO],
@@ -56,7 +57,7 @@ class UserProfile extends \yii\db\ActiveRecord
             [['nome', 'email'], 'string', 'max' => 100],
             [['morada'], 'string', 'max' => 255],
             [['genero'], 'string', 'max' => 1],
-            [['telefone'], 'string', 'max' => 30],
+            [['telefone'], 'string', 'max' => 30, 'min' => 9],
             [['sns', 'nif'], 'string', 'max' => 9, 'min' => 9],
             ['password', 'string', 'min' => 6],
 
@@ -71,6 +72,9 @@ class UserProfile extends \yii\db\ActiveRecord
             [['role'], 'safe'],
 
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['user_id' => 'id']],
+            ['genero', 'in', 'range' => ['M', 'F', 'O']],
+            ['datanascimento', 'date', 'format' => 'php:Y-m-d'],
+            ['datanascimento', 'compare', 'compareValue' => date('Y-m-d'), 'operator' => '<=', 'type' => 'date'],
         ];
     }
 

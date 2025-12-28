@@ -50,10 +50,10 @@ class Consulta extends \yii\db\ActiveRecord
             [['estado', 'observacoes'], 'string'],
 
             // obrigatórios
-            [['userprofile_id', 'triagem_id'], 'required'],
+            [['userprofile_id', 'triagem_id', 'medicouserprofile_id'], 'required'],
 
             // inteiros
-            [['userprofile_id', 'triagem_id'], 'integer'],
+            [['userprofile_id', 'triagem_id', 'medicouserprofile_id'], 'integer'],
 
             // tamanho
             [['relatorio_pdf'], 'string', 'max' => 255],
@@ -152,5 +152,14 @@ class Consulta extends \yii\db\ActiveRecord
         }
 
         return parent::beforeSave($insert);
+    }
+    public function beforeValidate()
+    {
+        if ($this->isNewRecord) {
+            if (empty($this->data_consulta)) {
+                $this->data_consulta = date('Y-m-d H:i:s');
+            }
+        }
+        return parent::beforeValidate();
     }
 }

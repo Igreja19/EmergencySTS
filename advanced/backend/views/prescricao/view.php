@@ -107,19 +107,6 @@ use yii\helpers\Html;
 
             <?php endif; ?>
 
-            <!-- BOTÃO PDF -->
-            <?php if ($model->consulta->estado === 'Encerrada'): ?>
-                <?= Html::a(
-                        '<i class="bi bi-filetype-pdf"></i> PDF',
-                        ['pdf', 'id' => $model->id],
-                        ['class' => 'btn btn-danger fw-bold me-2', 'style' => 'color:white;']
-                ) ?>
-            <?php else: ?>
-                <button class="btn btn-secondary fw-bold me-2" disabled>
-                    <i class="bi bi-filetype-pdf"></i> PDF (disponível após encerrar)
-                </button>
-            <?php endif; ?>
-
         </div>
     </div>
 </div>

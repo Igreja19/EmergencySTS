@@ -9,6 +9,7 @@ use common\models\PrescricaoSearch;
 use common\models\Consulta;
 use common\models\Medicamento;
 use common\models\Prescricaomedicamento;
+use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -23,7 +24,7 @@ class PrescricaoController extends Controller
             parent::behaviors(),
             [
                 'access' => [
-                    'class' => \yii\filters\AccessControl::class,
+                    'class' => AccessControl::class,
                     'only' => ['index','view','create','update','delete','chart-data'],
                     'rules' => [
                         [
@@ -247,40 +248,5 @@ class PrescricaoController extends Controller
             return $model;
         }
         throw new NotFoundHttpException('A prescrição solicitada não existe.');
-    }
-
-    public function actionPdf($id)
-    {
-        $model = $this->findModel($id);
-        $consulta = $model->consulta;
-
-        if (!$consulta || $consulta->estado !== 'Encerrada') {
-
-            Yii::$app->session->setFlash(
-                'error',
-                'Só é possível gerar o PDF após a consulta estar encerrada.'
-            );
-
-            return $this->redirect(['view', 'id' => $model->id]);
-        }
-
-        $medicoNome = $consulta->userprofile->nomecompleto
-            ?? $consulta->userprofile->username
-            ?? 'Profissional de Saúde';
-
-        $mpdf = new \Mpdf\Mpdf([
-            'default_font_size' => 12,
-            'default_font' => 'dejavusans'
-        ]);
-
-        $html = $this->renderPartial('pdf', [
-            'model'      => $model,
-            'consulta'   => $consulta,
-            'medicoNome' => $medicoNome
-        ]);
-
-        $mpdf->WriteHTML($html);
-
-        return $mpdf->Output("Prescricao_{$model->id}.pdf", \Mpdf\Output\Destination::DOWNLOAD);
     }
 }

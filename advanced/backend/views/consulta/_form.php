@@ -11,6 +11,7 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/consulta/_form.css');
 
 $triagensDisponiveis = $triagensDisponiveis ?? [];
 $isNew = $model->isNewRecord;
+
 ?>
 
 <div class="consulta-box p-4 shadow-sm rounded-4 bg-white">
@@ -98,7 +99,6 @@ $isNew = $model->isNewRecord;
             <i class="bi bi-journal-text text-success me-2"></i>
             <span class="fw-semibold text-success">Observações</span>
         </div>
-
         <?= $form->field($model, 'observacoes')->textarea([
             'rows' => 4,
             'class' => 'form-control rounded-3 shadow-sm',

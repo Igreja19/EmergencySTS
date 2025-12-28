@@ -11,7 +11,7 @@ class PessoaTest extends \Codeception\Test\Unit
     public function testValidacaoInvalida()
     {
         $pessoa = new Pessoa();
-        $pessoa->nome = "Um nome muito longo que ultrapassa largamente o limite de oitenta caracteres definido na base de dados para testar se a validação falha corretamente";
+        $pessoa->nome = " ";
         $pessoa->email = "email-sem-arroba";
         $pessoa->nif = "123";
 
@@ -27,7 +27,9 @@ class PessoaTest extends \Codeception\Test\Unit
 
         // 1. Limpeza preventiva (ActiveRecord)
         $lixo = Pessoa::findOne(['nif' => $nifTeste]);
-        if ($lixo) { $lixo->delete(); }
+        if ($lixo) {
+            $lixo->delete();
+        }
 
         // 2. Criar
         $pessoa = new Pessoa();

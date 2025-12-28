@@ -112,46 +112,18 @@
       <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/setasign/fpdi" />
       <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/yiisoft/yii2-bootstrap4" />
       <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/almasaeed2010/almasaeed2010" />
-      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/vendor/almasaeed2010" />
-      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/vendor/behat" />
-      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/vendor/bin" />
-      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/vendor/bower-asset" />
-      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/vendor/cebe" />
-      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/vendor/codeception" />
-      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/vendor/composer" />
-      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/vendor/doctrine" />
-      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/vendor/egulias" />
-      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/vendor/ezyang" />
-      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/vendor/fakerphp" />
-      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/vendor/guzzlehttp" />
-      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/vendor/hail812" />
-      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/vendor/masterminds" />
-      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/vendor/mpdf" />
-      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/vendor/myclabs" />
-      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/vendor/nikic" />
-      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/vendor/npm-asset" />
-      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/vendor/paragonie" />
-      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/vendor/phar-io" />
-      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/vendor/phpspec" />
-      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/vendor/phpunit" />
-      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/vendor/psr" />
-      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/vendor/psy" />
-      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/vendor/ralouphie" />
-      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/vendor/sebastian" />
-      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/vendor/setasign" />
-      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/vendor/symfony" />
-      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/vendor/theseer" />
-      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/vendor/yiisoft" />
-      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/kartik-v/yii2-krajee-base" />
-      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/kartik-v/yii2-widget-select2" />
       <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/select2/select2" />
       <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/doctrine/deprecations" />
       <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/symfony/polyfill-iconv" />
+      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/bower-asset/select2" />
+      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/kartik-v/yii2-krajee-base" />
+      <excludeFolder url="file://$MODULE_DIR$/advanced/vendor/kartik-v/yii2-widget-select2" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="bootstrap-icons" level="application" />
     <orderEntry type="library" name="sweetalert2" level="application" />
     <orderEntry type="library" name="bootstrap" level="application" />
+    <orderEntry type="library" name="select2" level="application" />
   </component>
 </module>

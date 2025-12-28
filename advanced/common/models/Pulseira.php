@@ -80,7 +80,7 @@ class Pulseira extends \yii\db\ActiveRecord
      */
     public function getTriagem()
     {
-        return $this->hasOne(\common\models\Triagem::class, ['pulseira_id' => 'id']);
+        return $this->hasOne(Triagem::class, ['pulseira_id' => 'id']);
     }
 
     /**
@@ -106,6 +106,26 @@ class Pulseira extends \yii\db\ActiveRecord
         }
 
         return parent::beforeSave($insert);
+    }
+
+    public function beforeValidate()
+    {
+        if ($this->isNewRecord) {
+
+            if ($this->status === null) {
+                $this->status = 'Em espera';
+            }
+
+            if (empty($this->codigo)) {
+                $this->codigo = strtoupper(substr(md5(uniqid()), 0, 8));
+            }
+
+            if (empty($this->tempoentrada)) {
+                $this->tempoentrada = date('Y-m-d H:i:s');
+            }
+        }
+
+        return parent::beforeValidate();
     }
 
     public function extraFields()

@@ -1,8 +1,8 @@
 <?php
 use yii\helpers\Html;
 
-/** @var common\models\Prescricao $model */
 /** @var common\models\Consulta $consulta */
+/** @var common\models\Prescricao $prescricao */
 /** @var string $medicoNome */
 
 // Paciente (userprofile)
@@ -22,7 +22,7 @@ $logoPath = Yii::getAlias('@backend/web/img/logo.png');
 <html lang="pt">
 <head>
     <meta charset="utf-8">
-    <title>Prescrição #<?= Html::encode($model->id) ?></title>
+    <title>Prescrição #<?= Html::encode($prescricao->id) ?></title>
 
     <style>
         body { font-family: DejaVu Sans, sans-serif; font-size: 12px; }
@@ -103,7 +103,7 @@ $logoPath = Yii::getAlias('@backend/web/img/logo.png');
     </div>
 
     <div class="meta">
-        <div style="font-size: 20px; font-weight: bold;">Prescrição #<?= $model->id ?></div>
+        <div style="font-size: 20px; font-weight: bold;">Prescrição #<?= $prescricao->id ?></div>
         <div>Gerado em <?= date('d/m/Y H:i') ?></div>
     </div>
 </div>
@@ -165,7 +165,7 @@ $logoPath = Yii::getAlias('@backend/web/img/logo.png');
     <table>
         <tr>
             <th>Data da Prescrição</th>
-            <td><?= Yii::$app->formatter->asDatetime($model->dataprescricao, 'php:d/m/Y H:i') ?></td>
+            <td><?= Yii::$app->formatter->asDatetime($prescricao->dataprescricao, 'php:d/m/Y H:i') ?></td>
         </tr>
         <tr>
             <th>Observações Gerais</th>
@@ -179,7 +179,7 @@ $logoPath = Yii::getAlias('@backend/web/img/logo.png');
 <div class="card">
     <div class="section-title">Medicamentos Prescritos</div>
 
-    <?php foreach ($model->prescricaomedicamentos as $pm): ?>
+    <?php foreach ($prescricao->prescricaomedicamentos as $pm): ?>
         <div class="med-card">
             <strong style="color:#1f9d55; font-size:14px;">
                 <?= Html::encode($pm->medicamento->nome) ?>

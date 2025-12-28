@@ -24,7 +24,7 @@ class ConsultaSearch extends Consulta
     {
 
         $query = Consulta::find()
-            ->joinWith(['userprofile', 'triagem']); // removido prescricao
+            ->joinWith(['userprofile', 'triagem'], false);
 
         $query->andWhere(['<>', 'consulta.estado', 'Encerrada']); //não mostra consultas encerradas
 
@@ -44,13 +44,30 @@ class ConsultaSearch extends Consulta
 
         $query->andFilterWhere([
             'id' => $this->id,
-            'data_consulta' => $this->data_consulta,
             'userprofile_id' => $this->userprofile_id,
             'triagem_id' => $this->triagem_id,
             'data_encerramento' => $this->data_encerramento,
         ]);
+        if (!empty($this->data_consulta)) {
 
-        $query->andFilterWhere(['like', 'estado', $this->estado])
+            $data = \DateTime::createFromFormat('Y-m-d', $this->data_consulta);
+
+            if ($data) {
+
+                $inicio = $data->format('Y-m-d 00:00:00');
+                $fim    = $data->format('Y-m-d 23:59:59');
+
+                $query->andFilterWhere([
+                    'between',
+                    'consulta.data_consulta',
+                    $inicio,
+                    $fim
+                ]);
+            }
+        }
+
+
+        $query->andFilterWhere(['like', 'consulta.estado', $this->estado])
             ->andFilterWhere(['like', 'observacoes', $this->observacoes])
             ->andFilterWhere(['like', 'relatorio_pdf', $this->relatorio_pdf]);
 

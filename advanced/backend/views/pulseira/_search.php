@@ -23,6 +23,8 @@ use yii\widgets\ActiveForm;
     <div class="col-md-3">
         <?= $form->field($model, 'codigo')->textInput([
                 'placeholder' => 'Código da pulseira...',
+                'autocomplete' => 'off',
+                'value' => '',
                 'class' => 'form-control rounded-pill shadow-sm border-success'
         ])->label(false) ?>
     </div>
