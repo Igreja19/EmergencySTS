@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Tempo de geração: 04-Dez-2025 às 17:18
+-- Tempo de geração: 29-Dez-2025 às 09:14
 -- Versão do servidor: 9.1.0
 -- versão do PHP: 8.2.26
 
@@ -29,8 +29,8 @@ SET time_zone = "+00:00";
 
 DROP TABLE IF EXISTS `auth_assignment`;
 CREATE TABLE IF NOT EXISTS `auth_assignment` (
-  `item_name` varchar(64) NOT NULL,
-  `user_id` varchar(64) NOT NULL,
+  `item_name` varchar(64) COLLATE utf8mb4_general_ci NOT NULL,
+  `user_id` varchar(64) COLLATE utf8mb4_general_ci NOT NULL,
   `created_at` int DEFAULT NULL,
   PRIMARY KEY (`item_name`,`user_id`),
   KEY `idx-auth_assignment-user_id` (`user_id`)
@@ -46,7 +46,10 @@ INSERT INTO `auth_assignment` (`item_name`, `user_id`, `created_at`) VALUES
 ('enfermeiro', '13', 1763136201),
 ('enfermeiro', '18', 1763136190),
 ('medico', '15', 1763136196),
-('medico', '38', 1764868352),
+('medico', '38', 1766589157),
+('medico', '39', 1766583164),
+('medico', '40', 1766587286),
+('medico', '45', 1766587870),
 ('paciente', '16', 1763135389),
 ('paciente', '20', 1763135051),
 ('paciente', '21', 1763135962),
@@ -55,7 +58,7 @@ INSERT INTO `auth_assignment` (`item_name`, `user_id`, `created_at`) VALUES
 ('paciente', '25', 1763136144),
 ('paciente', '26', 1763312479),
 ('paciente', '27', 1764160961),
-('paciente', '28', 1764161031),
+('paciente', '28', 1766587218),
 ('paciente', '29', 1764162766),
 ('paciente', '30', 1764163099),
 ('paciente', '31', 1764163216),
@@ -63,7 +66,6 @@ INSERT INTO `auth_assignment` (`item_name`, `user_id`, `created_at`) VALUES
 ('paciente', '33', 1764163738),
 ('paciente', '34', 1764164327),
 ('paciente', '35', 1764164544),
-('paciente', '36', 1764165030),
 ('paciente', '37', 1764762374);
 
 -- --------------------------------------------------------
@@ -149,25 +151,26 @@ DROP TABLE IF EXISTS `consulta`;
 CREATE TABLE IF NOT EXISTS `consulta` (
   `id` int NOT NULL AUTO_INCREMENT,
   `data_consulta` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `estado` enum('Aberta','Encerrada','Em curso') NOT NULL DEFAULT 'Aberta',
-  `observacoes` text,
+  `estado` enum('Aberta','Encerrada','Em curso') COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'Aberta',
+  `observacoes` text COLLATE utf8mb4_general_ci,
   `userprofile_id` int NOT NULL,
   `triagem_id` int NOT NULL,
   `medicouserprofile_id` int NOT NULL,
   `data_encerramento` datetime DEFAULT NULL,
-  `relatorio_pdf` varchar(255) DEFAULT NULL,
+  `relatorio_pdf` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_consulta_triagem_idx` (`triagem_id`),
   KEY `fk_userprofile_consulta` (`userprofile_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Extraindo dados da tabela `consulta`
 --
 
 INSERT INTO `consulta` (`id`, `data_consulta`, `estado`, `observacoes`, `userprofile_id`, `triagem_id`, `medicouserprofile_id`, `data_encerramento`, `relatorio_pdf`) VALUES
-(16, '2025-12-04 16:25:20', 'Encerrada', '', 22, 21, 10, '2025-12-04 17:07:34', NULL),
-(17, '2025-12-04 17:10:54', 'Encerrada', '', 8, 28, 10, '2025-12-04 17:11:12', NULL);
+(19, '2025-12-26 11:28:51', 'Encerrada', '', 22, 36, 13, '2025-12-28 11:34:59', NULL),
+(21, '2025-12-28 11:37:54', 'Em curso', NULL, 30, 39, 13, NULL, NULL),
+(22, '2025-12-28 11:56:17', 'Em curso', '', 11, 40, 13, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -180,11 +183,11 @@ CREATE TABLE IF NOT EXISTS `login_history` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
   `data_login` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `ip` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `user_agent` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `ip` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `user_agent` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_user_id` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Extraindo dados da tabela `login_history`
@@ -202,7 +205,29 @@ INSERT INTO `login_history` (`id`, `user_id`, `data_login`, `ip`, `user_agent`) 
 (9, 19, '2025-12-04 17:11:25', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 OPR/124.0.0.0'),
 (10, 19, '2025-12-04 17:11:47', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 OPR/124.0.0.0'),
 (11, 19, '2025-12-04 17:11:48', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 OPR/124.0.0.0'),
-(12, 19, '2025-12-04 17:13:15', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 OPR/124.0.0.0');
+(12, 19, '2025-12-04 17:13:15', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 OPR/124.0.0.0'),
+(13, 19, '2025-12-19 11:20:05', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 OPR/124.0.0.0'),
+(14, 19, '2025-12-24 10:27:44', '::1', 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Mobile Safari/537.36'),
+(15, 19, '2025-12-24 10:28:54', '::1', 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Mobile Safari/537.36'),
+(16, 19, '2025-12-24 11:07:34', '::1', 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Mobile Safari/537.36'),
+(17, 19, '2025-12-24 13:24:57', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 OPR/124.0.0.0'),
+(18, 19, '2025-12-24 13:26:33', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 OPR/124.0.0.0'),
+(19, 19, '2025-12-24 13:28:56', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 OPR/124.0.0.0'),
+(20, 13, '2025-12-24 13:29:26', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 OPR/124.0.0.0'),
+(21, 19, '2025-12-24 13:31:43', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 OPR/124.0.0.0'),
+(22, 13, '2025-12-24 14:07:12', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 OPR/124.0.0.0'),
+(23, 19, '2025-12-24 14:12:57', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 OPR/124.0.0.0'),
+(24, 19, '2025-12-24 14:25:53', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 OPR/124.0.0.0'),
+(25, 19, '2025-12-24 14:39:38', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 OPR/124.0.0.0'),
+(26, 45, '2025-12-24 14:52:34', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 OPR/124.0.0.0'),
+(27, 19, '2025-12-24 15:04:17', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 OPR/124.0.0.0'),
+(28, 19, '2025-12-24 15:09:19', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 OPR/124.0.0.0'),
+(29, 45, '2025-12-24 15:12:03', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 OPR/124.0.0.0'),
+(30, 19, '2025-12-24 15:12:23', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 OPR/124.0.0.0'),
+(31, 38, '2025-12-24 15:12:49', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 OPR/124.0.0.0'),
+(32, 19, '2025-12-24 15:13:06', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 OPR/124.0.0.0'),
+(33, 38, '2025-12-24 15:14:49', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 OPR/124.0.0.0'),
+(34, 19, '2025-12-24 15:15:20', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 OPR/124.0.0.0');
 
 -- --------------------------------------------------------
 
@@ -213,9 +238,9 @@ INSERT INTO `login_history` (`id`, `user_id`, `data_login`, `ip`, `user_agent`) 
 DROP TABLE IF EXISTS `medicamento`;
 CREATE TABLE IF NOT EXISTS `medicamento` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `nome` varchar(255) NOT NULL,
-  `dosagem` varchar(255) NOT NULL,
-  `indicacao` text,
+  `nome` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `dosagem` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `indicacao` text COLLATE utf8mb4_general_ci,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -272,7 +297,7 @@ INSERT INTO `medicamento` (`id`, `nome`, `dosagem`, `indicacao`) VALUES
 
 DROP TABLE IF EXISTS `migration`;
 CREATE TABLE IF NOT EXISTS `migration` (
-  `version` varchar(180) NOT NULL,
+  `version` varchar(180) COLLATE utf8mb4_general_ci NOT NULL,
   `apply_time` int DEFAULT NULL,
   PRIMARY KEY (`version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -293,15 +318,15 @@ INSERT INTO `migration` (`version`, `apply_time`) VALUES
 DROP TABLE IF EXISTS `notificacao`;
 CREATE TABLE IF NOT EXISTS `notificacao` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `titulo` varchar(150) CHARACTER SET latin1 DEFAULT NULL,
-  `mensagem` text CHARACTER SET latin1 NOT NULL,
-  `tipo` enum('Consulta','Prioridade','Geral') CHARACTER SET latin1 NOT NULL DEFAULT 'Geral',
+  `titulo` varchar(150) CHARACTER SET latin1 COLLATE latin1_swedish_ci DEFAULT NULL,
+  `mensagem` text CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  `tipo` enum('Consulta','Prioridade','Geral') CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT 'Geral',
   `dataenvio` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `lida` tinyint(1) NOT NULL DEFAULT '0',
   `userprofile_id` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_notificacao_userprofile_id` (`userprofile_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=64 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=72 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Extraindo dados da tabela `notificacao`
@@ -360,7 +385,15 @@ INSERT INTO `notificacao` (`id`, `titulo`, `mensagem`, `tipo`, `dataenvio`, `lid
 (60, 'Consulta iniciada', 'A sua consulta foi iniciada.', 'Consulta', '2025-12-04 17:10:54', 0, 8),
 (61, 'Nova prescrição', 'Foi emitida uma nova prescrição para o paciente henrique.', 'Consulta', '2025-12-04 17:11:02', 0, 8),
 (62, 'Consulta retomada', 'A consulta foi retomada.', 'Consulta', '2025-12-04 17:11:04', 0, 8),
-(63, 'Consulta encerrada', 'A sua consulta foi encerrada.', 'Consulta', '2025-12-04 17:11:12', 0, 8);
+(63, 'Consulta encerrada', 'A sua consulta foi encerrada.', 'Consulta', '2025-12-04 17:11:12', 0, 8),
+(64, 'Utilizador ativado', 'A conta paciente4 foi ativada.', 'Geral', '2025-12-19 10:49:20', 0, 13),
+(65, 'Novo utilizador criado', 'Foi criada uma nova conta: medico2', 'Geral', '2025-12-24 13:32:44', 0, 13),
+(66, 'Novo utilizador criado', 'Foi criada uma nova conta: medico3', 'Geral', '2025-12-24 14:41:08', 0, 13),
+(67, 'Novo utilizador criado', 'Foi criada uma nova conta: medico3', 'Geral', '2025-12-24 14:51:10', 0, 13),
+(68, 'Consulta eliminada', 'A \'Consulta #17\' foi apagada do histórico.', 'Geral', '2025-12-24 15:10:13', 0, 13),
+(69, 'Consulta eliminada', 'A \'Consulta #16\' foi apagada do histórico.', 'Geral', '2025-12-24 15:10:15', 0, 13),
+(70, 'Consulta eliminada', 'A \'Consulta #18\' foi apagada do histórico.', 'Geral', '2025-12-28 11:36:05', 0, 13),
+(71, 'Consulta eliminada', 'A \'Consulta #20\' foi apagada do histórico.', 'Geral', '2025-12-28 11:42:56', 0, 13);
 
 -- --------------------------------------------------------
 
@@ -376,15 +409,15 @@ CREATE TABLE IF NOT EXISTS `prescricao` (
   `consulta_id` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_consulta_prescricao` (`consulta_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=latin1;
 
 --
 -- Extraindo dados da tabela `prescricao`
 --
 
 INSERT INTO `prescricao` (`id`, `observacoes`, `dataprescricao`, `consulta_id`) VALUES
-(15, '', '2025-12-04 16:48:04', 16),
-(16, '', '2025-12-04 17:11:02', 17);
+(17, '', '2025-12-28 11:34:46', 19),
+(18, '', '2025-12-28 11:56:28', 22);
 
 -- --------------------------------------------------------
 
@@ -395,22 +428,22 @@ INSERT INTO `prescricao` (`id`, `observacoes`, `dataprescricao`, `consulta_id`) 
 DROP TABLE IF EXISTS `prescricaomedicamento`;
 CREATE TABLE IF NOT EXISTS `prescricaomedicamento` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `posologia` varchar(255) NOT NULL,
+  `posologia` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
   `prescricao_id` int NOT NULL,
   `medicamento_id` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_prescricaoMed_prescricao` (`prescricao_id`),
   KEY `fk_prescricaoMed_medicamento` (`medicamento_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Extraindo dados da tabela `prescricaomedicamento`
 --
 
 INSERT INTO `prescricaomedicamento` (`id`, `posologia`, `prescricao_id`, `medicamento_id`) VALUES
-(14, '1 c', 15, 2),
-(15, '2 c', 15, 3),
-(16, '.05 c', 16, 6);
+(17, '4 c', 17, 3),
+(18, '2 c', 18, 4),
+(19, '1 c', 18, 5);
 
 -- --------------------------------------------------------
 
@@ -428,18 +461,16 @@ CREATE TABLE IF NOT EXISTS `pulseira` (
   `userprofile_id` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_userprofile_pulseira` (`userprofile_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=latin1;
 
 --
 -- Extraindo dados da tabela `pulseira`
 --
 
 INSERT INTO `pulseira` (`id`, `codigo`, `prioridade`, `status`, `tempoentrada`, `userprofile_id`) VALUES
-(5, '97A510BD', 'Vermelho', 'Em atendimento', '2025-10-30 15:07:38', 9),
-(11, '4EBFB37A', 'Azul', 'Atendido', '2025-11-26 12:49:14', 22),
-(13, '4F7F38E1', 'Amarelo', 'Atendido', '2025-11-26 22:49:51', 30),
-(16, 'E134DFFC', 'Azul', 'Atendido', '2025-12-04 17:08:42', 8),
-(17, '534D78DF', 'Pendente', 'Em espera', '2025-12-04 17:12:54', 11);
+(22, '19C5F289', 'Verde', 'Atendido', '2025-12-24 12:51:56', 22),
+(24, '8B9E30F9', 'Azul', 'Em atendimento', '2025-12-24 15:13:26', 30),
+(25, '792858F5', 'Laranja', 'Em atendimento', '2025-12-28 11:55:46', 11);
 
 -- --------------------------------------------------------
 
@@ -463,18 +494,17 @@ CREATE TABLE IF NOT EXISTS `triagem` (
   PRIMARY KEY (`id`),
   KEY `fk_pulseira_id` (`pulseira_id`),
   KEY `fk_triagem_userprofile_id` (`userprofile_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=latin1;
 
 --
 -- Extraindo dados da tabela `triagem`
 --
 
 INSERT INTO `triagem` (`id`, `motivoconsulta`, `queixaprincipal`, `descricaosintomas`, `iniciosintomas`, `intensidadedor`, `alergias`, `medicacao`, `datatriagem`, `userprofile_id`, `pulseira_id`) VALUES
-(12, 'gfhfgh', 'fghfh', 'dghfh', '4334-03-12 03:23:00', 10, 'efsg', 'dfg', '2025-10-30 15:07:38', 9, 5),
-(21, 'triagem3', 'triagem3', 'triagem3', '2025-11-26 12:47:00', 3, 'triagem3', 'triagem3', '2025-11-26 12:49:14', 22, 11),
-(26, 'teste', 'triagem2', 'tESTTESDF', '2025-12-02 14:30:00', 6, 'TEFSADF', 'SDFSDFS', '2025-12-02 14:30:00', 30, 13),
-(28, 'teste', 'teste', 'teste', '2025-12-04 17:08:00', 0, 'teste', 'teste', '2025-12-04 17:08:42', 8, 16),
-(29, 'teste', 'teste', 'teste', '2025-12-04 17:12:00', 4, 'teste', 'teste', '2025-12-04 17:12:54', 11, 17);
+(36, 'teste2', 'teste2', 'teste2', '2025-12-24 12:51:00', 3, 'teste2', 'teste2', '2025-12-24 12:51:56', 22, 22),
+(39, 'teste4', 'teste4', 'teste4', '2025-12-24 15:13:00', 0, 'teste4', 'teste4', '2025-12-24 15:13:26', 30, 24),
+(40, 'Dor no Queixo', 'teste', 'teste', '2025-12-28 11:55:00', 1, 'tsetes', 'testse', '2025-12-28 11:55:46', 11, 25),
+(41, 'Dor no Queixo', 'teste', 'teste', '2025-12-28 11:55:00', 1, 'tsetes', 'testse', '2025-12-28 11:56:01', 11, 25);
 
 -- --------------------------------------------------------
 
@@ -499,7 +529,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   UNIQUE KEY `username` (`username`),
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `password_reset_token` (`password_reset_token`)
-) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 --
 -- Extraindo dados da tabela `user`
@@ -516,10 +546,12 @@ INSERT INTO `user` (`id`, `username`, `auth_key`, `password_hash`, `password_res
 (25, '12345', '069jWVY2Hf57qaZs7GVttH0C546yFHhr', '$2y$13$ZCoZAalg/kKJHluxdVOzsOJ01drMAzjy2a3f25KWUmYM2Ya8jONc6', NULL, '12345@gmail.com', 10, 1763136144, 1763136150, NULL, 0),
 (26, 'teste2', 'swgEKZYTj4noVicIu0Gn9iULcVNsNeTJ', '$2y$13$LegFdmCEgQ5yL4kw7pgv4OJh.Xn2nY3ZWugAz8XgFUlPVxBdHStfq', NULL, 'teste@gmail.com', 10, 1763312479, 1763312485, NULL, 0),
 (27, 'paciente2', 'wwWgciererk9OapR5MPcGqrWO_3On8EG', '$2y$13$99Rr4ZHLqQaRJzKPk0V0bulwAxXh9TU4Bgu.VvSf6wrGleQv9.oqe', NULL, 'paciente2@gmail.com', 10, 1764160961, 1764160965, NULL, 0),
-(28, 'paciente3', 'BwOKJpuuVOqCRfQRFdjfFCDcXH4d5MTr', '$2y$13$9/hURE33k4ZIitqO5vj.I.kjWsWBqi8l5jCc7M3A1HuFlnc9H2RuC', NULL, 'paciente3@gmail.com', 10, 1764161031, 1764161046, NULL, 0),
-(36, 'paciente4', 'p_TacdvrftsvqT-9zTZWpUWtaAmLltJK', '$2y$13$qeTenBbGo5VvvOmhDZQdFeawz7YrCgSFVWhAC.kpR5BxyXcpcMkle', NULL, 'paciente4@gmail.com', 10, 1764165030, 1764165036, NULL, 0),
+(28, 'paciente3', '_iifqcDX744sz7WQLO3E0sk-URNQQ2jC', '$2y$13$IvT3881ahISiO0Gt0RBUaOoPKTTbHN/Odu1NiN6A0sGU/jxYgMAp2', NULL, 'paciente3@gmail.com', 10, 1764161031, 1766587218, NULL, 0),
+(36, 'paciente4', 'HYOTJpUaNFBVADfceoYCrtq5IocoA2aD', '$2y$13$cF4JtAIhv/2rfDnr62fdRekzJ8ekjuot0b0SRWuFD/KWZ/2iJ9b3i', NULL, 'paciente4@gmail.com', 10, 1764165030, 1766586510, NULL, 0),
 (37, 'henrique4', 'x7yW-zYrwhIyp_i92W4VZBwGMeiWRRed', '$2y$13$B2Ctd3q4V2cq9jpD9vTm5eSAAXCku7c1GF4d7rVHxMQiPj5QGt02a', NULL, 'henrique4@gmail.com', 10, 1764762374, 1764762380, NULL, 0),
-(38, 'medico@gmail.com', 'qdDTn-uLh6qxj-7GI997yyh9YY3HyjYs', '$2y$13$5oSojQr2W3W3oMK4uSeTA.YDVmP8x8yRbDVuJ15BrjAF/j1hJAUCi', NULL, 'medico@gmail.com', 9, 1764868352, 1764868352, NULL, 1);
+(38, 'Medico', 'dKJiVpmve8TbqFjTBDa7exaWdz3kKIlv', '$2y$13$d.dclh3Z6uB10tVyRfOFQOMRzZ4NT1lmStf4t6Vx.9PK6EAJaDQMy', NULL, 'medico@gmail.com', 10, 1764868352, 1766589157, NULL, 1),
+(39, 'medico2', 'Wyqc-o7n9ox5BwE10Y0CmjtojJmwtJZ-', '$2y$13$oA/bD9qQo0Jyp/ti8N1JoOnW4f.6N1Hnnb73Nr6FIlfXnmfkICv0u', NULL, 'medico2@gmail.com', 10, 1766583164, 1766583164, NULL, 1),
+(45, 'medico3', 'sQVFJGHyc_N_e2uWKKnZ8m8i4qvOBv3T', '$2y$13$t1e9Ug5Ur39AFs5FXARRKewWGQviRyXT1hvPDeV9NlEYBm8KYPAEm', NULL, 'medico3@gmail.com', 10, 1766587870, 1766587870, NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -539,29 +571,32 @@ CREATE TABLE IF NOT EXISTS `userprofile` (
   `genero` char(1) DEFAULT NULL,
   `telefone` varchar(30) DEFAULT NULL,
   `user_id` int NOT NULL,
+  `estado` tinyint NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`),
   KEY `fk_userprofile_user` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=latin1;
 
 --
 -- Extraindo dados da tabela `userprofile`
 --
 
-INSERT INTO `userprofile` (`id`, `nome`, `email`, `morada`, `nif`, `sns`, `datanascimento`, `genero`, `telefone`, `user_id`) VALUES
-(8, 'henrique', 'henrique@admin.com', 'Rua das Flores, nº72 2445-034', '234938493', '398493928', '2333-02-23', 'M', '915429512', 13),
-(9, 'Henrique Salgado', 'henriquesalgado@gmail.com', 'Rua das Flores, nº72 2445-034', '483956185', '495284639', '2004-07-05', 'M', '915429512', 14),
-(10, 'henrique3', 'henrique3@admin.com', 'Rua das Flores, nº72 2445-034', '234549264', '485429512', '2234-03-02', 'M', '915429512', 15),
-(11, 'paciente', 'paciente@gmail.com', '1', '1', '1', '1111-01-01', 'M', '1', 16),
-(12, 'zezoca', 'zezoca@gmail.com', 'rua', '123', '1234', '2025-11-11', 'M', '2343412313', 18),
-(13, 'admin', 'admin@gmail.com', 'Leiria', '232', '123', '2005-07-25', 'M', '912881282', 19),
-(19, '12345', '12345@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, 25),
-(20, 'teste2', 'teste@gmail.com', 's', 'sdf', 'sdf', '2005-04-13', 'M', 'sdf', 26),
-(21, 'paciente2', 'paciente2@gmail.com', 'Rua das Flores, nº72 2445-034', '648549245', '854926135', '2025-11-26', 'F', '915429512', 27),
-(22, 'paciente3', 'paciente3@gmail.com', 'Rua das Flores, nº72 2445-034', '548659135', '584965821', '2025-11-26', 'M', '915429512', 28),
-(30, 'paciente4', 'paciente4@gmail.com', 'Rua das Flores, nº72 2445-034', '858372838', '377823737', '2025-11-26', 'M', '915429512', 36),
-(31, 'henrique4', 'henrique4@gmail.com', 'Rua das Flores, nº72 2445-034', '234324324', '234234324', '2025-12-03', 'F', '915429512', 37),
-(32, 'Medico', 'medico@gmail.com', 'Rua das Flores, nº72 2445-034', '959595955', '259292929', '2025-12-04', 'M', '964586959', 38);
+INSERT INTO `userprofile` (`id`, `nome`, `email`, `morada`, `nif`, `sns`, `datanascimento`, `genero`, `telefone`, `user_id`, `estado`) VALUES
+(8, 'henrique', 'henrique@admin.com', 'Rua das Flores, nº72 2445-034', '234938493', '398493928', '2333-02-23', 'M', '915429512', 13, 1),
+(9, 'Henrique Salgado', 'henriquesalgado@gmail.com', 'Rua das Flores, nº72 2445-034', '483956185', '495284639', '2004-07-05', 'M', '915429512', 14, 1),
+(10, 'henrique3', 'henrique3@admin.com', 'Rua das Flores, nº72 2445-034', '234549264', '485429512', '2234-03-02', 'M', '915429512', 15, 1),
+(11, 'paciente', 'paciente@gmail.com', 'Rua das Flores, nº72 2445-034', '987654567', '098765456', '2005-02-02', 'M', '929956648', 16, 1),
+(12, 'zezoca', 'zezoca@gmail.com', 'rua', '123', '1234', '2025-11-11', 'M', '2343412313', 18, 1),
+(13, 'admin', 'admin@gmail.com', 'Leiria', '232', '123', '2005-07-25', 'M', '912881282', 19, 1),
+(19, '12345', '12345@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, 25, 1),
+(20, 'teste2', 'teste@gmail.com', 's', 'sdf', 'sdf', '2005-04-13', 'M', 'sdf', 26, 1),
+(21, 'paciente2', 'paciente2@gmail.com', 'Rua das Flores, nº72 2445-034', '648549245', '854926135', '2025-11-26', 'F', '915429512', 27, 1),
+(22, 'paciente3', 'paciente3@gmail.com', 'Rua das Flores, nº72 2445-034', '548659135', '584965821', '2025-11-26', 'M', '915429512', 28, 1),
+(30, 'paciente4', 'paciente4@gmail.com', 'Rua das Flores, nº72 2445-034', '858372838', '377823737', '2025-11-26', 'M', '915429512', 36, 0),
+(31, 'henrique4', 'henrique4@gmail.com', 'Rua das Flores, nº72 2445-034', '234324324', '234234324', '2025-12-03', 'F', '915429512', 37, 1),
+(32, 'Medico', 'medico@gmail.com', 'Rua das Flores, nº72 2445-034', '959595955', '259292929', '2025-12-04', 'M', '964586959', 38, 1),
+(33, 'medico2', 'medico2@gmail.com', 'Rua das Flores, nº72 2445-034', '987654567', '876543456', '2006-06-06', 'M', '912881283', 39, 1),
+(35, 'medico3', 'medico3@gmail.com', 'Rua das Flores, nº72 2445-034', '456789098', '876543456', '2004-07-07', 'M', '915429748', 45, 1);
 
 --
 -- Restrições para despejos de tabelas
