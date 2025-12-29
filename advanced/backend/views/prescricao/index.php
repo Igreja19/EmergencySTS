@@ -38,10 +38,9 @@ $this->params['breadcrumbs'][] = $this->title;
                         <i class="bi bi-search"></i>
                     </span>
                     <input type="date"
-                           name="dataFiltro"
-                           class="form-control border-start-0"
-                           placeholder="dd/mm/aaaa"
-                           value="<?= Yii::$app->request->get('dataFiltro') ?>">
+                           name="PrescricaoSearch[dataprescricao]"
+                           class="form-control"
+                           value="<?= Yii::$app->request->get('PrescricaoSearch')['dataprescricao'] ?? '' ?>">
                 </div>
 
                 <button class="btn btn-success">

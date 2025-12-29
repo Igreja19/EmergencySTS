@@ -31,6 +31,12 @@ class PulseiraSearch extends Pulseira
         return Model::scenarios();
     }
 
+    public function beforeValidate()
+    {
+        // Ignora os defaults da Pulseira
+        return true;
+    }
+
     /**
      * Cria um DataProvider com a query de pesquisa aplicada.
      *
@@ -43,7 +49,7 @@ class PulseiraSearch extends Pulseira
             ->joinWith(['userprofile', 'triagem t', 'triagem.consulta c'], false)
             ->andWhere([
                 'or',
-                ['c.id' => null],
+                ['pulseira.status' => 'Em espera'],
                 ['<>', 'c.estado', 'Encerrada'],
             ])
             ->andWhere(['!=', 'pulseira.prioridade', 'Pendente']);
@@ -65,7 +71,7 @@ class PulseiraSearch extends Pulseira
 
         // 🔹 Ordenação padrão
         $dataProvider->setSort([
-            'defaultOrder' => ['pulseira.id' => SORT_DESC],
+            'defaultOrder' => ['id' => SORT_DESC],
         ]);
 
         // ← carregar filtros

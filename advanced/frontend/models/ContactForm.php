@@ -42,7 +42,6 @@ class ContactForm extends Model
             'email' => 'Email',
             'subject' => 'Assunto',
             'body' => 'Mensagem',
-            'verifyCode' => 'Código de Verificação',
         ];
     }
 
