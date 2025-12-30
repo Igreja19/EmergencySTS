@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Tempo de geração: 29-Dez-2025 às 09:14
+-- Tempo de geração: 30-Dez-2025 às 11:00
 -- Versão do servidor: 9.1.0
 -- versão do PHP: 8.2.26
 
@@ -66,7 +66,8 @@ INSERT INTO `auth_assignment` (`item_name`, `user_id`, `created_at`) VALUES
 ('paciente', '33', 1764163738),
 ('paciente', '34', 1764164327),
 ('paciente', '35', 1764164544),
-('paciente', '37', 1764762374);
+('paciente', '37', 1764762374),
+('paciente', '49', 1767089540);
 
 -- --------------------------------------------------------
 
@@ -153,24 +154,25 @@ CREATE TABLE IF NOT EXISTS `consulta` (
   `data_consulta` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `estado` enum('Aberta','Encerrada','Em curso') COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'Aberta',
   `observacoes` text COLLATE utf8mb4_general_ci,
-  `userprofile_id` int NOT NULL,
-  `triagem_id` int NOT NULL,
+  `userprofile_id` int DEFAULT NULL,
+  `triagem_id` int DEFAULT NULL,
   `medicouserprofile_id` int NOT NULL,
   `data_encerramento` datetime DEFAULT NULL,
   `relatorio_pdf` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `medico_nome` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_consulta_triagem_idx` (`triagem_id`),
   KEY `fk_userprofile_consulta` (`userprofile_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Extraindo dados da tabela `consulta`
 --
 
-INSERT INTO `consulta` (`id`, `data_consulta`, `estado`, `observacoes`, `userprofile_id`, `triagem_id`, `medicouserprofile_id`, `data_encerramento`, `relatorio_pdf`) VALUES
-(19, '2025-12-26 11:28:51', 'Encerrada', '', 22, 36, 13, '2025-12-28 11:34:59', NULL),
-(21, '2025-12-28 11:37:54', 'Em curso', NULL, 30, 39, 13, NULL, NULL),
-(22, '2025-12-28 11:56:17', 'Em curso', '', 11, 40, 13, NULL, NULL);
+INSERT INTO `consulta` (`id`, `data_consulta`, `estado`, `observacoes`, `userprofile_id`, `triagem_id`, `medicouserprofile_id`, `data_encerramento`, `relatorio_pdf`, `medico_nome`) VALUES
+(19, '2025-12-26 11:28:51', 'Encerrada', '', 22, 36, 13, '2025-12-28 11:34:59', NULL, NULL),
+(22, '2025-12-28 11:56:17', 'Encerrada', '', 11, 40, 13, '2025-12-30 10:04:20', NULL, NULL),
+(24, '2025-12-30 10:09:42', 'Encerrada', '', 21, 42, 13, '2025-12-30 10:10:32', NULL, 'admin');
 
 -- --------------------------------------------------------
 
@@ -326,7 +328,7 @@ CREATE TABLE IF NOT EXISTS `notificacao` (
   `userprofile_id` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_notificacao_userprofile_id` (`userprofile_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=72 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=81 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Extraindo dados da tabela `notificacao`
@@ -393,7 +395,16 @@ INSERT INTO `notificacao` (`id`, `titulo`, `mensagem`, `tipo`, `dataenvio`, `lid
 (68, 'Consulta eliminada', 'A \'Consulta #17\' foi apagada do histórico.', 'Geral', '2025-12-24 15:10:13', 0, 13),
 (69, 'Consulta eliminada', 'A \'Consulta #16\' foi apagada do histórico.', 'Geral', '2025-12-24 15:10:15', 0, 13),
 (70, 'Consulta eliminada', 'A \'Consulta #18\' foi apagada do histórico.', 'Geral', '2025-12-28 11:36:05', 0, 13),
-(71, 'Consulta eliminada', 'A \'Consulta #20\' foi apagada do histórico.', 'Geral', '2025-12-28 11:42:56', 0, 13);
+(71, 'Consulta eliminada', 'A \'Consulta #20\' foi apagada do histórico.', 'Geral', '2025-12-28 11:42:56', 0, 13),
+(72, 'Novo utilizador criado', 'Foi criada uma nova conta: paciente5', 'Geral', '2025-12-30 09:24:32', 0, 13),
+(73, 'Novo utilizador criado', 'Foi criada uma nova conta: paciente6', 'Geral', '2025-12-30 09:44:06', 0, 13),
+(74, 'Utilizador eliminado', 'A conta paciente6 foi eliminada.', 'Geral', '2025-12-30 09:44:09', 0, 13),
+(75, 'Utilizador eliminado', 'A conta paciente5 foi eliminada.', 'Geral', '2025-12-30 09:44:59', 0, 13),
+(76, 'Novo utilizador criado', 'Foi criada uma nova conta: paciente5', 'Geral', '2025-12-30 09:45:54', 0, 13),
+(77, 'Utilizador eliminado', 'A conta paciente5 foi eliminada.', 'Geral', '2025-12-30 09:53:51', 0, 13),
+(78, 'Consulta eliminada', 'A \'Consulta #23\' foi apagada do histórico.', 'Geral', '2025-12-30 10:03:33', 0, 13),
+(79, 'Consulta eliminada', 'A \'Consulta #21\' foi apagada do histórico.', 'Geral', '2025-12-30 10:09:27', 0, 13),
+(80, 'Novo utilizador criado', 'Foi criada uma nova conta: paciente5', 'Geral', '2025-12-30 10:12:20', 0, 13);
 
 -- --------------------------------------------------------
 
@@ -409,7 +420,7 @@ CREATE TABLE IF NOT EXISTS `prescricao` (
   `consulta_id` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_consulta_prescricao` (`consulta_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=latin1;
 
 --
 -- Extraindo dados da tabela `prescricao`
@@ -417,7 +428,8 @@ CREATE TABLE IF NOT EXISTS `prescricao` (
 
 INSERT INTO `prescricao` (`id`, `observacoes`, `dataprescricao`, `consulta_id`) VALUES
 (17, '', '2025-12-28 11:34:46', 19),
-(18, '', '2025-12-28 11:56:28', 22);
+(18, '', '2025-12-28 11:56:28', 22),
+(21, '', '2025-12-30 10:09:47', 24);
 
 -- --------------------------------------------------------
 
@@ -434,7 +446,7 @@ CREATE TABLE IF NOT EXISTS `prescricaomedicamento` (
   PRIMARY KEY (`id`),
   KEY `fk_prescricaoMed_prescricao` (`prescricao_id`),
   KEY `fk_prescricaoMed_medicamento` (`medicamento_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Extraindo dados da tabela `prescricaomedicamento`
@@ -443,7 +455,8 @@ CREATE TABLE IF NOT EXISTS `prescricaomedicamento` (
 INSERT INTO `prescricaomedicamento` (`id`, `posologia`, `prescricao_id`, `medicamento_id`) VALUES
 (17, '4 c', 17, 3),
 (18, '2 c', 18, 4),
-(19, '1 c', 18, 5);
+(19, '1 c', 18, 5),
+(22, '5 c', 21, 5);
 
 -- --------------------------------------------------------
 
@@ -461,7 +474,7 @@ CREATE TABLE IF NOT EXISTS `pulseira` (
   `userprofile_id` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_userprofile_pulseira` (`userprofile_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=latin1;
 
 --
 -- Extraindo dados da tabela `pulseira`
@@ -469,8 +482,8 @@ CREATE TABLE IF NOT EXISTS `pulseira` (
 
 INSERT INTO `pulseira` (`id`, `codigo`, `prioridade`, `status`, `tempoentrada`, `userprofile_id`) VALUES
 (22, '19C5F289', 'Verde', 'Atendido', '2025-12-24 12:51:56', 22),
-(24, '8B9E30F9', 'Azul', 'Em atendimento', '2025-12-24 15:13:26', 30),
-(25, '792858F5', 'Laranja', 'Em atendimento', '2025-12-28 11:55:46', 11);
+(25, '792858F5', 'Laranja', 'Atendido', '2025-12-28 11:55:46', 11),
+(26, '189BEB91', 'Vermelho', 'Atendido', '2025-12-29 10:20:39', 21);
 
 -- --------------------------------------------------------
 
@@ -494,7 +507,7 @@ CREATE TABLE IF NOT EXISTS `triagem` (
   PRIMARY KEY (`id`),
   KEY `fk_pulseira_id` (`pulseira_id`),
   KEY `fk_triagem_userprofile_id` (`userprofile_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=latin1;
 
 --
 -- Extraindo dados da tabela `triagem`
@@ -502,9 +515,10 @@ CREATE TABLE IF NOT EXISTS `triagem` (
 
 INSERT INTO `triagem` (`id`, `motivoconsulta`, `queixaprincipal`, `descricaosintomas`, `iniciosintomas`, `intensidadedor`, `alergias`, `medicacao`, `datatriagem`, `userprofile_id`, `pulseira_id`) VALUES
 (36, 'teste2', 'teste2', 'teste2', '2025-12-24 12:51:00', 3, 'teste2', 'teste2', '2025-12-24 12:51:56', 22, 22),
-(39, 'teste4', 'teste4', 'teste4', '2025-12-24 15:13:00', 0, 'teste4', 'teste4', '2025-12-24 15:13:26', 30, 24),
 (40, 'Dor no Queixo', 'teste', 'teste', '2025-12-28 11:55:00', 1, 'tsetes', 'testse', '2025-12-28 11:55:46', 11, 25),
-(41, 'Dor no Queixo', 'teste', 'teste', '2025-12-28 11:55:00', 1, 'tsetes', 'testse', '2025-12-28 11:56:01', 11, 25);
+(41, 'Dor no Queixo', 'teste', 'teste', '2025-12-28 11:55:00', 1, 'tsetes', 'testse', '2025-12-28 11:56:01', 11, 25),
+(42, 'Dor no Queixo2', 'dOR NO QUERIO', 'querio', '2025-12-29 10:20:00', 7, 'dor', 'no querio', '2025-12-29 10:20:39', 21, 26),
+(43, 'Dor no Queixo2', 'dOR NO QUERIO', 'querio', '2025-12-29 10:20:00', 7, 'dor', 'no querio', '2025-12-29 10:45:45', 21, 26);
 
 -- --------------------------------------------------------
 
@@ -529,7 +543,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   UNIQUE KEY `username` (`username`),
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `password_reset_token` (`password_reset_token`)
-) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=50 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 --
 -- Extraindo dados da tabela `user`
@@ -551,7 +565,8 @@ INSERT INTO `user` (`id`, `username`, `auth_key`, `password_hash`, `password_res
 (37, 'henrique4', 'x7yW-zYrwhIyp_i92W4VZBwGMeiWRRed', '$2y$13$B2Ctd3q4V2cq9jpD9vTm5eSAAXCku7c1GF4d7rVHxMQiPj5QGt02a', NULL, 'henrique4@gmail.com', 10, 1764762374, 1764762380, NULL, 0),
 (38, 'Medico', 'dKJiVpmve8TbqFjTBDa7exaWdz3kKIlv', '$2y$13$d.dclh3Z6uB10tVyRfOFQOMRzZ4NT1lmStf4t6Vx.9PK6EAJaDQMy', NULL, 'medico@gmail.com', 10, 1764868352, 1766589157, NULL, 1),
 (39, 'medico2', 'Wyqc-o7n9ox5BwE10Y0CmjtojJmwtJZ-', '$2y$13$oA/bD9qQo0Jyp/ti8N1JoOnW4f.6N1Hnnb73Nr6FIlfXnmfkICv0u', NULL, 'medico2@gmail.com', 10, 1766583164, 1766583164, NULL, 1),
-(45, 'medico3', 'sQVFJGHyc_N_e2uWKKnZ8m8i4qvOBv3T', '$2y$13$t1e9Ug5Ur39AFs5FXARRKewWGQviRyXT1hvPDeV9NlEYBm8KYPAEm', NULL, 'medico3@gmail.com', 10, 1766587870, 1766587870, NULL, 1);
+(45, 'medico3', 'sQVFJGHyc_N_e2uWKKnZ8m8i4qvOBv3T', '$2y$13$t1e9Ug5Ur39AFs5FXARRKewWGQviRyXT1hvPDeV9NlEYBm8KYPAEm', NULL, 'medico3@gmail.com', 10, 1766587870, 1766587870, NULL, 1),
+(49, 'paciente5', 'zNG7K6Px_qALO_D8cUbmFLxAPstFSYfz', '$2y$13$6O/yjY.MHdlC802nRl4wdurCBKH9cf86KzgipQuXOf6WIDwgd8Wyq', NULL, 'paciente5@gmail.com', 10, 1767089540, 1767089632, NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -575,7 +590,7 @@ CREATE TABLE IF NOT EXISTS `userprofile` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`),
   KEY `fk_userprofile_user` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=latin1;
 
 --
 -- Extraindo dados da tabela `userprofile`
@@ -596,7 +611,8 @@ INSERT INTO `userprofile` (`id`, `nome`, `email`, `morada`, `nif`, `sns`, `datan
 (31, 'henrique4', 'henrique4@gmail.com', 'Rua das Flores, nº72 2445-034', '234324324', '234234324', '2025-12-03', 'F', '915429512', 37, 1),
 (32, 'Medico', 'medico@gmail.com', 'Rua das Flores, nº72 2445-034', '959595955', '259292929', '2025-12-04', 'M', '964586959', 38, 1),
 (33, 'medico2', 'medico2@gmail.com', 'Rua das Flores, nº72 2445-034', '987654567', '876543456', '2006-06-06', 'M', '912881283', 39, 1),
-(35, 'medico3', 'medico3@gmail.com', 'Rua das Flores, nº72 2445-034', '456789098', '876543456', '2004-07-07', 'M', '915429748', 45, 1);
+(35, 'medico3', 'medico3@gmail.com', 'Rua das Flores, nº72 2445-034', '456789098', '876543456', '2004-07-07', 'M', '915429748', 45, 1),
+(39, 'paciente5', 'paciente5@gmail.com', 'Rua das Flores, nº72 2445-034', '876543256', '876546789', '2025-12-18', 'F', '912881495', 49, 1);
 
 --
 -- Restrições para despejos de tabelas
@@ -619,8 +635,8 @@ ALTER TABLE `auth_item_child`
 -- Limitadores para a tabela `consulta`
 --
 ALTER TABLE `consulta`
-  ADD CONSTRAINT `fk_consulta_triagem` FOREIGN KEY (`triagem_id`) REFERENCES `triagem` (`id`) ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_consulta_utilizador` FOREIGN KEY (`userprofile_id`) REFERENCES `userprofile` (`id`) ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_consulta_triagem` FOREIGN KEY (`triagem_id`) REFERENCES `triagem` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_consulta_utilizador` FOREIGN KEY (`userprofile_id`) REFERENCES `userprofile` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Limitadores para a tabela `login_history`
@@ -651,14 +667,14 @@ ALTER TABLE `prescricaomedicamento`
 -- Limitadores para a tabela `pulseira`
 --
 ALTER TABLE `pulseira`
-  ADD CONSTRAINT `fk_userprofile_pulseira` FOREIGN KEY (`userprofile_id`) REFERENCES `userprofile` (`id`);
+  ADD CONSTRAINT `fk_userprofile_pulseira` FOREIGN KEY (`userprofile_id`) REFERENCES `userprofile` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT;
 
 --
 -- Limitadores para a tabela `triagem`
 --
 ALTER TABLE `triagem`
   ADD CONSTRAINT `fk_pulseira_id` FOREIGN KEY (`pulseira_id`) REFERENCES `pulseira` (`id`),
-  ADD CONSTRAINT `fk_triagem_userprofile_id` FOREIGN KEY (`userprofile_id`) REFERENCES `userprofile` (`id`);
+  ADD CONSTRAINT `fk_triagem_userprofile_id` FOREIGN KEY (`userprofile_id`) REFERENCES `userprofile` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT;
 
 --
 -- Limitadores para a tabela `userprofile`

@@ -84,14 +84,20 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/layout/main.css');
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li>
                             <a class="dropdown-item" href="<?= $profileUrl ?>">
-                                <i class="bi bi-person-circle me-2"></i>Perfil
+                                <i class="bi bi-person-circle me-2"></i> Perfil
                             </a>
                         </li>
+
                         <li>
-                            <?= Html::beginForm(['/site/logout'], 'post', ['class' => 'dropdown-item']) ?>
-                            <?= Html::submitButton('<i class="bi bi-box-arrow-right me-2"></i>Logout', [
-                                    'class' => 'btn btn-link text-danger p-0 m-0'
-                            ]) ?>
+                            <?= Html::beginForm(['/site/logout'], 'post') ?>
+                            <?= Html::submitButton(
+                                    '<i class="bi bi-box-arrow-right me-2"></i> Logout',
+                                    [
+                                            'class' => 'dropdown-item text-danger w-100 text-start',
+                                            'style' => 'background:none;border:0;',
+                                            'encode' => false
+                                    ]
+                            ) ?>
                             <?= Html::endForm() ?>
                         </li>
                     </ul>

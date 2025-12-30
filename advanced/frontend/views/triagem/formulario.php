@@ -25,7 +25,7 @@ if (!$userProfile) {
     echo "<div class='container py-5 text-center'>
             <div class='alert alert-danger'>
                 ⚠ O seu perfil está incompleto.<br>
-                Por favor contacte um administrador.
+                Por favor preencha o seu perfil ou contacte um administrador.
             </div>
           </div>";
     return;

@@ -286,8 +286,18 @@ class ConsultaController extends Controller
         $model->estado = Consulta::ESTADO_ENCERRADA;
         $model->data_encerramento = date('Y-m-d H:i:s');
 
+        // Médico
         if (Yii::$app->user && Yii::$app->user->identity->userprofile) {
-            $model->medicouserprofile_id = Yii::$app->user->identity->userprofile->id;
+
+            $medicoUser = Yii::$app->user->identity;
+            $medicoProfile = $medicoUser->userprofile;
+
+            $model->medicouserprofile_id = $medicoProfile->id;
+
+            // Nome do perfil OU username do user
+            $model->medico_nome = $medicoProfile->nome
+                ?: $medicoUser->username
+                    ?: 'Profissional de Saúde';
         }
 
         $model->save(false);
@@ -401,9 +411,7 @@ class ConsultaController extends Controller
         }
 
         // 👨‍⚕️ Médico
-        $medicoNome = $consulta->userprofile->nomecompleto
-            ?? $consulta->userprofile->username
-            ?? 'Profissional de Saúde';
+        $medicoNome = $consulta->medico_nome ?? 'Profissional de Saúde';
 
         // 📄 MPDF
         $mpdf = new \Mpdf\Mpdf([

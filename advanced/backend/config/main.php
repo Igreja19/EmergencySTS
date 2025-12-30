@@ -1,4 +1,4 @@
-    <?php
+<?php
     
     use yii\log\FileTarget;
     use yii\web\Response;
