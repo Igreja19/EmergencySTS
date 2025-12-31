@@ -4,5 +4,5 @@ modules:
     enabled:
         - Filesystem
         - Yii2:
-            part: [orm, fixtures, email]
+            part: [orm, fixtures, email, auth]
         - Asserts

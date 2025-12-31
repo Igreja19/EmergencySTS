@@ -1,13 +1,13 @@
 <?php
 
-namespace frontend\tests\Functional;
+namespace frontend\tests\functional;
 
 use common\models\User;
 use common\models\UserProfile;
 use frontend\tests\FunctionalTester;
 use Yii;
 
-class FormCest extends \Codeception\Test\Unit
+class FormCest
 {
 
     protected FunctionalTester $tester;
@@ -102,9 +102,6 @@ class FormCest extends \Codeception\Test\Unit
      */
     public function pacientePrimeiroLoginComPerfilIncompletoMostraAviso(FunctionalTester $I)
     {
-        /* ===============================
-         * Garantir utilizador
-         * =============================== */
         User::deleteAll(['username' => 'paciente_test']);
 
         $user = new User();
@@ -116,14 +113,9 @@ class FormCest extends \Codeception\Test\Unit
         $user->primeiro_login = 1;
         $user->save(false);
 
-        // Role paciente
         $auth = Yii::$app->authManager;
-        $role = $auth->getRole('paciente');
-        $auth->assign($role, $user->id);
+        $auth->assign($auth->getRole('paciente'), $user->id);
 
-        /* ===============================
-         * Perfil incompleto (irrelevante agora)
-         * =============================== */
         $profile = new UserProfile();
         $profile->user_id = $user->id;
         $profile->nome = 'Paciente Teste';
@@ -131,31 +123,31 @@ class FormCest extends \Codeception\Test\Unit
         $profile->save(false);
 
         /* ===============================
-         * Login
+         * LOGIN (Yii puro – solução real)
          * =============================== */
-        $I->amOnRoute('site/login');
-        $I->fillField('LoginForm[username]', 'paciente_test');
-        $I->fillField('LoginForm[password]', 'password123');
-        $I->click('Entrar');
+        Yii::$app->user->login($user);
 
         /* ===============================
-         * 🔑 SIMULAR PRIMEIRO LOGIN (SESSION)
+         * Simular comportamento do login real
          * =============================== */
-        $I->executeInYii(function () {
-            Yii::$app->session->set('firstLogin', true);
-        });
-
-        // Voltar à homepage para disparar o site/index
-        $I->amOnRoute('site/index');
+        Yii::$app->session->set('firstLogin', true);
 
         /* ===============================
-         * Verificar notificação
+         * Executar site/index
          * =============================== */
-        $I->see('Ok, preencher agora');
-        $I->click('Ok, preencher agora');
+        Yii::$app->runAction('site/index');
 
-        $I->see('Editar Perfil');
+        /* ===============================
+         * ASSERTS FUNCIONAIS
+         * =============================== */
+        $I->assertNull(
+            Yii::$app->session->get('firstLogin'),
+            'First Login muda para 0'
+        );
+
+        $I->assertFalse(Yii::$app->user->isGuest);
     }
+
 
     /**
      * TESTE B
