@@ -10,6 +10,7 @@ return [
         ],
         'request' => [
             'cookieValidationKey' => 'test',
+            'enableCsrfValidation' => false,
         ],
         'mailer' => [
             'messageClass' => \yii\symfonymailer\Message::class

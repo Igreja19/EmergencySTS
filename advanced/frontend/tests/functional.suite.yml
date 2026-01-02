@@ -4,5 +4,6 @@ modules:
     enabled:
         - Filesystem
         - Yii2:
+            configFile: 'config/test.php'
             part: [orm, fixtures, email, auth]
         - Asserts
