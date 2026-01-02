@@ -3,33 +3,20 @@
 namespace backend\modules\api\controllers;
 
 use Yii;
-use yii\rest\ActiveController;
-use yii\filters\auth\QueryParamAuth;
 use yii\web\NotFoundHttpException;
 use yii\web\ForbiddenHttpException;
+use backend\modules\api\controllers\BaseActiveController;
 
 use common\models\User;
 use common\models\UserProfile;
 
-class UserController extends ActiveController
+class UserController extends BaseActiveController
 {
     public $modelClass = 'common\models\UserProfile';
     public $enableCsrfValidation = false;
     public $layout = false;
 
-    public function behaviors()
-    {
-        $b = parent::behaviors();
-        unset($b['authenticator']);
-
-        $b['contentNegotiator']['formats']['text/html'] = \yii\web\Response::FORMAT_JSON;
-        $b['authenticator'] = [
-            'class'      => QueryParamAuth::class,
-            'tokenParam' => 'auth_key',
-        ];
-
-        return $b;
-    }
+    // NOTA: behaviors() removido porque herda do BaseActiveController
 
     public function actions()
     {
@@ -40,6 +27,7 @@ class UserController extends ActiveController
 
     public function checkAccess($action, $model = null, $params = [])
     {
+        // Regras específicas deste controlador
         if ($action === 'update') {
             if (Yii::$app->user->can('admin')) {
                 return;
@@ -62,6 +50,8 @@ class UserController extends ActiveController
     // Criar utilizador via API Admin
     public function actionCreate()
     {
+        // O BaseActiveController deixa passar Profissionais, mas aqui
+        // restringimos ainda mais: APENAS ADMIN pode criar users.
         if (!Yii::$app->user->can('admin')) {
             throw new ForbiddenHttpException("Apenas administradores podem criar utilizadores.");
         }
@@ -103,19 +93,26 @@ class UserController extends ActiveController
             $auth->assign($role, $user->id);
         }
 
-        // MQTT – user criado via backend
-        Yii::$app->mqtt->publish(
-            "user/criado/{$user->id}",
-            json_encode([
-                'evento'   => 'user_criado',
-                'user_id'  => $user->id,
-                'username' => $user->username,
-                'email'    => $user->email,
-                'nome'     => $profile->nome,
-                'role'     => $roleName,
-                'hora'     => date('Y-m-d H:i:s'),
-            ])
-        );
+        // MQTT Seguro
+        $mqttEnabled = Yii::$app->params['mqtt_enabled'] ?? true;
+        if ($mqttEnabled && isset(Yii::$app->mqtt)) {
+            try {
+                Yii::$app->mqtt->publish(
+                    "user/criado/{$user->id}",
+                    json_encode([
+                        'evento'   => 'user_criado',
+                        'user_id'  => $user->id,
+                        'username' => $user->username,
+                        'email'    => $user->email,
+                        'nome'     => $profile->nome,
+                        'role'     => $roleName,
+                        'hora'     => date('Y-m-d H:i:s'),
+                    ])
+                );
+            } catch (\Exception $e) {
+                Yii::error("Erro MQTT User Create: " . $e->getMessage());
+            }
+        }
 
         Yii::$app->response->statusCode = 201;
         return $profile;
@@ -124,6 +121,7 @@ class UserController extends ActiveController
     // GET /api/user
     public function actionIndex()
     {
+        // Se for Admin, vê tudo.
         if (Yii::$app->user->can('admin')) {
             $profiles = UserProfile::find()->asArray()->all();
             return [
@@ -132,6 +130,8 @@ class UserController extends ActiveController
             ];
         }
 
+        // Se for Médico/Enfermeiro (BaseActiveController garante que não é Paciente),
+        // vê apenas o seu próprio perfil nesta rota.
         $loggedId = Yii::$app->user->id;
         $profile = UserProfile::find()->where(['user_id' => $loggedId])->asArray()->one();
 
@@ -152,6 +152,8 @@ class UserController extends ActiveController
             throw new NotFoundHttpException("Perfil com ID {$id} não encontrado.");
         }
 
+        // Apenas Admin pode ver qualquer perfil aqui.
+        // O próprio utilizador pode ver o seu.
         if (!Yii::$app->user->can('admin') && $profile['user_id'] != $loggedId) {
             throw new ForbiddenHttpException("Não tem permissão para ver este perfil.");
         }

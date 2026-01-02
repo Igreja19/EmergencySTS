@@ -92,15 +92,22 @@ class TriagemController extends Controller
                     }
                 }
 
-                Yii::$app->mqtt->publish(
-                    "triagem/criada/{$model->id}",
-                    json_encode([
-                        'evento' => 'triagem_criada_backend',
-                        'triagem_id' => $model->id,
-                        'userprofile_id' => $model->userprofile_id,
-                        'hora' => date('Y-m-d H:i:s'),
-                    ])
-                );
+                try {
+                    if (Yii::$app->has('mqtt')) {
+                        Yii::$app->mqtt->publish(
+                            "triagem/criada/{$model->id}",
+                            json_encode([
+                                'evento' => 'triagem_criada_backend',
+                                'triagem_id' => $model->id,
+                                'userprofile_id' => $model->userprofile_id,
+                                'hora' => date('Y-m-d H:i:s'),
+                            ])
+                        );
+                    }
+                } catch (\Exception $e) {
+                    // Ignora erro de ligação e continua
+                    Yii::warning("Falha MQTT (Create): " . $e->getMessage());
+                }
 
                 return $this->redirect(['index']);
             }
@@ -158,14 +165,21 @@ class TriagemController extends Controller
 
             if ($model->save(false)) {
 
-                Yii::$app->mqtt->publish(
-                    "triagem/atualizada/{$model->id}",
-                    json_encode([
-                        'evento' => 'triagem_atualizada_backend',
-                        'triagem_id' => $model->id,
-                        'hora' => date('Y-m-d H:i:s'),
-                    ])
-                );
+                try {
+                    if (Yii::$app->has('mqtt')) {
+                        Yii::$app->mqtt->publish(
+                            "triagem/atualizada/{$model->id}",
+                            json_encode([
+                                'evento' => 'triagem_atualizada_backend',
+                                'triagem_id' => $model->id,
+                                'hora' => date('Y-m-d H:i:s'),
+                            ])
+                        );
+                    }
+                } catch (\Exception $e) {
+                    // Ignora erro de ligação
+                    Yii::warning("Falha MQTT (Update): " . $e->getMessage());
+                }
 
                 return $this->redirect(['view', 'id' => $model->id]);
             }
@@ -197,14 +211,21 @@ class TriagemController extends Controller
             $pulseira->delete();
         }
 
-        Yii::$app->mqtt->publish(
-            "triagem/apagada/{$id}",
-            json_encode([
-                'evento' => 'triagem_apagada_backend',
-                'triagem_id' => $id,
-                'hora' => date('Y-m-d H:i:s'),
-            ])
-        );
+        try {
+            if (Yii::$app->has('mqtt')) {
+                Yii::$app->mqtt->publish(
+                    "triagem/apagada/{$id}",
+                    json_encode([
+                        'evento' => 'triagem_apagada_backend',
+                        'triagem_id' => $id,
+                        'hora' => date('Y-m-d H:i:s'),
+                    ])
+                );
+            }
+        } catch (\Exception $e) {
+            // Ignora erro de ligação
+            Yii::warning("Falha MQTT (Delete): " . $e->getMessage());
+        }
 
         Yii::$app->session->setFlash('success', 'Triagem e dados associados eliminados.');
         return $this->redirect(['index']);
@@ -272,5 +293,4 @@ class TriagemController extends Controller
             'medicacao'         => $t->medicacao,
         ];
     }
-
 }

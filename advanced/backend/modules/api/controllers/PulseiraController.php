@@ -3,17 +3,15 @@
 namespace backend\modules\api\controllers;
 
 use Yii;
-use yii\rest\ActiveController;
-use yii\web\Response;
 use yii\web\NotFoundHttpException;
 use yii\web\ForbiddenHttpException;
-use yii\filters\auth\QueryParamAuth;
 use yii\data\ActiveDataProvider;
+use backend\modules\api\controllers\BaseActiveController;
 
 use common\models\Pulseira;
 use common\models\UserProfile;
 
-class PulseiraController extends ActiveController
+class PulseiraController extends BaseActiveController
 {
     public $modelClass = 'common\models\Pulseira';
     public $enableCsrfValidation = false;
@@ -24,20 +22,7 @@ class PulseiraController extends ActiveController
         'collectionEnvelope' => 'data',
     ];
 
-    public function behaviors()
-    {
-        $behaviors = parent::behaviors();
-        unset($behaviors['authenticator']);
-
-        $behaviors['contentNegotiator']['formats']['text/html'] = Response::FORMAT_JSON;
-
-        $behaviors['authenticator'] = [
-            'class' => QueryParamAuth::class,
-            'tokenParam' => 'auth_key',
-        ];
-
-        return $behaviors;
-    }
+    // NOTA: behaviors() removido porque herda do BaseActiveController
 
     public function actions()
     {
@@ -49,7 +34,9 @@ class PulseiraController extends ActiveController
     // GET /api/pulseira
     public function actionIndex()
     {
-        $user = Yii::$app->user;
+        // O BaseActiveController já garante que quem acede é Admin/Médico/Enfermeiro.
+        // Por isso, removemos a lógica de filtrar "pelo perfil do paciente".
+
         $query = Pulseira::find();
 
         // filtros
@@ -61,17 +48,6 @@ class PulseiraController extends ActiveController
         $prioridade = Yii::$app->request->get('prioridade');
         if ($prioridade) {
             $query->andWhere(['prioridade' => $prioridade]);
-        }
-
-        // permissões
-        if ($user->can('admin') || $user->can('medico') || $user->can('enfermeiro')) {
-            // vê tudo
-        } else {
-            $profile = UserProfile::findOne(['user_id' => $user->id]);
-            if (!$profile) {
-                throw new NotFoundHttpException("Perfil não encontrado.");
-            }
-            $query->andWhere(['userprofile_id' => $profile->id]);
         }
 
         $query->orderBy(['tempoentrada' => SORT_DESC]);
@@ -90,13 +66,8 @@ class PulseiraController extends ActiveController
             throw new NotFoundHttpException("Pulseira não encontrada.");
         }
 
-        $user = Yii::$app->user;
-        if (!$user->can('admin') && !$user->can('medico') && !$user->can('enfermeiro')) {
-            $profile = UserProfile::findOne(['user_id' => $user->id]);
-            if (!$profile || $pulseira->userprofile_id != $profile->id) {
-                throw new ForbiddenHttpException("Sem permissão.");
-            }
-        }
+        // Não é necessário validar se a pulseira pertence ao user,
+        // pois Pacientes estão bloqueados e Profissionais podem ver tudo.
 
         return $pulseira;
     }
@@ -104,11 +75,7 @@ class PulseiraController extends ActiveController
     // PUT /api/pulseira/{id}
     public function actionUpdate($id)
     {
-        if (!Yii::$app->user->can('enfermeiro') &&
-            !Yii::$app->user->can('medico') &&
-            !Yii::$app->user->can('admin')) {
-            throw new ForbiddenHttpException("Apenas profissionais de saúde.");
-        }
+        // A verificação de permissão é feita pelo BaseActiveController (Admin/Med/Enf).
 
         $pulseira = Pulseira::findOne($id);
         if (!$pulseira) {
@@ -120,18 +87,25 @@ class PulseiraController extends ActiveController
 
         if ($pulseira->save()) {
 
-            // MQTT – pulseira atualizada
-            Yii::$app->mqtt->publish(
-                "pulseira/atualizada/{$pulseira->id}",
-                json_encode([
-                    'evento'        => 'pulseira_atualizada',
-                    'pulseira_id'   => $pulseira->id,
-                    'prioridade'    => $pulseira->prioridade,
-                    'status'        => $pulseira->status,
-                    'userprofile_id'=> $pulseira->userprofile_id,
-                    'hora'          => date('Y-m-d H:i:s'),
-                ])
-            );
+            // MQTT Seguro
+            $mqttEnabled = Yii::$app->params['mqtt_enabled'] ?? true;
+            if ($mqttEnabled && isset(Yii::$app->mqtt)) {
+                try {
+                    Yii::$app->mqtt->publish(
+                        "pulseira/atualizada/{$pulseira->id}",
+                        json_encode([
+                            'evento'        => 'pulseira_atualizada',
+                            'pulseira_id'   => $pulseira->id,
+                            'prioridade'    => $pulseira->prioridade,
+                            'status'        => $pulseira->status,
+                            'userprofile_id'=> $pulseira->userprofile_id,
+                            'hora'          => date('Y-m-d H:i:s'),
+                        ])
+                    );
+                } catch (\Exception $e) {
+                    Yii::error("Erro MQTT Pulseira Update: " . $e->getMessage());
+                }
+            }
 
             return $pulseira;
         }
@@ -156,15 +130,22 @@ class PulseiraController extends ActiveController
 
         $pulseira->delete();
 
-        // MQTT – pulseira apagada
-        Yii::$app->mqtt->publish(
-            "pulseira/apagada/{$id}",
-            json_encode([
-                'evento'      => 'pulseira_apagada',
-                'pulseira_id' => $id,
-                'hora'        => date('Y-m-d H:i:s'),
-            ])
-        );
+        // MQTT Seguro
+        $mqttEnabled = Yii::$app->params['mqtt_enabled'] ?? true;
+        if ($mqttEnabled && isset(Yii::$app->mqtt)) {
+            try {
+                Yii::$app->mqtt->publish(
+                    "pulseira/apagada/{$id}",
+                    json_encode([
+                        'evento'      => 'pulseira_apagada',
+                        'pulseira_id' => $id,
+                        'hora'        => date('Y-m-d H:i:s'),
+                    ])
+                );
+            } catch (\Exception $e) {
+                Yii::error("Erro MQTT Pulseira Delete: " . $e->getMessage());
+            }
+        }
 
         return ['status' => 'success'];
     }

@@ -112,49 +112,24 @@
             ],
     
             //  URL MANAGER DA API
-    
+
             'urlManager' => [
                 'enablePrettyUrl' => true,
                 'showScriptName' => false,
                 'rules' => [
+
                     // Autenticação
-                    'POST api/auth/login'  => 'api/auth/login',
-                    'GET  api/auth/login'  => 'api/auth/login',
-                    'POST api/auth/signup' => 'api/auth/signup',
-    
-                    // Perfil do user (genérico)
-                    'GET api/profile' => 'api/user/index',
-    
-                    // Atualizar perfil geral
-                    'POST api/user/profile/update' => 'api/user/profile/update',
-    
-                    // Histórico de consultas
-                    'GET api/userprofiles/<id:\d+>/consultas' => 'api/consulta/historico',
-    
-                    // Histórico de triagens
-                    'GET api/triagem/historico' => 'api/triagem/historico',
-    
-                    // Validação de token
+                    'GET api/auth/login'    => 'api/auth/login',
+                    'POST api/auth/login'   => 'api/auth/login',
+                    'POST api/auth/signup'  => 'api/auth/signup',
                     'GET api/auth/validate' => 'api/auth/validate',
-    
-                    // Notificações
-                    'GET api/notificacao/list'       => 'api/notificacao/list',
-                    'POST api/notificacao/ler/<id:\d+>' => 'api/notificacao/ler',
-    
-                    // Perfil do paciente autenticado
-                    'GET api/paciente/perfil' => 'api/paciente/perfil',
-    
-                    // Perfil do Enfermeiro autenticado
-                    'GET api/enfermeiro/perfil' => 'api/enfermeiro/perfil',
-    
-                    // Diz ao servidor: "Se receberes um POST em api/enfermeiro/{id}, vai para a função actionUpdate"
-                    'POST api/enfermeiro/<id:\d+>' => 'api/enfermeiro/update',
-    
-                    // Diz ao servidor: "Se receberes um POST em api/paciente/{id}, vai para a função actionUpdate"
-                    'POST api/paciente/<id:\d+>' => 'api/paciente/update',
-                    // Atualizar perfil do paciente (manténs este como estava)
-                    'PUT api/paciente/update/<id:\d+>' => 'api/paciente/update',
-    
+
+                    // Alias e Rotas Cruzadas
+                    'GET api/profile' => 'api/user/index',
+                    'POST api/user/profile/update' => 'api/user/profile/update',
+                    'GET api/userprofiles/<id:\d+>/consultas' => 'api/consulta/historico',
+
+                    // --- REGRAS REST AUTOMÁTICAS ---
                     [
                         'class' => 'yii\rest\UrlRule',
                         'controller' => [
@@ -167,15 +142,30 @@
                             'api/medicamento',
                             'api/paciente',
                             'api/enfermeiro',
-    
                         ],
                         'pluralize' => false,
+
+                        // AQUI É ONDE A MÁGICA ACONTECE
                         'extraPatterns' => [
+                            // Comuns / Genéricos
                             'GET prioridade' => 'prioridade',
+
+                            // Triagem (Adicionei a linha abaixo)
+                            'GET historico' => 'historico',
+
+                            // Notificações
+                            'GET list' => 'list',
+                            'POST ler/{id}' => 'ler',
+
+                            // Paciente e Enfermeiro
+                            'GET perfil' => 'perfil',
+
+                            //Atualizar perfil via POST
+                            'POST {id}' => 'update',
                         ],
                     ],
-    
-                    // Página base da API
+
+                    // Página base
                     'GET api' => 'api/default/index',
                 ],
             ],

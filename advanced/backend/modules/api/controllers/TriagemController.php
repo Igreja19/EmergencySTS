@@ -3,37 +3,22 @@
 namespace backend\modules\api\controllers;
 
 use Yii;
-use yii\rest\ActiveController;
-use yii\web\Response;
 use yii\web\NotFoundHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\BadRequestHttpException;
 use yii\data\ActiveDataProvider;
-use yii\filters\auth\QueryParamAuth;
+use backend\modules\api\controllers\BaseActiveController;
 
 use common\models\Triagem;
 use common\models\UserProfile;
 use common\models\Pulseira;
 
-class TriagemController extends ActiveController
+class TriagemController extends BaseActiveController
 {
     public $modelClass = 'common\models\Triagem';
     public $enableCsrfValidation = false;
 
-    public function behaviors()
-    {
-        $b = parent::behaviors();
-        unset($b['authenticator']);
-
-        $b['contentNegotiator']['formats']['text/html'] = Response::FORMAT_JSON;
-
-        $b['authenticator'] = [
-            'class' => QueryParamAuth::class,
-            'tokenParam' => 'auth_key',
-        ];
-
-        return $b;
-    }
+    // NOTA: behaviors() removido porque herda do BaseActiveController
 
     public function actions()
     {
@@ -42,32 +27,17 @@ class TriagemController extends ActiveController
         return $a;
     }
 
-    //--------------------------
-    // TESTE MQTT
-    //--------------------------
-    public function actionTestMqtt()
-    {
-        Yii::$app->mqtt->publish("triagem/teste", json_encode(["msg" => "OK"]));
-        return ["status" => "mqtt sent"];
-    }
-
-    //--------------------------
     // INDEX
-    //--------------------------
     public function actionIndex()
     {
+        // O BaseActiveController garante que apenas Profissionais acedem aqui.
+        // Removemos a lógica de filtrar "se for paciente", pois eles estão bloqueados.
+
         $query = Triagem::find()->with(['userprofile', 'pulseira'])
             ->orderBy(['datatriagem' => SORT_DESC]);
 
         if ($p = Yii::$app->request->get('pulseira_id')) {
             $query->andWhere(['pulseira_id' => $p]);
-        }
-
-        $user = Yii::$app->user;
-
-        if (!$user->can('admin') && !$user->can('enfermeiro') && !$user->can('medico')) {
-            $profile = UserProfile::findOne(['user_id' => $user->id]);
-            $query->andWhere(['userprofile_id' => $profile->id]);
         }
 
         return new ActiveDataProvider([
@@ -76,45 +46,45 @@ class TriagemController extends ActiveController
         ]);
     }
 
-    //--------------------------
     // VIEW
-    //--------------------------
     public function actionView($id)
     {
         $t = Triagem::find()->with(['userprofile','pulseira'])->where(['id'=>$id])->one();
-
         if (!$t) throw new NotFoundHttpException("Triagem não encontrada.");
 
-        $user = Yii::$app->user;
-        if (!$user->can('admin') && !$user->can('medico') && !$user->can('enfermeiro')) {
-            $profile = UserProfile::findOne(['user_id'=>$user->id]);
-            if ($t->userprofile_id != $profile->id)
-                throw new ForbiddenHttpException("Sem permissão.");
-        }
-
+        // Profissionais podem ver qualquer triagem.
         return $t;
     }
 
-    //--------------------------
     // CREATE
-    //--------------------------
     public function actionCreate()
     {
+        // Nota: Como o BaseActiveController bloqueia Pacientes, esta ação
+        // assume que é um Profissional a criar a triagem.
+
         $data = Yii::$app->request->post();
         $user = Yii::$app->user;
-        $profile = UserProfile::findOne(['user_id'=>$user->id]);
 
-        if (!$profile) throw new BadRequestHttpException("Sem perfil associado.");
+        // Se vier 'userprofile_id' no POST (criado por médico para um paciente), usa esse.
+        // Caso contrário, usa o perfil do utilizador logado (comportamento original).
+        if (isset($data['userprofile_id'])) {
+            $profileId = $data['userprofile_id'];
+        } else {
+            $profile = UserProfile::findOne(['user_id'=>$user->id]);
+            if (!$profile) throw new BadRequestHttpException("Sem perfil associado.");
+            $profileId = $profile->id;
+        }
 
         $t = new Triagem();
         $t->load($data, '');
-        $t->userprofile_id = $profile->id;
+        $t->userprofile_id = $profileId;
         $t->datatriagem = date("Y-m-d H:i:s");
+
         if (!$t->save()) return $t->errors;
 
         // Criar pulseira
         $p = new Pulseira([
-            "userprofile_id" => $profile->id,
+            "userprofile_id" => $profileId,
             "codigo" => "P-" . strtoupper(substr(uniqid(), -5)),
             "prioridade" => "Pendente",
             "status" => "Em espera",
@@ -125,29 +95,33 @@ class TriagemController extends ActiveController
         $t->pulseira_id = $p->id;
         $t->save();
 
-        //----------------------
-        // MQTT - triagem criada
-        //----------------------
-        Yii::$app->mqtt->publish(
-            "triagem/criada/$t->id",
-            json_encode([
-                "evento" => "triagem_criada",
-                "triagem_id" => $t->id,
-                "pulseira_codigo" => $p->codigo,
-                "hora" => date("Y-m-d H:i:s")
-            ])
-        );
+        // MQTT Seguro
+        $mqttEnabled = Yii::$app->params['mqtt_enabled'] ?? true;
+        if ($mqttEnabled && isset(Yii::$app->mqtt)) {
+            try {
+                Yii::$app->mqtt->publish(
+                    "triagem/criada/$t->id",
+                    json_encode([
+                        "evento" => "triagem_criada",
+                        "triagem_id" => $t->id,
+                        "pulseira_codigo" => $p->codigo,
+                        "hora" => date("Y-m-d H:i:s")
+                    ])
+                );
+            } catch (\Exception $e) {
+                Yii::error("Erro MQTT Triagem Create: " . $e->getMessage());
+            }
+        }
 
         return ["status"=>"ok","triagem"=>$t,"pulseira"=>$p];
     }
 
-    //--------------------------
     // UPDATE
-    //--------------------------
     public function actionUpdate($id)
     {
+        // Restrição extra: Apenas Enfermeiros e Médicos (Admins não costumam fazer triagem clinica)
         if (!Yii::$app->user->can('enfermeiro') && !Yii::$app->user->can('medico'))
-            throw new ForbiddenHttpException("Sem permissão.");
+            throw new ForbiddenHttpException("Sem permissão para editar triagens.");
 
         $t = Triagem::findOne($id);
         if (!$t) throw new NotFoundHttpException("Triagem não encontrada.");
@@ -155,19 +129,26 @@ class TriagemController extends ActiveController
         $t->load(Yii::$app->request->post(), '');
         $t->save();
 
-        Yii::$app->mqtt->publish(
-            "triagem/atualizada/$t->id",
-            json_encode(["evento"=>"triagem_atualizada","triagem_id"=>$t->id])
-        );
+        // MQTT Seguro
+        $mqttEnabled = Yii::$app->params['mqtt_enabled'] ?? true;
+        if ($mqttEnabled && isset(Yii::$app->mqtt)) {
+            try {
+                Yii::$app->mqtt->publish(
+                    "triagem/atualizada/$t->id",
+                    json_encode(["evento"=>"triagem_atualizada","triagem_id"=>$t->id])
+                );
+            } catch (\Exception $e) {
+                Yii::error("Erro MQTT Triagem Update: " . $e->getMessage());
+            }
+        }
 
         return $t;
     }
 
-    //--------------------------
     // DELETE
-    //--------------------------
     public function actionDelete($id)
     {
+        // Restrição extra: Apenas Admin pode apagar
         if (!Yii::$app->user->can('admin'))
             throw new ForbiddenHttpException("Sem permissão.");
 
@@ -178,35 +159,33 @@ class TriagemController extends ActiveController
 
         $t->delete();
 
-        Yii::$app->mqtt->publish(
-            "triagem/apagada/$id",
-            json_encode(["evento"=>"triagem_apagada","triagem_id"=>$id])
-        );
+        // MQTT Seguro
+        $mqttEnabled = Yii::$app->params['mqtt_enabled'] ?? true;
+        if ($mqttEnabled && isset(Yii::$app->mqtt)) {
+            try {
+                Yii::$app->mqtt->publish(
+                    "triagem/apagada/$id",
+                    json_encode(["evento"=>"triagem_apagada","triagem_id"=>$id])
+                );
+            } catch (\Exception $e) {
+                Yii::error("Erro MQTT Triagem Delete: " . $e->getMessage());
+            }
+        }
 
         return ["status"=>"success"];
     }
+
+    // HISTÓRICO
     public function actionHistorico()
     {
-        $user = Yii::$app->user;
+        // Como o BaseActiveController bloqueia Pacientes,
+        // isto mostra o histórico global para os profissionais.
 
-        // Carregar triagens + pulseira + consulta
         $query = Triagem::find()
-            ->joinWith(['consulta'])        // NECESSÁRIO PARA FILTRAR CONSULTAS
+            ->joinWith(['consulta'])
             ->with(['userprofile', 'pulseira'])
-            ->where(['consulta.estado' => 'Encerrada'])  // Só triagens com consulta encerrada
+            ->where(['consulta.estado' => 'Encerrada'])
             ->orderBy(['triagem.datatriagem' => SORT_DESC]);
-
-        // Se o user NÃO for admin/enfermeiro/medico → mostrar só as dele
-        if (!$user->can('admin') && !$user->can('medico') && !$user->can('enfermeiro')) {
-
-            $profile = UserProfile::findOne(['user_id' => $user->id]);
-
-            if (!$profile) {
-                throw new NotFoundHttpException("Perfil não encontrado.");
-            }
-
-            $query->andWhere(['triagem.userprofile_id' => $profile->id]);
-        }
 
         $triagens = $query->all();
 
@@ -222,14 +201,11 @@ class TriagemController extends ActiveController
                 'iniciosintomas'    => $t->iniciosintomas,
                 'alergias'          => $t->alergias,
                 'medicacao'         => $t->medicacao,
-
-                // relação consulta (agora disponível)
                 'consulta' => $t->consulta ? [
                     'id'        => $t->consulta->id,
                     'estado'    => $t->consulta->estado,
                     'data'      => $t->consulta->data_consulta,
                 ] : null,
-
                 'userprofile' => $t->userprofile ? [
                     'id'        => $t->userprofile->id,
                     'nome'      => $t->userprofile->nome,
@@ -237,7 +213,6 @@ class TriagemController extends ActiveController
                     'telefone'  => $t->userprofile->telefone,
                     'email'     => $t->userprofile->email,
                 ] : null,
-
                 'pulseira' => $t->pulseira ? [
                     'id'          => $t->pulseira->id,
                     'codigo'      => $t->pulseira->codigo,
@@ -250,5 +225,4 @@ class TriagemController extends ActiveController
 
         return $result;
     }
-
 }

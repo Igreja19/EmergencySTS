@@ -76,16 +76,21 @@ class NotificacaoController extends Controller
         $n->lida = 1;
         $n->save(false);
 
-        // MQTT
-        Yii::$app->mqtt->publish(
-            "notificacao/lida/{$id}",
-            json_encode([
-                'evento' => 'notificacao_lida',
-                'notificacao_id' => $id,
-                'userprofile_id' => $n->userprofile_id,
-                'hora' => date('Y-m-d H:i:s'),
-            ])
-        );
+        try {
+            if (Yii::$app->has('mqtt')) {
+                Yii::$app->mqtt->publish(
+                    "notificacao/lida/{$id}",
+                    json_encode([
+                        'evento' => 'notificacao_lida',
+                        'notificacao_id' => $id,
+                        'userprofile_id' => $n->userprofile_id,
+                        'hora' => date('Y-m-d H:i:s'),
+                    ])
+                );
+            }
+        } catch (\Exception $e) {
+            Yii::warning("Falha MQTT (Notificacao Lida): " . $e->getMessage());
+        }
 
         return $this->redirect(['index']);
     }
@@ -98,15 +103,20 @@ class NotificacaoController extends Controller
             'userprofile_id' => $userId,
         ]);
 
-        // MQTT
-        Yii::$app->mqtt->publish(
-            "notificacao/lidas-todas/{$userId}",
-            json_encode([
-                'evento' => 'todas_notificacoes_lidas',
-                'userprofile_id' => $userId,
-                'hora' => date('Y-m-d H:i:s'),
-            ])
-        );
+        try {
+            if (Yii::$app->has('mqtt')) {
+                Yii::$app->mqtt->publish(
+                    "notificacao/lidas-todas/{$userId}",
+                    json_encode([
+                        'evento' => 'todas_notificacoes_lidas',
+                        'userprofile_id' => $userId,
+                        'hora' => date('Y-m-d H:i:s'),
+                    ])
+                );
+            }
+        } catch (\Exception $e) {
+            Yii::warning("Falha MQTT (Ler Todas): " . $e->getMessage());
+        }
 
         return $this->redirect(['index']);
     }
@@ -122,15 +132,20 @@ class NotificacaoController extends Controller
         header('Cache-Control: no-cache');
         header('Connection: keep-alive');
 
-        // MQTT
-        Yii::$app->mqtt->publish(
-            "notificacao/stream/{$userId}",
-            json_encode([
-                'evento' => 'stream_ativado',
-                'userprofile_id' => $userId,
-                'hora' => date('Y-m-d H:i:s'),
-            ])
-        );
+        try {
+            if (Yii::$app->has('mqtt')) {
+                Yii::$app->mqtt->publish(
+                    "notificacao/stream/{$userId}",
+                    json_encode([
+                        'evento' => 'stream_ativado',
+                        'userprofile_id' => $userId,
+                        'hora' => date('Y-m-d H:i:s'),
+                    ])
+                );
+            }
+        } catch (\Exception $e) {
+            // Ignora erro no stream para não quebrar o loop SSE
+        }
 
         while (true) {
 
@@ -159,15 +174,20 @@ class NotificacaoController extends Controller
 
         $userId = Yii::$app->user->identity->userprofile->id;
 
-        // MQTT
-        Yii::$app->mqtt->publish(
-            "notificacao/lista/{$userId}",
-            json_encode([
-                'evento' => 'notificacao_lista',
-                'userprofile_id' => $userId,
-                'hora' => date('Y-m-d H:i:s'),
-            ])
-        );
+        try {
+            if (Yii::$app->has('mqtt')) {
+                Yii::$app->mqtt->publish(
+                    "notificacao/lista/{$userId}",
+                    json_encode([
+                        'evento' => 'notificacao_lista',
+                        'userprofile_id' => $userId,
+                        'hora' => date('Y-m-d H:i:s'),
+                    ])
+                );
+            }
+        } catch (\Exception $e) {
+            Yii::warning("Falha MQTT (Lista Widget): " . $e->getMessage());
+        }
 
         $notificacoes = Notificacao::find()
             ->where(['userprofile_id' => $userId])
@@ -197,16 +217,21 @@ class NotificacaoController extends Controller
         $n->lida = 1;
         $n->save(false);
 
-        // MQTT
-        Yii::$app->mqtt->publish(
-            "notificacao/lida-ajax/{$id}",
-            json_encode([
-                'evento' => 'notificacao_lida_ajax',
-                'notificacao_id' => $id,
-                'userprofile_id' => $n->userprofile_id,
-                'hora' => date('Y-m-d H:i:s'),
-            ])
-        );
+        try {
+            if (Yii::$app->has('mqtt')) {
+                Yii::$app->mqtt->publish(
+                    "notificacao/lida-ajax/{$id}",
+                    json_encode([
+                        'evento' => 'notificacao_lida_ajax',
+                        'notificacao_id' => $id,
+                        'userprofile_id' => $n->userprofile_id,
+                        'hora' => date('Y-m-d H:i:s'),
+                    ])
+                );
+            }
+        } catch (\Exception $e) {
+            Yii::warning("Falha MQTT (Lida Ajax): " . $e->getMessage());
+        }
 
         return ['success' => true];
     }

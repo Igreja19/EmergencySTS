@@ -3,56 +3,16 @@
 namespace backend\modules\api\controllers;
 
 use Yii;
-use yii\rest\ActiveController;
-use yii\web\Response;
 use yii\web\ForbiddenHttpException;
-use yii\filters\auth\QueryParamAuth;
+use backend\modules\api\controllers\BaseActiveController;
 use common\models\Medicamento;
 
-// MQTT
-require_once __DIR__ . '/../mqtt/phpMQTT.php';
-use backend\modules\api\mqtt\phpMQTT;
-
-class MedicamentoController extends ActiveController
+class MedicamentoController extends BaseActiveController
 {
     public $modelClass = 'common\models\Medicamento';
     public $enableCsrfValidation = false;
 
-    // ---------------------------------------------------------
-    // MQTT FUNCTION
-    // ---------------------------------------------------------
-    private function publishMqtt($topic, $payload)
-    {
-        $server = '127.0.0.1';
-        $port = 1883;
-        $clientId = 'emergencysts-medicamento-' . rand(1000,9999);
-
-        $mqtt = new phpMQTT($server, $port, $clientId);
-
-        if (!$mqtt->connect(true, NULL)) {
-            return false;
-        }
-
-        $mqtt->publish($topic, $payload, 0);
-        $mqtt->close();
-        return true;
-    }
-
-    // ---------------------------------------------------------
-    public function behaviors()
-    {
-        $behaviors = parent::behaviors();
-        unset($behaviors['authenticator']);
-
-        $behaviors['contentNegotiator']['formats']['text/html'] = Response::FORMAT_JSON;
-
-        $behaviors['authenticator'] = [
-            'class' => QueryParamAuth::class,
-            'tokenParam' => 'auth_key',
-        ];
-
-        return $behaviors;
-    }
+    // NOTA: behaviors() removido porque herda do BaseActiveController
 
     public function actions()
     {
@@ -61,13 +21,12 @@ class MedicamentoController extends ActiveController
         return $actions;
     }
 
-    // ---------------------------------------------------------
     // PESQUISA DE MEDICAMENTOS (GET /api/medicamento?nome=Ben)
-    // ---------------------------------------------------------
     public function actionIndex()
     {
-        $nome = Yii::$app->request->get('nome');
+        // O BaseActiveController garante que apenas Admin/Médico/Enfermeiro acedem aqui.
 
+        $nome = Yii::$app->request->get('nome');
         $query = Medicamento::find();
 
         if ($nome) {
@@ -83,9 +42,7 @@ class MedicamentoController extends ActiveController
         ];
     }
 
-    // ---------------------------------------------------------
     // CRIAR MEDICAMENTO (APENAS ADMIN)
-    // ---------------------------------------------------------
     public function actionCreate()
     {
         if (!Yii::$app->user->can('admin')) {
@@ -97,17 +54,24 @@ class MedicamentoController extends ActiveController
 
         if ($model->save()) {
 
-            // MQTT — medicamento criado
-            $this->publishMqtt(
-                "medicamento/criado/" . $model->id,
-                json_encode([
-                    "evento" => "medicamento_criado",
-                    "medicamento_id" => $model->id,
-                    "nome" => $model->nome,
-                    "descricao" => $model->descricao ?? null,
-                    "hora" => date('Y-m-d H:i:s'),
-                ])
-            );
+            // MQTT Seguro
+            $mqttEnabled = Yii::$app->params['mqtt_enabled'] ?? true;
+            if ($mqttEnabled && isset(Yii::$app->mqtt)) {
+                try {
+                    Yii::$app->mqtt->publish(
+                        "medicamento/criado/" . $model->id,
+                        json_encode([
+                            "evento" => "medicamento_criado",
+                            "medicamento_id" => $model->id,
+                            "nome" => $model->nome,
+                            "descricao" => $model->descricao ?? null,
+                            "hora" => date('Y-m-d H:i:s'),
+                        ])
+                    );
+                } catch (\Exception $e) {
+                    Yii::error("Erro MQTT Medicamento Create: " . $e->getMessage());
+                }
+            }
 
             return [
                 'status' => 'success',
@@ -121,5 +85,4 @@ class MedicamentoController extends ActiveController
             'errors' => $model->errors
         ];
     }
-
 }
