@@ -25,6 +25,9 @@ class MedicamentoController extends BaseActiveController
     public function actionIndex()
     {
         // O BaseActiveController garante que apenas Admin/Médico/Enfermeiro acedem aqui.
+        if (Yii::$app->user->can('paciente')) {
+            throw new ForbiddenHttpException("Acesso reservado a staff.");
+        }
 
         $nome = Yii::$app->request->get('nome');
         $query = Medicamento::find();

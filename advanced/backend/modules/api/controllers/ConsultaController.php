@@ -26,11 +26,17 @@ class ConsultaController extends BaseActiveController
         return $actions;
     }
 
+
     //  GET: LISTAR TODAS AS CONSULTAS (/api/consulta)
     public function actionIndex()
     {
-        // O BaseActiveController já garante que é Admin, Médico ou Enfermeiro.
+        // Se for PACIENTE, bloqueia imediatamente.
+        // O paciente não pode ver a lista global de consultas do hospital.
+        if (Yii::$app->user->can('paciente')) {
+            throw new ForbiddenHttpException("Acesso negado. Utilize a rota de histórico pessoal.");
+        }
 
+        // Daqui para baixo, apenas Médicos, Enfermeiros e Admin passam.
         $consultas = Consulta::find()
             ->orderBy(['data_consulta' => SORT_DESC])
             ->all();

@@ -25,10 +25,10 @@ class TriagemController extends BaseActiveController
         return $a;
     }
 
-    // INDEX
+    // INDEX (Ver todas as triagens)
     public function actionIndex()
     {
-        // SEGURANÇA: Pacientes não devem ver a lista de triagens do hospital
+        // SEGURANÇA: Pacientes não podem ver a lista de admissões do dia.
         if (Yii::$app->user->can('paciente')) {
             throw new ForbiddenHttpException("Acesso reservado a profissionais de saúde.");
         }
@@ -52,21 +52,20 @@ class TriagemController extends BaseActiveController
         $t = Triagem::find()->with(['userprofile','pulseira'])->where(['id'=>$id])->one();
         if (!$t) throw new NotFoundHttpException("Triagem não encontrada.");
 
-        // SEGURANÇA: Paciente só vê a SUA triagem
+        // SEGURANÇA: Paciente só vê a SUA triagem.
         if (Yii::$app->user->can('paciente')) {
-            // Verifica se o user_id do perfil da triagem corresponde ao user logado
             if ($t->userprofile->user_id != Yii::$app->user->id) {
-                throw new ForbiddenHttpException("Não tem permissão para visualizar esta triagem.");
+                throw new ForbiddenHttpException("Não tem permissão para ver esta triagem.");
             }
         }
 
         return $t;
     }
 
-    // CREATE
+    // CREATE (Fazer triagem)
     public function actionCreate()
     {
-        // SEGURANÇA: Bloquear pacientes de criar auto-triagem via API
+        // SEGURANÇA: Bloquear auto-triagem por pacientes.
         if (Yii::$app->user->can('paciente')) {
             throw new ForbiddenHttpException("Apenas profissionais podem registar triagens.");
         }
@@ -74,11 +73,10 @@ class TriagemController extends BaseActiveController
         $data = Yii::$app->request->post();
         $user = Yii::$app->user;
 
-        // Se vier 'userprofile_id' no POST (criado por médico para um paciente), usa esse.
-        // Caso contrário, usa o perfil do utilizador logado.
         if (isset($data['userprofile_id'])) {
             $profileId = $data['userprofile_id'];
         } else {
+            // Fallback para o user logado (apenas se for médico a criar para si próprio, raro mas possível)
             $profile = UserProfile::findOne(['user_id'=>$user->id]);
             if (!$profile) throw new BadRequestHttpException("Sem perfil associado.");
             $profileId = $profile->id;
@@ -91,7 +89,7 @@ class TriagemController extends BaseActiveController
 
         if (!$t->save()) return $t->errors;
 
-        // Criar pulseira
+        // Criar pulseira automática
         $p = new Pulseira([
             "userprofile_id" => $profileId,
             "codigo" => "P-" . strtoupper(substr(uniqid(), -5)),
@@ -104,23 +102,13 @@ class TriagemController extends BaseActiveController
         $t->pulseira_id = $p->id;
         $t->save();
 
-        // MQTT Seguro
-        $mqttEnabled = Yii::$app->params['mqtt_enabled'] ?? true;
-        if ($mqttEnabled && isset(Yii::$app->mqtt)) {
-            try {
-                Yii::$app->mqtt->publish(
-                    "triagem/criada/$t->id",
-                    json_encode([
-                        "evento" => "triagem_criada",
-                        "triagem_id" => $t->id,
-                        "pulseira_codigo" => $p->codigo,
-                        "hora" => date("Y-m-d H:i:s")
-                    ])
-                );
-            } catch (\Exception $e) {
-                Yii::error("Erro MQTT Triagem Create: " . $e->getMessage());
-            }
-        }
+        // MQTT
+        $this->safeMqttPublish("triagem/criada/$t->id", [
+            "evento" => "triagem_criada",
+            "triagem_id" => $t->id,
+            "pulseira_codigo" => $p->codigo,
+            "hora" => date("Y-m-d H:i:s")
+        ]);
 
         return ["status"=>"ok","triagem"=>$t,"pulseira"=>$p];
     }
@@ -128,7 +116,7 @@ class TriagemController extends BaseActiveController
     // UPDATE
     public function actionUpdate($id)
     {
-        // Restrição: Apenas Enfermeiros e Médicos
+        // Apenas Staff pode editar
         if (!Yii::$app->user->can('enfermeiro') && !Yii::$app->user->can('medico'))
             throw new ForbiddenHttpException("Sem permissão para editar triagens.");
 
@@ -138,18 +126,8 @@ class TriagemController extends BaseActiveController
         $t->load(Yii::$app->request->post(), '');
         $t->save();
 
-        // MQTT Seguro
-        $mqttEnabled = Yii::$app->params['mqtt_enabled'] ?? true;
-        if ($mqttEnabled && isset(Yii::$app->mqtt)) {
-            try {
-                Yii::$app->mqtt->publish(
-                    "triagem/atualizada/$t->id",
-                    json_encode(["evento"=>"triagem_atualizada","triagem_id"=>$t->id])
-                );
-            } catch (\Exception $e) {
-                Yii::error("Erro MQTT Triagem Update: " . $e->getMessage());
-            }
-        }
+        // MQTT
+        $this->safeMqttPublish("triagem/atualizada/$t->id", ["evento"=>"triagem_atualizada","triagem_id"=>$t->id]);
 
         return $t;
     }
@@ -157,7 +135,6 @@ class TriagemController extends BaseActiveController
     // DELETE
     public function actionDelete($id)
     {
-        // Restrição: Apenas Admin pode apagar
         if (!Yii::$app->user->can('admin'))
             throw new ForbiddenHttpException("Sem permissão.");
 
@@ -168,18 +145,8 @@ class TriagemController extends BaseActiveController
 
         $t->delete();
 
-        // MQTT Seguro
-        $mqttEnabled = Yii::$app->params['mqtt_enabled'] ?? true;
-        if ($mqttEnabled && isset(Yii::$app->mqtt)) {
-            try {
-                Yii::$app->mqtt->publish(
-                    "triagem/apagada/$id",
-                    json_encode(["evento"=>"triagem_apagada","triagem_id"=>$id])
-                );
-            } catch (\Exception $e) {
-                Yii::error("Erro MQTT Triagem Delete: " . $e->getMessage());
-            }
-        }
+        // MQTT
+        $this->safeMqttPublish("triagem/apagada/$id", ["evento"=>"triagem_apagada","triagem_id"=>$id]);
 
         return ["status"=>"success"];
     }
@@ -187,9 +154,9 @@ class TriagemController extends BaseActiveController
     // HISTÓRICO GLOBAL
     public function actionHistorico()
     {
-        // SEGURANÇA: Se for paciente, BLOQUEAR o histórico global
+        // SEGURANÇA: Bloquear Paciente de ver histórico geral do hospital
         if (Yii::$app->user->can('paciente')) {
-            throw new ForbiddenHttpException("Acesso negado. Utilize a rota de histórico pessoal.");
+            throw new ForbiddenHttpException("Utilize a rota de histórico pessoal.");
         }
 
         $query = Triagem::find()
@@ -200,7 +167,7 @@ class TriagemController extends BaseActiveController
 
         $triagens = $query->all();
 
-        // Serialização manual
+        // Formatação manual (igual ao que tinhas)
         $result = [];
         foreach ($triagens as $t) {
             $result[] = [
@@ -235,5 +202,17 @@ class TriagemController extends BaseActiveController
         }
 
         return $result;
+    }
+
+    protected function safeMqttPublish($topic, $payload)
+    {
+        $mqttEnabled = Yii::$app->params['mqtt_enabled'] ?? true;
+        if ($mqttEnabled && isset(Yii::$app->mqtt)) {
+            try {
+                Yii::$app->mqtt->publish($topic, json_encode($payload));
+            } catch (\Exception $e) {
+                Yii::error("Erro MQTT ({$topic}): " . $e->getMessage());
+            }
+        }
     }
 }

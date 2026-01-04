@@ -12,7 +12,6 @@ use common\models\Prescricao;
 use common\models\Prescricaomedicamento;
 use common\models\Consulta;
 use common\models\Medicamento;
-use common\models\UserProfile;
 
 class PrescricaoController extends BaseActiveController
 {
@@ -31,15 +30,13 @@ class PrescricaoController extends BaseActiveController
     // LISTAR PRESCRIÇÕES
     public function actionIndex()
     {
-        // O BaseActiveController garante que apenas Admin, Médico ou Enfermeiro chegam aqui.
-        // Por isso, mostramos todas as prescrições (ou filtrar se necessário).
-
-       $user = Yii::$app->user;
+        $user = Yii::$app->user;
         $query = Prescricao::find();
 
-        // SE FOR PACIENTE: Vê apenas as suas próprias prescrições
+        // --- SEGURANÇA: Se for Paciente, filtra apenas as dele ---
         if ($user->can('paciente')) {
-            // Junta com Consulta -> Triagem -> UserProfile para filtrar pelo user_id
+            // A query junta as tabelas para encontrar o dono da prescrição:
+            // Prescricao -> Consulta -> Triagem -> UserProfile -> User (ID logado)
             $query->joinWith(['consulta.triagem.userprofile' => function($q) use ($user) {
                 $q->where(['user_id' => $user->id]);
             }]);
@@ -57,10 +54,13 @@ class PrescricaoController extends BaseActiveController
                 }
             }
 
+            // Tenta obter o nome do médico, se a coluna existir ou estiver relacionada
+            $medicoNome = $p->consulta->medico_nome ?? 'Médico';
+
             $data[] = [
                 'id'           => $p->id,
                 'data'         => $p->dataprescricao,
-                'medico'       => 'Dr. Teste', // Podes ajustar para buscar o nome do médico real via consulta->medico
+                'medico'       => $medicoNome,
                 'medicamentos' => $medicamentos,
                 'consulta_id'  => $p->consulta_id,
             ];
@@ -69,7 +69,7 @@ class PrescricaoController extends BaseActiveController
         return ['status' => 'success', 'total' => count($data), 'data' => $data];
     }
 
-    // VER UMA
+    // VER UMA PRESCRIÇÃO
     public function actionView($id)
     {
         $prescricao = Prescricao::findOne($id);
@@ -77,16 +77,15 @@ class PrescricaoController extends BaseActiveController
             throw new NotFoundHttpException("Prescrição não encontrada.");
         }
 
-        // SEGURANÇA: Se for paciente, verificar se a prescrição é dele
+        // --- SEGURANÇA: Verificar se a receita pertence ao paciente ---
         if (Yii::$app->user->can('paciente')) {
-            $dono = $prescricao->consulta->triagem->userprofile->user_id ?? null;
-            if ($dono != Yii::$app->user->id) {
+            // Percorre a relação para chegar ao ID do utilizador dono da triagem
+            $donoId = $prescricao->consulta->triagem->userprofile->user_id ?? null;
+            
+            if ($donoId != Yii::$app->user->id) {
                 throw new ForbiddenHttpException("Não tem permissão para ver esta prescrição.");
             }
         }
-
-        // A verificação de "propriedade" foi removida porque Pacientes estão bloqueados.
-        // Médicos e Enfermeiros podem consultar a prescrição.
 
         $listaMedicamentos = [];
         if ($prescricao->getPrescricaomedicamentos()->exists()) {
@@ -110,10 +109,9 @@ class PrescricaoController extends BaseActiveController
         ];
     }
 
-    // CRIAR
+    // CRIAR (Apenas Médicos/Admin)
     public function actionCreate()
     {
-        // Apenas Médicos e Admins podem prescrever (Enfermeiros não)
         if (!Yii::$app->user->can('medico') && !Yii::$app->user->can('admin')) {
             throw new ForbiddenHttpException("Apenas médicos podem criar prescrições.");
         }
@@ -142,6 +140,7 @@ class PrescricaoController extends BaseActiveController
 
             if (!empty($data['medicamentos']) && is_array($data['medicamentos'])) {
                 foreach ($data['medicamentos'] as $item) {
+                    // Procura medicamento existente ou cria novo
                     $medicamento = Medicamento::findOne([
                         'nome'    => $item['nome'],
                         'dosagem' => $item['dosagem'],
@@ -165,22 +164,12 @@ class PrescricaoController extends BaseActiveController
             $tx->commit();
 
             // MQTT Seguro
-            $mqttEnabled = Yii::$app->params['mqtt_enabled'] ?? true;
-            if ($mqttEnabled && isset(Yii::$app->mqtt)) {
-                try {
-                    Yii::$app->mqtt->publish(
-                        "prescricao/criada/{$prescricao->id}",
-                        json_encode([
-                            'evento'       => 'prescricao_criada',
-                            'prescricao_id'=> $prescricao->id,
-                            'consulta_id'  => $prescricao->consulta_id,
-                            'hora'         => date('Y-m-d H:i:s'),
-                        ])
-                    );
-                } catch (\Exception $e) {
-                    Yii::error("Erro MQTT Prescricao Create: " . $e->getMessage());
-                }
-            }
+            $this->safeMqttPublish("prescricao/criada/{$prescricao->id}", [
+                'evento'       => 'prescricao_criada',
+                'prescricao_id'=> $prescricao->id,
+                'consulta_id'  => $prescricao->consulta_id,
+                'hora'         => date('Y-m-d H:i:s'),
+            ]);
 
             return ['status' => 'success', 'data' => $prescricao];
 
@@ -191,7 +180,7 @@ class PrescricaoController extends BaseActiveController
         }
     }
 
-    // DELETE
+    // DELETE (Apenas Médicos/Admin)
     public function actionDelete($id)
     {
         if (!Yii::$app->user->can('medico') && !Yii::$app->user->can('admin')) {
@@ -207,22 +196,27 @@ class PrescricaoController extends BaseActiveController
         $prescricao->delete();
 
         // MQTT Seguro
+        $this->safeMqttPublish("prescricao/apagada/{$id}", [
+            'evento'       => 'prescricao_apagada',
+            'prescricao_id'=> $id,
+            'hora'         => date('Y-m-d H:i:s'),
+        ]);
+
+        return ['status' => 'success', 'message' => 'Prescrição anulada.'];
+    }
+
+    /**
+     * Função auxiliar interna para MQTT
+     */
+    protected function safeMqttPublish($topic, $payload)
+    {
         $mqttEnabled = Yii::$app->params['mqtt_enabled'] ?? true;
         if ($mqttEnabled && isset(Yii::$app->mqtt)) {
             try {
-                Yii::$app->mqtt->publish(
-                    "prescricao/apagada/{$id}",
-                    json_encode([
-                        'evento'       => 'prescricao_apagada',
-                        'prescricao_id'=> $id,
-                        'hora'         => date('Y-m-d H:i:s'),
-                    ])
-                );
+                Yii::$app->mqtt->publish($topic, json_encode($payload));
             } catch (\Exception $e) {
-                Yii::error("Erro MQTT Prescricao Delete: " . $e->getMessage());
+                Yii::error("Erro MQTT ({$topic}): " . $e->getMessage());
             }
         }
-
-        return ['status' => 'success', 'message' => 'Prescrição anulada.'];
     }
 }

@@ -70,16 +70,19 @@ class PacienteController extends BaseActiveController // <--- Herança segura
     // GET /api/paciente (index)
     public function actionIndex()
     {
-        // Verifica se é Admin (para ver lista completa) ou Profissional
-        // Filtragem por NIF
-        $nif = Yii::$app->request->get('nif');
+        // --- SEGURANÇA: Bloquear acesso a pacientes ---
+        if (Yii::$app->user->can('paciente')) {
+            throw new ForbiddenHttpException("Acesso negado.");
+        }
 
+        
+        // Filtragem por NIF (código existente)
+        $nif = Yii::$app->request->get('nif');
         if (!empty($nif)) {
             $paciente = UserProfile::find()->where(['nif' => $nif])->asArray()->one();
             return $paciente ? [$paciente] : [];
         }
 
-        // Se for Admin, Médico ou Enfermeiro, mostra a lista de pacientes
         $pacientes = UserProfile::find()
             ->alias('p')
             ->innerJoin('user u', 'p.user_id = u.id')
@@ -89,15 +92,6 @@ class PacienteController extends BaseActiveController // <--- Herança segura
             ->all();
 
         return ['total' => count($pacientes), 'data' => $pacientes];
-    }
-
-    // GET /api/paciente/view?id=X
-    public function actionView($id)
-    {
-        $model = UserProfile::findOne($id);
-        if (!$model) throw new NotFoundHttpException("Paciente não encontrado.");
-        $this->checkAccess('view', $model);
-        return $model;
     }
 
     // GET /api/paciente/perfil
