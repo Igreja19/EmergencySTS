@@ -10,7 +10,7 @@ use yii\web\Response;
 
 /**
  * Controlador Base para a API.
- * Todos os controladores que herdarem disto estarão protegidos contra Pacientes.
+ * Todos os controladores que herdarem disto herdam a autenticação e o formato JSON.
  */
 class BaseActiveController extends ActiveController
 {
@@ -41,14 +41,16 @@ class BaseActiveController extends ActiveController
         if (!parent::beforeAction($action)) {
             return false;
         }
+        
+        // Correção do erro "Undefined variable $user"
         $user = Yii::$app->user;
 
-        // Se for admin, médico ou enfermeiro -> DEIXA PASSAR
-        if ($user->can('admin') || $user->can('medico') || $user->can('enfermeiro')) {
-            return true;
+        // Apenas garante que está logado. 
+        // A distinção entre Paciente vs Médico será feita no checkAccess() de cada controller.
+        if ($user->isGuest) {
+            throw new ForbiddenHttpException("Tem de realizar login.");
         }
 
-        // Se for apenas paciente (ou user sem permissões) -> BLOQUEIA
-        throw new ForbiddenHttpException("Apenas profissionais de saúde têm acesso à API Mobile.");
+        return true;
     }
 }

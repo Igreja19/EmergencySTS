@@ -34,7 +34,17 @@ class PrescricaoController extends BaseActiveController
         // O BaseActiveController garante que apenas Admin, Médico ou Enfermeiro chegam aqui.
         // Por isso, mostramos todas as prescrições (ou filtrar se necessário).
 
+       $user = Yii::$app->user;
         $query = Prescricao::find();
+
+        // SE FOR PACIENTE: Vê apenas as suas próprias prescrições
+        if ($user->can('paciente')) {
+            // Junta com Consulta -> Triagem -> UserProfile para filtrar pelo user_id
+            $query->joinWith(['consulta.triagem.userprofile' => function($q) use ($user) {
+                $q->where(['user_id' => $user->id]);
+            }]);
+        }
+
         $prescricoes = $query->orderBy(['dataprescricao' => SORT_DESC])->all();
 
         $data = [];
@@ -65,6 +75,14 @@ class PrescricaoController extends BaseActiveController
         $prescricao = Prescricao::findOne($id);
         if (!$prescricao) {
             throw new NotFoundHttpException("Prescrição não encontrada.");
+        }
+
+        // SEGURANÇA: Se for paciente, verificar se a prescrição é dele
+        if (Yii::$app->user->can('paciente')) {
+            $dono = $prescricao->consulta->triagem->userprofile->user_id ?? null;
+            if ($dono != Yii::$app->user->id) {
+                throw new ForbiddenHttpException("Não tem permissão para ver esta prescrição.");
+            }
         }
 
         // A verificação de "propriedade" foi removida porque Pacientes estão bloqueados.

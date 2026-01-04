@@ -16,8 +16,6 @@ class UserController extends BaseActiveController
     public $enableCsrfValidation = false;
     public $layout = false;
 
-    // NOTA: behaviors() removido porque herda do BaseActiveController
-
     public function actions()
     {
         $a = parent::actions();
@@ -27,19 +25,18 @@ class UserController extends BaseActiveController
 
     public function checkAccess($action, $model = null, $params = [])
     {
-        // Regras específicas deste controlador
+        // Update: apenas admin ou o próprio dono
         if ($action === 'update') {
             if (Yii::$app->user->can('admin')) {
                 return;
             }
-
             if ($model && $model->user_id == Yii::$app->user->id) {
                 return;
             }
-
             throw new ForbiddenHttpException("Não tem permissão para editar este perfil.");
         }
 
+        // Delete: Apenas admin
         if ($action === 'delete') {
             if (!Yii::$app->user->can('admin')) {
                 throw new ForbiddenHttpException("Apenas administradores podem apagar utilizadores.");
@@ -50,8 +47,6 @@ class UserController extends BaseActiveController
     // Criar utilizador via API Admin
     public function actionCreate()
     {
-        // O BaseActiveController deixa passar Profissionais, mas aqui
-        // restringimos ainda mais: APENAS ADMIN pode criar users.
         if (!Yii::$app->user->can('admin')) {
             throw new ForbiddenHttpException("Apenas administradores podem criar utilizadores.");
         }
@@ -130,8 +125,8 @@ class UserController extends BaseActiveController
             ];
         }
 
-        // Se for Médico/Enfermeiro (BaseActiveController garante que não é Paciente),
-        // vê apenas o seu próprio perfil nesta rota.
+        // Se for Médico, Enfermeiro OU PACIENTE:
+        // Vê apenas o seu próprio perfil nesta rota.
         $loggedId = Yii::$app->user->id;
         $profile = UserProfile::find()->where(['user_id' => $loggedId])->asArray()->one();
 
@@ -139,6 +134,7 @@ class UserController extends BaseActiveController
             throw new NotFoundHttpException("Não foi encontrado um perfil para o utilizador logado.");
         }
 
+        // Retorna diretamente o objeto perfil
         return $profile;
     }
 
@@ -152,12 +148,54 @@ class UserController extends BaseActiveController
             throw new NotFoundHttpException("Perfil com ID {$id} não encontrado.");
         }
 
-        // Apenas Admin pode ver qualquer perfil aqui.
-        // O próprio utilizador pode ver o seu.
+        // Apenas Admin pode ver qualquer perfil via ID.
+        // O utilizador comum (Paciente/Médico) só pode ver o seu próprio se coincidir.
         if (!Yii::$app->user->can('admin') && $profile['user_id'] != $loggedId) {
             throw new ForbiddenHttpException("Não tem permissão para ver este perfil.");
         }
 
         return $profile;
+    }
+
+    // DELETE /api/user/{id}
+    public function actionDelete($id)
+    {
+        //  Verificação de permissões
+        // Isto vai lançar ForbiddenHttpException se for Médico ou Enfermeiro
+        $this->checkAccess('delete');
+        
+        // Tenta encontrar pelo ID do Perfil primeiro
+        $profile = UserProfile::findOne($id);
+        
+        // Fallback: Se não encontrar perfil, tenta encontrar pelo ID de User
+        $user = null;
+        if ($profile) {
+            $user = User::findOne($profile->user_id);
+        } else {
+            $user = User::findOne($id);
+        }
+
+        if (!$user) {
+            throw new NotFoundHttpException("Utilizador não encontrado.");
+        }
+
+        // Apagar o User (o Profile apaga-se sozinho por cascata na BD)
+        $user->delete();
+
+        // MQTT (Opcional)
+        $mqttEnabled = Yii::$app->params['mqtt_enabled'] ?? true;
+        if ($mqttEnabled && isset(Yii::$app->mqtt)) {
+            try {
+                Yii::$app->mqtt->publish("user/apagado/{$user->id}", json_encode([
+                    'evento' => 'user_apagado',
+                    'user_id' => $user->id,
+                    'hora' => date('Y-m-d H:i:s')
+                ]));
+            } catch (\Exception $e) {
+                Yii::error("Erro MQTT User Delete: " . $e->getMessage());
+            }
+        }
+
+        return ['status' => 'success', 'message' => 'Utilizador eliminado.'];
     }
 }

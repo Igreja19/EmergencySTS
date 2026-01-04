@@ -22,8 +22,6 @@ class PulseiraController extends BaseActiveController
         'collectionEnvelope' => 'data',
     ];
 
-    // NOTA: behaviors() removido porque herda do BaseActiveController
-
     public function actions()
     {
         $actions = parent::actions();
@@ -34,8 +32,10 @@ class PulseiraController extends BaseActiveController
     // GET /api/pulseira
     public function actionIndex()
     {
-        // O BaseActiveController já garante que quem acede é Admin/Médico/Enfermeiro.
-        // Por isso, removemos a lógica de filtrar "pelo perfil do paciente".
+        // SEGURANÇA: Bloquear pacientes de ver lista de pulseiras (dados internos)
+        if (Yii::$app->user->can('paciente')) {
+            throw new ForbiddenHttpException("Acesso reservado a staff.");
+        }
 
         $query = Pulseira::find();
 
@@ -66,8 +66,12 @@ class PulseiraController extends BaseActiveController
             throw new NotFoundHttpException("Pulseira não encontrada.");
         }
 
-        // Não é necessário validar se a pulseira pertence ao user,
-        // pois Pacientes estão bloqueados e Profissionais podem ver tudo.
+        // SEGURANÇA: Paciente só vê a sua própria pulseira
+        if (Yii::$app->user->can('paciente')) {
+            if ($pulseira->userprofile->user_id != Yii::$app->user->id) {
+                throw new ForbiddenHttpException("Não tem permissão para ver esta pulseira.");
+            }
+        }
 
         return $pulseira;
     }
@@ -75,7 +79,11 @@ class PulseiraController extends BaseActiveController
     // PUT /api/pulseira/{id}
     public function actionUpdate($id)
     {
-        // A verificação de permissão é feita pelo BaseActiveController (Admin/Med/Enf).
+        // SEGURANÇA CRÍTICA: Impedir pacientes de editar pulseiras
+        // Agora que o BaseActiveController deixa passar pacientes, temos de bloquear aqui explicitamente.
+        if (!Yii::$app->user->can('medico') && !Yii::$app->user->can('enfermeiro') && !Yii::$app->user->can('admin')) {
+            throw new ForbiddenHttpException("Apenas profissionais podem alterar pulseiras.");
+        }
 
         $pulseira = Pulseira::findOne($id);
         if (!$pulseira) {

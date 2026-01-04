@@ -59,16 +59,22 @@ class ConsultaController extends BaseActiveController
     }
 
     //  GET: HISTÓRICO DO PACIENTE (/api/userprofiles/{id}/consultas)
-    //  Rota alias definida no UrlManager
     public function actionHistorico($id)
     {
-        $profile = UserProfile::findOne($id);
-        if (!$profile) {
-            throw new NotFoundHttpException("Perfil de utilizador não encontrado.");
+        // Verificação de segurança para Pacientes
+        if (Yii::$app->user->can('paciente')) {
+             $meuProfile = UserProfile::findOne(['user_id' => Yii::$app->user->id]);
+             // Só deixa ver se o ID solicitado for o do próprio paciente
+             if (!$meuProfile || $meuProfile->id != $id) {
+                  throw new ForbiddenHttpException("Apenas pode ver o seu histórico.");
+             }
         }
 
-        // Como o BaseActiveController bloqueia Pacientes,
-        // quem chega aqui é garantidamente Staff Médico.
+        // Se for Médico/Enfermeiro, passa direto.
+        $profile = UserProfile::findOne($id);
+        if (!$profile) {
+             throw new NotFoundHttpException("Perfil não encontrado.");
+        }
 
         $consultas = Consulta::find()
             ->where(['userprofile_id' => $id])
@@ -115,11 +121,26 @@ class ConsultaController extends BaseActiveController
             throw new NotFoundHttpException("Triagem não encontrada.");
         }
 
+        // --- CORREÇÃO: Obter o perfil do Médico Logado ---
+        $medicoProfile = UserProfile::findOne(['user_id' => Yii::$app->user->id]);
+        if (!$medicoProfile) {
+            throw new BadRequestHttpException("Erro: Não foi encontrado um perfil de médico associado a esta conta.");
+        }
+
         $consulta = new Consulta();
         $consulta->triagem_id = $triagem->id;
         $consulta->userprofile_id = $triagem->userprofile_id;
+        
+        // Agora preenchemos o campo obrigatório com o ID do médico
+        $consulta->medicouserprofile_id = $medicoProfile->id; 
+        
         $consulta->data_consulta = date('Y-m-d H:i:s');
         $consulta->estado = 'Em curso';
+
+        // Preenche o nome do médico também (opcional)
+        if ($consulta->hasAttribute('medico_nome')) {
+            $consulta->medico_nome = $medicoProfile->nome;
+        }
 
         if (isset($data['observacoes'])) {
             $consulta->observacoes = $data['observacoes'];
@@ -127,7 +148,7 @@ class ConsultaController extends BaseActiveController
 
         if ($consulta->save()) {
 
-            // 1. Atualizar pulseira → Em atendimento
+            // Atualizar pulseira → Em atendimento
             if ($triagem->pulseira) {
                 $triagem->pulseira->status = 'Em atendimento';
                 $triagem->pulseira->save();
@@ -141,12 +162,13 @@ class ConsultaController extends BaseActiveController
                 ]);
             }
 
-            // 2. MQTT Consulta Criada
+            // MQTT Consulta Criada
             $this->safeMqttPublish("consulta/criada/{$consulta->id}", [
                 'evento'        => 'consulta_criada',
                 'consulta_id'   => $consulta->id,
                 'userprofile_id'=> $consulta->userprofile_id,
                 'triagem_id'    => $consulta->triagem_id,
+                'medico_id'     => $medicoProfile->id,
                 'estado'        => $consulta->estado,
                 'hora'          => date('Y-m-d H:i:s'),
             ]);

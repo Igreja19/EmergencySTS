@@ -18,8 +18,6 @@ class TriagemController extends BaseActiveController
     public $modelClass = 'common\models\Triagem';
     public $enableCsrfValidation = false;
 
-    // NOTA: behaviors() removido porque herda do BaseActiveController
-
     public function actions()
     {
         $a = parent::actions();
@@ -30,8 +28,10 @@ class TriagemController extends BaseActiveController
     // INDEX
     public function actionIndex()
     {
-        // O BaseActiveController garante que apenas Profissionais acedem aqui.
-        // Removemos a lógica de filtrar "se for paciente", pois eles estão bloqueados.
+        // SEGURANÇA: Pacientes não devem ver a lista de triagens do hospital
+        if (Yii::$app->user->can('paciente')) {
+            throw new ForbiddenHttpException("Acesso reservado a profissionais de saúde.");
+        }
 
         $query = Triagem::find()->with(['userprofile', 'pulseira'])
             ->orderBy(['datatriagem' => SORT_DESC]);
@@ -52,21 +52,30 @@ class TriagemController extends BaseActiveController
         $t = Triagem::find()->with(['userprofile','pulseira'])->where(['id'=>$id])->one();
         if (!$t) throw new NotFoundHttpException("Triagem não encontrada.");
 
-        // Profissionais podem ver qualquer triagem.
+        // SEGURANÇA: Paciente só vê a SUA triagem
+        if (Yii::$app->user->can('paciente')) {
+            // Verifica se o user_id do perfil da triagem corresponde ao user logado
+            if ($t->userprofile->user_id != Yii::$app->user->id) {
+                throw new ForbiddenHttpException("Não tem permissão para visualizar esta triagem.");
+            }
+        }
+
         return $t;
     }
 
     // CREATE
     public function actionCreate()
     {
-        // Nota: Como o BaseActiveController bloqueia Pacientes, esta ação
-        // assume que é um Profissional a criar a triagem.
+        // SEGURANÇA: Bloquear pacientes de criar auto-triagem via API
+        if (Yii::$app->user->can('paciente')) {
+            throw new ForbiddenHttpException("Apenas profissionais podem registar triagens.");
+        }
 
         $data = Yii::$app->request->post();
         $user = Yii::$app->user;
 
         // Se vier 'userprofile_id' no POST (criado por médico para um paciente), usa esse.
-        // Caso contrário, usa o perfil do utilizador logado (comportamento original).
+        // Caso contrário, usa o perfil do utilizador logado.
         if (isset($data['userprofile_id'])) {
             $profileId = $data['userprofile_id'];
         } else {
@@ -119,7 +128,7 @@ class TriagemController extends BaseActiveController
     // UPDATE
     public function actionUpdate($id)
     {
-        // Restrição extra: Apenas Enfermeiros e Médicos (Admins não costumam fazer triagem clinica)
+        // Restrição: Apenas Enfermeiros e Médicos
         if (!Yii::$app->user->can('enfermeiro') && !Yii::$app->user->can('medico'))
             throw new ForbiddenHttpException("Sem permissão para editar triagens.");
 
@@ -148,7 +157,7 @@ class TriagemController extends BaseActiveController
     // DELETE
     public function actionDelete($id)
     {
-        // Restrição extra: Apenas Admin pode apagar
+        // Restrição: Apenas Admin pode apagar
         if (!Yii::$app->user->can('admin'))
             throw new ForbiddenHttpException("Sem permissão.");
 
@@ -175,11 +184,13 @@ class TriagemController extends BaseActiveController
         return ["status"=>"success"];
     }
 
-    // HISTÓRICO
+    // HISTÓRICO GLOBAL
     public function actionHistorico()
     {
-        // Como o BaseActiveController bloqueia Pacientes,
-        // isto mostra o histórico global para os profissionais.
+        // SEGURANÇA: Se for paciente, BLOQUEAR o histórico global
+        if (Yii::$app->user->can('paciente')) {
+            throw new ForbiddenHttpException("Acesso negado. Utilize a rota de histórico pessoal.");
+        }
 
         $query = Triagem::find()
             ->joinWith(['consulta'])
