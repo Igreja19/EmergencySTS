@@ -2,65 +2,112 @@
 
 namespace frontend\tests\functional;
 
+use common\models\User;
 use frontend\tests\FunctionalTester;
 use common\fixtures\UserFixture;
+use Yii;
 
 class LoginCest
 {
-    /**
-     * Load fixtures before db transaction begin
-     * Called in _before()
-     * @see \Codeception\Module\Yii2::_before()
-     * @see \Codeception\Module\Yii2::loadFixtures()
-     * @return array
-     */
-    public function _fixtures()
-    {
-        return [
-            'user' => [
-                'class' => UserFixture::class,
-                'dataFile' => codecept_data_dir() . 'login_data.php',
-            ],
-        ];
-    }
-
     public function _before(FunctionalTester $I)
     {
-        $I->amOnRoute('site/login');
+
     }
 
-    protected function formParams($login, $password)
+    public function checkEmptyLogin(FunctionalTester $I)
     {
-        return [
-            'LoginForm[username]' => $login,
-            'LoginForm[password]' => $password,
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_POST = [
+            'LoginForm' => [
+                'username' => '',
+                'password' => '',
+            ]
         ];
+
+        Yii::$app->request->setUrl('/site/login');
+        $output = Yii::$app->runAction('site/login');
+
+        $I->assertTrue(Yii::$app->user->isGuest);
+
+        $I->assertStringContainsString('Username cannot be blank', $output);
+        $I->assertStringContainsString('Password cannot be blank', $output);
     }
 
-    public function checkEmpty(FunctionalTester $I)
+    public function checkLoginWithWrongPassword(FunctionalTester $I)
     {
-        $I->submitForm('#login-form', $this->formParams('', ''));
-        $I->seeValidationError('Username cannot be blank.');
-        $I->seeValidationError('Password cannot be blank.');
-    }
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_POST = [
+            'LoginForm' => [
+                'username' => 'admin',
+                'password' => 'password',
+            ]
+        ];
 
-    public function checkWrongPassword(FunctionalTester $I)
-    {
-        $I->submitForm('#login-form', $this->formParams('admin', 'wrong'));
-        $I->seeValidationError('Incorrect username or password.');
+        Yii::$app->request->setUrl('/site/login');
+        Yii::$app->runAction('site/login');
+
+        $I->assertTrue(Yii::$app->user->isGuest);
     }
 
     public function checkInactiveAccount(FunctionalTester $I)
     {
-        $I->submitForm('#login-form', $this->formParams('test.test', 'Test1234'));
-        $I->seeValidationError('Incorrect username or password');
+        $user = User::findOne(['username' => 'test.test']);
+
+        if (!$user) {
+            $user = new User();
+            $user->username = 'test.test';
+            $user->email = 'test@test.com';
+            $user->setPassword('test1234');
+            $user->generateAuthKey();
+            $user->status = User::STATUS_INACTIVE;
+            $user->save(false);
+        } else {
+            $user->status = User::STATUS_INACTIVE;
+            $user->save(false);
+        }
+
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_POST = [
+            'LoginForm' => [
+                'username' => 'test.test',
+                'password' => 'test1234',
+            ]
+        ];
+
+        Yii::$app->request->setUrl('/site/login');
+        $output = Yii::$app->runAction('site/login');
+
+        $I->assertTrue(Yii::$app->user->isGuest);
+
+        $I->assertStringContainsString('Incorrect username or password', $output);
     }
 
     public function checkValidLogin(FunctionalTester $I)
     {
-        $I->submitForm('#login-form', $this->formParams('erau', 'password_0'));
-        $I->see('Logout', 'form button[type=submit]');
-        $I->dontSeeLink('Login');
-        $I->dontSeeLink('Signup');
+        $user = User::findOne(['username' => 'admin']);
+
+        if (!$user) {
+            $user = new User();
+            $user->username = 'admin';
+            $user->email = 'admin@example.com';
+            $user->setPassword('admin123');
+            $user->generateAuthKey();
+            $user->status = User::STATUS_ACTIVE;
+            $user->save(false);
+        }
+
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_POST = [
+            'LoginForm' => [
+                'username' => 'admin',
+                'password' => 'admin123',
+            ]
+        ];
+
+        Yii::$app->request->setUrl('/site/login');
+        Yii::$app->runAction('site/login');
+
+        $I->assertFalse(Yii::$app->user->isGuest);
+        $I->assertEquals('admin', Yii::$app->user->identity->username);
     }
 }

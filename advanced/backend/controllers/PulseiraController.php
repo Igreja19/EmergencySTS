@@ -151,25 +151,25 @@ class PulseiraController extends Controller
     {
         $pulseira = $this->findModel($id);
 
-        $triagem = Triagem::find()
-            ->where(['pulseira_id' => $pulseira->id])
-            ->one();
+        $consultaAtiva = Consulta::find()
+            ->joinWith('triagem')
+            ->where(['triagem.pulseira_id' => $pulseira->id])
+            ->andWhere(['in', 'consulta.estado', [
+                Consulta::ESTADO_EM_CURSO,
+            ]])
+            ->exists();
+
+        if ($consultaAtiva) {
+            Yii::$app->session->setFlash(
+                'error',
+                'Não é possível apagar a pulseira porque existe uma consulta em andamento.'
+            );
+            return $this->redirect(['index']);
+        }
+
+        $triagem = Triagem::findOne(['pulseira_id' => $pulseira->id]);
 
         if ($triagem) {
-
-            $consultas = Consulta::find()
-                ->where(['triagem_id' => $triagem->id])
-                ->all();
-
-            foreach ($consultas as $consulta) {
-
-                foreach ($consulta->prescricoes as $p) {
-                    $p->delete();
-                }
-
-                $consulta->delete();
-            }
-
             $triagem->delete();
         }
 
@@ -184,9 +184,14 @@ class PulseiraController extends Controller
             ])
         );
 
-        Yii::$app->session->setFlash('success', 'Pulseira e todos os dados associados foram eliminados.');
+        Yii::$app->session->setFlash(
+            'success',
+            'Pulseira eliminada com sucesso.'
+        );
+
         return $this->redirect(['index']);
     }
+
 
     protected function findModel($id)
     {

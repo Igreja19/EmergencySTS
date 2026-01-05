@@ -12,14 +12,15 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/consulta/ver.css');
 
 $triagem = $triagem ?? $consulta->triagem ?? null;
 
-// Badge por prioridade (cores Bootstrap)
-$prio = $consulta->prioridade;
+$prio = $triagem->pulseira->prioridade ?? 'Pendente';
+
 $badgeClass = match ($prio) {
     'Vermelho' => 'bg-danger',
-    'Laranja'  => 'bg-warning text-dark',
-    'Amarelo'  => 'bg-warning text-dark',
+    'Laranja'  => 'bg-warning',
+    'Amarelo'  => 'bg-warning',
     'Verde'    => 'bg-success',
     'Azul'     => 'bg-primary',
+    'Pendente' => 'bg-secondary',
     default    => 'bg-secondary',
 };
 
@@ -54,27 +55,20 @@ $badgeClass = match ($prio) {
 
                 <div class="col-md-4">
                     <div class="small text-muted">Motivo</div>
-                    <div class="fw-semibold"><?= Html::encode($consulta->motivo ?: '—') ?></div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="small text-muted">Triagem</div>
-                    <div class="fw-semibold">
-                        <?= $triagem ? ('#' . Html::encode($triagem->id)) : '—' ?>
-                    </div>
+                    <div class="fw-semibold"><?= Html::encode($triagem->motivoconsulta ?? '—') ?></div>
                 </div>
 
                 <div class="col-md-4">
                     <div class="small text-muted">Paciente</div>
                     <div class="fw-semibold">
-                        <?= Html::encode($consulta->paciente->nomecompleto ?? ('ID '.$consulta->paciente_id)) ?>
+                        <?= Html::encode( $consulta->userprofile->nome) ?>
                     </div>
                 </div>
 
                 <div class="col-md-4">
                     <div class="small text-muted">Profissional</div>
                     <div class="fw-semibold">
-                        <?= Html::encode($consulta->userprofile->username ?? ('ID '.$consulta->userprofile_id)) ?>
+                        <?= Html::encode($consulta->medico_nome) ?>
                     </div>
                 </div>
 

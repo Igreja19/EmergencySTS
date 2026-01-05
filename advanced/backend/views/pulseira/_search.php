@@ -63,16 +63,17 @@ use yii\widgets\ActiveForm;
     </div>
 
     <!-- Botões: ficam na mesma linha -->
-    <div class="col-md-1 d-flex gap-2">
-        <?= Html::submitButton('<i class="bi bi-search"></i>', [
-                'class' => 'btn btn-success rounded-pill px-3 fw-semibold shadow-sm w-100',
-                'title' => 'Pesquisar'
-        ]) ?>
-
-        <?= Html::a('<i class="bi bi-x-circle"></i>', ['index'], [
-                'class' => 'btn btn-outline-secondary rounded-pill px-3 fw-semibold shadow-sm w-100',
-                'title' => 'Limpar'
-        ]) ?>
+    <div class="col-md-1">
+        <div class="mb-3">
+            <div class="d-flex justify-content-end gap-2 h-100 align-items-center">
+                <?= Html::submitButton('<i class="bi bi-search"></i>', [
+                        'class' => 'btn btn-success rounded-pill px-3 fw-semibold shadow-sm'
+                ]) ?>
+                <?= Html::a('<i class="bi bi-x-circle"></i>', ['index'], [
+                        'class' => 'btn btn-outline-secondary rounded-pill px-3 fw-semibold shadow-sm'
+                ]) ?>
+            </div>
+        </div>
     </div>
 
     <?php ActiveForm::end(); ?>

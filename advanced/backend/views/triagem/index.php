@@ -75,7 +75,9 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/index.css');
                         [
                                 'class' => 'yii\grid\ActionColumn',
                                 'header' => 'Ações',
-                                'template' => '{view} {update} {delete}',
+                                'template' => Yii::$app->user->can('admin')
+                                        ? '{view} {update} {delete}'
+                                        : '{view} {update}',
                                 'contentOptions' => ['style' => 'text-align:center;'],
                                 'buttons' => [
                                         'view' => fn($url) => Html::a('<i class="bi bi-eye"></i>', $url, ['class' => 'btn-action btn-view']),

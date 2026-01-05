@@ -2,6 +2,7 @@
 
 namespace backend\controllers;
 
+use common\models\Consulta;
 use common\models\Notificacao;
 use common\models\Prescricaomedicamento;
 use common\models\Pulseira;
@@ -61,59 +62,89 @@ class TriagemController extends Controller
 
         if ($this->request->isPost && $model->load($this->request->post())) {
 
-            $pulseiraExistente = Pulseira::find()
-                ->where(['userprofile_id' => $model->userprofile_id])
-                ->andWhere(['in', 'prioridade', ['Vermelho','Laranja','Amarelo','Verde','Azul']])
-                ->one();
+            if (!$model->pulseira_id) {
+                Yii::$app->session->setFlash('danger', 'Tem de selecionar uma pulseira.');
+                return $this->redirect(['create']);
+            }
 
-            if ($pulseiraExistente) {
-                Yii::$app->session->setFlash('danger', 'Este paciente já tem pulseira atribuída.');
+            $pulseira = Pulseira::findOne($model->pulseira_id);
+
+            if (!$pulseira) {
+                Yii::$app->session->setFlash('danger', 'Pulseira inválida.');
                 return $this->redirect(['index']);
             }
 
+            // 🔎 Triagem existente (criada no frontend)
             $triagemExistente = Triagem::find()
-                ->where(['userprofile_id' => $model->userprofile_id])
-                ->andWhere(['pulseira_id' => null])
+                ->where(['pulseira_id' => $pulseira->id])
                 ->one();
 
-            if ($triagemExistente) {
-                Yii::$app->session->setFlash('danger', 'Este paciente já tem triagem pendente.');
-                return $this->redirect(['index']);
-            }
-
-            if ($model->save(false)) {
-
-                if (!empty($model->prioridade_pulseira)) {
-                    $pulseira = Pulseira::findOne($model->pulseira_id);
-                    if ($pulseira) {
-                        $pulseira->prioridade = $model->prioridade_pulseira;
-                        $pulseira->status = "Em espera";
-                        $pulseira->save(false);
-                    }
-                }
-
-                Yii::$app->mqtt->publish(
-                    "triagem/criada/{$model->id}",
-                    json_encode([
-                        'evento' => 'triagem_criada_backend',
-                        'triagem_id' => $model->id,
-                        'userprofile_id' => $model->userprofile_id,
-                        'hora' => date('Y-m-d H:i:s'),
-                    ])
+            if (!$triagemExistente) {
+                Yii::$app->session->setFlash(
+                    'danger',
+                    'Esta pulseira não tem triagem criada pelo paciente.'
                 );
-
                 return $this->redirect(['index']);
             }
+
+            // ✅ COPIAR APENAS CAMPOS CLÍNICOS
+            $triagemExistente->setAttributes(
+                $model->getAttributes([
+                    'motivoconsulta',
+                    'queixaprincipal',
+                    'descricaosintomas',
+                    'iniciosintomas',
+                    'intensidadedor',
+                    'alergias',
+                    'medicacao',
+                ]),
+                false
+            );
+
+            // 🔒 garantir relações corretas
+            $triagemExistente->pulseira_id = $pulseira->id;
+            $triagemExistente->userprofile_id = $pulseira->userprofile_id;
+
+            // Atualizar pulseira
+            if (!empty($model->prioridade_pulseira)) {
+                $pulseira->prioridade = $model->prioridade_pulseira;
+                $pulseira->status = 'Em espera';
+                $pulseira->save(false);
+            }
+
+            // Guardar triagem (UPDATE)
+            $triagemExistente->save(false);
+
+            // MQTT
+            Yii::$app->mqtt->publish(
+                "triagem/atualizada/{$triagemExistente->id}",
+                json_encode([
+                    'evento' => 'triagem_atualizada_backend',
+                    'triagem_id' => $triagemExistente->id,
+                    'pulseira_id' => $pulseira->id,
+                    'prioridade' => $pulseira->prioridade,
+                    'hora' => date('Y-m-d H:i:s'),
+                ])
+            );
+
+            Yii::$app->session->setFlash('success', 'Triagem avaliada com sucesso.');
+            return $this->redirect(['index']);
         }
 
+        // GET — abrir formulário
         $model->loadDefaultValues();
 
         if ($model->iniciosintomas) {
             $model->iniciosintomas = date('Y-m-d\TH:i', strtotime($model->iniciosintomas));
         }
 
-        return $this->render('create', ['model' => $model]);
+        return $this->render('create', [
+            'model' => $model,
+        ]);
     }
+
+
+
 
     public function actionPulseirasPorPaciente($id)
     {
@@ -178,23 +209,28 @@ class TriagemController extends Controller
     {
         $triagem = $this->findModel($id);
 
-        $consultas = \common\models\Consulta::find()
+        $consultaAtiva = Consulta::find()
             ->where(['triagem_id' => $triagem->id])
-            ->all();
+            ->andWhere(['in', 'estado', [
+                Consulta::ESTADO_EM_CURSO,
+            ]])
+            ->exists();
 
-        foreach ($consultas as $consulta) {
-            foreach ($consulta->prescricoes as $prescricao) {
-                Prescricaomedicamento::deleteAll(['prescricao_id' => $prescricao->id]);
-                $prescricao->delete();
-            }
-            $consulta->delete();
+        if ($consultaAtiva) {
+            Yii::$app->session->setFlash(
+                'error',
+                'Não é possível eliminar a triagem porque existe uma consulta em andamento.'
+            );
+            return $this->redirect(['index']);
         }
 
         $pulseira = $triagem->pulseira;
+
         $triagem->delete();
 
         if ($pulseira) {
-            $pulseira->delete();
+            $pulseira->status = 'Pendente';
+            $pulseira->save(false);
         }
 
         Yii::$app->mqtt->publish(
@@ -206,9 +242,14 @@ class TriagemController extends Controller
             ])
         );
 
-        Yii::$app->session->setFlash('success', 'Triagem e dados associados eliminados.');
+        Yii::$app->session->setFlash(
+            'success',
+            'Triagem eliminada e pulseira reposta para estado Pendente.'
+        );
+
         return $this->redirect(['index']);
     }
+
 
     protected function findModel($id)
     {
