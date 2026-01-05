@@ -33,7 +33,7 @@ class TriagemController extends BaseActiveController
             ->with(['userprofile', 'pulseira'])
             ->orderBy(['datatriagem' => SORT_DESC]);
 
-        // SEGURANÇA: Se for Paciente, aplica o filtro (vê a sua própria lista)
+        // Se for Paciente, aplica o filtro (vê a sua própria lista)
         // Se for Staff, vê tudo.
         if ($user->can('paciente')) {
             $query->joinWith(['userprofile' => function ($q) use ($user) {
@@ -41,14 +41,14 @@ class TriagemController extends BaseActiveController
             }]);
         }
 
-        // Filtro opcional por pulseira (útil para frontend)
+        // Filtro por pulseira
         if ($p = Yii::$app->request->get('pulseira_id')) {
             $query->andWhere(['pulseira_id' => $p]);
         }
 
         return new ActiveDataProvider([
             "query" => $query,
-            "pagination" => false // Ou defina 'pageSize' => 20
+            "pagination" => false 
         ]);
     }
 
@@ -63,7 +63,7 @@ class TriagemController extends BaseActiveController
             throw new NotFoundHttpException("Triagem não encontrada.");
         }
 
-        // SEGURANÇA: Paciente só vê a SUA triagem específica
+        // Paciente só vê a SUA triagem específica
         if (Yii::$app->user->can('paciente')) {
             $donoId = $t->userprofile->user_id ?? null;
             if ($donoId != Yii::$app->user->id) {
@@ -158,31 +158,42 @@ class TriagemController extends BaseActiveController
     }
 
     public function actionDelete($id)
-    {
-        if (!Yii::$app->user->can('admin')) {
-            throw new ForbiddenHttpException("Sem permissão.");
-        }
-
-        $t = Triagem::findOne($id);
-        if (!$t) {
-            throw new NotFoundHttpException();
-        }
-
-        // Apagar pulseira associada, se existir
-        if ($t->pulseira_id) {
-            $pulseira = Pulseira::findOne($t->pulseira_id);
-            if ($pulseira) $pulseira->delete();
-        }
-
-        $t->delete();
-
-        $this->safeMqttPublish("triagem/apagada/{$id}", [
-            "evento" => "triagem_apagada",
-            "triagem_id" => $id
-        ]);
-
-        return ["status" => "success"];
+{
+    //  Verificação de Permissões
+    if (!Yii::$app->user->can('admin') && !Yii::$app->user->can('enfermeiro')) {
+        throw new ForbiddenHttpException("Apenas Administradores ou Enfermeiros podem apagar triagens.");
     }
+
+    $t = Triagem::findOne($id);
+    if (!$t) {
+        throw new NotFoundHttpException("Triagem não encontrada.");
+    }
+
+    // Guardar o ID da Pulseira para apagar DEPOIS
+    $pulseiraId = $t->pulseira_id;
+
+    // Apagar a Triagem PRIMEIRO
+    if (!$t->delete()) {
+        // Se falhar (ex: por causa de Consultas associadas), mostra o erro real
+        throw new \yii\web\ServerErrorHttpException("Erro ao apagar triagem. Verifique se existem consultas associadas.");
+    }
+
+    // Apagar a Pulseira 
+    if ($pulseiraId) {
+        $pulseira = Pulseira::findOne($pulseiraId);
+        if ($pulseira) {
+            $pulseira->delete();
+        }
+    }
+
+    // Notificar via MQTT
+    $this->safeMqttPublish("triagem/apagada/{$id}", [
+        "evento" => "triagem_apagada",
+        "triagem_id" => $id
+    ]);
+
+    return ["status" => "success"];
+}
 
     /**
      * Endpoint administrativo/estatístico
@@ -192,14 +203,14 @@ class TriagemController extends BaseActiveController
     {
         $user = Yii::$app->user;
 
-        // 1. Preparar a query base
+        // Preparar a query base
         $query = Triagem::find()
             ->joinWith(['consulta'])
             ->with(['userprofile', 'pulseira'])
             ->where(['consulta.estado' => 'Encerrada']) // Mostra só as encerradas
             ->orderBy(['triagem.datatriagem' => SORT_DESC]);
 
-        // 2. SEGURANÇA: Se for Paciente, aplica o filtro pelo perfil dele
+        // Se for Paciente, aplica o filtro pelo perfil dele
         if ($user->can('paciente')) {
             $query->joinWith(['userprofile' => function ($q) use ($user) {
                 $q->where(['user_id' => $user->id]);
@@ -215,7 +226,6 @@ class TriagemController extends BaseActiveController
                 'datatriagem'       => $t->datatriagem,
                 'motivoconsulta'    => $t->motivoconsulta,
                 'queixaprincipal'   => $t->queixaprincipal,
-                // ... restantes campos ...
                 'consulta' => $t->consulta ? [
                     'id'     => $t->consulta->id,
                     'estado' => $t->consulta->estado,
