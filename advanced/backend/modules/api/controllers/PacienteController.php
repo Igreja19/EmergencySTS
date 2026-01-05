@@ -195,7 +195,7 @@ class PacienteController extends BaseActiveController // <--- Herança segura
 
         // Suporte legacy
         if (isset($dados['Paciente'])) {
-            $dados = $dados['Paciente'];
+            $dados = array_merge($dados, $dados['Paciente']);
         }
 
         // Atualizar campos
