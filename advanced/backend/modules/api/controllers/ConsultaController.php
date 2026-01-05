@@ -63,6 +63,46 @@ class ConsultaController extends BaseActiveController
             'data'   => $data,
         ];
     }
+    // GET: VER UMA CONSULTA ESPECÍFICA (/api/consulta/{id})
+    public function actionView($id)
+    {
+        $consulta = Consulta::findOne($id);
+
+        if (!$consulta) {
+            throw new NotFoundHttpException("Consulta não encontrada.");
+        }
+
+        // --- VERIFICAÇÃO DE PERMISSÕES ---
+        // Se for PACIENTE, só pode ver se a consulta for dele
+        if (Yii::$app->user->can('paciente')) {
+            $meuProfile = UserProfile::findOne(['user_id' => Yii::$app->user->id]);
+
+            // Se não tiver perfil ou a consulta não for deste paciente, bloqueia
+            if (!$meuProfile || $consulta->userprofile_id != $meuProfile->id) {
+                throw new ForbiddenHttpException("Não tem permissão para ver esta consulta.");
+            }
+        }
+
+        // (Médicos e Admins passam direto)
+
+        // Retorna os dados formatados (mantendo o padrão da sua API)
+        return [
+            'status' => 'success',
+            'data'   => [
+                'id'             => $consulta->id,
+                'userprofile_id' => $consulta->userprofile_id,
+                'data_consulta'  => $consulta->data_consulta,
+                'estado'         => $consulta->estado,
+                'observacoes'    => $consulta->observacoes,
+                'relatorio_pdf'  => $consulta->relatorio_pdf,
+                'triagem'        => $consulta->triagem ? [
+                    'id'         => $consulta->triagem->id,
+                    'prioridade' => $consulta->triagem->prioridadeatribuida ?? 'N/A',
+                    'queixa'     => $consulta->triagem->queixaprincipal,
+                ] : null,
+            ]
+        ];
+    }
 
     //  GET: HISTÓRICO DO PACIENTE (/api/userprofiles/{id}/consultas)
     public function actionHistorico($id)

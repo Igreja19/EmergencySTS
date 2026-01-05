@@ -7,7 +7,6 @@ use yii\web\NotFoundHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\BadRequestHttpException;
 use backend\modules\api\controllers\BaseActiveController;
-
 use common\models\Prescricao;
 use common\models\Prescricaomedicamento;
 use common\models\Consulta;
@@ -18,26 +17,27 @@ class PrescricaoController extends BaseActiveController
     public $modelClass = 'common\models\Prescricao';
     public $enableCsrfValidation = false;
 
-    // NOTA: behaviors() removido porque herda do BaseActiveController
-
     public function actions()
     {
-        $a = parent::actions();
-        unset($a['index'], $a['view'], $a['create'], $a['update'], $a['delete']);
-        return $a;
+        $actions = parent::actions();
+        unset($actions['index'], $actions['view'], $actions['create'], $actions['update'], $actions['delete']);
+        return $actions;
     }
 
-    // LISTAR PRESCRIÇÕES
+    /**
+     * GET api/prescricao
+     */
     public function actionIndex()
     {
         $user = Yii::$app->user;
-        $query = Prescricao::find();
 
-        // --- SEGURANÇA: Se for Paciente, filtra apenas as dele ---
+        // Eager Loading para evitar N+1 queries
+        $query = Prescricao::find()
+            ->with(['consulta', 'prescricaomedicamentos.medicamento']);
+
+        // Segurança: Paciente só vê prescrições ligadas à sua Triagem
         if ($user->can('paciente')) {
-            // A query junta as tabelas para encontrar o dono da prescrição:
-            // Prescricao -> Consulta -> Triagem -> UserProfile -> User (ID logado)
-            $query->joinWith(['consulta.triagem.userprofile' => function($q) use ($user) {
+            $query->joinWith(['consulta.triagem.userprofile' => function ($q) use ($user) {
                 $q->where(['user_id' => $user->id]);
             }]);
         }
@@ -47,48 +47,49 @@ class PrescricaoController extends BaseActiveController
         $data = [];
         foreach ($prescricoes as $p) {
             $medicamentos = [];
-
-            if ($p->getPrescricaomedicamentos()->exists()) {
+            if ($p->prescricaomedicamentos) {
                 foreach ($p->prescricaomedicamentos as $pm) {
                     $medicamentos[] = $pm->medicamento->nome . ' (' . $pm->posologia . ')';
                 }
             }
 
-            // Tenta obter o nome do médico, se a coluna existir ou estiver relacionada
-            $medicoNome = $p->consulta->medico_nome ?? 'Médico';
-
             $data[] = [
-                'id'           => $p->id,
-                'data'         => $p->dataprescricao,
-                'medico'       => $medicoNome,
-                'medicamentos' => $medicamentos,
-                'consulta_id'  => $p->consulta_id,
+                'id'            => $p->id,
+                'data'          => $p->dataprescricao,
+                'medico'        => $p->consulta->medico_nome ?? 'Médico',
+                'medicamentos'  => $medicamentos,
+                'consulta_id'   => $p->consulta_id,
             ];
         }
 
         return ['status' => 'success', 'total' => count($data), 'data' => $data];
     }
 
-    // VER UMA PRESCRIÇÃO
+    /**
+     * GET api/prescricao/{id}
+     */
     public function actionView($id)
     {
-        $prescricao = Prescricao::findOne($id);
+        $prescricao = Prescricao::find()
+            ->where(['id' => $id])
+            ->with(['prescricaomedicamentos.medicamento', 'consulta'])
+            ->one();
+
         if (!$prescricao) {
             throw new NotFoundHttpException("Prescrição não encontrada.");
         }
 
-        // --- SEGURANÇA: Verificar se a receita pertence ao paciente ---
+        // Segurança: Validação de propriedade
         if (Yii::$app->user->can('paciente')) {
-            // Percorre a relação para chegar ao ID do utilizador dono da triagem
             $donoId = $prescricao->consulta->triagem->userprofile->user_id ?? null;
-            
+
             if ($donoId != Yii::$app->user->id) {
                 throw new ForbiddenHttpException("Não tem permissão para ver esta prescrição.");
             }
         }
 
         $listaMedicamentos = [];
-        if ($prescricao->getPrescricaomedicamentos()->exists()) {
+        if ($prescricao->prescricaomedicamentos) {
             foreach ($prescricao->prescricaomedicamentos as $pm) {
                 $listaMedicamentos[] = [
                     'nome'      => $pm->medicamento->nome,
@@ -104,12 +105,15 @@ class PrescricaoController extends BaseActiveController
                 'id'          => $prescricao->id,
                 'data'        => $prescricao->dataprescricao,
                 'observacoes' => $prescricao->observacoes,
+                'medico'      => $prescricao->consulta->medico_nome ?? 'N/A',
                 'medicamentos'=> $listaMedicamentos,
             ],
         ];
     }
 
-    // CRIAR (Apenas Médicos/Admin)
+    /**
+     * POST api/prescricao
+     */
     public function actionCreate()
     {
         if (!Yii::$app->user->can('medico') && !Yii::$app->user->can('admin')) {
@@ -117,8 +121,9 @@ class PrescricaoController extends BaseActiveController
         }
 
         $data = Yii::$app->request->post();
+
         if (empty($data['consulta_id'])) {
-            throw new BadRequestHttpException("Falta consulta_id.");
+            throw new BadRequestHttpException("Falta o ID da consulta.");
         }
 
         $consulta = Consulta::findOne($data['consulta_id']);
@@ -126,21 +131,23 @@ class PrescricaoController extends BaseActiveController
             throw new NotFoundHttpException("Consulta não encontrada.");
         }
 
+        // Transação para garantir integridade (cabeçalho + linhas)
         $tx = Yii::$app->db->beginTransaction();
 
         try {
             $prescricao = new Prescricao();
-            $prescricao->consulta_id   = $consulta->id;
-            $prescricao->dataprescricao= date('Y-m-d H:i:s');
-            $prescricao->observacoes   = $data['observacoes'] ?? '';
+            $prescricao->consulta_id    = $consulta->id;
+            $prescricao->dataprescricao = date('Y-m-d H:i:s');
+            $prescricao->observacoes    = $data['observacoes'] ?? '';
 
             if (!$prescricao->save()) {
-                throw new \Exception("Erro ao criar prescrição.");
+                throw new \Exception("Erro ao guardar cabeçalho da prescrição.");
             }
 
             if (!empty($data['medicamentos']) && is_array($data['medicamentos'])) {
                 foreach ($data['medicamentos'] as $item) {
-                    // Procura medicamento existente ou cria novo
+
+                    // Busca medicamento existente ou cria novo
                     $medicamento = Medicamento::findOne([
                         'nome'    => $item['nome'],
                         'dosagem' => $item['dosagem'],
@@ -150,25 +157,29 @@ class PrescricaoController extends BaseActiveController
                         $medicamento = new Medicamento();
                         $medicamento->nome    = $item['nome'];
                         $medicamento->dosagem = $item['dosagem'];
-                        $medicamento->save();
+                        if (!$medicamento->save()) {
+                            throw new \Exception("Erro ao criar medicamento: " . $item['nome']);
+                        }
                     }
 
                     $linha = new Prescricaomedicamento();
                     $linha->prescricao_id  = $prescricao->id;
                     $linha->medicamento_id = $medicamento->id;
                     $linha->posologia      = $item['posologia'];
-                    $linha->save();
+
+                    if (!$linha->save()) {
+                        throw new \Exception("Erro ao guardar linha do medicamento.");
+                    }
                 }
             }
 
             $tx->commit();
 
-            // MQTT Seguro
             $this->safeMqttPublish("prescricao/criada/{$prescricao->id}", [
-                'evento'       => 'prescricao_criada',
-                'prescricao_id'=> $prescricao->id,
-                'consulta_id'  => $prescricao->consulta_id,
-                'hora'         => date('Y-m-d H:i:s'),
+                'evento'        => 'prescricao_criada',
+                'prescricao_id' => $prescricao->id,
+                'consulta_id'   => $prescricao->consulta_id,
+                'hora'          => date('Y-m-d H:i:s'),
             ]);
 
             return ['status' => 'success', 'data' => $prescricao];
@@ -180,37 +191,38 @@ class PrescricaoController extends BaseActiveController
         }
     }
 
-    // DELETE (Apenas Médicos/Admin)
+    /**
+     * DELETE api/prescricao/{id}
+     */
     public function actionDelete($id)
     {
         if (!Yii::$app->user->can('medico') && !Yii::$app->user->can('admin')) {
-            throw new ForbiddenHttpException("Apenas médicos/admin.");
+            throw new ForbiddenHttpException("Sem permissão.");
         }
 
         $prescricao = Prescricao::findOne($id);
         if (!$prescricao) {
-            throw new NotFoundHttpException("Não encontrada.");
+            throw new NotFoundHttpException("Prescrição não encontrada.");
         }
 
+        // Limpeza explícita das linhas antes do cabeçalho
         Prescricaomedicamento::deleteAll(['prescricao_id' => $id]);
         $prescricao->delete();
 
-        // MQTT Seguro
         $this->safeMqttPublish("prescricao/apagada/{$id}", [
-            'evento'       => 'prescricao_apagada',
-            'prescricao_id'=> $id,
-            'hora'         => date('Y-m-d H:i:s'),
+            'evento'        => 'prescricao_apagada',
+            'prescricao_id' => $id,
+            'hora'          => date('Y-m-d H:i:s'),
         ]);
 
-        return ['status' => 'success', 'message' => 'Prescrição anulada.'];
+        return ['status' => 'success', 'message' => 'Prescrição eliminada.'];
     }
 
-    /**
-     * Função auxiliar interna para MQTT
-     */
+    // Helper para evitar falhas se o MQTT estiver offline
     protected function safeMqttPublish($topic, $payload)
     {
         $mqttEnabled = Yii::$app->params['mqtt_enabled'] ?? true;
+
         if ($mqttEnabled && isset(Yii::$app->mqtt)) {
             try {
                 Yii::$app->mqtt->publish($topic, json_encode($payload));
