@@ -2,7 +2,6 @@
 
 namespace backend\controllers;
 
-use common\models\Consulta;
 use common\models\Notificacao;
 use common\models\Prescricaomedicamento;
 use common\models\Pulseira;
@@ -74,7 +73,6 @@ class TriagemController extends Controller
                 return $this->redirect(['index']);
             }
 
-            // 🔎 Triagem existente (criada no frontend)
             $triagemExistente = Triagem::find()
                 ->where(['pulseira_id' => $pulseira->id])
                 ->one();
@@ -87,7 +85,6 @@ class TriagemController extends Controller
                 return $this->redirect(['index']);
             }
 
-            // ✅ COPIAR APENAS CAMPOS CLÍNICOS
             $triagemExistente->setAttributes(
                 $model->getAttributes([
                     'motivoconsulta',
@@ -100,8 +97,7 @@ class TriagemController extends Controller
                 ]),
                 false
             );
-
-            // 🔒 garantir relações corretas
+s
             $triagemExistente->pulseira_id = $pulseira->id;
             $triagemExistente->userprofile_id = $pulseira->userprofile_id;
 
@@ -112,39 +108,38 @@ class TriagemController extends Controller
                 $pulseira->save(false);
             }
 
-            // Guardar triagem (UPDATE)
-            $triagemExistente->save(false);
+                // Guardar triagem (UPDATE)
+                $triagemExistente->save(false);
 
-            // MQTT
-            Yii::$app->mqtt->publish(
-                "triagem/atualizada/{$triagemExistente->id}",
-                json_encode([
-                    'evento' => 'triagem_atualizada_backend',
-                    'triagem_id' => $triagemExistente->id,
-                    'pulseira_id' => $pulseira->id,
-                    'prioridade' => $pulseira->prioridade,
-                    'hora' => date('Y-m-d H:i:s'),
-                ])
-            );
+                try {
+                    if (Yii::$app->has('mqtt')) {
+                        Yii::$app->mqtt->publish(
+                            "triagem/criada/{$model->id}",
+                            json_encode([
+                                'evento' => 'triagem_criada_backend',
+                                'triagem_id' => $model->id,
+                                'userprofile_id' => $model->userprofile_id,
+                                'hora' => date('Y-m-d H:i:s'),
+                            ])
+                        );
+                    }
+                } catch (\Exception $e) {
+                    // Ignora erro de ligação e continua
+                    Yii::warning("Falha MQTT (Create): " . $e->getMessage());
+                }
 
             Yii::$app->session->setFlash('success', 'Triagem avaliada com sucesso.');
             return $this->redirect(['index']);
         }
 
-        // GET — abrir formulário
         $model->loadDefaultValues();
 
         if ($model->iniciosintomas) {
             $model->iniciosintomas = date('Y-m-d\TH:i', strtotime($model->iniciosintomas));
         }
 
-        return $this->render('create', [
-            'model' => $model,
-        ]);
+        return $this->render('create', ['model' => $model]);
     }
-
-
-
 
     public function actionPulseirasPorPaciente($id)
     {
@@ -209,28 +204,23 @@ class TriagemController extends Controller
     {
         $triagem = $this->findModel($id);
 
-        $consultaAtiva = Consulta::find()
+        $consultas = \common\models\Consulta::find()
             ->where(['triagem_id' => $triagem->id])
-            ->andWhere(['in', 'estado', [
-                Consulta::ESTADO_EM_CURSO,
-            ]])
-            ->exists();
+            ->all();
 
-        if ($consultaAtiva) {
-            Yii::$app->session->setFlash(
-                'error',
-                'Não é possível eliminar a triagem porque existe uma consulta em andamento.'
-            );
-            return $this->redirect(['index']);
+        foreach ($consultas as $consulta) {
+            foreach ($consulta->prescricoes as $prescricao) {
+                Prescricaomedicamento::deleteAll(['prescricao_id' => $prescricao->id]);
+                $prescricao->delete();
+            }
+            $consulta->delete();
         }
 
         $pulseira = $triagem->pulseira;
-
         $triagem->delete();
 
         if ($pulseira) {
-            $pulseira->status = 'Pendente';
-            $pulseira->save(false);
+            $pulseira->delete();
         }
 
         Yii::$app->mqtt->publish(
@@ -242,14 +232,9 @@ class TriagemController extends Controller
             ])
         );
 
-        Yii::$app->session->setFlash(
-            'success',
-            'Triagem eliminada e pulseira reposta para estado Pendente.'
-        );
-
+        Yii::$app->session->setFlash('success', 'Triagem e dados associados eliminados.');
         return $this->redirect(['index']);
     }
-
 
     protected function findModel($id)
     {

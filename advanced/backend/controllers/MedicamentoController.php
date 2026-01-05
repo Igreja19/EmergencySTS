@@ -61,16 +61,22 @@ class MedicamentoController extends Controller
 
         if ($model->load(Yii::$app->request->post()) && $model->save(false)) {
 
-            Yii::$app->mqtt->publish(
-                "medicamento/criado/{$model->id}",
-                json_encode([
-                    'evento' => 'medicamento_criado_backend',
-                    'medicamento_id' => $model->id,
-                    'nome' => $model->nome,
-                    'dosagem' => $model->dosagem,
-                    'hora' => date('Y-m-d H:i:s')
-                ])
-            );
+            try {
+                if (Yii::$app->has('mqtt')) {
+                    Yii::$app->mqtt->publish(
+                        "medicamento/criado/{$model->id}",
+                        json_encode([
+                            'evento' => 'medicamento_criado_backend',
+                            'medicamento_id' => $model->id,
+                            'nome' => $model->nome,
+                            'dosagem' => $model->dosagem,
+                            'hora' => date('Y-m-d H:i:s')
+                        ])
+                    );
+                }
+            } catch (\Exception $e) {
+                Yii::warning("Falha MQTT (Create Medicamento): " . $e->getMessage());
+            }
 
             return $this->redirect(['view', 'id' => $model->id]);
         }
@@ -86,16 +92,22 @@ class MedicamentoController extends Controller
 
         if ($model->load(Yii::$app->request->post()) && $model->save(false)) {
 
-            Yii::$app->mqtt->publish(
-                "medicamento/atualizado/{$model->id}",
-                json_encode([
-                    'evento' => 'medicamento_atualizado_backend',
-                    'medicamento_id' => $model->id,
-                    'nome' => $model->nome,
-                    'dosagem' => $model->dosagem,
-                    'hora' => date('Y-m-d H:i:s')
-                ])
-            );
+            try {
+                if (Yii::$app->has('mqtt')) {
+                    Yii::$app->mqtt->publish(
+                        "medicamento/atualizado/{$model->id}",
+                        json_encode([
+                            'evento' => 'medicamento_atualizado_backend',
+                            'medicamento_id' => $model->id,
+                            'nome' => $model->nome,
+                            'dosagem' => $model->dosagem,
+                            'hora' => date('Y-m-d H:i:s')
+                        ])
+                    );
+                }
+            } catch (\Exception $e) {
+                Yii::warning("Falha MQTT (Update Medicamento): " . $e->getMessage());
+            }
 
             return $this->redirect(['view', 'id' => $model->id]);
         }
@@ -109,14 +121,20 @@ class MedicamentoController extends Controller
     {
         $this->findModel($id)->delete();
 
-        Yii::$app->mqtt->publish(
-            "medicamento/apagado/{$id}",
-            json_encode([
-                'evento' => 'medicamento_apagado_backend',
-                'medicamento_id' => $id,
-                'hora' => date('Y-m-d H:i:s')
-            ])
-        );
+        try {
+            if (Yii::$app->has('mqtt')) {
+                Yii::$app->mqtt->publish(
+                    "medicamento/apagado/{$id}",
+                    json_encode([
+                        'evento' => 'medicamento_apagado_backend',
+                        'medicamento_id' => $id,
+                        'hora' => date('Y-m-d H:i:s')
+                    ])
+                );
+            }
+        } catch (\Exception $e) {
+            Yii::warning("Falha MQTT (Delete Medicamento): " . $e->getMessage());
+        }
 
         return $this->redirect(['index']);
     }

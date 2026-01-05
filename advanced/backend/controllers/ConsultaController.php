@@ -23,7 +23,6 @@ class ConsultaController extends Controller
         return array_merge(
             parent::behaviors(),
             [
-
                 // CONTROLO DE ACESSO
                 'access' => [
                     'class' => \yii\filters\AccessControl::class,
@@ -73,7 +72,7 @@ class ConsultaController extends Controller
         ]);
     }
 
-     //CRIAR CONSULTA + MQTT
+    // CRIAR CONSULTA + MQTT SEGURO
     public function actionCreate()
     {
         $model = new Consulta();
@@ -115,18 +114,23 @@ class ConsultaController extends Controller
                     $pulseira->save(false);
                 }
 
-                //MQTT — CONSULTA CRIADA
-                Yii::$app->mqtt->publish(
-                    "consulta/criada/{$model->id}",
-                    json_encode([
-                        "evento" => "consulta_criada_backend",
-                        "consulta_id" => $model->id,
-                        "triagem_id" => $model->triagem_id,
-                        "userprofile_id" => $model->userprofile_id,
-                        "estado" => $model->estado,
-                        "hora" => date('Y-m-d H:i:s')
-                    ])
-                );
+                try {
+                    if (Yii::$app->has('mqtt')) {
+                        Yii::$app->mqtt->publish(
+                            "consulta/criada/{$model->id}",
+                            json_encode([
+                                "evento" => "consulta_criada_backend",
+                                "consulta_id" => $model->id,
+                                "triagem_id" => $model->triagem_id,
+                                "userprofile_id" => $model->userprofile_id,
+                                "estado" => $model->estado,
+                                "hora" => date('Y-m-d H:i:s')
+                            ])
+                        );
+                    }
+                } catch (\Exception $e) {
+                    Yii::warning("Falha MQTT (Create Consulta): " . $e->getMessage());
+                }
 
                 Yii::$app->session->setFlash('success', 'Consulta criada com sucesso!');
                 return $this->redirect(['update', 'id' => $model->id]);
@@ -140,7 +144,7 @@ class ConsultaController extends Controller
     }
 
 
-     //AJAX TRIAGEM INFO
+    // AJAX TRIAGEM INFO
     public function actionTriagemInfo($id)
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
@@ -160,7 +164,7 @@ class ConsultaController extends Controller
         ];
     }
 
-     //EDITAR CONSULTA + MQTT
+    // EDITAR CONSULTA + MQTT SEGURO
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
@@ -213,27 +217,33 @@ class ConsultaController extends Controller
                     $pulseira->save(false);
                 }
 
-                // MQTT — CONSULTA ATUALIZADA
-                Yii::$app->mqtt->publish(
-                    "consulta/atualizada/{$model->id}",
-                    json_encode([
-                        "evento" => "consulta_atualizada_backend",
-                        "consulta_id" => $model->id,
-                        "estado" => $model->estado,
-                        "hora" => date('Y-m-d H:i:s')
-                    ])
-                );
+                try {
+                    if (Yii::$app->has('mqtt')) {
+                        // 1. Consulta Atualizada
+                        Yii::$app->mqtt->publish(
+                            "consulta/atualizada/{$model->id}",
+                            json_encode([
+                                "evento" => "consulta_atualizada_backend",
+                                "consulta_id" => $model->id,
+                                "estado" => $model->estado,
+                                "hora" => date('Y-m-d H:i:s')
+                            ])
+                        );
 
-                // MQTT — CONSULTA ENCERRADA
-                if ($estado === Consulta::ESTADO_ENCERRADA) {
-                    Yii::$app->mqtt->publish(
-                        "consulta/encerrada/{$model->id}",
-                        json_encode([
-                            "evento" => "consulta_encerrada_backend",
-                            "consulta_id" => $model->id,
-                            "hora" => date('Y-m-d H:i:s')
-                        ])
-                    );
+                        // 2. Consulta Encerrada (se for o caso)
+                        if ($estado === Consulta::ESTADO_ENCERRADA) {
+                            Yii::$app->mqtt->publish(
+                                "consulta/encerrada/{$model->id}",
+                                json_encode([
+                                    "evento" => "consulta_encerrada_backend",
+                                    "consulta_id" => $model->id,
+                                    "hora" => date('Y-m-d H:i:s')
+                                ])
+                            );
+                        }
+                    }
+                } catch (\Exception $e) {
+                    Yii::warning("Falha MQTT (Update Consulta): " . $e->getMessage());
                 }
 
                 Yii::$app->session->setFlash('success', 'Consulta atualizada com sucesso!');
@@ -247,7 +257,7 @@ class ConsultaController extends Controller
         ]);
     }
 
-    //HISTÓRICO DE CONSULTAS
+    // HISTÓRICO DE CONSULTAS
     public function actionHistorico()
     {
         $medicoAssignments = Yii::$app->authManager->getUserIdsByRole('medico');
@@ -269,7 +279,7 @@ class ConsultaController extends Controller
         ]);
     }
 
-     //ENCERRAR CONSULTA + MQTT
+    // ENCERRAR CONSULTA + MQTT SEGURO
     public function actionEncerrar($id)
     {
         $model = $this->findModel($id);
@@ -308,21 +318,26 @@ class ConsultaController extends Controller
             $pulseira->save(false);
         }
 
-        // MQTT — CONSULTA ENCERRADA
-        Yii::$app->mqtt->publish(
-            "consulta/encerrada/{$model->id}",
-            json_encode([
-                "evento" => "consulta_encerrada_backend",
-                "consulta_id" => $model->id,
-                "hora" => date('Y-m-d H:i:s')
-            ])
-        );
+        try {
+            if (Yii::$app->has('mqtt')) {
+                Yii::$app->mqtt->publish(
+                    "consulta/encerrada/{$model->id}",
+                    json_encode([
+                        "evento" => "consulta_encerrada_backend",
+                        "consulta_id" => $model->id,
+                        "hora" => date('Y-m-d H:i:s')
+                    ])
+                );
+            }
+        } catch (\Exception $e) {
+            Yii::warning("Falha MQTT (Encerrar Consulta): " . $e->getMessage());
+        }
 
         Yii::$app->session->setFlash('success', 'Consulta encerrada com sucesso!');
         return $this->redirect(['index']);
     }
 
-     //DELETE CONSULTA + MQTT
+    // DELETE CONSULTA + MQTT SEGURO
     public function actionDelete($id)
     {
         $consulta = $this->findModel($id);
@@ -357,21 +372,25 @@ class ConsultaController extends Controller
             $triagem->delete();
         }
 
-
         // apagar pulseira
         if ($pulseira) {
             $pulseira->delete();
         }
 
-        // MQTT — CONSULTA APAGADA
-        Yii::$app->mqtt->publish(
-            "consulta/apagada/{$id}",
-            json_encode([
-                "evento" => "consulta_apagada_backend",
-                "consulta_id" => $id,
-                "hora" => date('Y-m-d H:i:s')
-            ])
-        );
+        try {
+            if (Yii::$app->has('mqtt')) {
+                Yii::$app->mqtt->publish(
+                    "consulta/apagada/{$id}",
+                    json_encode([
+                        "evento" => "consulta_apagada_backend",
+                        "consulta_id" => $id,
+                        "hora" => date('Y-m-d H:i:s')
+                    ])
+                );
+            }
+        } catch (\Exception $e) {
+            Yii::warning("Falha MQTT (Delete Consulta): " . $e->getMessage());
+        }
 
         // 🔔 Notificação envia para o ADMIN (não para o user criado)
         $adminProfileId = Yii::$app->user->identity->userprofile->id;
@@ -400,7 +419,7 @@ class ConsultaController extends Controller
             return $this->redirect(['view', 'id' => $consulta->id]);
         }
 
-        // 🧾 Prescrição associada à consulta
+        // Prescrição associada à consulta
         $prescricao = $consulta->prescricao;
         if (!$prescricao) {
             Yii::$app->session->setFlash(
@@ -413,7 +432,7 @@ class ConsultaController extends Controller
         // 👨‍⚕️ Médico
         $medicoNome = $consulta->medico_nome ?? 'Profissional de Saúde';
 
-        // 📄 MPDF
+        // MPDF
         $mpdf = new \Mpdf\Mpdf([
             'default_font_size' => 12,
             'default_font' => 'dejavusans'
@@ -436,7 +455,6 @@ class ConsultaController extends Controller
             \Mpdf\Output\Destination::DOWNLOAD
         );
     }
-
 
     protected function findModel($id)
     {

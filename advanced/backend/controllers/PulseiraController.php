@@ -52,7 +52,7 @@ class PulseiraController extends Controller
         return $this->render('index', [
             'searchModel'  => $searchModel,
             'dataProvider' => $dataProvider,
-            'isAdmin'     => $isAdmin,
+            'isAdmin'      => $isAdmin,
         ]);
     }
 
@@ -97,15 +97,21 @@ class PulseiraController extends Controller
                     $triagem->medicacao = '';
                     $triagem->save(false);
 
-                    Yii::$app->mqtt->publish(
-                        "pulseira/criada/{$model->id}",
-                        json_encode([
-                            'evento' => 'pulseira_criada_backend',
-                            'pulseira_id' => $model->id,
-                            'userprofile_id' => $model->userprofile_id,
-                            'hora' => date('Y-m-d H:i:s')
-                        ])
-                    );
+                    try {
+                        if (Yii::$app->has('mqtt')) {
+                            Yii::$app->mqtt->publish(
+                                "pulseira/criada/{$model->id}",
+                                json_encode([
+                                    'evento' => 'pulseira_criada_backend',
+                                    'pulseira_id' => $model->id,
+                                    'userprofile_id' => $model->userprofile_id,
+                                    'hora' => date('Y-m-d H:i:s')
+                                ])
+                            );
+                        }
+                    } catch (\Exception $e) {
+                        Yii::warning("Falha MQTT (Create Pulseira): " . $e->getMessage());
+                    }
 
                     Yii::$app->session->setFlash('success', 'Pulseira pendente criada com triagem associada.');
                     return $this->redirect(['index']);
@@ -126,20 +132,24 @@ class PulseiraController extends Controller
     {
         $model = $this->findModel($id);
 
-        $oldPriority = $model->prioridade;
-
         if ($model->load(Yii::$app->request->post()) && $model->save(false)) {
 
-            Yii::$app->mqtt->publish(
-                "pulseira/atualizada/{$model->id}",
-                json_encode([
-                    'evento' => 'pulseira_atualizada_backend',
-                    'pulseira_id' => $model->id,
-                    'prioridade' => $model->prioridade,
-                    'status' => $model->status,
-                    'hora' => date('Y-m-d H:i:s'),
-                ])
-            );
+            try {
+                if (Yii::$app->has('mqtt')) {
+                    Yii::$app->mqtt->publish(
+                        "pulseira/atualizada/{$model->id}",
+                        json_encode([
+                            'evento' => 'pulseira_atualizada_backend',
+                            'pulseira_id' => $model->id,
+                            'prioridade' => $model->prioridade,
+                            'status' => $model->status,
+                            'hora' => date('Y-m-d H:i:s'),
+                        ])
+                    );
+                }
+            } catch (\Exception $e) {
+                Yii::warning("Falha MQTT (Update Pulseira): " . $e->getMessage());
+            }
 
             return $this->redirect(['view', 'id' => $model->id]);
         }
@@ -175,14 +185,20 @@ class PulseiraController extends Controller
 
         $pulseira->delete();
 
-        Yii::$app->mqtt->publish(
-            "pulseira/apagada/{$id}",
-            json_encode([
-                'evento' => 'pulseira_apagada_backend',
-                'pulseira_id' => $id,
-                'hora' => date('Y-m-d H:i:s'),
-            ])
-        );
+        try {
+            if (Yii::$app->has('mqtt')) {
+                Yii::$app->mqtt->publish(
+                    "pulseira/apagada/{$id}",
+                    json_encode([
+                        'evento' => 'pulseira_apagada_backend',
+                        'pulseira_id' => $id,
+                        'hora' => date('Y-m-d H:i:s'),
+                    ])
+                );
+            }
+        } catch (\Exception $e) {
+            Yii::warning("Falha MQTT (Delete Pulseira): " . $e->getMessage());
+        }
 
         Yii::$app->session->setFlash(
             'success',

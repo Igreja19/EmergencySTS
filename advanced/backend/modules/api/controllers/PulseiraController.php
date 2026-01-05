@@ -3,41 +3,21 @@
 namespace backend\modules\api\controllers;
 
 use Yii;
-use yii\rest\ActiveController;
-use yii\web\Response;
 use yii\web\NotFoundHttpException;
 use yii\web\ForbiddenHttpException;
-use yii\filters\auth\QueryParamAuth;
 use yii\data\ActiveDataProvider;
-
+use backend\modules\api\controllers\BaseActiveController;
 use common\models\Pulseira;
-use common\models\UserProfile;
 
-class PulseiraController extends ActiveController
+class PulseiraController extends BaseActiveController
 {
     public $modelClass = 'common\models\Pulseira';
     public $enableCsrfValidation = false;
 
-    // Envelope "data": [...]
     public $serializer = [
         'class' => 'yii\rest\Serializer',
         'collectionEnvelope' => 'data',
     ];
-
-    public function behaviors()
-    {
-        $behaviors = parent::behaviors();
-        unset($behaviors['authenticator']);
-
-        $behaviors['contentNegotiator']['formats']['text/html'] = Response::FORMAT_JSON;
-
-        $behaviors['authenticator'] = [
-            'class' => QueryParamAuth::class,
-            'tokenParam' => 'auth_key',
-        ];
-
-        return $behaviors;
-    }
 
     public function actions()
     {
@@ -52,7 +32,14 @@ class PulseiraController extends ActiveController
         $user = Yii::$app->user;
         $query = Pulseira::find();
 
-        // filtros
+        // 1. SEGURANÇA: Se for Paciente, filtra apenas as pulseiras dele (via UserProfile)
+        if ($user->can('paciente')) {
+            $query->joinWith(['userprofile' => function ($q) use ($user) {
+                $q->where(['user_id' => $user->id]);
+            }]);
+        }
+
+        // 2. FILTROS (Disponíveis para todos, mas o paciente só filtra dentro das dele)
         $status = Yii::$app->request->get('status');
         if ($status) {
             $query->andWhere(['status' => $status]);
@@ -61,17 +48,6 @@ class PulseiraController extends ActiveController
         $prioridade = Yii::$app->request->get('prioridade');
         if ($prioridade) {
             $query->andWhere(['prioridade' => $prioridade]);
-        }
-
-        // permissões
-        if ($user->can('admin') || $user->can('medico') || $user->can('enfermeiro')) {
-            // vê tudo
-        } else {
-            $profile = UserProfile::findOne(['user_id' => $user->id]);
-            if (!$profile) {
-                throw new NotFoundHttpException("Perfil não encontrado.");
-            }
-            $query->andWhere(['userprofile_id' => $profile->id]);
         }
 
         $query->orderBy(['tempoentrada' => SORT_DESC]);
@@ -85,16 +61,23 @@ class PulseiraController extends ActiveController
     // GET /api/pulseira/{id}
     public function actionView($id)
     {
-        $pulseira = Pulseira::findOne($id);
+        // Carregar 'userprofile' para evitar queries extra na verificação
+        $pulseira = Pulseira::find()
+            ->where(['id' => $id])
+            ->with('userprofile')
+            ->one();
+
         if (!$pulseira) {
             throw new NotFoundHttpException("Pulseira não encontrada.");
         }
 
-        $user = Yii::$app->user;
-        if (!$user->can('admin') && !$user->can('medico') && !$user->can('enfermeiro')) {
-            $profile = UserProfile::findOne(['user_id' => $user->id]);
-            if (!$profile || $pulseira->userprofile_id != $profile->id) {
-                throw new ForbiddenHttpException("Sem permissão.");
+        // SEGURANÇA: Verificar se pertence ao utilizador logado
+        if (Yii::$app->user->can('paciente')) {
+            // Nota: Usar null coalescing (??) para evitar erros se userprofile for null
+            $donoId = $pulseira->userprofile->user_id ?? null;
+
+            if ($donoId != Yii::$app->user->id) {
+                throw new ForbiddenHttpException("Não tem permissão para ver esta pulseira.");
             }
         }
 
@@ -104,10 +87,8 @@ class PulseiraController extends ActiveController
     // PUT /api/pulseira/{id}
     public function actionUpdate($id)
     {
-        if (!Yii::$app->user->can('enfermeiro') &&
-            !Yii::$app->user->can('medico') &&
-            !Yii::$app->user->can('admin')) {
-            throw new ForbiddenHttpException("Apenas profissionais de saúde.");
+        if (!Yii::$app->user->can('medico') && !Yii::$app->user->can('enfermeiro') && !Yii::$app->user->can('admin')) {
+            throw new ForbiddenHttpException("Apenas profissionais podem alterar pulseiras.");
         }
 
         $pulseira = Pulseira::findOne($id);
@@ -116,22 +97,19 @@ class PulseiraController extends ActiveController
         }
 
         $data = Yii::$app->request->post();
+        // O segundo argumento '' permite carregar sem nome do form (ex: Body raw JSON)
         $pulseira->load($data, '');
 
         if ($pulseira->save()) {
 
-            // MQTT – pulseira atualizada
-            Yii::$app->mqtt->publish(
-                "pulseira/atualizada/{$pulseira->id}",
-                json_encode([
-                    'evento'        => 'pulseira_atualizada',
-                    'pulseira_id'   => $pulseira->id,
-                    'prioridade'    => $pulseira->prioridade,
-                    'status'        => $pulseira->status,
-                    'userprofile_id'=> $pulseira->userprofile_id,
-                    'hora'          => date('Y-m-d H:i:s'),
-                ])
-            );
+            $this->safeMqttPublish("pulseira/atualizada/{$pulseira->id}", [
+                'evento'        => 'pulseira_atualizada',
+                'pulseira_id'   => $pulseira->id,
+                'prioridade'    => $pulseira->prioridade,
+                'status'        => $pulseira->status,
+                'userprofile_id'=> $pulseira->userprofile_id,
+                'hora'          => date('Y-m-d H:i:s'),
+            ]);
 
             return $pulseira;
         }
@@ -156,16 +134,25 @@ class PulseiraController extends ActiveController
 
         $pulseira->delete();
 
-        // MQTT – pulseira apagada
-        Yii::$app->mqtt->publish(
-            "pulseira/apagada/{$id}",
-            json_encode([
-                'evento'      => 'pulseira_apagada',
-                'pulseira_id' => $id,
-                'hora'        => date('Y-m-d H:i:s'),
-            ])
-        );
+        $this->safeMqttPublish("pulseira/apagada/{$id}", [
+            'evento'      => 'pulseira_apagada',
+            'pulseira_id' => $id,
+            'hora'        => date('Y-m-d H:i:s'),
+        ]);
 
         return ['status' => 'success'];
+    }
+
+    protected function safeMqttPublish($topic, $payload)
+    {
+        $mqttEnabled = Yii::$app->params['mqtt_enabled'] ?? true;
+
+        if ($mqttEnabled && isset(Yii::$app->mqtt)) {
+            try {
+                Yii::$app->mqtt->publish($topic, json_encode($payload));
+            } catch (\Exception $e) {
+                Yii::error("Erro MQTT ({$topic}): " . $e->getMessage());
+            }
+        }
     }
 }

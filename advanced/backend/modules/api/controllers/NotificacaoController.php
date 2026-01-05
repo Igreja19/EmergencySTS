@@ -2,41 +2,38 @@
 
 namespace backend\modules\api\controllers;
 
-use yii\filters\auth\QueryParamAuth;
-use yii\rest\Controller;
-use yii\web\NotFoundHttpException;
-use yii\web\Response;
-use common\models\Notificacao;
 use Yii;
+use yii\web\NotFoundHttpException;
+use backend\modules\api\controllers\BaseActiveController;
+use common\models\Notificacao;
 
-class NotificacaoController extends Controller
+class NotificacaoController extends BaseActiveController
 {
-    public function behaviors()
+    public $modelClass = 'common\models\Notificacao';
+    public $enableCsrfValidation = false;
+
+    // NOTA: behaviors() removido porque herda do BaseActiveController
+
+    public function actions()
     {
-        $behaviors = parent::behaviors();
-
-        // JSON
-        $behaviors['contentNegotiator']['formats']['text/html'] = Response::FORMAT_JSON;
-
-        // auth_key
-        $behaviors['authenticator'] = [
-            'class' => QueryParamAuth::class,
-            'tokenParam' => 'auth_key',
-        ];
-
-        return $behaviors;
+        $actions = parent::actions();
+        unset($actions['index'], $actions['view'], $actions['create'], $actions['update'], $actions['delete']);
+        return $actions;
     }
 
     /**
      * LISTAR NOTIFICAÇÕES
-     * GET api/notificacao/list?auth_key=XXXX
+     * GET api/notificacao/list
      */
     public function actionList()
     {
+        // O BaseActiveController garante que apenas Staff (Médico/Enfermeiro/Admin) acede aqui.
+
         $user = Yii::$app->user->identity;
 
+        // Validação extra de segurança
         if (!$user || !$user->userprofile) {
-            return ['status' => 'error', 'message' => 'Token inválido'];
+            return ['status' => 'error', 'message' => 'Perfil não encontrado'];
         }
 
         $notificacoes = Notificacao::find()
@@ -44,16 +41,23 @@ class NotificacaoController extends Controller
             ->orderBy(['id' => SORT_DESC])
             ->all();
 
-        // MQTT — opcional: avisar que as notificações foram lidas da API
-        Yii::$app->mqtt->publish(
-            "notificacao/lista/{$user->id}",
-            json_encode([
-                'evento'     => 'notificacoes_listadas',
-                'user_id'    => $user->id,
-                'quantidade' => count($notificacoes),
-                'hora'       => date('Y-m-d H:i:s'),
-            ])
-        );
+        // MQTT Seguro (Notificação de leitura de lista)
+        $mqttEnabled = Yii::$app->params['mqtt_enabled'] ?? true;
+        if ($mqttEnabled && isset(Yii::$app->mqtt)) {
+            try {
+                Yii::$app->mqtt->publish(
+                    "notificacao/lista/{$user->id}",
+                    json_encode([
+                        'evento'     => 'notificacoes_listadas',
+                        'user_id'    => $user->id,
+                        'quantidade' => count($notificacoes),
+                        'hora'       => date('Y-m-d H:i:s'),
+                    ])
+                );
+            } catch (\Exception $e) {
+                Yii::error("Erro MQTT Notificacao List: " . $e->getMessage());
+            }
+        }
 
         return [
             'status' => 'success',
@@ -64,7 +68,7 @@ class NotificacaoController extends Controller
 
     /**
      * MARCAR COMO LIDA
-     * POST api/notificacao/ler/ID?auth_key=XXXX
+     * POST api/notificacao/ler/{id}
      */
     public function actionLer($id)
     {
@@ -76,23 +80,31 @@ class NotificacaoController extends Controller
 
         $notificacao = Notificacao::findOne($id);
 
+        // Garante que a notificação pertence ao utilizador logado
         if (!$notificacao || $notificacao->userprofile_id != $user->userprofile->id) {
-            throw new NotFoundHttpException("Notificação não encontrada.");
+            throw new NotFoundHttpException("Notificação não encontrada ou não pertence a este utilizador.");
         }
 
         $notificacao->lida = 1;
         $notificacao->save(false);
 
-        // MQTT — notificação lida
-        Yii::$app->mqtt->publish(
-            "notificacao/lida/{$id}",
-            json_encode([
-                'evento'          => 'notificacao_lida',
-                'notificacao_id'  => $id,
-                'userprofile_id'  => $notificacao->userprofile_id,
-                'hora'            => date('Y-m-d H:i:s'),
-            ])
-        );
+        // MQTT Seguro
+        $mqttEnabled = Yii::$app->params['mqtt_enabled'] ?? true;
+        if ($mqttEnabled && isset(Yii::$app->mqtt)) {
+            try {
+                Yii::$app->mqtt->publish(
+                    "notificacao/lida/{$id}",
+                    json_encode([
+                        'evento'          => 'notificacao_lida',
+                        'notificacao_id'  => $id,
+                        'userprofile_id'  => $notificacao->userprofile_id,
+                        'hora'            => date('Y-m-d H:i:s'),
+                    ])
+                );
+            } catch (\Exception $e) {
+                Yii::error("Erro MQTT Notificacao Ler: " . $e->getMessage());
+            }
+        }
 
         return [
             'status'  => 'success',

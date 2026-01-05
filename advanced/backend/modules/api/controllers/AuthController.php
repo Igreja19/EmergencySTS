@@ -130,19 +130,26 @@ class AuthController extends Controller
 
             $tx->commit();
 
-            // MQTT – utilizador criado
-            Yii::$app->mqtt->publish(
-                "user/criado/{$user->id}",
-                json_encode([
-                    'evento'   => 'user_criado',
-                    'user_id'  => $user->id,
-                    'username' => $user->username,
-                    'email'    => $user->email,
-                    'nome'     => $profile->nome,
-                    'role'     => $roleName,
-                    'hora'     => date('Y-m-d H:i:s'),
-                ])
-            );
+            // --- MQTT PROTEGIDO ---
+            $mqttEnabled = Yii::$app->params['mqtt_enabled'] ?? true;
+            if ($mqttEnabled && isset(Yii::$app->mqtt)) {
+                try {
+                    Yii::$app->mqtt->publish(
+                        "user/criado/{$user->id}",
+                        json_encode([
+                            'evento'   => 'user_criado',
+                            'user_id'  => $user->id,
+                            'username' => $user->username,
+                            'email'    => $user->email,
+                            'nome'     => $profile->nome,
+                            'role'     => $roleName,
+                            'hora'     => date('Y-m-d H:i:s'),
+                        ])
+                    );
+                } catch (\Exception $e) {
+                    Yii::error("Erro MQTT Signup: " . $e->getMessage());
+                }
+            }
 
             return [
                 'status'  => true,

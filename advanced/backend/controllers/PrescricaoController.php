@@ -109,20 +109,21 @@ class PrescricaoController extends Controller
                     $pm->save(false);
                 }
 
-                if ($model->consulta && $model->consulta->triagem) {
-                    $userId = $model->consulta->triagem->userprofile_id;
-                    $nomePaciente = $model->consulta->triagem->userprofile->nome;
+                try {
+                    if (Yii::$app->has('mqtt')) {
+                        Yii::$app->mqtt->publish(
+                            "prescricao/criada/{$model->id}",
+                            json_encode([
+                                'evento' => 'prescricao_criada_backend',
+                                'prescricao_id' => $model->id,
+                                'consulta_id' => $model->consulta_id,
+                                'hora' => date('Y-m-d H:i:s')
+                            ])
+                        );
+                    }
+                } catch (\Exception $e) {
+                    Yii::warning("Falha MQTT (Create Prescricao): " . $e->getMessage());
                 }
-
-                Yii::$app->mqtt->publish(
-                    "prescricao/criada/{$model->id}",
-                    json_encode([
-                        'evento' => 'prescricao_criada_backend',
-                        'prescricao_id' => $model->id,
-                        'consulta_id' => $model->consulta_id,
-                        'hora' => date('Y-m-d H:i:s')
-                    ])
-                );
 
                 Yii::$app->session->setFlash('success', 'Prescrição criada com sucesso.');
 
@@ -196,15 +197,21 @@ class PrescricaoController extends Controller
                     );
                 }
 
-                Yii::$app->mqtt->publish(
-                    "prescricao/atualizada/{$model->id}",
-                    json_encode([
-                        'evento' => 'prescricao_atualizada_backend',
-                        'prescricao_id' => $model->id,
-                        'consulta_id' => $model->consulta_id,
-                        'hora' => date('Y-m-d H:i:s')
-                    ])
-                );
+                try {
+                    if (Yii::$app->has('mqtt')) {
+                        Yii::$app->mqtt->publish(
+                            "prescricao/atualizada/{$model->id}",
+                            json_encode([
+                                'evento' => 'prescricao_atualizada_backend',
+                                'prescricao_id' => $model->id,
+                                'consulta_id' => $model->consulta_id,
+                                'hora' => date('Y-m-d H:i:s')
+                            ])
+                        );
+                    }
+                } catch (\Exception $e) {
+                    Yii::warning("Falha MQTT (Update Prescricao): " . $e->getMessage());
+                }
 
                 Yii::$app->session->setFlash('success', 'Prescrição atualizada com sucesso.');
 
@@ -229,14 +236,20 @@ class PrescricaoController extends Controller
 
         $this->findModel($id)->delete();
 
-        Yii::$app->mqtt->publish(
-            "prescricao/apagada/{$id}",
-            json_encode([
-                'evento' => 'prescricao_apagada_backend',
-                'prescricao_id' => $id,
-                'hora' => date('Y-m-d H:i:s')
-            ])
-        );
+        try {
+            if (Yii::$app->has('mqtt')) {
+                Yii::$app->mqtt->publish(
+                    "prescricao/apagada/{$id}",
+                    json_encode([
+                        'evento' => 'prescricao_apagada_backend',
+                        'prescricao_id' => $id,
+                        'hora' => date('Y-m-d H:i:s')
+                    ])
+                );
+            }
+        } catch (\Exception $e) {
+            Yii::warning("Falha MQTT (Delete Prescricao): " . $e->getMessage());
+        }
 
         Yii::$app->session->setFlash('success', 'Prescrição eliminada com sucesso.');
         return $this->redirect(['index']);

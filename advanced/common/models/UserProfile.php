@@ -62,9 +62,9 @@ class UserProfile extends \yii\db\ActiveRecord
             ['password', 'string', 'min' => 6],
 
 
-            [['email'], 'unique'],
-            [['nif'], 'unique', 'targetClass' => self::class, 'message' => 'Este NIF já está registado.'],
-            [['sns'], 'unique', 'targetClass' => self::class, 'message' => 'Este número SNS já está registado.'],
+            [['email'], 'unique', 'filter' => $this->isNewRecord ? [] : ['!=', 'id', $this->id]],
+            [['nif'], 'unique', 'filter' => $this->isNewRecord ? [] : ['!=', 'id', $this->id], 'message' => 'Este NIF já está registado.'],
+            [['sns'], 'unique', 'filter' => $this->isNewRecord ? [] : ['!=', 'id', $this->id], 'message' => 'Este número SNS já está registado.'],
             ['nif', 'match', 'pattern' => '/^[0-9]+$/', 'message' => 'O NIF só pode conter números.'],
             ['sns', 'match', 'pattern' => '/^[0-9]+$/', 'message' => 'O SNS só pode conter números.'],
             ['telefone', 'match', 'pattern' => '/^[0-9]+$/', 'message' => 'O telefone só pode conter números.'],
