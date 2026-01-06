@@ -2,20 +2,19 @@
 
 use common\models\Consulta;
 use common\models\Triagem;
+use common\models\Pulseira;
 
 $this->title = 'EmergencySTS - Serviço de Urgências';
 $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/index.css');
 ?>
 
 <div class="container py-5">
-    <!-- Secção principal -->
     <div class="card shadow-sm border-0 rounded-4 text-center p-5 mb-5">
         <h3 class="fw-bold text-success mb-2">Bem-vindo ao Serviço de Urgências</h3>
         <p class="text-muted mb-4">Sistema de Triagem - Protocolo EmergencySTS</p>
 
         <div class="d-flex flex-column align-items-center gap-3">
 
-            <!-- 🔍 Lógica completa e corrigida do botão -->
             <div class="text-center">
 
                 <?php if (!Yii::$app->user->isGuest): ?>
@@ -23,46 +22,39 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/index.css');
                     <?php
                     $userProfile = Yii::$app->user->identity->userprofile ?? null;
 
-                    // ✔️ Verifica se perfil está completo
                     $perfilCompleto =
-                            $userProfile &&
-                            !empty($userProfile->nome) &&
-                            !empty($userProfile->email) &&
-                            !empty($userProfile->nif) &&
-                            !empty($userProfile->sns) &&
-                            !empty($userProfile->telefone) &&
-                            !empty($userProfile->datanascimento);
-
-                    // Inicializar
-                    $triagem = null;
-                    $consulta = null;
-
-                    if ($userProfile) {
-
-                        // Triagem mais recente
-                        $triagem = Triagem::find()
-                                ->where(['userprofile_id' => $userProfile->id])
-                                ->orderBy(['id' => SORT_DESC])
-                                ->one();
-
-                        // Consulta associada
-                        if ($triagem) {
-                            $consulta = Consulta::find()
-                                    ->where(['triagem_id' => $triagem->id])
-                                    ->orderBy(['id' => SORT_DESC])
-                                    ->one();
-                        }
-                    }
+                        $userProfile &&
+                        !empty($userProfile->nome) &&
+                        !empty($userProfile->email) &&
+                        !empty($userProfile->nif) &&
+                        !empty($userProfile->sns) &&
+                        !empty($userProfile->telefone) &&
+                        !empty($userProfile->datanascimento);
 
                     $mostrarBotao = false;
 
                     if ($perfilCompleto) {
-                        if (!$triagem) {
-                            // Nenhuma triagem → pode preencher
+                        // Buscar a última pulseira deste utilizador
+                        $ultimaPulseira = Pulseira::find()
+                            ->where(['userprofile_id' => $userProfile->id])
+                            ->orderBy(['id' => SORT_DESC])
+                            ->one();
+
+                        //  Se não tem pulseira nenhuma, pode criar
+                        if (!$ultimaPulseira) {
                             $mostrarBotao = true;
-                        } else if ($consulta && $consulta->estado === 'Encerrada') {
-                            // Triagem existe mas consulta encerrada → pode fazer nova
-                            $mostrarBotao = true;
+                        } 
+                        else {
+                            //  Se tem pulseira, verificamos se o estado é um destes (QUE JÁ ACABARAM)
+                            $estadosFinais = ['Finalizado', 'Atendido', 'Concluido', 'Cancelado'];
+                            
+                            // Limpar espaços e normalizar status
+                            $statusAtual = trim($ultimaPulseira->status);
+
+                            // Se o estado estiver na lista de "Finalizados", mostra o botão
+                            if (in_array($statusAtual, $estadosFinais)) {
+                                $mostrarBotao = true;
+                            }
                         }
                     }
                     ?>
@@ -95,7 +87,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/index.css');
                 <?php endif; ?>
             </div>
 
-            <!-- 🔐 BOTÃO DE LOGIN (único) -->
             <?php if (Yii::$app->user->isGuest): ?>
                 <div class="d-flex justify-content-center mt-3">
                     <a href="<?= Yii::$app->urlManager->createUrl(['site/login']) ?>"
@@ -108,7 +99,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/index.css');
         </div>
     </div>
 
-    <!-- Cards informativos -->
     <div class="row g-4 mb-5 text-center">
         <div class="col-md-4">
             <div class="card border-0 shadow-sm h-100 rounded-4 p-3 card-link"
@@ -142,7 +132,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/index.css');
         </div>
     </div>
 
-    <!-- Sobre o Protocolo -->
     <div class="protocolo card border-0 shadow-sm rounded-4 p-4">
         <h5 class="fw-bold text-success mb-3">Sobre o Protocolo EmergencySTS</h5>
         <p class="text-muted mb-4">
