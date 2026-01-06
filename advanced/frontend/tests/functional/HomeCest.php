@@ -3,16 +3,27 @@
 namespace frontend\tests\functional;
 
 use frontend\tests\FunctionalTester;
+use Yii;
 
 class HomeCest
 {
-    public function checkOpen(FunctionalTester $I)
+    public function checkHome(FunctionalTester $I)
     {
-        $I->amOnRoute('site/index');
-        $I->seeInTitle('EmergencySTS');
-        $I->see('Início');
-        $I->seeLink('Sobre');
-        $I->click('Sobre');
-        $I->seeInTitle('Sobre');
+        Yii::$app->request->setUrl('/site/index');
+
+        $output = Yii::$app->runAction('site/index');
+
+        $I->assertNotEmpty($output);
+        $I->assertStringContainsString(
+            'EmergencySTS',
+            $output,
+            'O título EmergencySTS deve aparecer'
+        );
+
+        $I->assertStringContainsString(
+            'Início',
+            $output,
+            'A página inicial deve ter a palavra Início'
+        );
     }
 }

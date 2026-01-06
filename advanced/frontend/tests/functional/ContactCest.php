@@ -3,6 +3,7 @@
 namespace frontend\tests\functional;
 
 use frontend\tests\FunctionalTester;
+use Yii;
 
 /* @var $scenario \Codeception\Scenario */
 
@@ -10,43 +11,66 @@ class ContactCest
 {
     public function _before(FunctionalTester $I)
     {
-        $I->amOnRoute('site/contact');
+
     }
 
     public function checkContact(FunctionalTester $I)
     {
-        $I->see('Contacta-nos');
+        $output = Yii::$app->runAction('site/contact');
+
+        $I->assertNotEmpty($output);
+        $I->assertStringContainsString('Contacta-nos', $output);
     }
 
     public function checkContactSubmitNoData(FunctionalTester $I)
     {
-        $I->submitForm('#contact-form', []);
-        $I->see('Contacta-nos');
-        $I->seeValidationError('O campo Nome é obrigatório.');
-        $I->seeValidationError('O campo Email é obrigatório');
-        $I->seeValidationError('O campo Assunto é obrigatório.');
-        $I->seeValidationError('O campo Mensagem é obrigatório.');
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_POST = [];
+
+        $output = Yii::$app->runAction('site/contact');
+
+        $I->assertStringContainsString('O campo Nome é obrigatório', $output);
+        $I->assertStringContainsString('O campo Email é obrigatório', $output);
+        $I->assertStringContainsString('O campo Assunto é obrigatório', $output);
+        $I->assertStringContainsString('O campo Mensagem é obrigatório', $output);
     }
 
     public function checkContactSubmitNotCorrectEmail(FunctionalTester $I)
     {
-        $I->submitForm('#contact-form', [
-            'ContactForm[name]' => 'tester',
-            'ContactForm[email]' => 'tester.email',
-            'ContactForm[subject]' => 'test subject',
-            'ContactForm[body]' => 'test content',
-        ]);
-        $I->seeValidationError('Por favor, insira um endereço de email válido.');
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_POST = [
+            'ContactForm' => [
+                'name' => 'tester',
+                'email' => 'tester.email',
+                'subject' => 'assunto',
+                'body' => 'mensagem',
+            ]
+        ];
+
+        $output = Yii::$app->runAction('site/contact');
+
+        $I->assertStringContainsString(
+            'Por favor, insira um endereço de email válido',
+            $output
+        );
     }
 
     public function checkContactSubmitCorrectData(FunctionalTester $I)
     {
-        $I->submitForm('#contact-form', [
-            'ContactForm[name]' => 'tester',
-            'ContactForm[email]' => 'tester@example.com',
-            'ContactForm[subject]' => 'test subject',
-            'ContactForm[body]' => 'test content',
-        ]);
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_POST = [
+            'ContactForm' => [
+                'name' => 'tester',
+                'email' => 'tester@example.com',
+                'subject' => 'assunto',
+                'body' => 'mensagem',
+            ]
+        ];
+
+        Yii::$app->request->setUrl('/site/contact');
+
+        Yii::$app->runAction('site/contact');
+
         $I->seeEmailIsSent();
     }
 }

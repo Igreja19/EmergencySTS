@@ -28,9 +28,17 @@ use yii\widgets\ActiveForm;
         ])->label(false) ?>
     </div>
 
-    <div class="col-md-3">
-        <?= Html::submitButton('<i class="bi bi-search"></i> Pesquisar', ['class' => 'btn btn-success rounded-pill px-4 fw-semibold shadow-sm']) ?>
-        <?= Html::a('<i class="bi bi-x-circle"></i> Limpar', ['index'], ['class' => 'btn btn-outline-secondary rounded-pill px-3 fw-semibold shadow-sm']) ?>
+    <div class="col-md-4">
+        <div class="mb-3">
+            <div class="d-flex justify-content-end gap-2">
+                <?= Html::submitButton('<i class="bi bi-search"></i> Pesquisar', [
+                        'class' => 'btn btn-success px-4 fw-semibold'
+                ]) ?>
+                <?= Html::a('<i class="bi bi-x-circle"></i> Limpar', ['index'], [
+                        'class' => 'btn btn-outline-secondary px-4 fw-semibold'
+                ]) ?>
+            </div>
+        </div>
     </div>
 
     <?php ActiveForm::end(); ?>

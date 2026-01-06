@@ -92,7 +92,9 @@ $this->title = "Histórico de Consultas";
                                 'class' => 'yii\grid\ActionColumn',
                                 'header' => 'Ações',
                                 'contentOptions' => ['style' => 'text-align:center; width:180px;'],
-                                'template' => '{view} {pdf} {delete}',
+                                'template' => Yii::$app->user->can('admin')
+                                        ? '{view} {pdf} {delete}'
+                                        : '{view} {pdf}',
                                 'buttons' => [
 
                                     // 👁 VER

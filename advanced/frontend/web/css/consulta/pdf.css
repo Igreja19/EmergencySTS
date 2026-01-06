@@ -1,0 +1,67 @@
+body {
+    font-family: DejaVu Sans, sans-serif;
+    font-size: 12px;
+}
+
+.header {
+    background: #1f9d55;
+    padding: 14px;
+    border-radius: 6px;
+    color: white;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.logo { height: 48px; margin-right: 12px; }
+.brand { display: flex; align-items: center; }
+.brand-title { font-size: 22px; font-weight: bold; }
+
+.meta { text-align: right; }
+
+.card {
+    border: 1px solid #ddd;
+    padding: 14px;
+    border-radius: 6px;
+    margin-bottom: 18px;
+}
+
+.section-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #1f9d55;
+    margin-bottom: 8px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 8px;
+}
+
+th {
+    width: 28%;
+    background: #f1f1f1;
+    padding: 6px;
+    text-align: left;
+}
+
+td {
+    padding: 6px;
+    border-bottom: 1px solid #eee;
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    color: #fff;
+}
+
+.footer {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 10px;
+    color: #777;
+}

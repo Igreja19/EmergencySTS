@@ -95,7 +95,9 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/pulseira/index.css');
                         [
                                 'class' => 'yii\grid\ActionColumn',
                                 'header' => 'Ações',
-                                'template' => '{view} {update} {delete}',
+                                'template' => Yii::$app->user->can('admin')
+                                        ? '{view} {update} {delete}'
+                                        : '{view} {update}',
                                 'contentOptions' => ['style' => 'text-align:center;'],
                                 'buttons' => [
                                         'view' => fn($url) =>

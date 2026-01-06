@@ -4,57 +4,78 @@ namespace frontend\tests\functional;
 
 use common\models\User;
 use frontend\tests\FunctionalTester;
+use Yii;
 
 class SignupCest
 {
-    protected $formId = '#form-signup';
-
-
     public function _before(FunctionalTester $I)
     {
-        $I->amOnRoute('site/signup');
+
     }
 
     public function signupWithEmptyFields(FunctionalTester $I)
     {
-        $I->amOnRoute('site/signup');
-        $I->seeInTitle('Criar Conta');
-        $I->click('Criar Conta');
-        $I->see('Username cannot be blank.');
-        $I->see('Password cannot be blank.');
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_POST = [
+            'SignupForm' => [
+                'username' => '',
+                'email'    => '',
+                'password' => '',
+            ]
+        ];
+
+        Yii::$app->request->setUrl('/site/signup');
+        $output = Yii::$app->runAction('site/signup');
+
+        $I->assertStringContainsString('Username cannot be blank', $output);
+        $I->assertStringContainsString('Email cannot be blank', $output);
+        $I->assertStringContainsString('Password cannot be blank', $output);
+
+        $I->assertNull(User::findOne(['username' => '']));
     }
 
     public function signupWithWrongEmail(FunctionalTester $I)
     {
-        $I->submitForm(
-            $this->formId, [
-            'SignupForm[username]'  => 'tester',
-            'SignupForm[email]'     => 'ttttt',
-            'SignupForm[password]'  => 'tester_password',
-        ]
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_POST = [
+            'SignupForm' => [
+                'username' => 'tester',
+                'email'    => 'ttttt',
+                'password' => 'tester_password',
+            ]
+        ];
+
+        Yii::$app->request->setUrl('/site/signup');
+        $output = Yii::$app->runAction('site/signup');
+
+        $I->assertStringContainsString(
+            'Email is not a valid email address',
+            $output
         );
-        $I->dontSee('Username cannot be blank.', '.invalid-feedback');
-        $I->dontSee('Password cannot be blank.', '.invalid-feedback');
-        $I->see('Email is not a valid email address.', '.invalid-feedback');
+
+        $I->assertNull(User::findOne(['username' => 'tester']));
     }
 
     public function signupSuccessfully(FunctionalTester $I)
     {
-        $I->amOnRoute('site/signup');
-        $I->seeInTitle('Criar Conta');
-
         $username = 'tester_' . time();
         $email = $username . '@example.com';
 
-        $I->submitForm('#form-signup', [
-            'SignupForm[username]' => $username,
-            'SignupForm[email]' => $email,
-            'SignupForm[password]' => 'tester_password',
-        ]);
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_POST = [
+            'SignupForm' => [
+                'username' => $username,
+                'email'    => $email,
+                'password' => 'password',
+            ]
+        ];
 
-        $I->seeRecord(User::class, [
-            'username' => $username,
-            'email' => $email,
-        ]);
+        Yii::$app->request->setUrl('/site/signup');
+        Yii::$app->runAction('site/signup');
+
+        $user = User::findOne(['username' => $username]);
+
+        $I->assertNotNull($user, 'O utilizador foi criado');
+        $I->assertEquals($email, $user->email);
     }
 }

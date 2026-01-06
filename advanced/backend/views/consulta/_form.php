@@ -80,13 +80,15 @@ $isNew = $model->isNewRecord;
                     ->hiddenInput(['id' => 'userprofile-id'])
                     ->label(false) ?>
 
-            <label class="form-label fw-semibold text-success">Paciente</label>
-            <input type="text"
-                   id="userprofile-nome"
-                   class="form-control rounded-3 shadow-sm"
-                   value="<?= $model->userprofile->nome ?? '' ?>"
-                   placeholder="Preenchido automaticamente"
-                   readonly>
+            <div class="mb-3">
+                <label class="form-label fw-semibold text-success">Paciente</label>
+                <input type="text"
+                       id="userprofile-nome"
+                       class="form-control rounded-3 shadow-sm"
+                       value="<?= $model->userprofile->nome ?? '' ?>"
+                       placeholder="Preenchido automaticamente"
+                       readonly>
+            </div>
         </div>
     </div>
 

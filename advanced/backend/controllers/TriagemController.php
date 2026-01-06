@@ -61,36 +61,55 @@ class TriagemController extends Controller
 
         if ($this->request->isPost && $model->load($this->request->post())) {
 
-            $pulseiraExistente = Pulseira::find()
-                ->where(['userprofile_id' => $model->userprofile_id])
-                ->andWhere(['in', 'prioridade', ['Vermelho','Laranja','Amarelo','Verde','Azul']])
-                ->one();
+            if (!$model->pulseira_id) {
+                Yii::$app->session->setFlash('danger', 'Tem de selecionar uma pulseira.');
+                return $this->redirect(['create']);
+            }
 
-            if ($pulseiraExistente) {
-                Yii::$app->session->setFlash('danger', 'Este paciente já tem pulseira atribuída.');
+            $pulseira = Pulseira::findOne($model->pulseira_id);
+
+            if (!$pulseira) {
+                Yii::$app->session->setFlash('danger', 'Pulseira inválida.');
                 return $this->redirect(['index']);
             }
 
             $triagemExistente = Triagem::find()
-                ->where(['userprofile_id' => $model->userprofile_id])
-                ->andWhere(['pulseira_id' => null])
+                ->where(['pulseira_id' => $pulseira->id])
                 ->one();
 
-            if ($triagemExistente) {
-                Yii::$app->session->setFlash('danger', 'Este paciente já tem triagem pendente.');
+            if (!$triagemExistente) {
+                Yii::$app->session->setFlash(
+                    'danger',
+                    'Esta pulseira não tem triagem criada pelo paciente.'
+                );
                 return $this->redirect(['index']);
             }
 
-            if ($model->save(false)) {
+            $triagemExistente->setAttributes(
+                $model->getAttributes([
+                    'motivoconsulta',
+                    'queixaprincipal',
+                    'descricaosintomas',
+                    'iniciosintomas',
+                    'intensidadedor',
+                    'alergias',
+                    'medicacao',
+                ]),
+                false
+            );
+s
+            $triagemExistente->pulseira_id = $pulseira->id;
+            $triagemExistente->userprofile_id = $pulseira->userprofile_id;
 
-                if (!empty($model->prioridade_pulseira)) {
-                    $pulseira = Pulseira::findOne($model->pulseira_id);
-                    if ($pulseira) {
-                        $pulseira->prioridade = $model->prioridade_pulseira;
-                        $pulseira->status = "Em espera";
-                        $pulseira->save(false);
-                    }
-                }
+            // Atualizar pulseira
+            if (!empty($model->prioridade_pulseira)) {
+                $pulseira->prioridade = $model->prioridade_pulseira;
+                $pulseira->status = 'Em espera';
+                $pulseira->save(false);
+            }
+
+                // Guardar triagem (UPDATE)
+                $triagemExistente->save(false);
 
                 try {
                     if (Yii::$app->has('mqtt')) {
@@ -109,8 +128,8 @@ class TriagemController extends Controller
                     Yii::warning("Falha MQTT (Create): " . $e->getMessage());
                 }
 
-                return $this->redirect(['index']);
-            }
+            Yii::$app->session->setFlash('success', 'Triagem avaliada com sucesso.');
+            return $this->redirect(['index']);
         }
 
         $model->loadDefaultValues();
@@ -165,21 +184,14 @@ class TriagemController extends Controller
 
             if ($model->save(false)) {
 
-                try {
-                    if (Yii::$app->has('mqtt')) {
-                        Yii::$app->mqtt->publish(
-                            "triagem/atualizada/{$model->id}",
-                            json_encode([
-                                'evento' => 'triagem_atualizada_backend',
-                                'triagem_id' => $model->id,
-                                'hora' => date('Y-m-d H:i:s'),
-                            ])
-                        );
-                    }
-                } catch (\Exception $e) {
-                    // Ignora erro de ligação
-                    Yii::warning("Falha MQTT (Update): " . $e->getMessage());
-                }
+                Yii::$app->mqtt->publish(
+                    "triagem/atualizada/{$model->id}",
+                    json_encode([
+                        'evento' => 'triagem_atualizada_backend',
+                        'triagem_id' => $model->id,
+                        'hora' => date('Y-m-d H:i:s'),
+                    ])
+                );
 
                 return $this->redirect(['view', 'id' => $model->id]);
             }
@@ -211,21 +223,14 @@ class TriagemController extends Controller
             $pulseira->delete();
         }
 
-        try {
-            if (Yii::$app->has('mqtt')) {
-                Yii::$app->mqtt->publish(
-                    "triagem/apagada/{$id}",
-                    json_encode([
-                        'evento' => 'triagem_apagada_backend',
-                        'triagem_id' => $id,
-                        'hora' => date('Y-m-d H:i:s'),
-                    ])
-                );
-            }
-        } catch (\Exception $e) {
-            // Ignora erro de ligação
-            Yii::warning("Falha MQTT (Delete): " . $e->getMessage());
-        }
+        Yii::$app->mqtt->publish(
+            "triagem/apagada/{$id}",
+            json_encode([
+                'evento' => 'triagem_apagada_backend',
+                'triagem_id' => $id,
+                'hora' => date('Y-m-d H:i:s'),
+            ])
+        );
 
         Yii::$app->session->setFlash('success', 'Triagem e dados associados eliminados.');
         return $this->redirect(['index']);
@@ -293,4 +298,5 @@ class TriagemController extends Controller
             'medicacao'         => $t->medicacao,
         ];
     }
+
 }

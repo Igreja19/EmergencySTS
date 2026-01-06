@@ -1,4 +1,8 @@
 <?php
+
+use common\models\Consulta;
+use common\models\Triagem;
+
 $this->title = 'EmergencySTS - Serviço de Urgências';
 $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/index.css');
 ?>
@@ -36,28 +40,27 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/index.css');
                     if ($userProfile) {
 
                         // Triagem mais recente
-                        $triagem = \common\models\Triagem::find()
+                        $triagem = Triagem::find()
                                 ->where(['userprofile_id' => $userProfile->id])
                                 ->orderBy(['id' => SORT_DESC])
                                 ->one();
 
                         // Consulta associada
                         if ($triagem) {
-                            $consulta = \common\models\Consulta::find()
+                            $consulta = Consulta::find()
                                     ->where(['triagem_id' => $triagem->id])
                                     ->orderBy(['id' => SORT_DESC])
                                     ->one();
                         }
                     }
 
-                    // 🔥 Decisão final do botão
                     $mostrarBotao = false;
 
                     if ($perfilCompleto) {
                         if (!$triagem) {
                             // Nenhuma triagem → pode preencher
                             $mostrarBotao = true;
-                        } elseif ($consulta && $consulta->estado === 'Encerrada') {
+                        } else if ($consulta && $consulta->estado === 'Encerrada') {
                             // Triagem existe mas consulta encerrada → pode fazer nova
                             $mostrarBotao = true;
                         }
@@ -65,7 +68,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/index.css');
                     ?>
 
                     <?php if ($mostrarBotao): ?>
-                        <!-- 🟢 Botão aparece -->
                         <a href="<?= Yii::$app->urlManager->createUrl(['triagem/formulario']) ?>"
                            class="btn btn-success btn-lg fw-semibold px-5 py-3 shadow-sm">
                             <i class="bi bi-file-earmark-text me-2"></i> Preencher Formulário Clínico
@@ -74,13 +76,11 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/index.css');
                     <?php else: ?>
 
                         <?php if ($perfilCompleto): ?>
-                            <!-- 🟡 Já existe triagem ativa -->
                             <div class="alert alert-secondary fw-semibold px-4 py-3 rounded-3 shadow-sm mt-3">
                                 <i class="bi bi-hourglass-split text-muted me-2"></i>
                                 Já preencheu o formulário clínico. Aguarde pela conclusão da consulta.
                             </div>
                         <?php else: ?>
-                            <!-- 🔴 Perfil incompleto -->
                             <div class="alert alert-warning d-inline-block fw-semibold px-4 py-3 rounded-3 shadow-sm mt-3" >
                                 <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>
                                 Por favor, preencha o seu

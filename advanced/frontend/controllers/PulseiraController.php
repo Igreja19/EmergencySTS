@@ -18,10 +18,16 @@ class PulseiraController extends Controller
 
         $userProfileId = Yii::$app->user->identity->userprofile->id ?? null;
 
-        // 🔹 Busca a pulseira do utilizador autenticado (a mais recente)
         $pulseira = Pulseira::find()
-            ->where(['userprofile_id' => $userProfileId])
-            ->orderBy(['id' => SORT_DESC])
+            ->joinWith(['triagem t'], false)
+            ->joinWith(['triagem.consulta c'], false)
+            ->where(['pulseira.userprofile_id' => $userProfileId])
+            ->andWhere([
+                'or',
+                ['c.id' => null],                 // ainda nao tem consulta
+                ['<>', 'c.estado', 'Encerrada'],  // consulta existe mas nao está encerrada
+            ])
+            ->orderBy(['pulseira.id' => SORT_DESC])
             ->one();
 
         if (!$pulseira) {

@@ -10,9 +10,7 @@ use common\models\Pulseira;
 
 class TriagemController extends Controller
 {
-    /**
-     * Página inicial da triagem
-     */
+
     public function actionIndex()
     {
         $podeCriarTriagem = true;
@@ -35,9 +33,6 @@ class TriagemController extends Controller
         ]);
     }
 
-    /**
-     * Formulário clínico (criação de triagem)
-     */
     public function actionFormulario()
     {
         $model = new Triagem();
@@ -46,7 +41,7 @@ class TriagemController extends Controller
             $model->userprofile_id = Yii::$app->user->identity->userprofile->id ?? null;
         }
 
-        // Verifica se o utilizador já tem uma pulseira com status "Aguardando" ou "Em Atendimento"
+        // Verifica se o utilizador já tem uma pulseira com status "Em espera" ou "Em Atendimento"
         $pulseiraAtiva = Pulseira::find()
             ->where(['userprofile_id' => $model->userprofile_id])
             ->andWhere(['in', 'status', ['Pendente', 'Em Atendimento']])
@@ -86,5 +81,4 @@ class TriagemController extends Controller
             'model' => $model,
         ]);
     }
-
 }

@@ -63,9 +63,6 @@ class FormCest
         $user = $this->garantirPacienteExiste();
         Yii::$app->user->login($user);
 
-        /* ===============================
-         * Garantir perfil completo
-         * =============================== */
         $profile = $user->userprofile;
         $profile->nif = '999999991';
         $profile->sns = '999999991';
@@ -75,9 +72,6 @@ class FormCest
         $profile->morada = 'Rua de Testes';
         $profile->save(false);
 
-        /* ===============================
-         * SIMULAR POST (CSRF OFF)
-         * =============================== */
         Yii::$app->request->setBodyParams([
             'Triagem' => [
                 'motivoconsulta'    => 'Dor abdominal',
@@ -92,17 +86,10 @@ class FormCest
 
         $_SERVER['REQUEST_METHOD'] = 'POST';
 
-        /* ===============================
-         * Executar action
-         * =============================== */
         Yii::$app->runAction('triagem/formulario');
 
-        /* ===============================
-         * ASSERTS
-         * =============================== */
-
         // Triagem criada
-        $triagem = \common\models\Triagem::find()
+        $triagem = Triagem::find()
             ->where(['userprofile_id' => $profile->id])
             ->orderBy(['id' => SORT_DESC])
             ->one();
@@ -111,7 +98,7 @@ class FormCest
         $I->assertEquals('Dor abdominal', $triagem->motivoconsulta);
 
         // Pulseira criada
-        $pulseira = \common\models\Pulseira::find()
+        $pulseira = Pulseira::find()
             ->where(['userprofile_id' => $profile->id])
             ->one();
 
