@@ -38,7 +38,7 @@ class Pulseira extends \yii\db\ActiveRecord
             [['tempoentrada'], 'safe'],
             [['userprofile_id'], 'integer'],
             [['prioridade'], 'in', 'range' => ['Pendente','Vermelho', 'Laranja', 'Amarelo', 'Verde', 'Azul']],
-            [['status'], 'in', 'range' => ['Em espera', 'Em atendimento', 'Atendido']],
+            [['status'], 'in', 'range' => ['Em espera', 'Em atendimento', 'Atendido', 'Finalizado']],
             [['codigo'], 'string', 'max' => 10],
             [['codigo'], 'unique'],
             [['userprofile_id'], 'exist', 'skipOnError' => true,
@@ -63,7 +63,7 @@ class Pulseira extends \yii\db\ActiveRecord
     }
 
     /**
-     * 🔹 Relação com o perfil do utilizador
+     *  Relação com o perfil do utilizador
      */
     public function getUserprofile()
     {
@@ -76,7 +76,7 @@ class Pulseira extends \yii\db\ActiveRecord
     }
 
     /**
-     * 🔹 Relação com a triagem (uma triagem cria uma pulseira)
+     *  Relação com a triagem (uma triagem cria uma pulseira)
      */
     public function getTriagem()
     {
@@ -84,7 +84,7 @@ class Pulseira extends \yii\db\ActiveRecord
     }
 
     /**
-     * 🔹 Texto formatado da prioridade com ícone
+     *  Texto formatado da prioridade com ícone
      */
     public function getPrioridadeComCor()
     {
@@ -129,8 +129,8 @@ class Pulseira extends \yii\db\ActiveRecord
     }
 
     public function extraFields()
-{
-    // Permite usar ?expand=triagem,paciente
-    return ['triagem', 'paciente', 'userprofile'];
-}
+    {
+        // Permite usar ?expand=triagem,paciente
+        return ['triagem', 'paciente', 'userprofile'];
+    }
 }
