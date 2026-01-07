@@ -4,7 +4,7 @@ namespace backend\components;
 
 use Yii;
 use yii\base\Component;
-use backend\modules\api\mqtt\phpMQTT; // O namespace do ficheiro que enviaste
+use backend\modules\api\mqtt\phpMQTT;
 
 class MqttService extends Component
 {
@@ -12,23 +12,27 @@ class MqttService extends Component
     public $port;
     public $clientId;
 
+    public $username;
+    public $password;
+
+    //Mosquitto local
+    //public $username = null;
+    //public $password = null;
+
     public function publish($topic, $payload)
     {
-        // Cria a instância usando a classe que enviaste
+        // Cria a instância usando as propriedades configuradas no main.php
         $mqtt = new phpMQTT($this->server, $this->port, $this->clientId);
 
-        // Tenta conectar
-        // A assinatura deste método é: connect(clean, will, username, password)
+        // Tenta conectar com autenticação
         if ($mqtt->connect(true, null, $this->username, $this->password)) {
 
             $mqtt->publish($topic, $payload, 0, false);
-
-            // 4. Fecha a conexão para não bloquear o PHP
             $mqtt->close();
 
             return true;
         } else {
-            Yii::error("MQTT: Falha ao conectar ao broker {$this->server}");
+            Yii::error("MQTT Error: Falha ao conectar ao broker {$this->server} com o user {$this->username}");
             return false;
         }
     }
