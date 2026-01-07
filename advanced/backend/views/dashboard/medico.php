@@ -64,13 +64,3 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/dashboard/medico.css'
     </div>
 
 </div>
-
-<style>
-    .dashboard-card { border-radius: 16px; transition: 0.2s; }
-    .dashboard-card:hover { transform: translateY(-3px); }
-    .icon-circle {
-        width: 60px; height: 60px;
-        border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-    }
-</style>
