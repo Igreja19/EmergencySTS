@@ -12,9 +12,7 @@ $this->title = 'Contactos';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
-<!-- ============================= -->
 <!-- SEÇÃO HERO -->
-<!-- ============================= -->
 <section class="bg-success text-white text-center rounded-circle py-5 mt-5">
     <div class="container">
         <h1 class="display-5 fw-bold">Contacta-nos</h1>
@@ -22,9 +20,7 @@ $this->params['breadcrumbs'][] = $this->title;
     </div>
 </section>
 
-<!-- ============================= -->
 <!-- SEÇÃO DE CONTACTO -->
-<!-- ============================= -->
 <section class="py-5 bg-light">
     <div class="container">
         <div class="row g-5 align-items-start">
@@ -111,7 +107,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     <iframe
                             class="rounded w-100 shadow-sm"
                             height="250"
-                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3098.730962901092!2d-8.806410624273393!3d39.7364299966326!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd2287f8b73a3a01%3A0x9dc2e28595e5ef4!2sRua%20Central%20da%20Sa%C3%BAde%2C%202450-100%20Leiria%2C%20Portugal!5e0!3m2!1spt-PT!2spt!4v1730302012345!5m2!1spt-PT!2spt"
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3066.4!2d-8.807!3d39.743!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd227315350777d9%3A0x123456789!2sLeiria!5e0!3m2!1spt-PT!2spt!4v1600000000000!5m2!1spt-PT!2spt"
                             allowfullscreen=""
                             loading="lazy"
                             referrerpolicy="no-referrer-when-downgrade">

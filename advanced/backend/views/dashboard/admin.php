@@ -84,9 +84,7 @@ if (line) {
 ');
 ?>
 
-<!-- ====================================== -->
-<!--              HTML DO DASHBOARD         -->
-<!-- ====================================== -->
+<!--HTML DO DASHBOARD-->
 
 <div class="dashboard-wrap">
 
@@ -208,5 +206,4 @@ if (line) {
                 <?php endforeach; endif; ?>
         </div>
     </div>
-
 </div>

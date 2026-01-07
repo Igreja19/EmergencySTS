@@ -46,7 +46,7 @@ $cor = $cores[$pulseira->prioridade] ?? '#6c757d';
                 <h2 class="fw-bold m-0"><?= Html::encode($pulseira->codigo) ?></h2>
             </div>
 
-            <!-- Selo da cor -->
+            <!-- Cor da pulseira -->
             <div class="selo position-absolute top-0 end-0 mt-2 me-3 d-flex align-items-center justify-content-center fw-bold text-uppercase" style="background-color: <?= $cor ?>;">
                 <?= strtoupper(Html::encode($pulseira->prioridade ?? 'PENDENTE')) ?>
             </div>
@@ -146,25 +146,3 @@ $cor = $cores[$pulseira->prioridade] ?? '#6c757d';
         </div>
     </div>
 </div>
-
-<?php
-    $this->registerCss(<<<CSS
-    body {
-        background: linear-gradient(180deg, #f7fff9 0%, #f6f9ff 100%);
-        font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif;
-    }
-    .main-status-card {
-        background: #eef6ff;
-        border: 1px solid #dbe9ff;
-    }
-    .triage-track {
-        background: linear-gradient(90deg, rgba(25,135,84,.15) 0%, rgba(25,135,84,0) 100%);
-    }
-    .progress-bar { transition: width .8s ease; }
-    .list-group-item { transition: all .2s ease; }
-    .list-group-item:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 6px 16px rgba(0,0,0,.06);
-    }
-    CSS);
-?>

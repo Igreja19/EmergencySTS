@@ -99,9 +99,7 @@ function badgePrio(string $prio): string {
 }
 ?>
 
-<!-- ====================================== -->
-<!--              DASHBOARD                 -->
-<!-- ====================================== -->
+<!--DASHBOARD-->
 
 <div class="dashboard-wrap">
 
