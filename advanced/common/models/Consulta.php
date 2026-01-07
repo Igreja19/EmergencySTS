@@ -18,7 +18,7 @@ use Yii;
  *
  * @property Prescricao[] $prescricaos
  * @property Triagem $triagem
- * @property UserProfile $userprofile   ← CORRETO AGORA
+ * @property UserProfile $userprofile
  */
 class Consulta extends \yii\db\ActiveRecord
 {

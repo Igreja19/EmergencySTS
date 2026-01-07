@@ -97,7 +97,7 @@ class TriagemController extends Controller
                 ]),
                 false
             );
-s
+
             $triagemExistente->pulseira_id = $pulseira->id;
             $triagemExistente->userprofile_id = $pulseira->userprofile_id;
 
