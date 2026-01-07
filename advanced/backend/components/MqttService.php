@@ -16,14 +16,13 @@ class MqttService extends Component
 
     public function publish($topic, $payload)
     {
-        // 1. Cria a instância usando a classe que enviaste
+        // Cria a instância usando a classe que enviaste
         $mqtt = new phpMQTT($this->server, $this->port, $this->clientId);
 
-        // 2. Tenta conectar
+        // Tenta conectar
         // A assinatura deste método é: connect(clean, will, username, password)
         if ($mqtt->connect(true, null, $this->username, $this->password)) {
 
-            // 3. Publica a mensagem (QoS 0, Retain false)
             $mqtt->publish($topic, $payload, 0, false);
 
             // 4. Fecha a conexão para não bloquear o PHP
