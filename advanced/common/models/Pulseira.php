@@ -133,4 +133,33 @@ class Pulseira extends \yii\db\ActiveRecord
         // Permite usar ?expand=triagem,paciente
         return ['triagem', 'paciente', 'userprofile'];
     }
+    /**
+     * Envia notificação MQTT após criar uma nova pulseira
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+
+        // Só envia se for uma INSERÇÃO (nova pulseira)
+        if ($insert) {
+            $topico = "pulseira/criada/" . $this->id;
+
+            // Cria um JSON simples para o Android ler
+            $payload = json_encode([
+                'id' => $this->id,
+                'codigo' => $this->codigo,
+                'mensagem' => 'Nova pulseira registada: ' . $this->codigo
+            ]);
+
+            // Verifica se o componente MQTT está configurado e publica
+            if (isset(Yii::$app->mqtt)) {
+                try {
+                    Yii::$app->mqtt->publish($topico, $payload);
+                } catch (\Exception $e) {
+                    // Log de erro silencioso para não parar o save
+                    Yii::error("Erro MQTT ao criar pulseira: " . $e->getMessage());
+                }
+            }
+        }
+    }
 }
