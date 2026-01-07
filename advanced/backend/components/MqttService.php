@@ -11,8 +11,6 @@ class MqttService extends Component
     public $server;
     public $port;
     public $clientId;
-    public $username = null;
-    public $password = null;
 
     public function publish($topic, $payload)
     {
