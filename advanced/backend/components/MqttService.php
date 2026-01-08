@@ -15,10 +15,6 @@ class MqttService extends Component
     public $username;
     public $password;
 
-    //Mosquitto local
-    //public $username = null;
-    //public $password = null;
-
     public function publish($topic, $payload)
     {
         // Cria a instância usando as propriedades configuradas no main.php
