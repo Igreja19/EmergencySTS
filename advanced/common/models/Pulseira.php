@@ -140,26 +140,45 @@ class Pulseira extends \yii\db\ActiveRecord
     {
         parent::afterSave($insert, $changedAttributes);
 
-        // Só envia se for uma INSERÇÃO (nova pulseira)
-        if ($insert) {
-            $topico = "pulseira/criada/" . $this->id;
+        if (!isset(Yii::$app->mqtt)) {
+            return;
+        }
 
-            // Cria um JSON simples para o Android ler
-            $payload = json_encode([
+        try {
+            //Mensagem para o PACIENTE
+            $payloadPaciente = [
                 'id' => $this->id,
                 'codigo' => $this->codigo,
-                'mensagem' => 'Nova pulseira registada: ' . $this->codigo
-            ]);
+                'titulo' => $insert ? 'Nova Pulseira' : 'Atualização',
+                'mensagem' => $insert
+                    ? 'A sua pulseira foi registada com sucesso. Aguarde a triagem.'
+                    : "O seu estado foi atualizado para {$this->prioridade} ({$this->status})",
+                'prioridade' => $this->prioridade,
+                'status' => $this->status,
+                'tipo' => 'paciente'
+            ];
 
-            // Verifica se o componente MQTT está configurado e publica
-            if (isset(Yii::$app->mqtt)) {
-                try {
-                    Yii::$app->mqtt->publish($topico, $payload);
-                } catch (\Exception $e) {
-                    // Log de erro silencioso para não parar o save
-                    Yii::error("Erro MQTT ao criar pulseira: " . $e->getMessage());
-                }
-            }
+            $topicoPaciente = "notificacao/paciente/{$this->userprofile_id}";
+            Yii::$app->mqtt->publish($topicoPaciente, json_encode($payloadPaciente));
+
+            //Mensagem para o ENFERMEIRO
+            $payloadEnfermeiro = [
+                'id' => $this->id,
+                'codigo' => $this->codigo,
+                'titulo' => $insert ? 'Nova Pulseira Criada' : 'Pulseira Atualizada',
+                'mensagem' => $insert
+                    ? "Nova pulseira criada: {$this->codigo}"
+                    : "Pulseira {$this->codigo} atualizada para {$this->prioridade} ({$this->status})",
+                'prioridade' => $this->prioridade,
+                'status' => $this->status,
+                'tipo' => 'enfermeiro'
+            ];
+
+            $topicoEnfermeiro = "notificacao/enfermeiro";
+            Yii::$app->mqtt->publish($topicoEnfermeiro, json_encode($payloadEnfermeiro));
+
+        } catch (\Exception $e) {
+            Yii::error("Erro MQTT: " . $e->getMessage());
         }
     }
 }
