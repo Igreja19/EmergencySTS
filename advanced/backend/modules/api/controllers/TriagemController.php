@@ -118,9 +118,9 @@ class TriagemController extends BaseActiveController
 
             $tx->commit();
 
-            $this->safeMqttPublish("triagem/criada/{$t->id}", [
+            $this->safeMqttPublish("mosquitto/triagem", [
                 'titulo'          => 'Nova Triagem',
-                'mensagem'        => "Nova pulseira criada: {$p->codigo}. Em espera.", // <--- Texto importante
+                'mensagem'        => "Nova pulseira criada: {$p->codigo}. Em espera.",
                 "evento"          => "triagem_criada",
                 "triagem_id"      => $t->id,
                 "pulseira_codigo" => $p->codigo,
@@ -153,7 +153,6 @@ class TriagemController extends BaseActiveController
 
         if ($t->save()) {
 
-            // 1. Tentar obter o nome do paciente (se a relação existir)
             $nomePaciente = "Utente";
             if ($t->userprofile) {
                 $nomePaciente = $t->userprofile->nome;
@@ -162,15 +161,12 @@ class TriagemController extends BaseActiveController
             $cor = $t->classificacao ?? "Prioridade definida";
 
             // 3. Enviar para o MQTT
-            $this->safeMqttPublish("triagem/atualizada/{$t->id}", [
+            $this->safeMqttPublish("mosquitto/triagem", [
                 'titulo'     => 'Triagem Concluída',
-                // AQUI está o texto que vai aparecer no telemóvel:
                 'mensagem'   => "Pac. {$nomePaciente} atualizada para {$cor}.",
                 "evento"     => "triagem_atualizada",
                 "triagem_id" => $t->id
             ]);
-
-
             return $t;
         }
 
@@ -207,9 +203,9 @@ class TriagemController extends BaseActiveController
     }
 
     // Notificar via MQTT
-    $this->safeMqttPublish("triagem/apagada/{$id}", [
-        'titulo'     => 'Triagem Removida',       // Adicionado
-        'mensagem'   => 'Uma triagem foi removida.', // Adicionado
+    $this->safeMqttPublish("mosquitto/triagem", [
+        'titulo'     => 'Triagem Removida',
+        'mensagem'   => 'Uma triagem foi apagada do sistema.',
         "evento"     => "triagem_apagada",
         "triagem_id" => $id
     ]);
