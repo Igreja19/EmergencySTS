@@ -103,7 +103,7 @@ class TriagemController extends BaseActiveController
             $p = new Pulseira([
                 "userprofile_id" => $t->userprofile_id,
                 "codigo"         => "P-" . strtoupper(substr(uniqid(), -5)),
-                "prioridade"     => "Pendente", // Será atualizada após classificação Manchester
+                "prioridade"     => "Pendente",
                 "status"         => "Em espera",
                 "tempoentrada"   => date('Y-m-d H:i:s')
             ]);
@@ -137,24 +137,40 @@ class TriagemController extends BaseActiveController
 
     public function actionUpdate($id)
     {
+        // Verifica permissões
         if (!Yii::$app->user->can('enfermeiro') && !Yii::$app->user->can('medico')) {
             throw new ForbiddenHttpException("Sem permissão para editar triagens.");
         }
 
+        // Encontra a triagem
         $t = Triagem::findOne($id);
         if (!$t) {
             throw new NotFoundHttpException("Triagem não encontrada.");
         }
 
+        // Carrega os dados novos (ex: a cor/classificação)
         $t->load(Yii::$app->request->post(), '');
 
         if ($t->save()) {
+
+            // 1. Tentar obter o nome do paciente (se a relação existir)
+            $nomePaciente = "Utente";
+            if ($t->userprofile) {
+                $nomePaciente = $t->userprofile->nome;
+            }
+
+            $cor = $t->classificacao ?? "Prioridade definida";
+
+            // 3. Enviar para o MQTT
             $this->safeMqttPublish("triagem/atualizada/{$t->id}", [
                 'titulo'     => 'Triagem Concluída',
-                'mensagem'   => "A triagem {$t->id} foi atualizada/finalizada.",
+                // AQUI está o texto que vai aparecer no telemóvel:
+                'mensagem'   => "Pac. {$nomePaciente} atualizada para {$cor}.",
                 "evento"     => "triagem_atualizada",
                 "triagem_id" => $t->id
             ]);
+
+
             return $t;
         }
 
@@ -192,7 +208,9 @@ class TriagemController extends BaseActiveController
 
     // Notificar via MQTT
     $this->safeMqttPublish("triagem/apagada/{$id}", [
-        "evento" => "triagem_apagada",
+        'titulo'     => 'Triagem Removida',       // Adicionado
+        'mensagem'   => 'Uma triagem foi removida.', // Adicionado
+        "evento"     => "triagem_apagada",
         "triagem_id" => $id
     ]);
 

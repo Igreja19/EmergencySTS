@@ -86,38 +86,34 @@ class PulseiraController extends BaseActiveController
     // PUT /api/pulseira/{id}
     public function actionUpdate($id)
     {
-        // 1. Encontrar a pulseira
         $pulseira = Pulseira::findOne($id);
         if (!$pulseira) {
             throw new NotFoundHttpException("Pulseira não encontrada.");
         }
 
-        // 2. RECEBER O SINAL "GATILHO" DO LINK
-        // O Android vai enviar: .../api/pulseira/123?arquivar=1
         $modoArquivar = Yii::$app->request->get('arquivar');
 
         // 3. EXECUÇÃO DE ARQUIVAR
         if ($modoArquivar == '1') {
-            
-            // --- CORREÇÃO IMPORTANTE: Usar 'Atendido' porque é o que a BD aceita ---
-            $pulseira->status = 'Atendido'; 
-            
-            // save(false) é OBRIGATÓRIO para ignorar validações estritas
-            if ($pulseira->save(false)) { 
-                
-                // Avisar o MQTT
-                $this->safeMqttPublish("pulseira/atualizada/{$pulseira->id}", [
-                    'titulo'        => 'Pulseira Arquivada', // <--- O que aparece a negrito
-                    'mensagem'      => "A pulseira {$pulseira->codigo} foi marcada como Atendida.", // <--- O texto da notificação
+
+            $pulseira->status = 'Atendido';
+
+            if ($pulseira->save(false)) {
+
+                // --- CORREÇÃO AQUI: Enviar para 'mosquitto/triagem' ---
+                $this->safeMqttPublish("mosquitto/triagem", [
+                    'titulo'        => 'Pulseira Arquivada',
+                    'mensagem'      => "A pulseira {$pulseira->codigo} foi arquivada (Atendida).", // Adicionei 'arquivada' para ser claro
                     'evento'        => 'pulseira_atualizada',
                     'pulseira_id'   => $pulseira->id,
                     'status'        => 'Atendido',
                 ]);
+
                 return $pulseira;
             }
         }
 
-        // --- Código normal para outras atualizações ---
+        // Código normal para outras atualizações
         $data = Yii::$app->request->getBodyParams();
         $pulseira->load($data, '');
         if ($pulseira->save()) {
@@ -127,11 +123,10 @@ class PulseiraController extends BaseActiveController
         return ['status' => 'error', 'msg' => 'Não foi possível gravar'];
     }
 
-   
+
     // DELETE /api/pulseira/{id}
     public function actionDelete($id)
     {
-        // 1. Permitir Enfermeiros e Médicos
         if (!Yii::$app->user->can('medico') && !Yii::$app->user->can('enfermeiro') && !Yii::$app->user->can('admin')) {
             throw new ForbiddenHttpException("Sem permissão para arquivar.");
         }
@@ -141,14 +136,11 @@ class PulseiraController extends BaseActiveController
             throw new NotFoundHttpException("Pulseira não encontrada.");
         }
 
-        // 2. O TRUQUE: Em vez de apagar, mudamos para 'Atendido'
         $pulseira->status = 'Atendido';
 
-        // 3. Gravar à força
         if ($pulseira->save(false)) {
-            
-            // Avisar MQTT
-            $this->safeMqttPublish("pulseira/atualizada/{$pulseira->id}", [
+
+            $this->safeMqttPublish("mosquitto/triagem", [
                 'titulo'        => 'Pulseira Removida',
                 'mensagem'      => "A pulseira {$pulseira->codigo} foi removida da lista.",
                 'evento'        => 'pulseira_atualizada',
