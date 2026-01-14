@@ -107,10 +107,11 @@ class PulseiraController extends BaseActiveController
                 
                 // Avisar o MQTT
                 $this->safeMqttPublish("pulseira/atualizada/{$pulseira->id}", [
+                    'titulo'        => 'Pulseira Arquivada', // <--- O que aparece a negrito
+                    'mensagem'      => "A pulseira {$pulseira->codigo} foi marcada como Atendida.", // <--- O texto da notificação
                     'evento'        => 'pulseira_atualizada',
                     'pulseira_id'   => $pulseira->id,
                     'status'        => 'Atendido',
-                    'hora'          => date('Y-m-d H:i:s'),
                 ]);
                 return $pulseira;
             }
@@ -148,10 +149,11 @@ class PulseiraController extends BaseActiveController
             
             // Avisar MQTT
             $this->safeMqttPublish("pulseira/atualizada/{$pulseira->id}", [
+                'titulo'        => 'Pulseira Removida',
+                'mensagem'      => "A pulseira {$pulseira->codigo} foi removida da lista.",
                 'evento'        => 'pulseira_atualizada',
                 'pulseira_id'   => $pulseira->id,
                 'status'        => 'Atendido',
-                'hora'          => date('Y-m-d H:i:s'),
             ]);
 
             return ['status' => 'success', 'message' => 'Pulseira arquivada com sucesso'];

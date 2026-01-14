@@ -119,6 +119,8 @@ class TriagemController extends BaseActiveController
             $tx->commit();
 
             $this->safeMqttPublish("triagem/criada/{$t->id}", [
+                'titulo'          => 'Nova Triagem',
+                'mensagem'        => "Nova pulseira criada: {$p->codigo}. Em espera.", // <--- Texto importante
                 "evento"          => "triagem_criada",
                 "triagem_id"      => $t->id,
                 "pulseira_codigo" => $p->codigo,
@@ -148,7 +150,9 @@ class TriagemController extends BaseActiveController
 
         if ($t->save()) {
             $this->safeMqttPublish("triagem/atualizada/{$t->id}", [
-                "evento" => "triagem_atualizada",
+                'titulo'     => 'Triagem Concluída',
+                'mensagem'   => "A triagem {$t->id} foi atualizada/finalizada.",
+                "evento"     => "triagem_atualizada",
                 "triagem_id" => $t->id
             ]);
             return $t;
