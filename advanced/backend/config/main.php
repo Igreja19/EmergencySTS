@@ -119,8 +119,6 @@
                 'enablePrettyUrl' => true,
                 'showScriptName' => false,
                 'rules' => [
-                    'GET api/user/total' => 'api/user/total',
-
                     // Autenticação
                     'GET api/auth/login'    => 'api/auth/login',
                     'POST api/auth/login'   => 'api/auth/login',
