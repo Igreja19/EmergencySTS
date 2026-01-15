@@ -27,8 +27,6 @@ class NotificacaoController extends BaseActiveController
      */
     public function actionList()
     {
-        // O BaseActiveController garante que apenas Staff (Médico/Enfermeiro/Admin) acede aqui.
-
         $user = Yii::$app->user->identity;
 
         // Validação extra de segurança
