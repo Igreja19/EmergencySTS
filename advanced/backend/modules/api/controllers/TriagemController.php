@@ -5,11 +5,9 @@ namespace backend\modules\api\controllers;
 use Yii;
 use yii\web\NotFoundHttpException;
 use yii\web\ForbiddenHttpException;
-use yii\web\BadRequestHttpException;
+use yii\web\ServerErrorHttpException;
 use yii\data\ActiveDataProvider;
-use backend\modules\api\controllers\BaseActiveController;
 use common\models\Triagem;
-use common\models\UserProfile;
 use common\models\Pulseira;
 
 class TriagemController extends BaseActiveController
@@ -24,34 +22,34 @@ class TriagemController extends BaseActiveController
         return $actions;
     }
 
+    // GET /api/triagem
     public function actionIndex()
     {
         $user = Yii::$app->user;
 
-        // Performance: Carregar logo as relações
         $query = Triagem::find()
             ->with(['userprofile', 'pulseira'])
             ->orderBy(['datatriagem' => SORT_DESC]);
 
         // Se for Paciente, aplica o filtro (vê a sua própria lista)
-        // Se for Staff, vê tudo.
         if ($user->can('paciente')) {
             $query->joinWith(['userprofile' => function ($q) use ($user) {
                 $q->where(['user_id' => $user->id]);
             }]);
         }
 
-        // Filtro por pulseira
+        // Filtro por pulseira (útil para ver o histórico de uma admissão específica)
         if ($p = Yii::$app->request->get('pulseira_id')) {
             $query->andWhere(['pulseira_id' => $p]);
         }
 
         return new ActiveDataProvider([
             "query" => $query,
-            "pagination" => false 
+            "pagination" => false
         ]);
     }
 
+    // GET /api/triagem/{id}
     public function actionView($id)
     {
         $t = Triagem::find()
@@ -74,67 +72,70 @@ class TriagemController extends BaseActiveController
         return $t;
     }
 
+    // POST /api/triagem
     public function actionCreate()
     {
-        // Apenas Staff cria triagens
-        if (Yii::$app->user->can('paciente')) {
-            throw new ForbiddenHttpException("Apenas profissionais podem registar triagens.");
-        }
+        $model = new Triagem();
 
-        $data = Yii::$app->request->post();
+        if ($this->request->isPost && $model->load($this->request->post())) {
 
-        if (empty($data['userprofile_id'])) {
-            throw new BadRequestHttpException("ID do utente é obrigatório.");
-        }
+            // Iniciar transação para garantir integridade
+            $tx = Yii::$app->db->beginTransaction();
 
-        $tx = Yii::$app->db->beginTransaction();
+            try {
+                if (!$model->userprofile_id) {
+                    throw new \Exception("O ID do utente é obrigatório.");
+                }
 
-        try {
-            $t = new Triagem();
-            $t->load($data, '');
-            $t->userprofile_id = $data['userprofile_id'];
-            $t->datatriagem = date("Y-m-d H:i:s");
+                $model->datatriagem = date("Y-m-d H:i:s");
 
-            if (!$t->save()) {
-                throw new \Exception("Erro ao guardar triagem: " . json_encode($t->errors));
+                if (!$model->save()) {
+                    throw new \Exception("Erro ao guardar triagem. Verifique os dados.");
+                }
+
+                $p = new Pulseira([
+                    'titulo'         => 'Nova Triagem',
+                    'mensagem'        => "Nova pulseira criada",
+                    "userprofile_id" => $model->userprofile_id,
+                    "codigo"         => "P-" . strtoupper(substr(uniqid(), -5)), // Gera código único
+                    "prioridade"     => "Pendente",
+                    "status"         => "Em espera",
+                    "tempoentrada"   => date('Y-m-d H:i:s')
+                ]);
+
+                if (!$p->save()) {
+                    throw new \Exception("Erro ao gerar pulseira.");
+                }
+
+                $model->pulseira_id = $p->id;
+                $model->save(false);
+
+                $tx->commit();
+
+                $this->safeMqttPublish("emergencysts/triagem", [
+                    'titulo'          => 'Nova Triagem',
+                    'mensagem'        => "Nova pulseira criada: {$p->codigo}. Em espera.",
+                    "evento"          => "triagem_criada",
+                    "triagem_id"      => $model->id,
+                    "pulseira_codigo" => $p->codigo,
+                    "hora"            => date("Y-m-d H:i:s")
+                ]);
+
+                Yii::$app->session->setFlash('success', 'Triagem criada com sucesso. Pulseira: ' . $p->codigo);
+                return $this->redirect(['view', 'id' => $model->id]);
+
+            } catch (\Exception $e) {
+                $tx->rollBack();
+                Yii::$app->session->setFlash('error', $e->getMessage());
             }
-
-            // Criação automática de Pulseira
-            $p = new Pulseira([
-                "userprofile_id" => $t->userprofile_id,
-                "codigo"         => "P-" . strtoupper(substr(uniqid(), -5)),
-                "prioridade"     => "Pendente", // Será atualizada após classificação Manchester
-                "status"         => "Em espera",
-                "tempoentrada"   => date('Y-m-d H:i:s')
-            ]);
-
-            if (!$p->save()) {
-                throw new \Exception("Erro ao gerar pulseira.");
-            }
-
-            // Atualiza triagem com ID da pulseira
-            $t->pulseira_id = $p->id;
-            $t->save(false);
-
-            $tx->commit();
-
-            $this->safeMqttPublish("triagem/criada/{$t->id}", [
-                "evento"          => "triagem_criada",
-                "triagem_id"      => $t->id,
-                "pulseira_codigo" => $p->codigo,
-                "hora"            => date("Y-m-d H:i:s")
-            ]);
-
-            return ["status" => "success", "triagem" => $t, "pulseira" => $p];
-
-        } catch (\Exception $e) {
-            $tx->rollBack();
-            throw new BadRequestHttpException($e->getMessage());
         }
+        return $this->render('create', ['model' => $model]);
     }
 
+    // PUT /api/triagem/{id}
     public function actionUpdate($id)
     {
+        // Verifica permissões
         if (!Yii::$app->user->can('enfermeiro') && !Yii::$app->user->can('medico')) {
             throw new ForbiddenHttpException("Sem permissão para editar triagens.");
         }
@@ -147,70 +148,77 @@ class TriagemController extends BaseActiveController
         $t->load(Yii::$app->request->post(), '');
 
         if ($t->save()) {
-            $this->safeMqttPublish("triagem/atualizada/{$t->id}", [
-                "evento" => "triagem_atualizada",
+            $nomePaciente = $t->userprofile->nome ?? "Utente";
+            $cor = $t->classificacao ?? "Prioridade definida";
+
+            // Notificar MQTT (Atualização de dados da triagem)
+            $this->safeMqttPublish("emergencysts/triagem", [
+                'titulo'     => 'Triagem Atualizada',
+                'mensagem'   => "Pac. {$nomePaciente} atualizada para {$cor}.",
+                "evento"     => "triagem_atualizada",
                 "triagem_id" => $t->id
             ]);
+
             return $t;
         }
 
         return $t->errors;
     }
 
+    // DELETE /api/triagem/{id}
     public function actionDelete($id)
-{
-    //  Verificação de Permissões
-    if (!Yii::$app->user->can('admin') && !Yii::$app->user->can('enfermeiro')) {
-        throw new ForbiddenHttpException("Apenas Administradores ou Enfermeiros podem apagar triagens.");
-    }
-
-    $t = Triagem::findOne($id);
-    if (!$t) {
-        throw new NotFoundHttpException("Triagem não encontrada.");
-    }
-
-    // Guardar o ID da Pulseira para apagar DEPOIS
-    $pulseiraId = $t->pulseira_id;
-
-    // Apagar a Triagem PRIMEIRO
-    if (!$t->delete()) {
-        // Se falhar (ex: por causa de Consultas associadas), mostra o erro real
-        throw new \yii\web\ServerErrorHttpException("Erro ao apagar triagem. Verifique se existem consultas associadas.");
-    }
-
-    // Apagar a Pulseira 
-    if ($pulseiraId) {
-        $pulseira = Pulseira::findOne($pulseiraId);
-        if ($pulseira) {
-            $pulseira->delete();
+    {
+        if (!Yii::$app->user->can('admin') && !Yii::$app->user->can('enfermeiro')) {
+            throw new ForbiddenHttpException("Apenas Administradores ou Enfermeiros podem apagar triagens.");
         }
+
+        $t = Triagem::findOne($id);
+        if (!$t) {
+            throw new NotFoundHttpException("Triagem não encontrada.");
+        }
+
+        // Guardar o ID da Pulseira para apagar DEPOIS
+        $pulseiraId = $t->pulseira_id;
+
+        // Tentar apagar a Triagem PRIMEIRO
+        try {
+            if (!$t->delete()) {
+                throw new \Exception("Não foi possível apagar.");
+            }
+        } catch (\Exception $e) {
+            throw new ServerErrorHttpException("Erro ao apagar triagem. Verifique se existem consultas associadas.");
+        }
+
+        // Se a triagem foi apagada, apagar a Pulseira associada
+        if ($pulseiraId) {
+            $pulseira = Pulseira::findOne($pulseiraId);
+            if ($pulseira) {
+                $pulseira->delete();
+            }
+        }
+
+        // Notificar MQTT
+        $this->safeMqttPublish("emergencysts/triagem", [
+            'titulo'     => 'Triagem Removida',
+            'mensagem'   => 'Uma triagem foi apagada do sistema.',
+            "evento"     => "triagem_apagada", // O Frontend deve usar isto para remover da lista
+            "triagem_id" => $id
+        ]);
+
+        return ["status" => "success"];
     }
 
-    // Notificar via MQTT
-    $this->safeMqttPublish("triagem/apagada/{$id}", [
-        "evento" => "triagem_apagada",
-        "triagem_id" => $id
-    ]);
-
-    return ["status" => "success"];
-}
-
-    /**
-     * Endpoint administrativo/estatístico
-     * Pacientes devem usar actionIndex para ver o seu histórico
-     */
+    // GET /api/triagem/historico
     public function actionHistorico()
     {
         $user = Yii::$app->user;
 
-        // Preparar a query base
         $query = Triagem::find()
             ->joinWith(['consulta'])
             ->with(['userprofile', 'pulseira'])
-            ->where(['consulta.estado' => 'Encerrada']) // Mostra só as encerradas
+            ->where(['consulta.estado' => 'Encerrada'])
             ->orderBy(['triagem.datatriagem' => SORT_DESC]);
 
-        // Se for Paciente, aplica o filtro pelo perfil dele
         if ($user->can('paciente')) {
             $query->joinWith(['userprofile' => function ($q) use ($user) {
                 $q->where(['user_id' => $user->id]);
@@ -218,8 +226,8 @@ class TriagemController extends BaseActiveController
         }
 
         $triagens = $query->all();
-
         $result = [];
+
         foreach ($triagens as $t) {
             $result[] = [
                 'id'                => $t->id,
@@ -244,6 +252,9 @@ class TriagemController extends BaseActiveController
         return $result;
     }
 
+    /**
+     * Helper MQTT
+     */
     protected function safeMqttPublish($topic, $payload)
     {
         $mqttEnabled = Yii::$app->params['mqtt_enabled'] ?? true;

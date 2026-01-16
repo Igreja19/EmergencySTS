@@ -6,7 +6,6 @@ use Yii;
 use yii\web\NotFoundHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\data\ActiveDataProvider;
-use backend\modules\api\controllers\BaseActiveController;
 use common\models\Pulseira;
 
 class PulseiraController extends BaseActiveController
@@ -22,24 +21,24 @@ class PulseiraController extends BaseActiveController
     public function actions()
     {
         $actions = parent::actions();
+        // Desativamos as ações padrão para as personalizarmos abaixo
         unset($actions['index'], $actions['view'], $actions['create'], $actions['update'], $actions['delete']);
         return $actions;
     }
 
-    // GET /api/pulseira
+    // GET /api/pulseiras
     public function actionIndex()
     {
         $user = Yii::$app->user;
         $query = Pulseira::find();
 
-        // Se for Paciente, filtra apenas as pulseiras dele (via UserProfile)
+        // 1. Se for Paciente, vê apenas as suas
         if ($user->can('paciente')) {
             $query->joinWith(['userprofile' => function ($q) use ($user) {
                 $q->where(['user_id' => $user->id]);
             }]);
         }
 
-        // (Disponíveis para todos, mas o paciente só filtra dentro das dele)
         $status = Yii::$app->request->get('status');
         if ($status) {
             $query->andWhere(['status' => $status]);
@@ -58,10 +57,9 @@ class PulseiraController extends BaseActiveController
         ]);
     }
 
-    // GET /api/pulseira/{id}
+    // GET /api/pulseiras/{id}
     public function actionView($id)
     {
-        // Carregar userprofile para evitar queries extra na verificação
         $pulseira = Pulseira::find()
             ->where(['id' => $id])
             ->with('userprofile')
@@ -71,10 +69,9 @@ class PulseiraController extends BaseActiveController
             throw new NotFoundHttpException("Pulseira não encontrada.");
         }
 
-        // Verificar se pertence ao utilizador logado
+        // Segurança: Paciente só vê a sua
         if (Yii::$app->user->can('paciente')) {
             $donoId = $pulseira->userprofile->user_id ?? null;
-
             if ($donoId != Yii::$app->user->id) {
                 throw new ForbiddenHttpException("Não tem permissão para ver esta pulseira.");
             }
@@ -83,54 +80,61 @@ class PulseiraController extends BaseActiveController
         return $pulseira;
     }
 
-    // PUT /api/pulseira/{id}
+    // PUT /api/pulseiras/{id}
     public function actionUpdate($id)
     {
-        // 1. Encontrar a pulseira
+        // 1. SEGURANÇA (Reintroduzida): Apenas Staff pode editar
+        if (!Yii::$app->user->can('medico') && !Yii::$app->user->can('enfermeiro') && !Yii::$app->user->can('admin')) {
+            throw new ForbiddenHttpException("Apenas profissionais de saúde podem alterar pulseiras.");
+        }
+
         $pulseira = Pulseira::findOne($id);
         if (!$pulseira) {
             throw new NotFoundHttpException("Pulseira não encontrada.");
         }
 
-        // 2. RECEBER O SINAL "GATILHO" DO LINK
-        // O Android vai enviar: .../api/pulseira/123?arquivar=1
         $modoArquivar = Yii::$app->request->get('arquivar');
 
-        // 3. EXECUÇÃO DE ARQUIVAR
         if ($modoArquivar == '1') {
-            
-            // --- CORREÇÃO IMPORTANTE: Usar 'Atendido' porque é o que a BD aceita ---
-            $pulseira->status = 'Atendido'; 
-            
-            // save(false) é OBRIGATÓRIO para ignorar validações estritas
-            if ($pulseira->save(false)) { 
-                
-                // Avisar o MQTT
-                $this->safeMqttPublish("pulseira/atualizada/{$pulseira->id}", [
-                    'evento'        => 'pulseira_atualizada',
+            $pulseira->status = 'Atendido';
+
+            if ($pulseira->save(false)) {
+                // Publica no tópico que FUNCIONA
+                $this->safeMqttPublish("emergencysts/triagem", [
+                    'titulo'        => 'Pulseira Arquivada',
+                    'mensagem'      => "A pulseira {$pulseira->codigo} foi arquivada (Atendida).",
+                    'evento'        => 'pulseira_atualizada', // Mantido evento genérico para refresh do grid
                     'pulseira_id'   => $pulseira->id,
                     'status'        => 'Atendido',
-                    'hora'          => date('Y-m-d H:i:s'),
                 ]);
                 return $pulseira;
             }
         }
 
-        // --- Código normal para outras atualizações ---
         $data = Yii::$app->request->getBodyParams();
         $pulseira->load($data, '');
+
         if ($pulseira->save()) {
+            // Notifica atualização de dados (cor, prioridade, etc)
+            $this->safeMqttPublish("emergencysts/triagem", [
+                'titulo'        => 'Pulseira Atualizada',
+                'mensagem'      => "A pulseira {$pulseira->codigo} foi atualizada.",
+                'evento'        => 'pulseira_atualizada',
+                'pulseira_id'   => $pulseira->id,
+                'status'        => $pulseira->status,
+                'prioridade'    => $pulseira->prioridade
+            ]);
+
             return $pulseira;
         }
 
-        return ['status' => 'error', 'msg' => 'Não foi possível gravar'];
+        return ['status' => 'error', 'errors' => $pulseira->errors];
     }
 
-   
-    // DELETE /api/pulseira/{id}
+    // DELETE /api/pulseiras/{id}
     public function actionDelete($id)
     {
-        // 1. Permitir Enfermeiros e Médicos
+        // Segurança
         if (!Yii::$app->user->can('medico') && !Yii::$app->user->can('enfermeiro') && !Yii::$app->user->can('admin')) {
             throw new ForbiddenHttpException("Sem permissão para arquivar.");
         }
@@ -140,18 +144,17 @@ class PulseiraController extends BaseActiveController
             throw new NotFoundHttpException("Pulseira não encontrada.");
         }
 
-        // 2. O TRUQUE: Em vez de apagar, mudamos para 'Atendido'
+        // Soft Delete (Muda status para Atendido)
         $pulseira->status = 'Atendido';
 
-        // 3. Gravar à força
         if ($pulseira->save(false)) {
-            
-            // Avisar MQTT
-            $this->safeMqttPublish("pulseira/atualizada/{$pulseira->id}", [
+
+            $this->safeMqttPublish("emergencysts/triagem", [
+                'titulo'        => 'Pulseira Removida',
+                'mensagem'      => "A pulseira {$pulseira->codigo} foi removida da lista.",
                 'evento'        => 'pulseira_atualizada',
                 'pulseira_id'   => $pulseira->id,
                 'status'        => 'Atendido',
-                'hora'          => date('Y-m-d H:i:s'),
             ]);
 
             return ['status' => 'success', 'message' => 'Pulseira arquivada com sucesso'];
@@ -160,15 +163,19 @@ class PulseiraController extends BaseActiveController
         return ['status' => 'error', 'message' => 'Erro ao arquivar'];
     }
 
+    /**
+     * Helper para publicar no MQTT sem crashar a API se o broker estiver offline
+     */
     protected function safeMqttPublish($topic, $payload)
     {
+        // Verifica se o componente existe e se o parâmetro global permite
         $mqttEnabled = Yii::$app->params['mqtt_enabled'] ?? true;
 
-        if ($mqttEnabled && isset(Yii::$app->mqtt)) {
+        if ($mqttEnabled && Yii::$app->has('mqtt')) {
             try {
                 Yii::$app->mqtt->publish($topic, json_encode($payload));
             } catch (\Exception $e) {
-                Yii::error("Erro MQTT ({$topic}): " . $e->getMessage());
+                Yii::error("Erro ao publicar MQTT ({$topic}): " . $e->getMessage());
             }
         }
     }

@@ -69,6 +69,8 @@
                 'class' => 'backend\components\MqttService',
                 'server' => '127.0.0.1',
                 'port' => 1883,
+                'username'=> 'emergencysts',
+                'password'=>'i%POZsi02Kmc',
                 'clientId' => 'backend-' . rand(1000,9999),
             ],
     
@@ -117,7 +119,6 @@
                 'enablePrettyUrl' => true,
                 'showScriptName' => false,
                 'rules' => [
-
                     // Autenticação
                     'GET api/auth/login'    => 'api/auth/login',
                     'POST api/auth/login'   => 'api/auth/login',
@@ -162,6 +163,7 @@
 
                             //Atualizar perfil via POST
                             'POST {id}' => 'update',
+
                         ],
                     ],
 

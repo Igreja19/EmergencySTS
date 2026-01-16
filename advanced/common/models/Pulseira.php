@@ -133,4 +133,52 @@ class Pulseira extends \yii\db\ActiveRecord
         // Permite usar ?expand=triagem,paciente
         return ['triagem', 'paciente', 'userprofile'];
     }
+    /**
+     * Envia notificação MQTT após criar uma nova pulseira
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+
+        if (!isset(Yii::$app->mqtt)) {
+            return;
+        }
+
+        try {
+            //Mensagem para o PACIENTE
+            $payloadPaciente = [
+                'id' => $this->id,
+                'codigo' => $this->codigo,
+                'titulo' => $insert ? 'Nova Pulseira' : 'Atualização',
+                'mensagem' => $insert
+                    ? 'A sua pulseira foi registada com sucesso. Aguarde a triagem.'
+                    : "O seu estado foi atualizado para {$this->prioridade} ({$this->status})",
+                'prioridade' => $this->prioridade,
+                'status' => $this->status,
+                'tipo' => 'paciente'
+            ];
+
+            $topicoPaciente = "notificacao/paciente/{$this->userprofile_id}";
+            Yii::$app->mqtt->publish($topicoPaciente, json_encode($payloadPaciente));
+
+            //Mensagem para o ENFERMEIRO
+            $payloadEnfermeiro = [
+                'id' => $this->id,
+                'codigo' => $this->codigo,
+                'titulo' => $insert ? 'Nova Pulseira Criada' : 'Pulseira Atualizada',
+                'mensagem' => $insert
+                    ? "Nova pulseira criada: {$this->codigo}"
+                    : "Pulseira {$this->codigo} atualizada para {$this->prioridade} ({$this->status})",
+                'prioridade' => $this->prioridade,
+                'status' => $this->status,
+                'tipo' => 'enfermeiro'
+            ];
+
+            $topicoEnfermeiro = "notificacao/enfermeiro";
+            Yii::$app->mqtt->publish($topicoEnfermeiro, json_encode($payloadEnfermeiro));
+
+        } catch (\Exception $e) {
+            Yii::error("Erro MQTT: " . $e->getMessage());
+        }
+    }
 }

@@ -63,7 +63,7 @@ class Notificacao extends ActiveRecord
     }
 
     /**
-     * 🔥 MÉTODO UNIVERSAL PARA CRIAR NOTIFICAÇÕES
+     * Método universal para criar notificações
      */
     public static function enviar($userprofileId, $titulo, $mensagem, $tipo = 'Geral')
     {
@@ -79,7 +79,7 @@ class Notificacao extends ActiveRecord
     }
 
     /**
-     * 🔥 FORMATO JSON PARA API / MOBILE
+     * Formato JSON para API / Mobile
      */
     public function fields()
     {
@@ -94,7 +94,7 @@ class Notificacao extends ActiveRecord
     }
 
     /**
-     * 🔥 Contar notificações não lidas do utilizador autenticado
+     * Contar notificações não lidas do utilizador autenticado
      */
     public static function countNaoLidas()
     {
@@ -110,7 +110,7 @@ class Notificacao extends ActiveRecord
     }
 
     /**
-     * 🔥 Contar notificações só do dia de hoje
+     * Contar notificações apenas do dia de hoje
      */
     public static function countHoje()
     {
@@ -129,7 +129,7 @@ class Notificacao extends ActiveRecord
     }
 
     /**
-     * 🔥 Contar todas as notificações
+     * Contar todas as notificações
      */
     public static function countTotal()
     {
