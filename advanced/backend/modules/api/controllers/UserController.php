@@ -36,7 +36,7 @@ class UserController extends BaseActiveController
         if (Yii::$app->user->can('admin')) {
             return new ActiveDataProvider([
                 'query' => UserProfile::find(),
-                'pagination' => ['pageSize' => 20],
+                'pagination' => false, //=> ['pageSize' => 20],
             ]);
         }
 

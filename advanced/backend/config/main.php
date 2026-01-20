@@ -67,7 +67,7 @@
     
             'mqtt' => [
                 'class' => 'backend\components\MqttService',
-                'server' => '127.0.0.1',
+                'server' => '172.22.21.215',
                 'port' => 1883,
                 'username'=> 'emergencysts',
                 'password'=>'i%POZsi02Kmc',
