@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Jan 24, 2026 at 05:01 PM
+-- Generation Time: Jan 24, 2026 at 08:50 PM
 -- Server version: 8.4.7
 -- PHP Version: 8.3.28
 
@@ -42,14 +42,14 @@ CREATE TABLE IF NOT EXISTS `auth_assignment` (
 
 INSERT INTO `auth_assignment` (`item_name`, `user_id`, `created_at`) VALUES
 ('admin', '19', 1761233604),
-('enfermeiro', '13', 1769023080),
+('enfermeiro', '13', 1769286939),
 ('enfermeiro', '14', 1769269612),
 ('enfermeiro', '15', 1769269607),
 ('enfermeiro', '18', 1769269401),
 ('medico', '38', 1769267645),
 ('medico', '39', 1769267638),
 ('medico', '40', 1766587286),
-('medico', '45', 1769267629),
+('medico', '45', 1769285872),
 ('paciente', '16', 1769269446),
 ('paciente', '20', 1763135051),
 ('paciente', '21', 1763135962),
@@ -164,7 +164,7 @@ CREATE TABLE IF NOT EXISTS `consulta` (
   PRIMARY KEY (`id`),
   KEY `fk_consulta_triagem_idx` (`triagem_id`),
   KEY `fk_userprofile_consulta` (`userprofile_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `consulta`
@@ -176,7 +176,9 @@ INSERT INTO `consulta` (`id`, `data_consulta`, `estado`, `observacoes`, `userpro
 (24, '2025-12-30 10:09:42', 'Encerrada', '', 21, 42, 13, '2025-12-30 10:10:32', NULL, 'admin'),
 (26, '2026-01-17 14:13:49', 'Encerrada', '', 39, 93, 13, '2026-01-17 14:32:56', NULL, 'admin'),
 (27, '2026-01-17 14:28:30', 'Encerrada', '', 11, 95, 13, '2026-01-17 14:42:29', NULL, 'admin'),
-(28, '2026-01-17 14:43:06', 'Encerrada', NULL, 22, 97, 13, '2026-01-17 14:52:55', NULL, 'admin');
+(28, '2026-01-17 14:43:06', 'Encerrada', NULL, 22, 97, 13, '2026-01-17 14:52:55', NULL, 'admin'),
+(29, '2026-01-24 20:45:29', 'Encerrada', '', 11, 99, 13, '2026-01-24 20:46:16', NULL, 'admin'),
+(30, '2026-01-24 20:47:36', 'Encerrada', 'nada acrescentar\r\n', 39, 101, 32, '2026-01-24 20:48:46', NULL, 'Dinis');
 
 -- --------------------------------------------------------
 
@@ -193,7 +195,7 @@ CREATE TABLE IF NOT EXISTS `login_history` (
   `user_agent` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_user_id` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=59 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `login_history`
@@ -242,7 +244,22 @@ INSERT INTO `login_history` (`id`, `user_id`, `data_login`, `ip`, `user_agent`) 
 (40, 15, '2026-01-18 22:47:08', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 OPR/126.0.0.0'),
 (41, 19, '2026-01-20 18:10:41', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 OPR/126.0.0.0'),
 (42, 13, '2026-01-24 15:16:49', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 OPR/126.0.0.0'),
-(43, 19, '2026-01-24 15:39:33', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 OPR/126.0.0.0');
+(43, 19, '2026-01-24 15:39:33', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 OPR/126.0.0.0'),
+(44, 19, '2026-01-24 20:13:37', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 OPR/126.0.0.0'),
+(45, 19, '2026-01-24 20:13:45', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 OPR/126.0.0.0'),
+(46, 19, '2026-01-24 20:17:42', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 OPR/126.0.0.0'),
+(47, 45, '2026-01-24 20:18:00', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 OPR/126.0.0.0'),
+(48, 19, '2026-01-24 20:18:40', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 OPR/126.0.0.0'),
+(49, 18, '2026-01-24 20:19:25', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 OPR/126.0.0.0'),
+(50, 19, '2026-01-24 20:20:28', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 OPR/126.0.0.0'),
+(51, 13, '2026-01-24 20:35:10', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 OPR/126.0.0.0'),
+(52, 19, '2026-01-24 20:35:23', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 OPR/126.0.0.0'),
+(53, 38, '2026-01-24 20:45:23', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 OPR/126.0.0.0'),
+(54, 19, '2026-01-24 20:46:03', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 OPR/126.0.0.0'),
+(55, 38, '2026-01-24 20:46:33', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 OPR/126.0.0.0'),
+(56, 19, '2026-01-24 20:46:44', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 OPR/126.0.0.0'),
+(57, 38, '2026-01-24 20:47:29', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 OPR/126.0.0.0'),
+(58, 19, '2026-01-24 20:49:02', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 OPR/126.0.0.0');
 
 -- --------------------------------------------------------
 
@@ -438,7 +455,7 @@ CREATE TABLE IF NOT EXISTS `prescricao` (
   `consulta_id` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_consulta_prescricao` (`consulta_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `prescricao`
@@ -450,7 +467,9 @@ INSERT INTO `prescricao` (`id`, `observacoes`, `dataprescricao`, `consulta_id`) 
 (21, '', '2025-12-30 10:09:47', 24),
 (22, '1', '2026-01-17 14:32:47', 26),
 (23, '2', '2026-01-17 14:33:57', 27),
-(24, '2', '2026-01-17 14:52:51', 28);
+(24, '2', '2026-01-17 14:52:51', 28),
+(25, '', '2026-01-24 20:45:50', 29),
+(26, '', '2026-01-24 20:48:09', 30);
 
 -- --------------------------------------------------------
 
@@ -467,7 +486,7 @@ CREATE TABLE IF NOT EXISTS `prescricaomedicamento` (
   PRIMARY KEY (`id`),
   KEY `fk_prescricaoMed_prescricao` (`prescricao_id`),
   KEY `fk_prescricaoMed_medicamento` (`medicamento_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `prescricaomedicamento`
@@ -480,7 +499,9 @@ INSERT INTO `prescricaomedicamento` (`id`, `posologia`, `prescricao_id`, `medica
 (22, '5 c', 21, 5),
 (23, '2', 22, 2),
 (24, '2', 23, 4),
-(25, '2', 24, 5);
+(25, '2', 24, 5),
+(26, '2', 25, 12),
+(27, '2', 26, 38);
 
 -- --------------------------------------------------------
 
@@ -498,7 +519,7 @@ CREATE TABLE IF NOT EXISTS `pulseira` (
   `userprofile_id` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_userprofile_pulseira` (`userprofile_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=83 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=84 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `pulseira`
@@ -515,8 +536,9 @@ INSERT INTO `pulseira` (`id`, `codigo`, `prioridade`, `status`, `tempoentrada`, 
 (77, '5A8BF185', 'Azul', 'Atendido', '2026-01-17 14:28:13', 11),
 (78, 'AF366D1A', 'Laranja', 'Atendido', '2026-01-17 14:34:08', 39),
 (79, 'F4D8A2F7', 'Laranja', 'Atendido', '2026-01-17 14:42:42', 22),
-(81, '1A2617C0', 'Laranja', 'Em espera', '2026-01-17 15:08:16', 11),
-(82, '1A884777', 'Pendente', 'Em espera', '2026-01-20 18:10:50', 30);
+(81, '1A2617C0', 'Laranja', 'Atendido', '2026-01-17 15:08:16', 11),
+(82, '1A884777', 'Pendente', 'Em espera', '2026-01-20 18:10:50', 30),
+(83, 'F8281E12', 'Verde', 'Atendido', '2026-01-24 20:47:07', 39);
 
 -- --------------------------------------------------------
 
@@ -540,7 +562,7 @@ CREATE TABLE IF NOT EXISTS `triagem` (
   PRIMARY KEY (`id`),
   KEY `fk_pulseira_id` (`pulseira_id`),
   KEY `fk_triagem_userprofile_id` (`userprofile_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=101 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=102 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `triagem`
@@ -558,7 +580,8 @@ INSERT INTO `triagem` (`id`, `motivoconsulta`, `queixaprincipal`, `descricaosint
 (96, 'sdf', 'sdf', 'sdf', '2026-01-17 14:34:00', 7, 'sdfsd', 'f', '2026-01-17 14:34:08', 39, 78),
 (97, 'ewf', 'ewf', 'ewf', '2026-01-17 14:42:00', 4, 'wef', 'wef', '2026-01-17 14:42:42', 22, 79),
 (99, '', '', '', NULL, 0, '', '', '2026-01-17 15:08:16', 11, 81),
-(100, '', '', '', NULL, 0, '', '', '2026-01-20 18:10:50', 30, 82);
+(100, '', '', '', NULL, 0, '', '', '2026-01-20 18:10:50', 30, 82),
+(101, '', '', '', NULL, 0, '', '', '2026-01-24 20:47:07', 39, 83);
 
 -- --------------------------------------------------------
 
@@ -590,7 +613,7 @@ CREATE TABLE IF NOT EXISTS `user` (
 --
 
 INSERT INTO `user` (`id`, `username`, `auth_key`, `password_hash`, `password_reset_token`, `email`, `status`, `created_at`, `updated_at`, `verification_token`, `primeiro_login`) VALUES
-(13, 'henrique', 'vaP80G6lRRA6t6gzN8V8mdd4r2GTaFYA', '$2y$13$eb3e8WM7NkvGb8jJ/90emu.rvswWdGOBRwPMDJxO1cqR9iCIA/fRi', NULL, 'henrique@admin.com', 10, 1761753767, 1761907875, NULL, 0),
+(13, 'Henrique', '0H9szpXIDEGRETNZV8Ek9-MGPyD6fr6D', '$2y$13$Vc7qBR3svsaIkQBi4CVeXefltcylcwDO534Bj3XiQllSxK5wGt1mi', NULL, 'henrique@admin.com', 10, 1761753767, 1769286939, NULL, 0),
 (14, 'Alfredo', 'MJ6vfKvxKc55si89uS4LFZ8idnQir-V_', '$2y$13$V89G4x2gPrOT.daBle0b9OMAVRg3z5V/lMYgjw5.hyEm0NIoleL1m', NULL, 'alfredo@gmail.com', 10, 1761765484, 1769269470, NULL, 0),
 (15, 'Renato', 'DHU1lrPcz4pIVPwgC6PLwRRBzV6OAzQO', '$2y$13$kLlON8JaHqYPIoQbmCJp/OIkMRIBYt6fIjMbjT0oRfrdmvi53fao2', NULL, 'renato@admin.com', 10, 1761841878, 1769269429, NULL, 0),
 (16, 'Gil', 'pW5Yn4GxUh8BgNglX2ftCiizXcfhbWc3', '$2y$13$/WzBBrgE.NmrxPzoDEYcO.O7kC7oY4UirlkgUFif3I1Ql7wDLHxyy', NULL, 'gil@gmail.com', 10, 1762957973, 1769269446, NULL, 0),
@@ -605,7 +628,7 @@ INSERT INTO `user` (`id`, `username`, `auth_key`, `password_hash`, `password_res
 (37, 'Filipa', 'vKH9pVNKLaFVOox1TdgOhIPOa02SQFNu', '$2y$13$ktzfeIknk8e79AyE6WUy1uAn3KOA/boZvVu4wM1kiFI9bFxNKF4eC', NULL, 'filipa@gmail.com', 10, 1764762374, 1769267706, NULL, 0),
 (38, 'Dinis', 'lNAsnHHNyU_2Aw9tyFltj3GFCECxMNe2', '$2y$13$qvXjCdfCZ8XhNXK385umD.NY3/Gu2hV80nDqzrd4fc69eF1EDDuY6', NULL, 'dinis@gmail.com', 10, 1764868352, 1769267645, NULL, 1),
 (39, 'Alberto', 'y3teXimPkVPWYKsD5E7v7qk83j2Qq6SC', '$2y$13$moT6dBtL1KNKV3GbLZdaJe6at6EEQkEPWBbBb9w.EgDIjmFMGze2q', NULL, 'alberto@gmail.com', 10, 1766583164, 1769267638, NULL, 1),
-(45, 'Gonçalo', '4WV87eLSqdLnOL8-4AGchVM2x0sbw3QF', '$2y$13$dDIwQ34bJlQjv/TgsfYGteoF5zqniKZKQ1IZK9xA3IAyurbzHb8pu', NULL, 'goncalo@gmail.com', 10, 1766587870, 1769267629, NULL, 1),
+(45, 'Gonçalo', 'lFPX8J0tkhNsbsuvxX6X_IVn-2kDsErn', '$2y$13$ZOlDHO0NCEhnpRiAK1ILue8aL8dRqMC1nfgaJONkSAmFAiSU7bQ6O', NULL, 'goncalo@gmail.com', 10, 1766587870, 1769285872, NULL, 1),
 (49, 'Maria', '8UVJwFUAdtxrFA7wTqH-QUK2a6fzMfQq', '$2y$13$qJlj0jbEfMwDGPQvxQogouJKuTwsioKn1Zg0Iz5Ebil.XeBwiwSZy', NULL, 'maria@gmail.com', 10, 1767089540, 1769267528, NULL, 0);
 
 -- --------------------------------------------------------
@@ -637,7 +660,7 @@ CREATE TABLE IF NOT EXISTS `userprofile` (
 --
 
 INSERT INTO `userprofile` (`id`, `nome`, `email`, `morada`, `nif`, `sns`, `datanascimento`, `genero`, `telefone`, `user_id`, `estado`) VALUES
-(8, 'henrique', 'henrique@admin.com', 'Rua das Flores, nº72 2445-034', '234938493', '398493928', '1990-07-19', 'M', '915429512', 13, 1),
+(8, 'Henrique', 'henrique@admin.com', 'Rua das Flores, nº72 2445-034', '234938493', '398493928', '1990-07-19', 'M', '915429512', 13, 1),
 (9, 'Alfredo', 'alfredo@gmail.com', 'Rua das Flores, nº72 2445-034', '483956185', '495284639', '2004-07-05', 'M', '915429512', 14, 1),
 (10, 'Renato', 'renato@admin.com', 'Rua das Flores, nº72 2445-034', '234549264', '485429512', '1989-12-12', 'M', '915429512', 15, 1),
 (11, 'Gil', 'gil@gmail.com', 'Rua das Flores, nº72 2445-0345', '498765456', '798765456', '2005-02-02', 'M', '929956648', 16, 1),
