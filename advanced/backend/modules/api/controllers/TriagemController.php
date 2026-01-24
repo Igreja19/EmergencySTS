@@ -22,7 +22,6 @@ class TriagemController extends BaseActiveController
         return $actions;
     }
 
-    // GET /api/triagem
     public function actionIndex()
     {
         $user = Yii::$app->user;
@@ -31,14 +30,12 @@ class TriagemController extends BaseActiveController
             ->with(['userprofile', 'pulseira'])
             ->orderBy(['datatriagem' => SORT_DESC]);
 
-        // Se for Paciente, aplica o filtro (vê a sua própria lista)
         if ($user->can('paciente')) {
             $query->joinWith(['userprofile' => function ($q) use ($user) {
                 $q->where(['user_id' => $user->id]);
             }]);
         }
 
-        // Filtro por pulseira (útil para ver o histórico de uma admissão específica)
         if ($p = Yii::$app->request->get('pulseira_id')) {
             $query->andWhere(['pulseira_id' => $p]);
         }
@@ -49,7 +46,6 @@ class TriagemController extends BaseActiveController
         ]);
     }
 
-    // GET /api/triagem/{id}
     public function actionView($id)
     {
         $t = Triagem::find()
@@ -72,14 +68,12 @@ class TriagemController extends BaseActiveController
         return $t;
     }
 
-    // POST /api/triagem
     public function actionCreate()
     {
         $model = new Triagem();
 
         if ($this->request->isPost && $model->load($this->request->post())) {
 
-            // Iniciar transação para garantir integridade
             $tx = Yii::$app->db->beginTransaction();
 
             try {
@@ -132,10 +126,8 @@ class TriagemController extends BaseActiveController
         return $this->render('create', ['model' => $model]);
     }
 
-    // PUT /api/triagem/{id}
     public function actionUpdate($id)
     {
-        // Verifica permissões
         if (!Yii::$app->user->can('enfermeiro') && !Yii::$app->user->can('medico')) {
             throw new ForbiddenHttpException("Sem permissão para editar triagens.");
         }
@@ -165,7 +157,6 @@ class TriagemController extends BaseActiveController
         return $t->errors;
     }
 
-    // DELETE /api/triagem/{id}
     public function actionDelete($id)
     {
         if (!Yii::$app->user->can('admin') && !Yii::$app->user->can('enfermeiro')) {
@@ -177,10 +168,8 @@ class TriagemController extends BaseActiveController
             throw new NotFoundHttpException("Triagem não encontrada.");
         }
 
-        // Guardar o ID da Pulseira para apagar DEPOIS
         $pulseiraId = $t->pulseira_id;
 
-        // Tentar apagar a Triagem PRIMEIRO
         try {
             if (!$t->delete()) {
                 throw new \Exception("Não foi possível apagar.");
@@ -189,7 +178,6 @@ class TriagemController extends BaseActiveController
             throw new ServerErrorHttpException("Erro ao apagar triagem. Verifique se existem consultas associadas.");
         }
 
-        // Se a triagem foi apagada, apagar a Pulseira associada
         if ($pulseiraId) {
             $pulseira = Pulseira::findOne($pulseiraId);
             if ($pulseira) {
@@ -197,7 +185,6 @@ class TriagemController extends BaseActiveController
             }
         }
 
-        // Notificar MQTT
         $this->safeMqttPublish("emergencysts/triagem", [
             'titulo'     => 'Triagem Removida',
             'mensagem'   => 'Uma triagem foi apagada do sistema.',
@@ -208,7 +195,6 @@ class TriagemController extends BaseActiveController
         return ["status" => "success"];
     }
 
-    // GET /api/triagem/historico
     public function actionHistorico()
     {
         $user = Yii::$app->user;

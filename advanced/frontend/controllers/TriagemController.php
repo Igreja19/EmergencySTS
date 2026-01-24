@@ -20,14 +20,12 @@ class TriagemController extends Controller
             $userProfileId = Yii::$app->user->identity->userprofile->id ?? null;
 
             if ($userProfileId) {
-                // Buscar a última pulseira
                 $ultimaPulseira = Pulseira::find()
                     ->where(['userprofile_id' => $userProfileId])
                     ->orderBy(['id' => SORT_DESC])
                     ->one();
 
                 if ($ultimaPulseira) {
-                    // Limpar o status (remover espaços e converter para minúsculas)
                     $statusLimpo = strtolower(trim($ultimaPulseira->status));
                     
                     //  Lista de estados permitidos (tudo em minúsculas)
@@ -57,21 +55,16 @@ class TriagemController extends Controller
             $model->userprofile_id = Yii::$app->user->identity->userprofile->id ?? null;
         }
 
-        // BLOQUEIO DE SEGURANÇA
-        
         $ultimaPulseira = Pulseira::find()
             ->where(['userprofile_id' => $model->userprofile_id])
             ->orderBy(['id' => SORT_DESC])
             ->one();
 
         if ($ultimaPulseira) {
-             // Limpar espaços e maiúsculas
              $statusLimpo = strtolower(trim($ultimaPulseira->status));
              
-             // Estados que permitem criar nova triagem
              $estadosFinais = ['finalizado', 'atendido', 'cancelado', 'concluido', 'concluída'];
              
-             // Se o estado atual NÃO estiver na lista, bloqueia.
              if (!in_array($statusLimpo, $estadosFinais)) {
                 
                 $estadoOriginal = $ultimaPulseira->status ?: "Desconhecido";
@@ -80,13 +73,11 @@ class TriagemController extends Controller
                 return $this->redirect(['site/index']);
              }
         }
-        // FIM DO BLOQUEIO
 
         if (Yii::$app->request->isPost && $model->load(Yii::$app->request->post())) {
 
             $model->datatriagem = date('Y-m-d H:i:s');
 
-            // Criar pulseira
             $pulseira = new Pulseira();
             $pulseira->codigo = strtoupper(substr(md5(uniqid()), 0, 8));
             $pulseira->prioridade = 'Pendente';

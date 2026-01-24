@@ -35,22 +35,22 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile.css');
             <?= $form->field($model, 'telefone')->textInput([
                     'maxlength' => true,
                     'placeholder' => '9XXXXXXXX',
-                    'inputmode' => 'numeric', // Teclado numérico no mobile
-                    'oninput' => "this.value = this.value.replace(/[^0-9]/g, '')" // Bloqueia letras
+                    'inputmode' => 'numeric',
+                    'oninput' => "this.value = this.value.replace(/[^0-9]/g, '')"
             ]) ?>
         </div>
         <div class="col-md-3">
             <?= $form->field($model, 'nif')->textInput([
                     'maxlength' => true,
                     'inputmode' => 'numeric', // Teclado numérico no mobile
-                    'oninput' => "this.value = this.value.replace(/[^0-9]/g, '')" // Bloqueia letras
+                    'oninput' => "this.value = this.value.replace(/[^0-9]/g, '')"
             ]) ?>
         </div>
         <div class="col-md-3">
             <?= $form->field($model, 'sns')->textInput([
                     'maxlength' => true,
                     'inputmode' => 'numeric', // Teclado numérico no mobile
-                    'oninput' => "this.value = this.value.replace(/[^0-9]/g, '')" // Bloqueia letras
+                    'oninput' => "this.value = this.value.replace(/[^0-9]/g, '')"
             ]) ?>
         </div>
     </div>
@@ -68,7 +68,7 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile.css');
                     ->input('date', [
                             'onkeydown' => 'return false',
                             'onpaste' => 'return false',
-                            'onclick' => 'this.showPicker()', // força a abrir o calendario
+                            'onclick' => 'this.showPicker()',
                     ]) ?>
         </div>
         <div class="col-md-4">
@@ -82,7 +82,7 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile.css');
     <div class="row g-3">
         <div class="col-md-6">
             <?= $form->field($model, 'role')->dropDownList(
-                    $roleOptions ?? [], // garante que não dá erro se a variável não existir
+                    $roleOptions ?? [],
                     ['prompt' => '— Selecionar função —']
             )->label('Função / Role') ?>
         </div>

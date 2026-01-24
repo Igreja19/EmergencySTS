@@ -96,16 +96,13 @@ class LoginForm extends Model
         if ($this->scenario === self::SCENARIO_BACKEND && !$hasAccess) {
             $this->acessoRestrito = true;
 
-            // LIMPA erros antigos (password)
             $this->clearErrors();
 
-            // Mensagem correta
             $this->addError('username', 'Não tem permissões para aceder ao backoffice.');
 
             return false;
         }
 
-        // ✅ Só aqui é que o login acontece
         return Yii::$app->user->login(
             $user,
             $this->rememberMe ? 3600 * 24 * 30 : 0

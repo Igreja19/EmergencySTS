@@ -10,7 +10,6 @@
 .acoes {
     text-align:center;
 }
-/* === FORMULÁRIOS === */
 .userprofile-form,
 .triagem-form {
     background: #fff;
@@ -45,7 +44,6 @@
     box-shadow: 0 0 0 0.15rem rgba(25,135,84,.25);
 }
 
-/* === BOTÕES GERAIS === */
 .btn-save {
     background: linear-gradient(90deg, #198754 0%, #28a745 100%);
     color: #fff;
@@ -69,7 +67,6 @@
 }
 .btn-cancel:hover { background: #e9ecef; color: #495057; }
 
-/* === TABELAS MODERNAS === */
 .card-table {
     background: #fff;
     border-radius: 20px;
@@ -78,7 +75,6 @@
     margin-bottom: 25px;
 }
 
-/* Botão “Novo” */
 .btn-new {
     background: linear-gradient(90deg, #198754 0%, #28a745 100%);
     color: #fff !important;
@@ -91,17 +87,15 @@
 }
 .btn-new:hover { transform: translateY(-2px); opacity: 0.9; }
 
-/* === TABELA MODERNA === */
 .table-modern {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
     border-radius: 12px;
     overflow: hidden;
-    text-align: center; /* CENTRA TODA A TABELA */
+    text-align: center;
 }
 
-/* Cabeçalho verde com texto preto */
 .table-modern thead tr {
     background-color: #198754 !important;
     color: #000 !important;
@@ -120,16 +114,14 @@
 }
 .table-modern th a:hover { text-decoration: underline; }
 
-/* Corpo da tabela */
 .table-modern td {
     padding: 12px 15px;
     color: #000 !important;
     vertical-align: middle !important;
-    text-align: center; /* Centraliza colunas */
+    text-align: center;
     background-color: #fff;
 }
 
-/* Linhas alternadas + hover */
 .table-modern tbody tr:nth-child(even) td {
     background-color: #f8f9fa !important;
 }
@@ -138,7 +130,6 @@
     transition: background-color 0.2s ease-in-out;
 }
 
-/* === BOTÕES DE AÇÃO === */
 .btn-action {
     display: inline-flex;
     align-items: center;
@@ -166,7 +157,6 @@
 }
 .btn-action:hover { transform: scale(1.08); }
 
-/* === FORMULÁRIO DE PESQUISA === */
 .userprofile-search,
 .triagem-search {
     background: #fff;
@@ -189,7 +179,6 @@
     padding: 8px 18px;
 }
 
-/* === RESPONSIVIDADE === */
 @media (max-width: 768px) {
     .table-modern th,
     .table-modern td {

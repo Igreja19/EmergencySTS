@@ -7,12 +7,8 @@ use yii\web\NotFoundHttpException;
 
 class DoutorController extends Controller
 {
-    /**
-     * Mostra a view de um doutor. Se não existir na BD, usa dados inventados para os ids conhecidos.
-     */
     public function actionView($id)
     {
-        // Tabela de dados fictícios (podes editar/expandir)
         $fake = [
             1 => [
                 'name' => 'Dr. João Silva',
@@ -48,16 +44,10 @@ class DoutorController extends Controller
             ],
         ];
 
-        // Se tiveres um modelo real na BD, tenta obter — senão usa os dados fictícios
-        // Exemplo (descomentar se tiveres o modelo Doutor):
-        // $model = \common\models\Doutor::findOne($id);
-        // if ($model !== null) { return $this->render('view', ['model' => $model]); }
-
         if (!isset($fake[$id])) {
             throw new NotFoundHttpException('O doutor solicitado não foi encontrado.');
         }
 
-        // Criar um objecto simples que a view aceita (mesmas propriedades)
         $data = $fake[$id];
         $model = new \stdClass();
         $model->id = $id;
@@ -66,16 +56,13 @@ class DoutorController extends Controller
         $model->bio = $data['bio'];
         $model->email = $data['email'];
         $model->phone = $data['phone'];
-        $model->photo = $data['photo']; // caminho relativo ao webroot
+        $model->photo = $data['photo'];
 
         return $this->render('view', [
             'model' => $model,
         ]);
     }
 
-    /**
-     * Opcional: actionIndex que lista os cards com os mesmos dados fictícios
-     */
     public function actionIndex()
     {
         $fake = [
@@ -85,7 +72,6 @@ class DoutorController extends Controller
             4 => ['name'=>'Dr. Ricardo Matos','speciality'=>'Neurologia','photo'=>'img/doctor4.jpg'],
         ];
 
-        // converter para objects para facilitar na view (opcional)
         $doutores = [];
         foreach ($fake as $id => $d) {
             $o = new \stdClass();

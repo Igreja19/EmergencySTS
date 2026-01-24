@@ -4,17 +4,15 @@ use yii\helpers\Html;
 /** @var common\models\Consulta $consulta */
 /** @var common\models\Prescricao $prescricao */
 /** @var string $medicoNome */
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/prescricao/pdf.css');
 
-// Paciente (userprofile)
 $paciente = $consulta->userprofilePaciente ?? $consulta->userprofile;
 
-// Idade
 $idade = '';
 if (!empty($paciente->data_nascimento)) {
     $idade = date_diff(date_create($paciente->data_nascimento), date_create('today'))->y;
 }
 
-// Logo
 $logoPath = Yii::getAlias('@backend/web/img/logo.png');
 ?>
 
@@ -24,76 +22,10 @@ $logoPath = Yii::getAlias('@backend/web/img/logo.png');
     <meta charset="utf-8">
     <title>Prescrição #<?= Html::encode($prescricao->id) ?></title>
 
-    <style>
-        body { font-family: DejaVu Sans, sans-serif; font-size: 12px; }
-
-        .header {
-            background: #1f9d55;
-            padding: 14px;
-            border-radius: 6px;
-            color: white;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .logo { height: 48px; margin-right: 12px; }
-        .brand { display: flex; align-items: center; }
-        .brand-title { font-size: 22px; font-weight: bold; }
-
-        .meta { text-align: right; }
-
-        .card {
-            border: 1px solid #ddd;
-            padding: 14px;
-            border-radius: 6px;
-            margin-bottom: 18px;
-        }
-
-        .section-title {
-            font-size: 16px;
-            font-weight: bold;
-            color: #1f9d55;
-            margin-bottom: 8px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 8px;
-        }
-
-        th {
-            width: 28%;
-            background: #f1f1f1;
-            padding: 6px;
-            text-align: left;
-        }
-
-        td {
-            padding: 6px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .med-card {
-            border: 1px solid #1f9d55;
-            padding: 10px;
-            border-radius: 6px;
-            margin-bottom: 10px;
-        }
-
-        .footer {
-            text-align: center;
-            margin-top: 24px;
-            font-size: 10px;
-            color: #777;
-        }
-    </style>
 </head>
 
 <body>
 
-<!-- HEADER -->
 <div class="header">
     <div class="brand">
         <?php if (file_exists($logoPath)): ?>
@@ -109,7 +41,6 @@ $logoPath = Yii::getAlias('@backend/web/img/logo.png');
 </div>
 
 
-<!-- PACIENTE -->
 <div class="card">
     <div class="section-title">Dados do Paciente</div>
 
@@ -131,7 +62,6 @@ $logoPath = Yii::getAlias('@backend/web/img/logo.png');
 </div>
 
 
-<!-- MÉDICO -->
 <div class="card">
     <div class="section-title">Médico Responsável</div>
 
@@ -142,7 +72,6 @@ $logoPath = Yii::getAlias('@backend/web/img/logo.png');
 </div>
 
 
-<!-- CONSULTA -->
 <div class="card">
     <div class="section-title">Consulta Associada</div>
 
@@ -158,7 +87,6 @@ $logoPath = Yii::getAlias('@backend/web/img/logo.png');
 </div>
 
 
-<!-- PRESCRIÇÃO -->
 <div class="card">
     <div class="section-title">Dados da Prescrição</div>
 
@@ -175,7 +103,6 @@ $logoPath = Yii::getAlias('@backend/web/img/logo.png');
 </div>
 
 
-<!-- MEDICAMENTOS -->
 <div class="card">
     <div class="section-title">Medicamentos Prescritos</div>
 
@@ -195,7 +122,6 @@ $logoPath = Yii::getAlias('@backend/web/img/logo.png');
 </div>
 
 
-<!-- FOOTER -->
 <div class="footer">
     EmergencySTS · Documento gerado automaticamente · <?= date('d/m/Y H:i') ?>
 </div>

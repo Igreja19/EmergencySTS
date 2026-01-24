@@ -14,7 +14,6 @@ use yii\web\Response;
  */
 class BaseActiveController extends ActiveController
 {
-    // Configuração Global de Formatação JSON e Autenticação
     public function behaviors()
     {
         $behaviors = parent::behaviors();
@@ -42,11 +41,9 @@ class BaseActiveController extends ActiveController
             return false;
         }
         
-        // Correção do erro "Undefined variable $user"
         $user = Yii::$app->user;
 
         // Apenas garante que está logado. 
-        // A distinção entre Paciente vs Médico será feita no checkAccess() de cada controller.
         if ($user->isGuest) {
             throw new ForbiddenHttpException("Tem de realizar login.");
         }

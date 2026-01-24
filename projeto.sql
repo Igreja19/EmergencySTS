@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.3
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Tempo de geração: 30-Dez-2025 às 11:00
--- Versão do servidor: 9.1.0
--- versão do PHP: 8.2.26
+-- Generation Time: Jan 24, 2026 at 05:01 PM
+-- Server version: 8.4.7
+-- PHP Version: 8.3.28
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,47 +18,47 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Banco de dados: `projeto`
+-- Database: `projeto`
 --
 
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `auth_assignment`
+-- Table structure for table `auth_assignment`
 --
 
 DROP TABLE IF EXISTS `auth_assignment`;
 CREATE TABLE IF NOT EXISTS `auth_assignment` (
-  `item_name` varchar(64) COLLATE utf8mb4_general_ci NOT NULL,
-  `user_id` varchar(64) COLLATE utf8mb4_general_ci NOT NULL,
+  `item_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `user_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `created_at` int DEFAULT NULL,
   PRIMARY KEY (`item_name`,`user_id`),
   KEY `idx-auth_assignment-user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Extraindo dados da tabela `auth_assignment`
+-- Dumping data for table `auth_assignment`
 --
 
 INSERT INTO `auth_assignment` (`item_name`, `user_id`, `created_at`) VALUES
-('admin', '1', 1761233604),
-('admin', '19', 1762983475),
-('enfermeiro', '13', 1763136201),
-('enfermeiro', '18', 1763136190),
-('medico', '15', 1763136196),
-('medico', '38', 1766589157),
-('medico', '39', 1766583164),
+('admin', '19', 1761233604),
+('enfermeiro', '13', 1769023080),
+('enfermeiro', '14', 1769269612),
+('enfermeiro', '15', 1769269607),
+('enfermeiro', '18', 1769269401),
+('medico', '38', 1769267645),
+('medico', '39', 1769267638),
 ('medico', '40', 1766587286),
-('medico', '45', 1766587870),
-('paciente', '16', 1763135389),
+('medico', '45', 1769267629),
+('paciente', '16', 1769269446),
 ('paciente', '20', 1763135051),
 ('paciente', '21', 1763135962),
 ('paciente', '22', 1763135978),
 ('paciente', '24', 1763136036),
-('paciente', '25', 1763136144),
-('paciente', '26', 1763312479),
-('paciente', '27', 1764160961),
-('paciente', '28', 1766587218),
+('paciente', '25', 1769267769),
+('paciente', '26', 1769267747),
+('paciente', '27', 1769267728),
+('paciente', '28', 1769267689),
 ('paciente', '29', 1764162766),
 ('paciente', '30', 1764163099),
 ('paciente', '31', 1764163216),
@@ -66,13 +66,14 @@ INSERT INTO `auth_assignment` (`item_name`, `user_id`, `created_at`) VALUES
 ('paciente', '33', 1764163738),
 ('paciente', '34', 1764164327),
 ('paciente', '35', 1764164544),
-('paciente', '37', 1764762374),
-('paciente', '49', 1767089540);
+('paciente', '36', 1769267697),
+('paciente', '37', 1769267706),
+('paciente', '49', 1769267528);
 
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `auth_item`
+-- Table structure for table `auth_item`
 --
 
 DROP TABLE IF EXISTS `auth_item`;
@@ -90,7 +91,7 @@ CREATE TABLE IF NOT EXISTS `auth_item` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 --
--- Extraindo dados da tabela `auth_item`
+-- Dumping data for table `auth_item`
 --
 
 INSERT INTO `auth_item` (`name`, `type`, `description`, `rule_name`, `data`, `created_at`, `updated_at`) VALUES
@@ -109,7 +110,7 @@ INSERT INTO `auth_item` (`name`, `type`, `description`, `rule_name`, `data`, `cr
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `auth_item_child`
+-- Table structure for table `auth_item_child`
 --
 
 DROP TABLE IF EXISTS `auth_item_child`;
@@ -121,7 +122,7 @@ CREATE TABLE IF NOT EXISTS `auth_item_child` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 --
--- Extraindo dados da tabela `auth_item_child`
+-- Dumping data for table `auth_item_child`
 --
 
 INSERT INTO `auth_item_child` (`parent`, `child`) VALUES
@@ -130,7 +131,7 @@ INSERT INTO `auth_item_child` (`parent`, `child`) VALUES
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `auth_rule`
+-- Table structure for table `auth_rule`
 --
 
 DROP TABLE IF EXISTS `auth_rule`;
@@ -145,39 +146,42 @@ CREATE TABLE IF NOT EXISTS `auth_rule` (
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `consulta`
+-- Table structure for table `consulta`
 --
 
 DROP TABLE IF EXISTS `consulta`;
 CREATE TABLE IF NOT EXISTS `consulta` (
   `id` int NOT NULL AUTO_INCREMENT,
   `data_consulta` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `estado` enum('Aberta','Encerrada','Em curso') COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'Aberta',
-  `observacoes` text COLLATE utf8mb4_general_ci,
+  `estado` enum('Aberta','Encerrada','Em curso') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'Aberta',
+  `observacoes` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
   `userprofile_id` int DEFAULT NULL,
   `triagem_id` int DEFAULT NULL,
   `medicouserprofile_id` int NOT NULL,
   `data_encerramento` datetime DEFAULT NULL,
-  `relatorio_pdf` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `medico_nome` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `relatorio_pdf` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `medico_nome` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_consulta_triagem_idx` (`triagem_id`),
   KEY `fk_userprofile_consulta` (`userprofile_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Extraindo dados da tabela `consulta`
+-- Dumping data for table `consulta`
 --
 
 INSERT INTO `consulta` (`id`, `data_consulta`, `estado`, `observacoes`, `userprofile_id`, `triagem_id`, `medicouserprofile_id`, `data_encerramento`, `relatorio_pdf`, `medico_nome`) VALUES
 (19, '2025-12-26 11:28:51', 'Encerrada', '', 22, 36, 13, '2025-12-28 11:34:59', NULL, NULL),
 (22, '2025-12-28 11:56:17', 'Encerrada', '', 11, 40, 13, '2025-12-30 10:04:20', NULL, NULL),
-(24, '2025-12-30 10:09:42', 'Encerrada', '', 21, 42, 13, '2025-12-30 10:10:32', NULL, 'admin');
+(24, '2025-12-30 10:09:42', 'Encerrada', '', 21, 42, 13, '2025-12-30 10:10:32', NULL, 'admin'),
+(26, '2026-01-17 14:13:49', 'Encerrada', '', 39, 93, 13, '2026-01-17 14:32:56', NULL, 'admin'),
+(27, '2026-01-17 14:28:30', 'Encerrada', '', 11, 95, 13, '2026-01-17 14:42:29', NULL, 'admin'),
+(28, '2026-01-17 14:43:06', 'Encerrada', NULL, 22, 97, 13, '2026-01-17 14:52:55', NULL, 'admin');
 
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `login_history`
+-- Table structure for table `login_history`
 --
 
 DROP TABLE IF EXISTS `login_history`;
@@ -189,10 +193,10 @@ CREATE TABLE IF NOT EXISTS `login_history` (
   `user_agent` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_user_id` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Extraindo dados da tabela `login_history`
+-- Dumping data for table `login_history`
 --
 
 INSERT INTO `login_history` (`id`, `user_id`, `data_login`, `ip`, `user_agent`) VALUES
@@ -229,25 +233,34 @@ INSERT INTO `login_history` (`id`, `user_id`, `data_login`, `ip`, `user_agent`) 
 (31, 38, '2025-12-24 15:12:49', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 OPR/124.0.0.0'),
 (32, 19, '2025-12-24 15:13:06', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 OPR/124.0.0.0'),
 (33, 38, '2025-12-24 15:14:49', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 OPR/124.0.0.0'),
-(34, 19, '2025-12-24 15:15:20', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 OPR/124.0.0.0');
+(34, 19, '2025-12-24 15:15:20', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 OPR/124.0.0.0'),
+(35, 19, '2026-01-02 19:49:26', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36 OPR/125.0.0.0'),
+(36, 13, '2026-01-07 15:03:09', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36 OPR/125.0.0.0'),
+(37, 19, '2026-01-07 16:48:30', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36 OPR/125.0.0.0'),
+(38, 19, '2026-01-18 22:46:44', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 OPR/126.0.0.0'),
+(39, 13, '2026-01-18 22:46:55', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 OPR/126.0.0.0'),
+(40, 15, '2026-01-18 22:47:08', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 OPR/126.0.0.0'),
+(41, 19, '2026-01-20 18:10:41', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 OPR/126.0.0.0'),
+(42, 13, '2026-01-24 15:16:49', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 OPR/126.0.0.0'),
+(43, 19, '2026-01-24 15:39:33', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 OPR/126.0.0.0');
 
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `medicamento`
+-- Table structure for table `medicamento`
 --
 
 DROP TABLE IF EXISTS `medicamento`;
 CREATE TABLE IF NOT EXISTS `medicamento` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `nome` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  `dosagem` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  `indicacao` text COLLATE utf8mb4_general_ci,
+  `nome` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `dosagem` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `indicacao` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Extraindo dados da tabela `medicamento`
+-- Dumping data for table `medicamento`
 --
 
 INSERT INTO `medicamento` (`id`, `nome`, `dosagem`, `indicacao`) VALUES
@@ -294,18 +307,18 @@ INSERT INTO `medicamento` (`id`, `nome`, `dosagem`, `indicacao`) VALUES
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `migration`
+-- Table structure for table `migration`
 --
 
 DROP TABLE IF EXISTS `migration`;
 CREATE TABLE IF NOT EXISTS `migration` (
-  `version` varchar(180) COLLATE utf8mb4_general_ci NOT NULL,
+  `version` varchar(180) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `apply_time` int DEFAULT NULL,
   PRIMARY KEY (`version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Extraindo dados da tabela `migration`
+-- Dumping data for table `migration`
 --
 
 INSERT INTO `migration` (`version`, `apply_time`) VALUES
@@ -314,7 +327,7 @@ INSERT INTO `migration` (`version`, `apply_time`) VALUES
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `notificacao`
+-- Table structure for table `notificacao`
 --
 
 DROP TABLE IF EXISTS `notificacao`;
@@ -328,10 +341,10 @@ CREATE TABLE IF NOT EXISTS `notificacao` (
   `userprofile_id` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_notificacao_userprofile_id` (`userprofile_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=81 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=86 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Extraindo dados da tabela `notificacao`
+-- Dumping data for table `notificacao`
 --
 
 INSERT INTO `notificacao` (`id`, `titulo`, `mensagem`, `tipo`, `dataenvio`, `lida`, `userprofile_id`) VALUES
@@ -404,12 +417,17 @@ INSERT INTO `notificacao` (`id`, `titulo`, `mensagem`, `tipo`, `dataenvio`, `lid
 (77, 'Utilizador eliminado', 'A conta paciente5 foi eliminada.', 'Geral', '2025-12-30 09:53:51', 0, 13),
 (78, 'Consulta eliminada', 'A \'Consulta #23\' foi apagada do histórico.', 'Geral', '2025-12-30 10:03:33', 0, 13),
 (79, 'Consulta eliminada', 'A \'Consulta #21\' foi apagada do histórico.', 'Geral', '2025-12-30 10:09:27', 0, 13),
-(80, 'Novo utilizador criado', 'Foi criada uma nova conta: paciente5', 'Geral', '2025-12-30 10:12:20', 0, 13);
+(80, 'Novo utilizador criado', 'Foi criada uma nova conta: paciente5', 'Geral', '2025-12-30 10:12:20', 0, 13),
+(81, 'Utilizador ativado', 'A conta paciente4 foi ativada.', 'Geral', '2026-01-02 20:53:19', 0, 13),
+(82, 'Utilizador ativado', 'A conta paciente4 foi ativada.', 'Geral', '2026-01-02 20:53:26', 0, 13),
+(83, 'Utilizador ativado', 'A conta paciente51 foi ativada.', 'Geral', '2026-01-17 14:31:09', 0, 13),
+(84, 'Utilizador ativado', 'A conta paciente51 foi ativada.', 'Geral', '2026-01-17 14:31:24', 0, 13),
+(85, 'Utilizador ativado', 'A conta paciente4 foi ativada.', 'Geral', '2026-01-21 19:16:16', 0, 13);
 
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `prescricao`
+-- Table structure for table `prescricao`
 --
 
 DROP TABLE IF EXISTS `prescricao`;
@@ -420,48 +438,54 @@ CREATE TABLE IF NOT EXISTS `prescricao` (
   `consulta_id` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_consulta_prescricao` (`consulta_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=latin1;
 
 --
--- Extraindo dados da tabela `prescricao`
+-- Dumping data for table `prescricao`
 --
 
 INSERT INTO `prescricao` (`id`, `observacoes`, `dataprescricao`, `consulta_id`) VALUES
 (17, '', '2025-12-28 11:34:46', 19),
 (18, '', '2025-12-28 11:56:28', 22),
-(21, '', '2025-12-30 10:09:47', 24);
+(21, '', '2025-12-30 10:09:47', 24),
+(22, '1', '2026-01-17 14:32:47', 26),
+(23, '2', '2026-01-17 14:33:57', 27),
+(24, '2', '2026-01-17 14:52:51', 28);
 
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `prescricaomedicamento`
+-- Table structure for table `prescricaomedicamento`
 --
 
 DROP TABLE IF EXISTS `prescricaomedicamento`;
 CREATE TABLE IF NOT EXISTS `prescricaomedicamento` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `posologia` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `posologia` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `prescricao_id` int NOT NULL,
   `medicamento_id` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_prescricaoMed_prescricao` (`prescricao_id`),
   KEY `fk_prescricaoMed_medicamento` (`medicamento_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Extraindo dados da tabela `prescricaomedicamento`
+-- Dumping data for table `prescricaomedicamento`
 --
 
 INSERT INTO `prescricaomedicamento` (`id`, `posologia`, `prescricao_id`, `medicamento_id`) VALUES
 (17, '4 c', 17, 3),
 (18, '2 c', 18, 4),
 (19, '1 c', 18, 5),
-(22, '5 c', 21, 5);
+(22, '5 c', 21, 5),
+(23, '2', 22, 2),
+(24, '2', 23, 4),
+(25, '2', 24, 5);
 
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `pulseira`
+-- Table structure for table `pulseira`
 --
 
 DROP TABLE IF EXISTS `pulseira`;
@@ -474,21 +498,30 @@ CREATE TABLE IF NOT EXISTS `pulseira` (
   `userprofile_id` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_userprofile_pulseira` (`userprofile_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=83 DEFAULT CHARSET=latin1;
 
 --
--- Extraindo dados da tabela `pulseira`
+-- Dumping data for table `pulseira`
 --
 
 INSERT INTO `pulseira` (`id`, `codigo`, `prioridade`, `status`, `tempoentrada`, `userprofile_id`) VALUES
 (22, '19C5F289', 'Verde', 'Atendido', '2025-12-24 12:51:56', 22),
 (25, '792858F5', 'Laranja', 'Atendido', '2025-12-28 11:55:46', 11),
-(26, '189BEB91', 'Vermelho', 'Atendido', '2025-12-29 10:20:39', 21);
+(26, '189BEB91', 'Vermelho', 'Atendido', '2025-12-29 10:20:39', 21),
+(30, '5F8CF10C', 'Vermelho', 'Em atendimento', '2026-01-02 20:47:40', 11),
+(70, '5420A0C3', 'Vermelho', 'Atendido', '2026-01-15 17:34:04', 39),
+(75, 'D1E04AE4', 'Vermelho', 'Atendido', '2026-01-17 14:12:29', 39),
+(76, '79B5FEC8', 'Amarelo', 'Atendido', '2026-01-17 14:18:30', 11),
+(77, '5A8BF185', 'Azul', 'Atendido', '2026-01-17 14:28:13', 11),
+(78, 'AF366D1A', 'Laranja', 'Atendido', '2026-01-17 14:34:08', 39),
+(79, 'F4D8A2F7', 'Laranja', 'Atendido', '2026-01-17 14:42:42', 22),
+(81, '1A2617C0', 'Laranja', 'Em espera', '2026-01-17 15:08:16', 11),
+(82, '1A884777', 'Pendente', 'Em espera', '2026-01-20 18:10:50', 30);
 
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `triagem`
+-- Table structure for table `triagem`
 --
 
 DROP TABLE IF EXISTS `triagem`;
@@ -507,10 +540,10 @@ CREATE TABLE IF NOT EXISTS `triagem` (
   PRIMARY KEY (`id`),
   KEY `fk_pulseira_id` (`pulseira_id`),
   KEY `fk_triagem_userprofile_id` (`userprofile_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=101 DEFAULT CHARSET=latin1;
 
 --
--- Extraindo dados da tabela `triagem`
+-- Dumping data for table `triagem`
 --
 
 INSERT INTO `triagem` (`id`, `motivoconsulta`, `queixaprincipal`, `descricaosintomas`, `iniciosintomas`, `intensidadedor`, `alergias`, `medicacao`, `datatriagem`, `userprofile_id`, `pulseira_id`) VALUES
@@ -518,12 +551,19 @@ INSERT INTO `triagem` (`id`, `motivoconsulta`, `queixaprincipal`, `descricaosint
 (40, 'Dor no Queixo', 'teste', 'teste', '2025-12-28 11:55:00', 1, 'tsetes', 'testse', '2025-12-28 11:55:46', 11, 25),
 (41, 'Dor no Queixo', 'teste', 'teste', '2025-12-28 11:55:00', 1, 'tsetes', 'testse', '2025-12-28 11:56:01', 11, 25),
 (42, 'Dor no Queixo2', 'dOR NO QUERIO', 'querio', '2025-12-29 10:20:00', 7, 'dor', 'no querio', '2025-12-29 10:20:39', 21, 26),
-(43, 'Dor no Queixo2', 'dOR NO QUERIO', 'querio', '2025-12-29 10:20:00', 7, 'dor', 'no querio', '2025-12-29 10:45:45', 21, 26);
+(43, 'Dor no Queixo2', 'dOR NO QUERIO', 'querio', '2025-12-29 10:20:00', 7, 'dor', 'no querio', '2025-12-29 10:45:45', 21, 26),
+(93, 'sad', 'sad', 'asd', '2026-01-17 14:12:00', 6, 'sad', 'asd', '2026-01-17 14:12:29', 39, 75),
+(94, '', '', '', NULL, 0, '', '', '2026-01-17 14:18:30', 11, 76),
+(95, '', '', '', NULL, 0, '', '', '2026-01-17 14:28:13', 11, 77),
+(96, 'sdf', 'sdf', 'sdf', '2026-01-17 14:34:00', 7, 'sdfsd', 'f', '2026-01-17 14:34:08', 39, 78),
+(97, 'ewf', 'ewf', 'ewf', '2026-01-17 14:42:00', 4, 'wef', 'wef', '2026-01-17 14:42:42', 22, 79),
+(99, '', '', '', NULL, 0, '', '', '2026-01-17 15:08:16', 11, 81),
+(100, '', '', '', NULL, 0, '', '', '2026-01-20 18:10:50', 30, 82);
 
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `user`
+-- Table structure for table `user`
 --
 
 DROP TABLE IF EXISTS `user`;
@@ -546,32 +586,32 @@ CREATE TABLE IF NOT EXISTS `user` (
 ) ENGINE=InnoDB AUTO_INCREMENT=50 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 --
--- Extraindo dados da tabela `user`
+-- Dumping data for table `user`
 --
 
 INSERT INTO `user` (`id`, `username`, `auth_key`, `password_hash`, `password_reset_token`, `email`, `status`, `created_at`, `updated_at`, `verification_token`, `primeiro_login`) VALUES
 (13, 'henrique', 'vaP80G6lRRA6t6gzN8V8mdd4r2GTaFYA', '$2y$13$eb3e8WM7NkvGb8jJ/90emu.rvswWdGOBRwPMDJxO1cqR9iCIA/fRi', NULL, 'henrique@admin.com', 10, 1761753767, 1761907875, NULL, 0),
-(14, 'henrique2', 'js3kFvtb9Wll0UeVVJsnycj6gxfzeuqO', '$2y$13$gj08.hqXkJZdLKWyLPL1buvBCEVoW74SeGVZViX1Sm3k4p.gTR/yC', NULL, 'henrique2@admin.com', 10, 1761765484, 1761907640, NULL, 0),
-(15, 'henrique3', '63wiuOFwnacZUswcy7rsJvH0VbsALtIl', '$2y$13$Uqcj5pOm8btQqPmqHVD7xOOcuVMTiC3.PTNLwwG/js0JKNgi8l8tC', NULL, 'henrique3@admin.com', 10, 1761841878, 1761841884, NULL, 0),
-(16, 'paciente', 'iwCBKSHgv3PdisglhLUwIi7uaodtv5KZ', '$2y$13$k5/Z4U83KEGiWv5pZaZWK.Hw0FYdcyZba6EmO.nr9MHCDkrwfMl.u', NULL, 'paciente@gmail.com', 10, 1762957973, 1762957982, NULL, 0),
+(14, 'Alfredo', 'MJ6vfKvxKc55si89uS4LFZ8idnQir-V_', '$2y$13$V89G4x2gPrOT.daBle0b9OMAVRg3z5V/lMYgjw5.hyEm0NIoleL1m', NULL, 'alfredo@gmail.com', 10, 1761765484, 1769269470, NULL, 0),
+(15, 'Renato', 'DHU1lrPcz4pIVPwgC6PLwRRBzV6OAzQO', '$2y$13$kLlON8JaHqYPIoQbmCJp/OIkMRIBYt6fIjMbjT0oRfrdmvi53fao2', NULL, 'renato@admin.com', 10, 1761841878, 1769269429, NULL, 0),
+(16, 'Gil', 'pW5Yn4GxUh8BgNglX2ftCiizXcfhbWc3', '$2y$13$/WzBBrgE.NmrxPzoDEYcO.O7kC7oY4UirlkgUFif3I1Ql7wDLHxyy', NULL, 'gil@gmail.com', 10, 1762957973, 1769269446, NULL, 0),
 (17, 'fabio', 'uzFzzNSoXGyx_G6WA_PXA-2XE9XsG2A-', '$2y$13$1H4srvB689klIiVTDDXvveyGhpbV5LITcpj.wXY5ikgtMUFuceO2m', NULL, 'fabio@gmail.com', 10, 1762960888, 1762960953, NULL, 0),
-(18, 'zezoca', '5Bafu7LFi6mEO7F0RH7rLBcxEj0YhgMp', '$2y$13$01.YP4ozXB5DwglMWyfRFOqrQQpT6aDFvmdMpB2LVWhfAl02IQ2MW', NULL, 'zezoca@gmail.com', 10, 1762961282, 1762961299, NULL, 0),
+(18, 'Paulo', 'b3R7Smmh_RItS1EM9ljuvZlRD8vAz3ou', '$2y$13$JXHr5Q0leMCTdNKBMRyoe.9APMMV6qweaYm3WinZwa7VFcbBfUxMa', NULL, 'paulo@gmail.com', 10, 1762961282, 1769269401, NULL, 0),
 (19, 'admin', '1eb4dvYH88w6nwTQQxOx8X4usCN5Vsx9', '$2y$13$c9RoUdyuZeDVhARmt/bLtOc73kvunKc1rFSn.O9.EZW2DtvniKOUi', NULL, 'admin@gmail.com', 10, 1762983420, 1762983426, NULL, 0),
-(25, '12345', '069jWVY2Hf57qaZs7GVttH0C546yFHhr', '$2y$13$ZCoZAalg/kKJHluxdVOzsOJ01drMAzjy2a3f25KWUmYM2Ya8jONc6', NULL, '12345@gmail.com', 10, 1763136144, 1763136150, NULL, 0),
-(26, 'teste2', 'swgEKZYTj4noVicIu0Gn9iULcVNsNeTJ', '$2y$13$LegFdmCEgQ5yL4kw7pgv4OJh.Xn2nY3ZWugAz8XgFUlPVxBdHStfq', NULL, 'teste@gmail.com', 10, 1763312479, 1763312485, NULL, 0),
-(27, 'paciente2', 'wwWgciererk9OapR5MPcGqrWO_3On8EG', '$2y$13$99Rr4ZHLqQaRJzKPk0V0bulwAxXh9TU4Bgu.VvSf6wrGleQv9.oqe', NULL, 'paciente2@gmail.com', 10, 1764160961, 1764160965, NULL, 0),
-(28, 'paciente3', '_iifqcDX744sz7WQLO3E0sk-URNQQ2jC', '$2y$13$IvT3881ahISiO0Gt0RBUaOoPKTTbHN/Odu1NiN6A0sGU/jxYgMAp2', NULL, 'paciente3@gmail.com', 10, 1764161031, 1766587218, NULL, 0),
-(36, 'paciente4', 'HYOTJpUaNFBVADfceoYCrtq5IocoA2aD', '$2y$13$cF4JtAIhv/2rfDnr62fdRekzJ8ekjuot0b0SRWuFD/KWZ/2iJ9b3i', NULL, 'paciente4@gmail.com', 10, 1764165030, 1766586510, NULL, 0),
-(37, 'henrique4', 'x7yW-zYrwhIyp_i92W4VZBwGMeiWRRed', '$2y$13$B2Ctd3q4V2cq9jpD9vTm5eSAAXCku7c1GF4d7rVHxMQiPj5QGt02a', NULL, 'henrique4@gmail.com', 10, 1764762374, 1764762380, NULL, 0),
-(38, 'Medico', 'dKJiVpmve8TbqFjTBDa7exaWdz3kKIlv', '$2y$13$d.dclh3Z6uB10tVyRfOFQOMRzZ4NT1lmStf4t6Vx.9PK6EAJaDQMy', NULL, 'medico@gmail.com', 10, 1764868352, 1766589157, NULL, 1),
-(39, 'medico2', 'Wyqc-o7n9ox5BwE10Y0CmjtojJmwtJZ-', '$2y$13$oA/bD9qQo0Jyp/ti8N1JoOnW4f.6N1Hnnb73Nr6FIlfXnmfkICv0u', NULL, 'medico2@gmail.com', 10, 1766583164, 1766583164, NULL, 1),
-(45, 'medico3', 'sQVFJGHyc_N_e2uWKKnZ8m8i4qvOBv3T', '$2y$13$t1e9Ug5Ur39AFs5FXARRKewWGQviRyXT1hvPDeV9NlEYBm8KYPAEm', NULL, 'medico3@gmail.com', 10, 1766587870, 1766587870, NULL, 1),
-(49, 'paciente5', 'zNG7K6Px_qALO_D8cUbmFLxAPstFSYfz', '$2y$13$6O/yjY.MHdlC802nRl4wdurCBKH9cf86KzgipQuXOf6WIDwgd8Wyq', NULL, 'paciente5@gmail.com', 10, 1767089540, 1767089632, NULL, 0);
+(25, 'Jose', 'XwqsVZrd-l2Se_x-z3LmJWsR_MW_Vzez', '$2y$13$4Dxl1XDoyn2940SAJqqDfeG1aYWf3TWtNe2vFQSBuJ.jith3Pv6Xu', NULL, 'jose@gmail.com', 10, 1763136144, 1769267769, NULL, 0),
+(26, 'Pedro', 'rJqHeDquPDduFwRPdC9pRaqsZ2XAeWi_', '$2y$13$.IGIDv/Kxo58wBu3pC7GIuB5JZC73z8AsQuMO3hCJ09HnBhlwOYyy', NULL, 'pedro@gmail.com', 10, 1763312479, 1769267747, NULL, 0),
+(27, 'Inês', 'M12Ywnxc6T9QqSUk7ByDE2dt5KrmSXqF', '$2y$13$A3Lv7bumptwJjInQWMyFV.QWZJbIFGnrKlJy9Rp2XjsS/iOsHVKa2', NULL, 'ines@gmail.com', 10, 1764160961, 1769267728, NULL, 0),
+(28, 'Miguel', 'k13dhaCCRRBjtj2D0Xpa4Hq-nUAyfF65', '$2y$13$.6E1rZ7dieB9rySuOaCQa.l3NQish3vfLICA5JkVJbdsxSNH1.Sim', NULL, 'miguel@gmail.com', 10, 1764161031, 1769267689, NULL, 0),
+(36, 'João', 'nMAjM7NytYFZvUaHcJgCYuZr1qRv9yoo', '$2y$13$qXyjg6QOcS5Jy0VufQznSOOijgRgP7ad9QYXvxVN4oj2ep7R0C4tC', NULL, 'joao@gmail.com', 10, 1764165030, 1769267697, NULL, 0),
+(37, 'Filipa', 'vKH9pVNKLaFVOox1TdgOhIPOa02SQFNu', '$2y$13$ktzfeIknk8e79AyE6WUy1uAn3KOA/boZvVu4wM1kiFI9bFxNKF4eC', NULL, 'filipa@gmail.com', 10, 1764762374, 1769267706, NULL, 0),
+(38, 'Dinis', 'lNAsnHHNyU_2Aw9tyFltj3GFCECxMNe2', '$2y$13$qvXjCdfCZ8XhNXK385umD.NY3/Gu2hV80nDqzrd4fc69eF1EDDuY6', NULL, 'dinis@gmail.com', 10, 1764868352, 1769267645, NULL, 1),
+(39, 'Alberto', 'y3teXimPkVPWYKsD5E7v7qk83j2Qq6SC', '$2y$13$moT6dBtL1KNKV3GbLZdaJe6at6EEQkEPWBbBb9w.EgDIjmFMGze2q', NULL, 'alberto@gmail.com', 10, 1766583164, 1769267638, NULL, 1),
+(45, 'Gonçalo', '4WV87eLSqdLnOL8-4AGchVM2x0sbw3QF', '$2y$13$dDIwQ34bJlQjv/TgsfYGteoF5zqniKZKQ1IZK9xA3IAyurbzHb8pu', NULL, 'goncalo@gmail.com', 10, 1766587870, 1769267629, NULL, 1),
+(49, 'Maria', '8UVJwFUAdtxrFA7wTqH-QUK2a6fzMfQq', '$2y$13$qJlj0jbEfMwDGPQvxQogouJKuTwsioKn1Zg0Iz5Ebil.XeBwiwSZy', NULL, 'maria@gmail.com', 10, 1767089540, 1769267528, NULL, 0);
 
 -- --------------------------------------------------------
 
 --
--- Estrutura da tabela `userprofile`
+-- Table structure for table `userprofile`
 --
 
 DROP TABLE IF EXISTS `userprofile`;
@@ -593,91 +633,91 @@ CREATE TABLE IF NOT EXISTS `userprofile` (
 ) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=latin1;
 
 --
--- Extraindo dados da tabela `userprofile`
+-- Dumping data for table `userprofile`
 --
 
 INSERT INTO `userprofile` (`id`, `nome`, `email`, `morada`, `nif`, `sns`, `datanascimento`, `genero`, `telefone`, `user_id`, `estado`) VALUES
-(8, 'henrique', 'henrique@admin.com', 'Rua das Flores, nº72 2445-034', '234938493', '398493928', '2333-02-23', 'M', '915429512', 13, 1),
-(9, 'Henrique Salgado', 'henriquesalgado@gmail.com', 'Rua das Flores, nº72 2445-034', '483956185', '495284639', '2004-07-05', 'M', '915429512', 14, 1),
-(10, 'henrique3', 'henrique3@admin.com', 'Rua das Flores, nº72 2445-034', '234549264', '485429512', '2234-03-02', 'M', '915429512', 15, 1),
-(11, 'paciente', 'paciente@gmail.com', 'Rua das Flores, nº72 2445-034', '987654567', '098765456', '2005-02-02', 'M', '929956648', 16, 1),
-(12, 'zezoca', 'zezoca@gmail.com', 'rua', '123', '1234', '2025-11-11', 'M', '2343412313', 18, 1),
-(13, 'admin', 'admin@gmail.com', 'Leiria', '232', '123', '2005-07-25', 'M', '912881282', 19, 1),
-(19, '12345', '12345@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, 25, 1),
-(20, 'teste2', 'teste@gmail.com', 's', 'sdf', 'sdf', '2005-04-13', 'M', 'sdf', 26, 1),
-(21, 'paciente2', 'paciente2@gmail.com', 'Rua das Flores, nº72 2445-034', '648549245', '854926135', '2025-11-26', 'F', '915429512', 27, 1),
-(22, 'paciente3', 'paciente3@gmail.com', 'Rua das Flores, nº72 2445-034', '548659135', '584965821', '2025-11-26', 'M', '915429512', 28, 1),
-(30, 'paciente4', 'paciente4@gmail.com', 'Rua das Flores, nº72 2445-034', '858372838', '377823737', '2025-11-26', 'M', '915429512', 36, 0),
-(31, 'henrique4', 'henrique4@gmail.com', 'Rua das Flores, nº72 2445-034', '234324324', '234234324', '2025-12-03', 'F', '915429512', 37, 1),
-(32, 'Medico', 'medico@gmail.com', 'Rua das Flores, nº72 2445-034', '959595955', '259292929', '2025-12-04', 'M', '964586959', 38, 1),
-(33, 'medico2', 'medico2@gmail.com', 'Rua das Flores, nº72 2445-034', '987654567', '876543456', '2006-06-06', 'M', '912881283', 39, 1),
-(35, 'medico3', 'medico3@gmail.com', 'Rua das Flores, nº72 2445-034', '456789098', '876543456', '2004-07-07', 'M', '915429748', 45, 1),
-(39, 'paciente5', 'paciente5@gmail.com', 'Rua das Flores, nº72 2445-034', '876543256', '876546789', '2025-12-18', 'F', '912881495', 49, 1);
+(8, 'henrique', 'henrique@admin.com', 'Rua das Flores, nº72 2445-034', '234938493', '398493928', '1990-07-19', 'M', '915429512', 13, 1),
+(9, 'Alfredo', 'alfredo@gmail.com', 'Rua das Flores, nº72 2445-034', '483956185', '495284639', '2004-07-05', 'M', '915429512', 14, 1),
+(10, 'Renato', 'renato@admin.com', 'Rua das Flores, nº72 2445-034', '234549264', '485429512', '1989-12-12', 'M', '915429512', 15, 1),
+(11, 'Gil', 'gil@gmail.com', 'Rua das Flores, nº72 2445-0345', '498765456', '798765456', '2005-02-02', 'M', '929956648', 16, 1),
+(12, 'Paulo', 'paulo@gmail.com', 'rua', '312386423', '312386423', '2025-11-11', 'M', '2343412313', 18, 1),
+(13, 'admin', 'admin@gmail.com', 'Leiria..', '666666666', '666666666', '2005-07-25', 'M', '912881282', 19, 1),
+(19, 'Jose', 'jose@gmail.com', 'Leiria', '387654567', '198765456', '2013-06-13', 'M', '929956648', 25, 1),
+(20, 'Pedro', 'pedro@gmail.com', 's', '834467326', '834467326', '2005-04-13', 'M', '917857332', 26, 1),
+(21, 'Inês', 'ines@gmail.com', 'Rua das Flores, nº72 2445-034', '648549245', '854926135', '2025-11-26', 'F', '915429512', 27, 1),
+(22, 'Miguel', 'miguel@gmail.com', 'Rua das Flores, nº72 2445-034', '548659135', '584965821', '2025-11-26', 'M', '915429512', 28, 1),
+(30, 'João', 'joao@gmail.com', 'Rua das Flores, nº72 2445-034', '858372838', '377823737', '2025-11-26', 'M', '915429512', 36, 1),
+(31, 'Filipa', 'filipa@gmail.com', 'Rua das Flores, nº72 2445-034', '234324324', '234234324', '2025-12-03', 'F', '915429512', 37, 1),
+(32, 'Dinis', 'dinis@gmail.com', 'Rua das Flores, nº72 2445-034', '959595955', '259292929', '2025-12-04', 'M', '964586959', 38, 1),
+(33, 'Alberto', 'alberto@gmail.com', 'Rua das Flores, nº72 2445-034', '987654567', '876543456', '2006-06-06', 'M', '912881283', 39, 1),
+(35, 'Gonçalo', 'goncalo@gmail.com', 'Rua das Flores, nº72 2445-034', '456789098', '456789098', '2004-07-07', 'M', '915429748', 45, 1),
+(39, 'Maria', 'maria@gmail.com', 'Rua das Flores, nº72 2445-0344', '876543256', '876546789', '2025-12-18', 'F', '912881495', 49, 1);
 
 --
--- Restrições para despejos de tabelas
+-- Constraints for dumped tables
 --
 
 --
--- Limitadores para a tabela `auth_item`
+-- Constraints for table `auth_item`
 --
 ALTER TABLE `auth_item`
   ADD CONSTRAINT `auth_item_ibfk_1` FOREIGN KEY (`rule_name`) REFERENCES `auth_rule` (`name`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
--- Limitadores para a tabela `auth_item_child`
+-- Constraints for table `auth_item_child`
 --
 ALTER TABLE `auth_item_child`
   ADD CONSTRAINT `auth_item_child_ibfk_1` FOREIGN KEY (`parent`) REFERENCES `auth_item` (`name`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `auth_item_child_ibfk_2` FOREIGN KEY (`child`) REFERENCES `auth_item` (`name`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Limitadores para a tabela `consulta`
+-- Constraints for table `consulta`
 --
 ALTER TABLE `consulta`
   ADD CONSTRAINT `fk_consulta_triagem` FOREIGN KEY (`triagem_id`) REFERENCES `triagem` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_consulta_utilizador` FOREIGN KEY (`userprofile_id`) REFERENCES `userprofile` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
--- Limitadores para a tabela `login_history`
+-- Constraints for table `login_history`
 --
 ALTER TABLE `login_history`
   ADD CONSTRAINT `fk_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Limitadores para a tabela `notificacao`
+-- Constraints for table `notificacao`
 --
 ALTER TABLE `notificacao`
   ADD CONSTRAINT `fk_userprofile_id` FOREIGN KEY (`userprofile_id`) REFERENCES `userprofile` (`id`);
 
 --
--- Limitadores para a tabela `prescricao`
+-- Constraints for table `prescricao`
 --
 ALTER TABLE `prescricao`
   ADD CONSTRAINT `prescricao_ibfk_1` FOREIGN KEY (`consulta_id`) REFERENCES `consulta` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 --
--- Limitadores para a tabela `prescricaomedicamento`
+-- Constraints for table `prescricaomedicamento`
 --
 ALTER TABLE `prescricaomedicamento`
   ADD CONSTRAINT `fk_prescricaoMed_medicamento` FOREIGN KEY (`medicamento_id`) REFERENCES `medicamento` (`id`),
   ADD CONSTRAINT `fk_prescricaoMed_prescricao` FOREIGN KEY (`prescricao_id`) REFERENCES `prescricao` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 --
--- Limitadores para a tabela `pulseira`
+-- Constraints for table `pulseira`
 --
 ALTER TABLE `pulseira`
   ADD CONSTRAINT `fk_userprofile_pulseira` FOREIGN KEY (`userprofile_id`) REFERENCES `userprofile` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT;
 
 --
--- Limitadores para a tabela `triagem`
+-- Constraints for table `triagem`
 --
 ALTER TABLE `triagem`
   ADD CONSTRAINT `fk_pulseira_id` FOREIGN KEY (`pulseira_id`) REFERENCES `pulseira` (`id`),
   ADD CONSTRAINT `fk_triagem_userprofile_id` FOREIGN KEY (`userprofile_id`) REFERENCES `userprofile` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT;
 
 --
--- Limitadores para a tabela `userprofile`
+-- Constraints for table `userprofile`
 --
 ALTER TABLE `userprofile`
   ADD CONSTRAINT `fk_userprofile_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;

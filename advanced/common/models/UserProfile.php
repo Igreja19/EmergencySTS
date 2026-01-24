@@ -134,7 +134,6 @@ class UserProfile extends \yii\db\ActiveRecord
         return $this->hasMany(\common\models\Pulseira::class, ['userprofile_id' => 'id']);
     }
 
-     // MÉTODOS DE ESTADO
     public function desativar(): bool
     {
         $this->estado = self::DESATIVO;

@@ -10,7 +10,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/site/site.css');
     <div class="login-card card border-0 shadow-lg rounded-4">
         <div class="card-body text-center">
 
-            <!-- 🔹 Logótipo / Ícone -->
             <div class="mb-4">
                 <div class="d-flex justify-content-center mb-3">
                     <div class="login-icon shadow-sm">
@@ -24,7 +23,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/site/site.css');
                 <p class="text-muted small">Área exclusiva para funcionários do hospital</p>
             </div>
 
-            <!-- 🔹 Formulário -->
             <?php $form = ActiveForm::begin([
                     'id' => 'login-form',
                     'layout' => 'default',
@@ -58,7 +56,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/site/site.css');
 
             <?php ActiveForm::end(); ?>
 
-            <!-- 🔹 Rodapé / Alerta -->
             <div class="alert alert-light border mt-4 small shadow-sm text-start" role="alert">
                 <i class="bi bi-shield-lock-fill text-success me-2"></i>
                 <strong>Acesso Seguro:</strong> Apenas funcionários autorizados podem aceder.

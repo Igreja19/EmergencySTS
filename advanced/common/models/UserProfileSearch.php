@@ -7,7 +7,7 @@ use yii\data\ActiveDataProvider;
 
 class UserProfileSearch extends UserProfile
 {
-    public $q; // pesquisa global
+    public $q;
 
     public function rules()
     {

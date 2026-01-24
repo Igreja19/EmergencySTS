@@ -97,7 +97,6 @@ $this->title = "Histórico de Consultas";
                                         : '{view} {pdf}',
                                 'buttons' => [
 
-                                    // 👁 VER
                                         'view' => function ($url, $model) {
                                             return Html::a(
                                                     '<i class="bi bi-eye"></i>',
@@ -106,7 +105,6 @@ $this->title = "Histórico de Consultas";
                                             );
                                         },
 
-                                    // 📄 PDF
                                         'pdf' => function ($url, $model) {
                                             if ($model->estado !== Consulta::ESTADO_ENCERRADA) {
                                                 return Html::button(
@@ -132,7 +130,6 @@ $this->title = "Histórico de Consultas";
                                             );
                                         },
 
-                                    // 🗑 APAGAR
                                         'delete' => function ($url, $model) {
                                             return Html::a(
                                                     '<i class="bi bi-trash"></i>',

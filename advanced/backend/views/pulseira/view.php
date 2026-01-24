@@ -21,9 +21,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/pulseira/view.css');
             <?= Html::a('<i class="bi bi-arrow-left-circle me-1"></i> Voltar', ['index'], ['class' => 'btn btn-back']) ?>
         </div>
 
-        <!-- ================================
-             DETALHES DA PULSEIRA
-        ================================= -->
         <?= DetailView::widget([
                 'model' => $model,
                 'attributes' => [

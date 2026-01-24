@@ -27,7 +27,6 @@ class PrescricaoSearch extends Prescricao
      */
     public function scenarios()
     {
-        // bypass scenarios() implementation in the parent class
         return Model::scenarios();
     }
 
@@ -43,8 +42,6 @@ class PrescricaoSearch extends Prescricao
     {
         $query = Prescricao::find();
 
-        // add conditions that should always apply here
-
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
@@ -52,8 +49,6 @@ class PrescricaoSearch extends Prescricao
         $this->load($params, $formName);
 
         if (!$this->validate()) {
-            // uncomment the following line if you do not want to return any records when validation fails
-            // $query->where('0=1');
             return $dataProvider;
         }
 

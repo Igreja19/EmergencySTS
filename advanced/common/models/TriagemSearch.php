@@ -37,7 +37,6 @@ class TriagemSearch extends Triagem
         $query = Triagem::find()
             ->joinWith(['userprofile', 'pulseira']);
 
-        // 🔥 Mostrar apenas triagens cuja pulseira está PENDENTE
         $query->andWhere(['pulseira.prioridade' => 'Pendente']);
 
         $dataProvider = new ActiveDataProvider([
@@ -48,7 +47,6 @@ class TriagemSearch extends Triagem
             ],
         ]);
 
-        // Ordenação por prioridade (opcional)
         $dataProvider->sort->attributes['prioridade'] = [
             'asc' => [
                 new Expression("FIELD(pulseira.prioridade, 'Azul','Verde','Amarelo','Laranja','Vermelho')")
@@ -58,7 +56,6 @@ class TriagemSearch extends Triagem
             ],
         ];
 
-        // Ordem padrão: mais recente primeiro
         $dataProvider->sort->defaultOrder = ['datatriagem' => SORT_DESC];
 
         // Carregar filtros do formulário
@@ -68,7 +65,6 @@ class TriagemSearch extends Triagem
             return $dataProvider;
         }
 
-        // Filtros exatos
         $query->andFilterWhere([
             'triagem.id'       => $this->id,
             'intensidadedor'   => $this->intensidadedor,
@@ -76,14 +72,12 @@ class TriagemSearch extends Triagem
             'pulseira_id'      => $this->pulseira_id,
         ]);
 
-        // Filtros LIKE
         $query->andFilterWhere(['like', 'motivoconsulta', $this->motivoconsulta])
             ->andFilterWhere(['like', 'queixaprincipal', $this->queixaprincipal])
             ->andFilterWhere(['like', 'descricaosintomas', $this->descricaosintomas])
             ->andFilterWhere(['like', 'alergias', $this->alergias])
             ->andFilterWhere(['like', 'medicacao', $this->medicacao]);
 
-        // Filtro por data
         if (!empty($this->datatriagem)) {
             $inicio = $this->datatriagem . ' 00:00:00';
             $fim    = $this->datatriagem . ' 23:59:59';

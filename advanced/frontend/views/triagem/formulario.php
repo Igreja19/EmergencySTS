@@ -7,7 +7,6 @@ use yii\widgets\ActiveForm;
 $this->title = 'Formulário Clínico - EmergencySTS';
 $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/formulario.css');
 
-/* 🔹 Garantir login */
 if (Yii::$app->user->isGuest) {
     echo "<div class='container py-5 text-center'>
             <div class='alert alert-danger'>
@@ -20,7 +19,6 @@ if (Yii::$app->user->isGuest) {
 $user = Yii::$app->user->identity;
 $userProfile = $user->userprofile ?? null;
 
-/* 🔹 Garantir que o userprofile existe */
 if (!$userProfile) {
     echo "<div class='container py-5 text-center'>
             <div class='alert alert-danger'>
@@ -46,12 +44,10 @@ if (!$userProfile) {
                 'method' => 'post'
         ]); ?>
 
-        <!-- 🔹 DADOS PESSOAIS -->
         <h6 class="fw-bold text-success mt-2 mb-3">Dados Pessoais</h6>
 
         <div class="row g-3 mb-3">
 
-            <!-- Nome -->
             <div class="col-md-6">
                 <label class="form-label fw-semibold text-success">
                     <i class="bi bi-person me-2"></i> Nome Completo
@@ -61,7 +57,6 @@ if (!$userProfile) {
                        readonly>
             </div>
 
-            <!-- Data de Nascimento -->
             <div class="col-md-3">
                 <label class="form-label fw-semibold text-success">
                     <i class="bi bi-calendar me-2"></i> Data de Nascimento
@@ -76,7 +71,6 @@ if (!$userProfile) {
                 >
             </div>
 
-            <!-- SNS -->
             <div class="col-md-3">
                 <label class="form-label fw-semibold text-success">
                     <i class="bi bi-hospital me-2"></i> Número de Utente (SNS)
@@ -88,7 +82,6 @@ if (!$userProfile) {
         </div>
 
         <div class="row g-3 mb-3">
-            <!-- Telefone -->
             <div class="col-md-6">
                 <label class="form-label fw-semibold text-success">
                     <i class="bi bi-telephone me-2"></i> Telefone
@@ -98,7 +91,6 @@ if (!$userProfile) {
                        readonly>
             </div>
 
-            <!-- Motivo da Consulta -->
             <div class="col-md-6">
                 <?= $form->field($model, 'motivoconsulta')
                         ->textInput(['placeholder' => 'Motivo da consulta'])
@@ -106,7 +98,6 @@ if (!$userProfile) {
             </div>
         </div>
 
-        <!-- 🔹 SINTOMAS E QUEIXAS -->
         <h6 class="fw-bold text-success section-spacing">Sintomas e Queixas</h6>
         <?= $form->field($model, 'queixaprincipal')
                 ->textarea(['rows' => 3, 'placeholder' => 'Descreva a queixa principal...'])
@@ -119,7 +110,6 @@ if (!$userProfile) {
         <div class="row g-3 mb-3">
             <div class="col-md-6">
 
-                <!-- 🔹 CAMPO COM A VALIDAÇÃO DO ANO -->
                 <?= $form->field($model, 'iniciosintomas')
                         ->input('datetime-local', [
                                 'id' => 'triagem-iniciosintomas',
@@ -152,7 +142,6 @@ if (!$userProfile) {
             </div>
         </div>
 
-        <!-- 🔹 CONDIÇÕES, ALERGIAS E MEDICAÇÃO -->
         <h6 class="fw-bold text-success section-spacing">Informações Adicionais</h6>
 
         <?= $form->field($model, 'alergias')
@@ -163,7 +152,6 @@ if (!$userProfile) {
                 ->textarea(['rows' => 2, 'placeholder' => 'Medicação atual...'])
                 ->label('<i class="bi bi-capsule me-2"></i> Medicação Atual') ?>
 
-        <!-- 🔹 BOTÃO -->
         <?= Html::hiddenInput('Triagem[userprofile_id]', $userProfile->id) ?>
         <div class="text-center mt-4">
             <?= Html::submitButton('<i class="bi bi-save me-2"></i> Submeter Formulário', [
@@ -174,7 +162,6 @@ if (!$userProfile) {
         <?php ActiveForm::end(); ?>
     </div>
 
-    <!-- 🔹 SCRIPT: valida ano (min = atual−100, max = atual) -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const campoData = document.querySelector('#triagem-iniciosintomas');
@@ -201,7 +188,6 @@ if (!$userProfile) {
             }
         });
 
-        // Bloqueia múltiplos envios
         document.querySelector('#form-triagem').addEventListener('submit', function() {
             const btn = document.querySelector('.submit-btn');
             btn.disabled = true;

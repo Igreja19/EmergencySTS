@@ -90,7 +90,6 @@ $isEnfermeiro = in_array('enfermeiro', $roles);
 
     function ligarSSE() {
 
-        // 🚀 URL CORRETO
         const evtSource = new EventSource(
             "http://localhost/platf/EmergencySTS/advanced/backend/web/notificacao/stream"
         );

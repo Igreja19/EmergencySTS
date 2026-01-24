@@ -4,7 +4,7 @@ namespace common\models;
 
 use Yii;
 use yii\base\Model;
-use common\models\User; // <-- O teu User.php (que já está correto)
+use common\models\User;
 
 /**
  * Password reset request form
@@ -64,7 +64,6 @@ class ForgotPasswordForm extends Model // <--- O nome da Classe tem de ser igual
             }
         }
 
-        // Esta é a parte que envia o email.
         return Yii::$app
             ->mailer
             ->compose(

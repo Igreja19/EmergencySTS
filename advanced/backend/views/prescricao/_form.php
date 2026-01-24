@@ -19,7 +19,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/prescricao/_form.css'
 
 <?php $form = ActiveForm::begin(); ?>
 
-<!-- CARD: DADOS GERAIS DA PRESCRIÇÃO -->
 <div class="card shadow-sm mb-4" style="border-radius: 12px;">
     <div class="p-3 text-white"
          style="background: #1f9d55; border-radius: 12px 12px 0 0;">
@@ -48,14 +47,12 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/prescricao/_form.css'
                     ]
             ) ?>
 
-            <!-- Campo hidden para manter o valor no POST -->
             <?= Html::hiddenInput('Prescricao[consulta_id]', $model->consulta_id) ?>
         </div>
 
     </div>
 </div>
 
-<!-- CARD: MEDICAMENTOS -->
 <div class="card shadow-sm" style="border-radius: 12px;">
     <div class="p-3 text-white d-flex justify-content-between align-items-center"
          style="background: #1f9d55; border-radius: 12px 12px 0 0;">
@@ -121,7 +118,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/prescricao/_form.css'
     </div>
 </div>
 
-<!-- BOTÕES FINAIS -->
 <div class="d-flex justify-content-end mt-4 gap-2" style="padding-bottom: 20px">
 
     <?= Html::submitButton(
@@ -147,7 +143,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/prescricao/_form.css'
 
 <?php $this->registerJsFile(Yii::$app->request->baseUrl . '/js/prescricao/_form.js', ['depends' => [\yii\web\JqueryAsset::class]]); ?>
 
-<!-- JAVASCRIPT DOS CAMPOS DINÂMICOS -->
 <script>
     let index = <?= count($prescricaoMedicamentos) ?>;
 
@@ -190,7 +185,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/prescricao/_form.css'
 
         $("#medicamentos-container").append(html);
 
-        // Inicializa o último adicionado
         $(".select2-medicamento").last().select2({
             allowClear: true,
             width: '100%',
@@ -202,7 +196,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/prescricao/_form.css'
         index++;
     });
 
-    // Remover itens
     document.addEventListener('click', function (e) {
         if (e.target.closest('.remover')) {
             e.target.closest('.medicamento-item').remove();

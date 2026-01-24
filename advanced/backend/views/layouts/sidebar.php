@@ -4,7 +4,6 @@ use yii\helpers\Url;
 
 $this->registerCssFile(Yii::$app->request->baseUrl . '/css/layouts/sidebar.css');
 
-// 🔹 Obter roles do utilizador
 $auth = Yii::$app->authManager;
 $userId = Yii::$app->user->id ?? null;
 $roles = $userId ? $auth->getRolesByUser($userId) : [];

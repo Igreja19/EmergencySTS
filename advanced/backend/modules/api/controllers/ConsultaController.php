@@ -17,8 +17,6 @@ class ConsultaController extends BaseActiveController
     public $modelClass = 'common\models\Consulta';
     public $enableCsrfValidation = false;
 
-    // NOTA: A função behaviors() foi removida porque já é herdada do BaseActiveController
-
     public function actions()
     {
         $actions = parent::actions();
@@ -26,17 +24,12 @@ class ConsultaController extends BaseActiveController
         return $actions;
     }
 
-
-    //  GET: LISTAR TODAS AS CONSULTAS (/api/consulta)
     public function actionIndex()
     {
-        // Se for PACIENTE, bloqueia imediatamente.
-        // O paciente não pode ver a lista global de consultas do hospital.
         if (Yii::$app->user->can('paciente')) {
             throw new ForbiddenHttpException("Acesso negado. Utilize a rota de histórico pessoal.");
         }
 
-        // Daqui para baixo, apenas Médicos, Enfermeiros e Admin passam.
         $consultas = Consulta::find()
             ->orderBy(['data_consulta' => SORT_DESC])
             ->all();
@@ -63,7 +56,6 @@ class ConsultaController extends BaseActiveController
             'data'   => $data,
         ];
     }
-    // GET: VER UMA CONSULTA ESPECÍFICA (/api/consulta/{id})
     public function actionView($id)
     {
         $consulta = Consulta::findOne($id);
@@ -72,8 +64,6 @@ class ConsultaController extends BaseActiveController
             throw new NotFoundHttpException("Consulta não encontrada.");
         }
 
-        // --- VERIFICAÇÃO DE PERMISSÕES ---
-        // Se for PACIENTE, só pode ver se a consulta for dele
         if (Yii::$app->user->can('paciente')) {
             $meuProfile = UserProfile::findOne(['user_id' => Yii::$app->user->id]);
 
@@ -83,9 +73,6 @@ class ConsultaController extends BaseActiveController
             }
         }
 
-        // (Médicos e Admins passam direto)
-
-        // Retorna os dados formatados (mantendo o padrão da sua API)
         return [
             'status' => 'success',
             'data'   => [
@@ -104,10 +91,8 @@ class ConsultaController extends BaseActiveController
         ];
     }
 
-    //  GET: HISTÓRICO DO PACIENTE (/api/userprofiles/{id}/consultas)
     public function actionHistorico($id)
     {
-        // Verificação de segurança para Pacientes
         if (Yii::$app->user->can('paciente')) {
              $meuProfile = UserProfile::findOne(['user_id' => Yii::$app->user->id]);
              // Só deixa ver se o ID solicitado for o do próprio paciente
@@ -116,7 +101,6 @@ class ConsultaController extends BaseActiveController
              }
         }
 
-        // Se for Médico/Enfermeiro, passa direto.
         $profile = UserProfile::findOne($id);
         if (!$profile) {
              throw new NotFoundHttpException("Perfil não encontrado.");
@@ -149,7 +133,6 @@ class ConsultaController extends BaseActiveController
         ];
     }
 
-    //  POST: INICIAR CONSULTA (/api/consulta)
     public function actionCreate()
     {
         if (!Yii::$app->user->can('medico') && !Yii::$app->user->can('admin')) {
@@ -167,7 +150,6 @@ class ConsultaController extends BaseActiveController
             throw new NotFoundHttpException("Triagem não encontrada.");
         }
 
-        // --- CORREÇÃO: Obter o perfil do Médico Logado ---
         $medicoProfile = UserProfile::findOne(['user_id' => Yii::$app->user->id]);
         if (!$medicoProfile) {
             throw new BadRequestHttpException("Erro: Não foi encontrado um perfil de médico associado a esta conta.");
@@ -177,13 +159,11 @@ class ConsultaController extends BaseActiveController
         $consulta->triagem_id = $triagem->id;
         $consulta->userprofile_id = $triagem->userprofile_id;
         
-        // Agora preenchemos o campo obrigatório com o ID do médico
-        $consulta->medicouserprofile_id = $medicoProfile->id; 
+        $consulta->medicouserprofile_id = $medicoProfile->id;
         
         $consulta->data_consulta = date('Y-m-d H:i:s');
         $consulta->estado = 'Em curso';
 
-        // Preenche o nome do médico também (opcional)
         if ($consulta->hasAttribute('medico_nome')) {
             $consulta->medico_nome = $medicoProfile->nome;
         }
@@ -194,12 +174,10 @@ class ConsultaController extends BaseActiveController
 
         if ($consulta->save()) {
 
-            // Atualizar pulseira → Em atendimento
             if ($triagem->pulseira) {
                 $triagem->pulseira->status = 'Em atendimento';
                 $triagem->pulseira->save();
 
-                // MQTT Pulseira
                 $this->safeMqttPublish("pulseira/atualizada/{$triagem->pulseira->id}", [
                     'evento'      => 'pulseira_atualizada',
                     'pulseira_id' => $triagem->pulseira->id,
@@ -208,7 +186,6 @@ class ConsultaController extends BaseActiveController
                 ]);
             }
 
-            // MQTT Consulta Criada
             $this->safeMqttPublish("consulta/criada/{$consulta->id}", [
                 'evento'        => 'consulta_criada',
                 'consulta_id'   => $consulta->id,
@@ -231,7 +208,6 @@ class ConsultaController extends BaseActiveController
         return ['status' => 'error', 'errors' => $consulta->getErrors()];
     }
 
-    //  PUT: ATUALIZAR / ENCERRAR (/api/consulta/{id})
     public function actionUpdate($id)
     {
         if (!Yii::$app->user->can('medico') && !Yii::$app->user->can('admin')) {
@@ -254,7 +230,6 @@ class ConsultaController extends BaseActiveController
 
         if ($consulta->save()) {
 
-            // MQTT Genérico (Atualizada)
             $this->safeMqttPublish("consulta/atualizada/{$consulta->id}", [
                 'evento'      => 'consulta_atualizada',
                 'consulta_id' => $consulta->id,
@@ -262,7 +237,6 @@ class ConsultaController extends BaseActiveController
                 'hora'        => date('Y-m-d H:i:s'),
             ]);
 
-            // Lógica específica se Encerrada
             if ($consulta->estado === 'Encerrada') {
                 $triagem = Triagem::findOne($consulta->triagem_id);
 
@@ -270,7 +244,6 @@ class ConsultaController extends BaseActiveController
                     $triagem->pulseira->status = 'Atendido';
                     $triagem->pulseira->save();
 
-                    // MQTT Pulseira (Atendido)
                     $this->safeMqttPublish("pulseira/atualizada/{$triagem->pulseira->id}", [
                         'evento'      => 'pulseira_atualizada',
                         'pulseira_id' => $triagem->pulseira->id,
@@ -298,9 +271,6 @@ class ConsultaController extends BaseActiveController
         return ['status' => 'error', 'errors' => $consulta->getErrors()];
     }
 
-    /**
-     * Função auxiliar interna para evitar repetição de código try-catch do MQTT
-     */
     protected function safeMqttPublish($topic, $payload)
     {
         $mqttEnabled = Yii::$app->params['mqtt_enabled'] ?? true;

@@ -23,7 +23,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-// Bloqueia múltiplos envios
 document.querySelector('#form-triagem').addEventListener('submit', function() {
     const btn = document.querySelector('.submit-btn');
     btn.disabled = true;

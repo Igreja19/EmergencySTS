@@ -57,7 +57,6 @@ class MedicamentoSearch extends Medicamento
             return $dataProvider;
         }
 
-        // 🔍 FILTRO DE PESQUISA MODERNO
         $query->andFilterWhere(['id' => $this->id]);
 
         $query->andFilterWhere(['like', 'nome', $this->nome])

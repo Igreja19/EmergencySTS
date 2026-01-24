@@ -16,7 +16,6 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="prescricao-index">
 
 
-    <!-- HEADER DA SECÇÃO -->
     <div class="section-header card shadow-sm mb-4 p-0" style="border-radius: 12px;">
         <div class="d-flex justify-content-between align-items-center p-3"
              style="background-color: #1f9d55; border-radius: 12px 12px 0 0;">
@@ -31,7 +30,6 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
 
         <div class="p-3">
-            <!-- CAMPO DE PESQUISA -->
             <form method="get" class="d-flex align-items-center gap-2">
                 <div class="input-group" style="max-width: 300px;">
                     <span class="input-group-text bg-white border-end-0">
@@ -55,7 +53,6 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
     </div>
 
-    <!-- TABELA -->
     <div class="card shadow-sm p-3" style="border-radius: 12px;">
 
         <?php Pjax::begin(); ?>

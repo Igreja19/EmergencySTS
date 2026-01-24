@@ -12,8 +12,6 @@ class MedicamentoController extends BaseActiveController
     public $modelClass = 'common\models\Medicamento';
     public $enableCsrfValidation = false;
 
-    // NOTA: behaviors() removido porque herda do BaseActiveController
-
     public function actions()
     {
         $actions = parent::actions();
@@ -21,10 +19,8 @@ class MedicamentoController extends BaseActiveController
         return $actions;
     }
 
-    // PESQUISA DE MEDICAMENTOS (GET /api/medicamento?nome=Ben)
     public function actionIndex()
     {
-        // O BaseActiveController garante que apenas Admin/Médico/Enfermeiro acedem aqui.
         if (Yii::$app->user->can('paciente')) {
             throw new ForbiddenHttpException("Área reservada a profissionais de saúde.");
         }
@@ -45,7 +41,6 @@ class MedicamentoController extends BaseActiveController
         ];
     }
 
-    // CRIAR MEDICAMENTO (APENAS ADMIN)
     public function actionCreate()
     {
         if (!Yii::$app->user->can('admin')) {
@@ -57,7 +52,6 @@ class MedicamentoController extends BaseActiveController
 
         if ($model->save()) {
 
-            // MQTT Seguro
             $mqttEnabled = Yii::$app->params['mqtt_enabled'] ?? true;
             if ($mqttEnabled && isset(Yii::$app->mqtt)) {
                 try {

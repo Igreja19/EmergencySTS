@@ -12,7 +12,6 @@ $this->title = 'EmergencySTS Dev Team';
     </div>
 
     <div class="row g-4">
-        <!-- Membro 1 -->
         <div class="col-md-4">
             <div class="card border-0 shadow-sm text-center team-card overflow-hidden">
                 <img src="<?= yii::getAlias("@web/"). 'img/Miguel.jpg'?>" class="card-img-top" alt="Miguel Tobias">
@@ -31,7 +30,6 @@ $this->title = 'EmergencySTS Dev Team';
             </div>
         </div>
 
-        <!-- Membro 2 -->
         <div class="col-md-4">
             <div class="card border-0 shadow-sm text-center team-card overflow-hidden">
                 <img src="<?= yii::getAlias("@web/"). ''?>" class="card-img-top" alt="Fábio Almeida">
@@ -50,7 +48,6 @@ $this->title = 'EmergencySTS Dev Team';
             </div>
         </div>
 
-        <!-- Membro 3 -->
         <div class="col-md-4">
             <div class="card border-0 shadow-sm text-center team-card overflow-hidden">
                 <img src="img/dev3.jpg" class="card-img-top" alt="Enrique Salgado">

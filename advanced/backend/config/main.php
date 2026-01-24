@@ -18,22 +18,18 @@
         'controllerNamespace' => 'backend\controllers',
         'bootstrap' => ['log'],
     
-        //  BLOQUEIO DE ACESSO AO BACKEND (INTERFACE WEB)
-        
+
         'on beforeRequest' => function () {
             $route = Yii::$app->requestedRoute ?? '';
     
-            // Se a rota começar por 'api/', IGNORA este bloqueio.
             if (strpos($route, 'api/') === 0) {
                 return true;
             }
     
-            // Permitir acesso livre a páginas de erro/login do backend
             if (in_array($route, ['site/login', 'site/error', 'site/acesso-restrito', 'site/logout'])) {
                 return true;
             }
     
-            // Se estiver autenticado no Backend (Sessão Web)
             if (!Yii::$app->user->isGuest) {
                 $auth = Yii::$app->authManager;
                 $roles = $auth->getRolesByUser(Yii::$app->user->id);
@@ -46,7 +42,6 @@
                         break;
                     }
                 }
-                // Se for Paciente a tentar entrar no Backend Web -> Bloqueia
                 if (!$temRoleValido) {
                     Yii::$app->user->logout();
                     Yii::$app->response->redirect(['/site/acesso-restrito'])->send();
@@ -67,7 +62,7 @@
     
             'mqtt' => [
                 'class' => 'backend\components\MqttService',
-                'server' => '172.22.21.215',
+                'server' => '172.0.0.1',
                 'port' => 1883,
                 'username'=> 'emergencysts',
                 'password'=>'i%POZsi02Kmc',
@@ -112,25 +107,20 @@
             'authManager' => [
                 'class' => 'yii\rbac\DbManager',
             ],
-    
-            //  URL MANAGER DA API
 
             'urlManager' => [
                 'enablePrettyUrl' => true,
                 'showScriptName' => false,
                 'rules' => [
-                    // Autenticação
                     'GET api/auth/login'    => 'api/auth/login',
                     'POST api/auth/login'   => 'api/auth/login',
                     'POST api/auth/signup'  => 'api/auth/signup',
                     'GET api/auth/validate' => 'api/auth/validate',
 
-                    // Alias e Rotas Cruzadas
                     'GET api/profile' => 'api/user/index',
                     'POST api/user/profile/update' => 'api/user/profile/update',
                     'GET api/userprofiles/<id:\d+>/consultas' => 'api/consulta/historico',
 
-                    // --- REGRAS REST AUTOMÁTICAS ---
                     [
                         'class' => 'yii\rest\UrlRule',
                         'controller' => [
@@ -146,24 +136,17 @@
                         ],
                         'pluralize' => false,
 
-                        // AQUI É ONDE A MÁGICA ACONTECE
                         'extraPatterns' => [
-                            // Comuns / Genéricos
                             'GET prioridade' => 'prioridade',
 
-                            // Triagem (Adicionei a linha abaixo)
                             'GET historico' => 'historico',
 
-                            // Notificações
                             'GET list' => 'list',
                             'POST ler/{id}' => 'ler',
 
-                            // Paciente e Enfermeiro
                             'GET perfil' => 'perfil',
 
-                            //Atualizar perfil via POST
                             'POST {id}' => 'update',
-
                         ],
                     ],
 

@@ -23,7 +23,6 @@ class Calculadora extends Model
 
     public function dividir($num1, $num2)
     {
-        // Ponto 4: Tratamento da falha (Divisão por zero)
         if ($num2 == 0) {
             throw new InvalidArgumentException("Não é possível dividir por zero.");
         }

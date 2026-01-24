@@ -12,7 +12,6 @@ use yii\helpers\Html;
 
     <div class="card shadow-sm" style="border-radius: 12px; max-width: 900px; margin: auto;">
 
-        <!-- HEADER VERDE -->
         <div class="d-flex justify-content-between align-items-center p-3"
              style="background: #1f9d55; color: white; border-radius: 12px 12px 0 0;">
             <h4 class="m-0">
@@ -35,7 +34,6 @@ use yii\helpers\Html;
 
         <div class="card-body p-4">
 
-            <!-- DADOS DA PRESCRIÇÃO -->
             <h5 class="section-title mb-3">
                 <i class="bi bi-info-circle-fill me-2"></i> Dados da Prescrição
             </h5>
@@ -58,7 +56,6 @@ use yii\helpers\Html;
 
             <hr>
 
-            <!-- OBSERVAÇÕES -->
             <h5 class="section-title mb-3">
                 <i class="bi bi-journal-text me-2"></i> Observações
             </h5>
@@ -71,7 +68,6 @@ use yii\helpers\Html;
 
             <hr>
 
-            <!-- MEDICAMENTOS -->
             <h5 class="section-title mb-3">
                 <i class="bi bi-capsule me-2"></i> Medicamentos
             </h5>
@@ -86,7 +82,6 @@ use yii\helpers\Html;
                     <?php foreach ($prescricaoMedicamentos as $pm): ?>
                         <div class="list-group-item mb-2 shadow-sm" style="border-radius: 8px;">
 
-                            <!-- Nome + dosagem -->
                             <div class="fw-bold text-success mb-1">
                                 <?= Html::encode($pm->medicamento->nome) ?>
                                 <?php if (!empty($pm->medicamento->dosagem)): ?>
@@ -94,7 +89,6 @@ use yii\helpers\Html;
                                 <?php endif; ?>
                             </div>
 
-                            <!-- Posologia -->
                             <div class="text-muted">
                                 <strong>Posologia:</strong>
                                 <?= Html::encode($pm->posologia) ?>

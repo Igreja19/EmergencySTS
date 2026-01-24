@@ -26,7 +26,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile/view.css
 <div class="container py-4">
     <div class="profile-view">
 
-        <!-- Cabeçalho -->
         <div class="profile-header">
             <div>
                 <div class="profile-title"><?= Html::encode($model->nome) ?></div>
@@ -37,7 +36,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile/view.css
             </div>
         </div>
 
-        <!-- Secção: Dados Pessoais -->
         <div class="profile-section">
             <h6><i class="bi bi-person-lines-fill me-1"></i> Dados Pessoais</h6>
             <?= DetailView::widget([
@@ -81,7 +79,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile/view.css
             ]) ?>
         </div>
 
-        <!-- Secção: Endereço -->
         <div class="profile-section">
             <h6><i class="bi bi-geo-alt-fill me-1"></i> Endereço</h6>
             <table class="table table-borderless">
@@ -92,7 +89,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile/view.css
             </table>
         </div>
 
-        <!-- Secção: Estado -->
         <div class="profile-section">
             <h6><i class="bi bi-person-check-fill me-1"></i> Estado da Conta</h6>
             <table class="table table-borderless">
@@ -110,7 +106,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile/view.css
             </table>
         </div>
 
-        <!-- Botões -->
         <div class="text-end mt-4">
             <?= Html::a('<i class="bi bi-pencil"></i> Editar', ['update', 'id' => $model->id], [
                     'class' => 'btn btn-success px-4 py-2 shadow-sm me-2 rounded-3',

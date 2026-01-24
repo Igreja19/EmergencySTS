@@ -67,7 +67,6 @@ class UserProfileController extends Controller
             $model->user_id = Yii::$app->user->id;
         }
 
-        // 🔹 Obter lista de roles do RBAC
         $roles = Yii::$app->authManager->getRoles();
         $roleOptions = [];
         foreach ($roles as $name => $role) {
@@ -110,7 +109,7 @@ class UserProfileController extends Controller
                     }
                 }
 
-                // 🔔 Notificação envia para o ADMIN (não para o user criado)
+                // Notificação envia para o ADMIN (não para o user criado)
                 $adminProfileId = Yii::$app->user->identity->userprofile->id;
 
                 Notificacao::enviar(
@@ -139,17 +138,15 @@ class UserProfileController extends Controller
         $model = $this->findModel($id);
         $oldEmail = $model->email;
 
-        // 🔹 Obter lista de roles do RBAC
         $roles = Yii::$app->authManager->getRoles();
         $roleOptions = [];
         foreach ($roles as $name => $role) {
             $roleOptions[$name] = ucfirst($name);
         }
 
-        // Para evitar mostrar hash da password
+        // Evita mostrar hash da password
         $model->password = '';
 
-        // 🔹 PROCESSAMENTO DO SUBMIT
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
 
             // === Sempre buscar o USER associado ===
@@ -157,7 +154,6 @@ class UserProfileController extends Controller
 
             if ($user) {
 
-                // --- Atualizar email e username se mudou ---
                 if ($oldEmail !== $model->email) {
                     $user->email = $model->email;
                 }
@@ -165,17 +161,14 @@ class UserProfileController extends Controller
                     $user->username = $model->nome;
                 }
 
-                // --- Atualizar password se preenchida ---
                 if (!empty($model->password)) {
                     $user->setPassword($model->password);
                     $user->generateAuthKey();
                 }
 
-                // Guardar alterações no User
                 $user->save(false);
             }
 
-            // --- Atualizar role ---
             if (!empty($model->role)) {
                 $auth = Yii::$app->authManager;
                 $auth->revokeAll($model->user_id);
@@ -190,7 +183,6 @@ class UserProfileController extends Controller
             return $this->redirect(['index']);
         }
 
-        // 🔹 ANTES DE RENDERIZAR → obter role atual do user
         $auth = Yii::$app->authManager;
         $userRoles = $auth->getRolesByUser($model->user_id);
 

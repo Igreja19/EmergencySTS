@@ -44,7 +44,6 @@ class Prescricaomedicamento extends ActiveRecord
         ];
     }
 
-    // 🔹 Relação com Prescricao
     public function getPrescricao()
     {
         return $this->hasOne(Prescricao::class, ['id' => 'prescricao_id']);

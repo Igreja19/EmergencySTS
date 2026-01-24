@@ -23,11 +23,8 @@ class ContactForm extends Model
     public function rules()
     {
         return [
-            // name, email, subject and body are required
             [['name', 'email', 'subject', 'body'], 'required', 'message' => 'O campo {attribute} é obrigatório.'],
-            // email has to be a valid email address
             ['email', 'email', 'message' => 'Por favor, insira um endereço de email válido.'],
-            // verifyCode needs to be entered correctly
             //['verifyCode', 'captcha'],
         ];
     }

@@ -1,9 +1,6 @@
 const dropdownPulseira = $('#triagem-pulseira_id');
 const dropdownPaciente = $('#triagem-userprofile_id');
 
-
-  // PACIENTE -- PULSEIRAS
-
 dropdownPaciente.on('change', function () {
 
     const userId = $(this).val();
@@ -35,9 +32,6 @@ dropdownPaciente.on('change', function () {
     });
 });
 
-
-   // PULSEIRA - DADOS CLÍNICOS
-
 dropdownPulseira.on('change', function () {
 
     const pulseiraId = $(this).val();
@@ -66,8 +60,6 @@ dropdownPulseira.on('change', function () {
         }
     });
 });
-
-   // HELPER
 
 function formatDateTime(value) {
     if (!value) return '';

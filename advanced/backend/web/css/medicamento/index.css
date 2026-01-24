@@ -1,6 +1,3 @@
-/* ====================== */
-/*      TÍTULO PÁGINA     */
-/* ====================== */
 .page-title {
     font-size: 28px;
     font-weight: 700;
@@ -8,9 +5,6 @@
     margin-bottom: 20px;
 }
 
-/* ====================== */
-/*    CAIXA DE PESQUISA    */
-/* ====================== */
 .search-box {
     background: #fff;
     padding: 25px;
@@ -19,9 +13,6 @@
     margin-bottom: 20px;
 }
 
-/* ====================== */
-/*      TABELA MODERNA     */
-/* ====================== */
 .table-modern thead tr {
     background: #f0f2f5;
     color: #198754;
@@ -34,9 +25,6 @@
     vertical-align: middle !important;
 }
 
-/* ====================== */
-/*      BOTÕES DA AÇÃO     */
-/* ====================== */
 .btn-action {
     padding: 8px 12px;
     border-radius: 20px;
@@ -47,7 +35,6 @@
     font-size: 16px;
 }
 
-/* animação suave nos botões */
 .btn-action:hover {
     transform: scale(1.12);
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
@@ -61,21 +48,16 @@
     gap: 6px;
 }
 
-/* cores */
 .btn-view { background:#0d6efd; color:#fff; }
 .btn-edit { background:#198754; color:#fff; }
 .btn-delete { background:#dc3545; color:#fff; }
 
-/* ao passar o rato mantém cor do texto */
 .btn-view:hover,
 .btn-edit:hover,
 .btn-delete:hover {
     color:#fff;
 }
 
-/* ====================== */
-/*         PAGINAÇÃO       */
-/* ====================== */
 .pagination > li > a,
 .pagination > li > span {
     border-radius: 8px;

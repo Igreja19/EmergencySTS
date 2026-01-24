@@ -24,14 +24,10 @@ class PrescricaoController extends BaseActiveController
         return $actions;
     }
 
-    /**
-     * GET api/prescricao
-     */
     public function actionIndex()
     {
         $user = Yii::$app->user;
 
-        // Eager Loading para evitar N+1 queries
         $query = Prescricao::find()
             ->with(['consulta', 'prescricaomedicamentos.medicamento']);
 
@@ -65,9 +61,6 @@ class PrescricaoController extends BaseActiveController
         return ['status' => 'success', 'total' => count($data), 'data' => $data];
     }
 
-    /**
-     * GET api/prescricao/{id}
-     */
     public function actionView($id)
     {
         $prescricao = Prescricao::find()
@@ -79,7 +72,6 @@ class PrescricaoController extends BaseActiveController
             throw new NotFoundHttpException("Prescrição não encontrada.");
         }
 
-        // Segurança: Validação de propriedade
         if (Yii::$app->user->can('paciente')) {
             $donoId = $prescricao->consulta->triagem->userprofile->user_id ?? null;
 
@@ -111,9 +103,6 @@ class PrescricaoController extends BaseActiveController
         ];
     }
 
-    /**
-     * POST api/prescricao
-     */
     public function actionCreate()
     {
         if (!Yii::$app->user->can('medico') && !Yii::$app->user->can('admin')) {
@@ -131,7 +120,6 @@ class PrescricaoController extends BaseActiveController
             throw new NotFoundHttpException("Consulta não encontrada.");
         }
 
-        // Transação para garantir integridade (cabeçalho + linhas)
         $tx = Yii::$app->db->beginTransaction();
 
         try {
@@ -191,9 +179,6 @@ class PrescricaoController extends BaseActiveController
         }
     }
 
-    /**
-     * DELETE api/prescricao/{id}
-     */
     public function actionDelete($id)
     {
         if (!Yii::$app->user->can('medico') && !Yii::$app->user->can('admin')) {
@@ -205,7 +190,6 @@ class PrescricaoController extends BaseActiveController
             throw new NotFoundHttpException("Prescrição não encontrada.");
         }
 
-        // Limpeza explícita das linhas antes do cabeçalho
         Prescricaomedicamento::deleteAll(['prescricao_id' => $id]);
         $prescricao->delete();
 
@@ -218,7 +202,6 @@ class PrescricaoController extends BaseActiveController
         return ['status' => 'success', 'message' => 'Prescrição eliminada.'];
     }
 
-    // Helper para evitar falhas se o MQTT estiver offline
     protected function safeMqttPublish($topic, $payload)
     {
         $mqttEnabled = Yii::$app->params['mqtt_enabled'] ?? true;

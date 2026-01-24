@@ -34,24 +34,19 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/index.css');
                     $mostrarBotao = false;
 
                     if ($perfilCompleto) {
-                        // Buscar a última pulseira deste utilizador
                         $ultimaPulseira = Pulseira::find()
                             ->where(['userprofile_id' => $userProfile->id])
                             ->orderBy(['id' => SORT_DESC])
                             ->one();
 
-                        //  Se não tem pulseira nenhuma, pode criar
                         if (!$ultimaPulseira) {
                             $mostrarBotao = true;
                         } 
                         else {
-                            //  Se tem pulseira, verificamos se o estado é um destes (QUE JÁ ACABARAM)
                             $estadosFinais = ['Finalizado', 'Atendido', 'Concluido', 'Cancelado'];
                             
-                            // Limpar espaços e normalizar status
                             $statusAtual = trim($ultimaPulseira->status);
 
-                            // Se o estado estiver na lista de "Finalizados", mostra o botão
                             if (in_array($statusAtual, $estadosFinais)) {
                                 $mostrarBotao = true;
                             }

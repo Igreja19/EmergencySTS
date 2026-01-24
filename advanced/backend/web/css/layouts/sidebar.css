@@ -1,9 +1,7 @@
 .img {
     opacity: .9;
 }
-/* ============================================================
-   SIDEBAR — ÍCONES POR SECÇÃO
-============================================================ */
+
 .nav-sidebar .is-dashboard  .nav-icon { color: #20c997 !important; }
 .nav-sidebar .is-users      .nav-icon { color: #6f42c1 !important; }
 .nav-sidebar .is-triagem    .nav-icon { color: #fd7e14 !important; }
@@ -23,7 +21,6 @@
     font-weight: 600;
 }
 
-/* Saída */
 .logout-link {
     color: #dc3545 !important;
     font-weight: 600;
@@ -41,11 +38,6 @@
     color: #ff6b81 !important;
 }
 
-/* ============================================================
-   DASHBOARD PREMIUM V2 — ESTILOS COMPLETOS
-============================================================ */
-
-/* Força o dropdown das notificações a sobrepor tudo */
 .topbar, .dashboard-wrap {
     overflow: visible !important;
     z-index: 10;
@@ -63,7 +55,6 @@
     background: #fff;
 }
 
-/* Fundo Premium */
 body {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     transition: background 0.4s ease, color 0.4s ease;
@@ -81,7 +72,6 @@ body {
 
 .brand { font-weight:700; color:#198754; display:flex; align-items:center; gap:8px; }
 
-/* ================= NOTIFICAÇÕES ================= */
 .notif-btn {
     width: 42px;
     height: 42px;
@@ -135,9 +125,6 @@ body {
 
 .notif-footer { background: #f8f9fa; }
 
-/* ============================================================
-   KPI CARDS
-============================================================ */
 .card-kpi {
     border-radius:20px; border:none; padding:20px;
     background: #fff; box-shadow:0 4px 20px rgba(0,0,0,0.05);
@@ -154,16 +141,11 @@ body {
 .card-kpi .value { font-size:30px; font-weight:700; }
 .card-kpi .label { color:#6c757d; }
 
-/* ============================================================
-   TABELAS
-============================================================ */
 .table-modern { border-radius:16px; overflow:hidden; }
 .table-modern thead tr { background:#198754; color:#fff; }
 .table-modern tbody tr:hover { background:rgba(25,135,84,0.05); }
 
-/* ============================================================
-   BADGES
-============================================================ */
+
 .badge-prio { font-weight:600; }
 .badge-vermelho { background:#dc3545; }
 .badge-laranja  { background:#fd7e14; }
@@ -171,9 +153,6 @@ body {
 .badge-verde    { background:#198754; }
 .badge-azul     { background:#0d6efd; }
 
-/* ============================================================
-   INPUT FILTRO + BOTÃO
-============================================================ */
 .filter-box { display: flex; gap: 14px; align-items: center; }
 
 .filter-input-wrapper { position: relative; }
@@ -217,9 +196,6 @@ body {
     background: linear-gradient(135deg, #157347, #0f8a54);
 }
 
-/* ============================================================
-   ÚLTIMAS TRIAGENS
-============================================================ */
 .ult-triagem-card {
     border-radius: 16px;
     padding: 14px;
@@ -231,11 +207,7 @@ body {
     transform: translateX(3px);
     background: #f4fbf7;
 }
-/* ----------------------------
-   Submenu das Consultas
------------------------------ */
 
-/* Fonte mais pequena e indentação */
 .nav-sidebar .nav-treeview > .nav-item > .nav-link {
     font-size: 13px !important;
     padding-left: 35px !important;  /* desloca para dentro */
@@ -243,20 +215,17 @@ body {
     padding-bottom: 6px !important;
 }
 
-/* Ícones menores */
 .nav-sidebar .nav-treeview .nav-icon {
     font-size: 12px !important;
     opacity: 0.8;
     width: 18px !important;
 }
 
-/* Hover moderno */
 .nav-sidebar .nav-treeview > .nav-item > .nav-link:hover {
     background: rgba(255,255,255,0.08) !important;
     color: #00d1b2 !important; /* tom verde/turquesa */
 }
 
-/* Quando ativo */
 .nav-sidebar .nav-treeview > .nav-item > .nav-link.active {
     background: rgba(255,255,255,0.15) !important;
     color: #4cd964 !important;

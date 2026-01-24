@@ -6,10 +6,8 @@ use yii\helpers\Html;
 
 $triagem = $triagem ?? $consulta->triagem ?? null;
 
-// Paciente
 $paciente = $consulta->userprofile;
 
-// Idade
 $idade = '';
 if (!empty($paciente->data_nascimento)) {
     $idade = date_diff(
@@ -18,10 +16,8 @@ if (!empty($paciente->data_nascimento)) {
     )->y;
 }
 
-// Logo
 $logoPath = Yii::getAlias('@frontend/web/img/logo.png');
 
-// Prioridade
 $prio = $triagem->pulseira->prioridade ?? 'Pendente';
 
 $prioClass = match ($prio) {
@@ -47,7 +43,6 @@ $prioClass = match ($prio) {
 
 <body>
 
-<!-- HEADER -->
 <div class="header">
     <div class="brand">
         <?php if (file_exists($logoPath)): ?>
@@ -64,7 +59,6 @@ $prioClass = match ($prio) {
     </div>
 </div>
 
-<!-- PACIENTE -->
 <div class="card">
     <div class="section-title">Dados do Paciente</div>
     <table>
@@ -74,7 +68,6 @@ $prioClass = match ($prio) {
     </table>
 </div>
 
-<!-- CONSULTA -->
 <div class="card">
     <div class="section-title">Consulta</div>
     <table>
@@ -103,7 +96,6 @@ $prioClass = match ($prio) {
     </table>
 </div>
 
-<!-- TRIAGEM -->
 <?php if ($triagem): ?>
     <div class="card">
         <div class="section-title">Detalhes da Triagem</div>
@@ -134,7 +126,6 @@ $prioClass = match ($prio) {
     </div>
 <?php endif; ?>
 
-<!-- FOOTER -->
 <div class="footer">
     EmergencySTS · Documento gerado automaticamente · <?= date('d/m/Y H:i') ?>
 </div>

@@ -37,31 +37,22 @@ class Consulta extends \yii\db\ActiveRecord
     {
         return [
 
-            // os seguintes campos começam NULL por padrão
             [['observacoes', 'data_encerramento', 'relatorio_pdf'], 'default', 'value' => null],
 
-            // ESTADO inicial sempre "Em curso"
             [['estado'], 'default', 'value' => self::ESTADO_EM_CURSO],
 
-            // DATA da consulta preenchida automaticamente ao criar (controller vai definir)
             [['data_consulta', 'data_encerramento'], 'safe'],
 
-            // tipos
             [['estado', 'observacoes'], 'string'],
 
-            // obrigatórios
             [['userprofile_id', 'triagem_id', 'medicouserprofile_id'], 'required'],
 
-            // inteiros
             [['userprofile_id', 'triagem_id', 'medicouserprofile_id'], 'integer'],
 
-            // tamanho
             [['relatorio_pdf'], 'string', 'max' => 255],
 
-            // validar estados
             ['estado', 'in', 'range' => array_keys(self::optsEstado())],
 
-            // relações
             [['triagem_id'], 'exist', 'skipOnError' => true, 'targetClass' => Triagem::class, 'targetAttribute' => ['triagem_id' => 'id']],
             [['userprofile_id'], 'exist', 'skipOnError' => true, 'targetClass' => UserProfile::class, 'targetAttribute' => ['userprofile_id' => 'id']],
         ];

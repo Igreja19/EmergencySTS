@@ -14,7 +14,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/pulseira/index.css');
 
 <div class="pulseira-index">
 
-    <!-- HEADER -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="page-title"><i class="bi bi-upc-scan"></i> Pulseiras</h1>
         <?php if ($isAdmin): ?>
@@ -24,10 +23,8 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/pulseira/index.css');
         <?php endif ?>
     </div>
 
-    <!-- SEARCH + TABLE CARD -->
     <div class="card-box">
 
-        <!-- Filtros estilo Prescrições -->
         <div class="mb-3">
             <?= $this->render('_search', ['model' => $searchModel]) ?>
         </div>

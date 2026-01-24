@@ -28,7 +28,6 @@
     overflow: hidden;
 }
 
-/* 🔥 Alinhar tudo ao centro (thead + tbody) */
 .table-modern th,
 .table-modern td {
     text-align: center !important;
@@ -52,7 +51,6 @@
     color: #fff;
 }
 
-/* Cores Manchester */
 .badge-Vermelho { background-color: #dc3545; }
 .badge-Laranja  { background-color: #fd7e14; }
 .badge-Amarelo  { background-color: #ffc107; color:#000; }

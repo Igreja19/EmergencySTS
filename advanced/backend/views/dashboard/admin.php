@@ -15,10 +15,8 @@ $this->registerCssFile('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font
 $this->registerCssFile(Yii::$app->request->baseUrl . '/css/layouts/sidebar.css');
 $this->registerCssFile(Yii::$app->request->baseUrl . '/css/dashboard/admin.css');
 
-/* ===== Chart.js ===== */
 $this->registerJsFile('https://cdn.jsdelivr.net/npm/chart.js', ['position' => \yii\web\View::POS_END]);
 
-/* ===== GRÁFICOS ===== */
 $this->registerJs('
 
 // DONUT
@@ -84,8 +82,6 @@ if (line) {
 ');
 ?>
 
-<!--HTML DO DASHBOARD-->
-
 <div class="dashboard-wrap">
 
     <div class="topbar mb-4">
@@ -95,7 +91,6 @@ if (line) {
         </div>
     </div>
 
-    <!-- KPIs -->
     <div class="row g-3 mb-4">
 
         <div class="col-sm-4">
@@ -124,7 +119,6 @@ if (line) {
 
     </div>
 
-    <!-- GRÁFICOS -->
     <div class="row g-3 mb-4">
 
         <div class="col-lg-4">
@@ -150,7 +144,6 @@ if (line) {
 
     </div>
 
-    <!-- Tabela Pacientes -->
     <div class="card shadow-sm p-3 table-modern mb-4">
         <h6 class="mb-3">Pacientes em Espera</h6>
 
@@ -180,7 +173,6 @@ if (line) {
         </div>
     </div>
 
-    <!-- Últimas triagens -->
     <div class="card shadow-sm p-3">
         <h6 class="mb-3">Últimas Triagens</h6>
 

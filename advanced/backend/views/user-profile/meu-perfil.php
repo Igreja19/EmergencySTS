@@ -9,7 +9,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile/meu-perf
 
 ?>
 
-<!-- Bootstrap Icons -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
 <div class="container py-5">
@@ -21,7 +20,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile/meu-perf
         <p class="text-muted">Visualize e atualize as informações associadas à sua conta.</p>
     </div>
 
-    <!-- CARTÃO DO PERFIL -->
     <div class="mx-auto card shadow-lg border-0 rounded-4 p-4" style="max-width: 900px;">
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
             <h5 class="fw-bold text-success mb-0">
@@ -34,7 +32,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile/meu-perf
             </div>
         </div>
 
-        <!-- DETALHES DO PERFIL -->
         <?= DetailView::widget([
                 'model' => $model,
                 'options' => ['class' => 'table table-borderless align-middle table-modern-profile'],

@@ -32,7 +32,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/_form.css');
                     ->all();
             ?>
 
-            <!-- CREATE — escolher paciente -->
             <div class="col-md-6">
                 <?= $form->field($model, 'userprofile_id')->dropDownList(
                         ArrayHelper::map(
@@ -44,7 +43,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/_form.css');
                 )->label('<i class="bi bi-person me-2"></i> Paciente'); ?>
             </div>
 
-            <!-- CREATE — escolher pulseira -->
             <div class="col-md-6">
                 <?= $form->field($model, 'pulseira_id')->dropDownList(
                         [],
@@ -57,21 +55,18 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/_form.css');
 
         <?php else: ?>
 
-            <!-- UPDATE — nome do paciente -->
             <div class="col-md-6">
                 <label class="form-label fw-bold">Paciente</label>
                 <input type="text" class="form-control fw-bold"
                        value="<?= $model->userprofile->nome ?>" readonly>
             </div>
 
-            <!-- UPDATE — código da pulseira -->
             <div class="col-md-6">
                 <label class="form-label fw-bold">Código da Pulseira</label>
                 <input type="text" class="form-control fw-bold"
                        value="<?= $model->pulseira->codigo ?>" readonly>
             </div>
 
-            <!-- Hidden para manter os IDs -->
             <?= $form->field($model, 'userprofile_id')->hiddenInput()->label(false) ?>
             <?= $form->field($model, 'pulseira_id')->hiddenInput()->label(false) ?>
 
@@ -161,9 +156,7 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/_form.css');
     </div>
 
     <?php
-    // Gera a URL correta para o AJAX
     $ajaxUrl = Url::to(['triagem/pulseiras-por-paciente']);
-    // Define a variável JS GLOBAL
     $this->registerJs(
             "window.triagemPulseirasUrl = " . json_encode($ajaxUrl) . ";",
             View::POS_HEAD

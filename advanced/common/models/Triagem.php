@@ -79,7 +79,6 @@ class Triagem extends \yii\db\ActiveRecord
         ];
     }
 
-    /** FORMATAÇÃO AUTOMÁTICA DA DATA AO LER */
     public function afterFind()
     {
         parent::afterFind();
@@ -100,8 +99,6 @@ class Triagem extends \yii\db\ActiveRecord
         return parent::beforeSave($insert);
     }
 
-    /** RELAÇÕES */
-
     public function getPulseira()
     {
         return $this->hasOne(Pulseira::class, ['id' => 'pulseira_id']);
@@ -121,15 +118,12 @@ class Triagem extends \yii\db\ActiveRecord
         return Yii::$app->formatter->asDatetime($this->iniciosintomas, 'php:d/m/Y H:i');
     }
 
-    /** CAMPOS DEVOLVIDOS SEMPRE NO JSON */
     public function fields()
     {
         $fields = parent::fields();
 
-        // Remover os IDs porque já vais enviar objetos completos
         unset($fields['userprofile_id'], $fields['pulseira_id']);
 
-        // Incluir automaticamente as relações
         $fields['userprofile'] = function ($model) {
             return $model->userprofile;
         };

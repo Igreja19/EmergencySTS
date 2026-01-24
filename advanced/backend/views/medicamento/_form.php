@@ -16,7 +16,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/medicamento/_form.css
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <!-- DADOS PRINCIPAIS -->
     <div class="mb-3">
         <div class="section-title">
             <i class="bi bi-capsule-pill"></i>
@@ -40,7 +39,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/medicamento/_form.css
         </div>
     </div>
 
-    <!-- INDICAÇÃO -->
     <div class="mb-3">
         <div class="section-title">
             <i class="bi bi-info-circle"></i>
@@ -53,7 +51,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/medicamento/_form.css
         ]) ?>
     </div>
 
-    <!-- BOTÕES -->
     <div class="mt-3 d-flex justify-content-end gap-2">
         <?= Html::submitButton(
                 '<i class="bi bi-check-circle me-1"></i> Guardar',

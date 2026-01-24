@@ -35,15 +35,12 @@ class AuthController extends Controller
     {
         $request = Yii::$app->request;
 
-        // 1) JSON (application/json)
         $data = $request->bodyParams;
 
-        // 2) Form-data / x-www-form-urlencoded
         if (empty($data)) {
             $data = $request->post();
         }
 
-        // 3) GET query params (apenas para testes via browser)
         if (empty($data)) {
             $data = $request->get();
         }
@@ -130,7 +127,7 @@ class AuthController extends Controller
 
             $tx->commit();
 
-            // --- MQTT PROTEGIDO ---
+            // MQTT PROTEGIDO
             $mqttEnabled = Yii::$app->params['mqtt_enabled'] ?? true;
             if ($mqttEnabled && isset(Yii::$app->mqtt)) {
                 try {
@@ -169,7 +166,6 @@ class AuthController extends Controller
         }
     }
 
-    // VALIDATE TOKEN
     public function actionValidate($auth_key)
     {
         $user = User::findOne(['auth_key' => $auth_key]);

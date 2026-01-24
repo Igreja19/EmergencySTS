@@ -10,20 +10,17 @@ class NotificacaoController extends Controller
 {
     public function actionIndex()
     {
-        // 🔹 Buscar notificações não lidas
         $naoLidas = Notificacao::find()
             ->where(['lida' => 0])
             ->orderBy(['dataenvio' => SORT_DESC])
             ->all();
 
-        // 🔹 Buscar notificações já lidas
         $lidas = Notificacao::find()
             ->where(['lida' => 1])
             ->orderBy(['dataenvio' => SORT_DESC])
             ->limit(50)
             ->all();
 
-        // 🔹 KPIs (contagens)
         $kpiNaoLidas = Notificacao::countNaoLidas();
         $kpiHoje = Notificacao::countHoje();
         $kpiTotal = Notificacao::countTotal();
@@ -37,7 +34,6 @@ class NotificacaoController extends Controller
         ]);
     }
 
-    // 🔹 Função para marcar todas como lidas
     public function actionMarcarTodasComoLidas()
     {
         Notificacao::updateAll(['lida' => 1]);

@@ -25,22 +25,15 @@ class UserController extends BaseActiveController
         return $actions;
     }
 
-    /**
-     * GET /api/user
-     * Admin: Vê lista paginada de todos.
-     * Outros: Vê apenas o seu próprio perfil.
-     */
     public function actionIndex()
     {
-        // CASO 1: Admin vê tudo (com paginação, igual aos outros controllers)
         if (Yii::$app->user->can('admin')) {
             return new ActiveDataProvider([
                 'query' => UserProfile::find(),
-                'pagination' => false, //=> ['pageSize' => 20],
+                'pagination' => ['pageSize' => 20],
             ]);
         }
 
-        // CASO 2: Utilizador normal só vê o seu
         $loggedId = Yii::$app->user->id;
         $profile = UserProfile::find()->where(['user_id' => $loggedId])->one();
 
@@ -51,15 +44,10 @@ class UserController extends BaseActiveController
         return $profile;
     }
 
-    /**
-     * GET /api/user/{id}
-     */
     public function actionView($id)
     {
-        // Verificação de permissão
         if (!Yii::$app->user->can('admin')) {
             $loggedProfile = UserProfile::findOne(['user_id' => Yii::$app->user->id]);
-            // Se não for admin, o ID solicitado TEM de ser o ID do perfil do utilizador logado
             if (!$loggedProfile || $loggedProfile->id != $id) {
                 throw new ForbiddenHttpException("Acesso negado a este perfil.");
             }
@@ -73,10 +61,6 @@ class UserController extends BaseActiveController
         return $profile;
     }
 
-    /**
-     * POST /api/user
-     * Apenas Admin cria utilizadores nesta rota
-     */
     public function actionCreate()
     {
         if (!Yii::$app->user->can('admin')) {
@@ -88,7 +72,6 @@ class UserController extends BaseActiveController
         $transaction = $connection->beginTransaction(); // Transação segura
 
         try {
-            // 1. Criar User (Login)
             $user = new User();
             $user->username = $params['username'];
             $user->email    = $params['email'];
@@ -100,7 +83,6 @@ class UserController extends BaseActiveController
                 throw new \Exception("Erro user: " . json_encode($user->errors));
             }
 
-            // 2. Criar Perfil
             $profile = new UserProfile();
             $profile->user_id       = $user->id;
             $profile->nome          = $params['nome'];
@@ -115,7 +97,6 @@ class UserController extends BaseActiveController
                 throw new \Exception("Erro perfil: " . json_encode($profile->errors));
             }
 
-            // 3. Atribuir Role
             $auth = Yii::$app->authManager;
             $roleName = $params['role'] ?? 'paciente';
             $role = $auth->getRole($roleName);
@@ -125,7 +106,6 @@ class UserController extends BaseActiveController
 
             $transaction->commit();
 
-            // MQTT
             $this->safeMqttPublish("user/criado/{$user->id}", [
                 'evento'   => 'user_criado',
                 'user_id'  => $user->id,
@@ -142,11 +122,6 @@ class UserController extends BaseActiveController
         }
     }
 
-    /**
-     * PUT /api/user/{id}
-     * Admin: Edita qualquer um.
-     * User: Edita o próprio (mas não muda username/role).
-     */
     public function actionUpdate($id)
     {
         $profile = UserProfile::findOne($id);
@@ -154,7 +129,6 @@ class UserController extends BaseActiveController
             throw new NotFoundHttpException("Perfil não encontrado.");
         }
 
-        // Segurança: Admin ou o Próprio
         if (!Yii::$app->user->can('admin')) {
             if ($profile->user_id != Yii::$app->user->id) {
                 throw new ForbiddenHttpException("Não pode editar este perfil.");
@@ -191,7 +165,6 @@ class UserController extends BaseActiveController
             throw new ForbiddenHttpException("Apenas administradores podem apagar contas.");
         }
 
-        // Tenta achar pelo Profile ID (rota padrão REST)
         $profile = UserProfile::findOne($id);
         $user = null;
 
@@ -206,10 +179,9 @@ class UserController extends BaseActiveController
             throw new NotFoundHttpException("Utilizador não encontrado.");
         }
 
-        $userId = $user->id; // Guarda ID para MQTT
-        $user->delete(); // Cascade deve apagar o profile
+        $userId = $user->id;
+        $user->delete();
 
-        // MQTT
         $this->safeMqttPublish("user/apagado/{$userId}", [
             'evento'  => 'user_apagado',
             'user_id' => $userId,
@@ -219,7 +191,6 @@ class UserController extends BaseActiveController
         return ['status' => 'success', 'message' => 'Utilizador eliminado.'];
     }
 
-    // Helper MQTT
     protected function safeMqttPublish($topic, $payload)
     {
         $mqttEnabled = Yii::$app->params['mqtt_enabled'] ?? true;
@@ -230,5 +201,14 @@ class UserController extends BaseActiveController
                 Yii::error("Erro MQTT ({$topic}): " . $e->getMessage());
             }
         }
+    }
+    public function actionTotal()
+    {
+        // Certifica-te que tens o modelo User importado ou usa o caminho completo
+        $total = \common\models\User::find()->count();
+
+        return [
+            'total' => (int)$total
+        ];
     }
 }

@@ -70,7 +70,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/layout/main.css');
                    class="btn btn-success btn-sm ms-2">Login</a>
             <?php else: ?>
                 <?php
-                // ✅ Safe handling of user profile link
                 $userProfile = Yii::$app->user->identity->userprofile ?? null;
                 $profileUrl = $userProfile
                         ? Yii::$app->urlManager->createUrl(['user-profile/view', 'id' => $userProfile->id])
@@ -107,14 +106,12 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/layout/main.css');
     </div>
 </nav>
 
-<!-- 🔹 CONTEÚDO PRINCIPAL -->
 <main role="main" class="flex-fill">
     <div class="container-fluid px-0">
         <?= $content ?>
     </div>
 </main>
 
-<!-- 🔹 FOOTER GLOBAL -->
 <footer class="text-light py-4 border-top">
     <div class="container">
         <div class="row gy-4">
@@ -154,13 +151,12 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/layout/main.css');
 
         <div class="row">
             <div class="col-md-6 text-center text-md-end">
-                <small>Desenvolvido por <a href="<?= Url::to(['/team/index']) ?>" class="text-success text-decoration-none fw-semibold">EmergencySTS Dev Team</a></small>
-            </div>
-        </div>
-            </div>
+                <small>Desenvolvido por <a href="<?= Url::to(['/team/index']) ?>" class="text-success text-decoration-none fw-semibold">EmergencySTS Dev Team</a></small>
+            </div>
+        </div>
+    </div>
 </footer>
 
-<!-- 🔹 Bootstrap e Owl Carousel -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <?php

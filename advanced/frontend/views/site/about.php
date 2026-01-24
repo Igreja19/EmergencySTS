@@ -5,19 +5,12 @@ use yii\bootstrap5\Html;
 
 $this->title = 'Sobre Nós';
 ?>
-<!-- ============================= -->
-<!-- SEÇÃO HERO -->
-<!-- ============================= -->
 <section class="bg-success text-white text-center rounded-circle py-5 mt-5">
     <div class="container">
         <h1 class="display-5 fw-bold">Sobre o EmergencySTS</h1>
         <p class="lead mt-3 mb-0">Eficiência, Prioridade e Cuidado — o futuro do atendimento hospitalar.</p>
     </div>
 </section>
-
-<!-- ============================= -->
-<!-- SEÇÃO PRINCIPAL -->
-<!-- ============================= -->
 <section class="py-5 bg-light">
     <div class="container">
         <div class="row align-items-center">
@@ -46,10 +39,6 @@ $this->title = 'Sobre Nós';
         </div>
     </div>
 </section>
-
-<!-- ============================= -->
-<!-- SEÇÃO MISSÃO / VALORES -->
-<!-- ============================= -->
 <section class="py-5">
     <div class="container text-center">
         <h2 class="fw-bold text-success mb-4">A Nossa Missão</h2>

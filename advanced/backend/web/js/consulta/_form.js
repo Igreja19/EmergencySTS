@@ -1,7 +1,5 @@
-// JS carregado
 console.log("JS DA CONSULTA CARREGADO!");
 
-// AJAX: quando o utilizador seleciona uma triagem
 $('#triagem-select').on('change', function () {
 
     let triagemId = $(this).val();

@@ -17,7 +17,6 @@ if (!$pulseira) {
     return;
 }
 
-// 🔹 Cores das prioridades
 $cores = [
         'Vermelho' => '#dc3545',
         'Laranja'  => '#fd7e14',
@@ -36,17 +35,14 @@ $cor = $cores[$pulseira->prioridade] ?? '#6c757d';
     <h5 class="fw-bold text-success mb-2">Tempo de Espera Estimado</h5>
     <p class="text-muted">Consulta do seu estado na fila de atendimento</p>
 
-    <!-- CARD PRINCIPAL -->
     <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 main-status-card position-relative">
 
-        <!-- Cabeçalho com número e selo -->
         <div class="d-flex justify-content-between align-items-start position-relative">
             <div>
                 <small class="text-muted">O seu número de triagem</small>
                 <h2 class="fw-bold m-0"><?= Html::encode($pulseira->codigo) ?></h2>
             </div>
 
-            <!-- Cor da pulseira -->
             <div class="selo position-absolute top-0 end-0 mt-2 me-3 d-flex align-items-center justify-content-center fw-bold text-uppercase" style="background-color: <?= $cor ?>;">
                 <?= strtoupper(Html::encode($pulseira->prioridade ?? 'PENDENTE')) ?>
             </div>
@@ -54,7 +50,6 @@ $cor = $cores[$pulseira->prioridade] ?? '#6c757d';
 
         <hr class="my-3">
 
-        <!-- Barra de progresso -->
         <div class="mt-3 position-relative">
             <div class="barra progress rounded-pill triage-track" style="height: 14px; overflow: hidden;">
                 <div class="progress-bar progress-bar-striped progress-bar-animated" style="
@@ -70,7 +65,6 @@ $cor = $cores[$pulseira->prioridade] ?? '#6c757d';
             </div>
         </div>
 
-        <!-- Legenda da fila -->
         <div class="small text-muted mb-1 mt-3">
             <?php if ($pulseira->prioridade === 'Pendente'): ?>
                 A sua prioridade ainda não foi atribuída. Aguarde avaliação de um enfermeiro.
@@ -80,7 +74,6 @@ $cor = $cores[$pulseira->prioridade] ?? '#6c757d';
             <?php endif; ?>
         </div>
 
-        <!-- Nome do utilizador -->
         <div class="mt-3">
             <span class="text-muted">Utilizador:</span>
             <span class="fw-semibold <?= $utilizadorNome === 'Desconhecido' ? 'text-secondary' : 'text-dark' ?>">
@@ -89,7 +82,6 @@ $cor = $cores[$pulseira->prioridade] ?? '#6c757d';
         </div>
     </div>
 
-    <!-- FILA -->
     <h6 class="fw-bold text-success mb-3">
         <i class="bi bi-people me-2"></i>Fila de Atendimento
     </h6>
@@ -124,7 +116,6 @@ $cor = $cores[$pulseira->prioridade] ?? '#6c757d';
         <?php endforeach; ?>
     </div>
 
-    <!-- ESTATÍSTICAS -->
     <div class="row g-3 text-center">
         <div class="col-md-4">
             <div class="card border-0 shadow-sm rounded-4 py-3">

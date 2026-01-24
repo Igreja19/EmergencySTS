@@ -8,7 +8,6 @@
     padding-top: 0;
 }
 
-/* Animação entrada premium */
 .premium-container {
     animation: fadeSlideIn 0.8s ease-out forwards;
     opacity: 0;
@@ -28,7 +27,6 @@
     box-shadow: 0 12px 35px rgba(0,0,0,0.15);
 }
 
-/* Ícone circular premium */
 .premium-icon-container {
     width: 95px;
     height: 95px;

@@ -13,17 +13,14 @@ use common\helpers\UserAgentHelper;
 
 $this->title = 'EmergencySTS | Dashboard';
 
-// Bootstrap Icons + CSS global
 $this->registerCssFile('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css');
 $this->registerCssFile(Yii::$app->request->baseUrl . '/css/site/index.css');
 
-/* ===== Chart.js ===== */
 $this->registerJsFile('https://cdn.jsdelivr.net/npm/chart.js', [
         'position' => View::POS_END
 ]);
 
 
-/* ===== GRÁFICOS ===== */
 $this->registerJs('
 
 // DONUT
@@ -110,7 +107,6 @@ function badgePrio(string $prio): string {
         </div>
     </div>
 
-        <!-- KPIs -->
         <div class="row g-3 mb-4 justify-content-center">
             <div class="col-lg-3 col-sm-6">
                 <div class="card card-kpi red text-center">
