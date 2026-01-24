@@ -123,6 +123,15 @@ class ConsultaController extends Controller
                     $pulseira->save(false);
                 }
 
+                if ($model->triagem && $model->triagem->userprofile_id) {
+                    Notificacao::enviar(
+                        $model->triagem->userprofile_id,
+                        'Consulta Iniciada',
+                        'A sua consulta foi iniciada. Dirija-se ao gabinete.',
+                        'Consulta'
+                    );
+                }
+
                 try {
                     if (Yii::$app->has('mqtt')) {
                         Yii::$app->mqtt->publish(
@@ -355,7 +364,7 @@ class ConsultaController extends Controller
             // B. NOTIFICAR O PACIENTE (Dono da consulta)
             // ==========================================================
             if ($model->triagem && $model->triagem->userprofile_id) {
-                \common\models\Notificacao::enviar(
+                Notificacao::enviar(
                     $model->triagem->userprofile_id,
                     'Consulta Encerrada',
                     'A sua consulta foi concluída. As melhoras!',
@@ -370,14 +379,14 @@ class ConsultaController extends Controller
             $adminUserIds = Yii::$app->authManager->getUserIdsByRole('admin');
 
             // Buscar os perfis
-            $adminProfiles = \common\models\UserProfile::find()
+            $adminProfiles = UserProfile::find()
                 ->where(['user_id' => $adminUserIds])
                 ->all();
 
             $nomePaciente = $model->triagem ? $model->triagem->userprofile->nome : 'Desconhecido';
 
             foreach ($adminProfiles as $admin) {
-                \common\models\Notificacao::enviar(
+                Notificacao::enviar(
                     $admin->id,
                     'Consulta Encerrada pelo Médico',
                     "A consulta do paciente '{$nomePaciente}' foi encerrada.",

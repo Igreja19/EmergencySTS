@@ -34,32 +34,25 @@ class NotificacaoController extends Controller
     {
         $user = Yii::$app->user->identity;
 
-        // 1. Verificar se o utilizador e o perfil existem
         if (!$user || !$user->userprofile) {
             return $this->redirect(['site/login']);
         }
 
-        // 2. Definir o filtro base RIGOROSO
         $queryBase = Notificacao::find()
             ->where(['userprofile_id' => $user->userprofile->id])
             ->andWhere([
                 'or',
-                // --- APENAS ESTES 3 TIPOS ---
 
-                // 1. Consulta Encerrada (Procura no título OU mensagem)
                 ['like', 'mensagem', 'Consulta Encerrada'],
                 ['like', 'titulo',   'Consulta Encerrada'],
 
-                // 2. Consulta Iniciada (Procura no título OU mensagem)
                 ['like', 'mensagem', 'Consulta iniciada'],
                 ['like', 'titulo',   'Consulta iniciada'],
 
-                // 3. Pulseira Atribuída (O 'atribu' apanha 'atribuida' e 'atribuída')
                 ['like', 'mensagem', 'Pulseira atribu'],
                 ['like', 'titulo',   'Pulseira atribu'],
             ]);
 
-        // 3. Clonar e obter as listas (Mantém-se igual)
         $naoLidasQuery = clone $queryBase;
         $naoLidas = $naoLidasQuery
             ->andWhere(['lida' => 0])
@@ -73,7 +66,6 @@ class NotificacaoController extends Controller
             ->limit(50)
             ->all();
 
-        // 4. Calcular KPIs (Mantém-se igual)
         $kpiNaoLidas = count($naoLidas);
         $kpiTotal = $queryBase->count();
 

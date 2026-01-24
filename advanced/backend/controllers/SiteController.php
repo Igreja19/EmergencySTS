@@ -95,13 +95,13 @@ class SiteController extends Controller
         $notificacoes = [];
 
         $countEspera = 0;
-        $urlDestino = ['/site/index']; // Link padrão
+        $urlDestino = ['/site/index'];
 
         // MÉDICO
         if ($isMedico && !$isAdmin) {
             $countEspera = Pulseira::find()
                 ->where(['status' => 'Em espera'])
-                ->andWhere(['<>', 'prioridade', 'Pendente']) // Tem de ter cor (já triado)
+                ->andWhere(['<>', 'prioridade', 'Pendente'])
                 ->count();
 
             $urlDestino = ['/consulta/create'];
@@ -109,7 +109,7 @@ class SiteController extends Controller
         // ENFERMEIRO
         elseif ($isEnfermeiro && !$isAdmin) {
             $countEspera = Pulseira::find()
-                ->where(['prioridade' => 'Pendente']) // Ainda não foi triado
+                ->where(['prioridade' => 'Pendente'])
                 ->count();
 
             $urlDestino = ['/triagem/index'];
@@ -270,9 +270,9 @@ class SiteController extends Controller
 
     public function actionGraficoDados()
     {
-        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        Yii::$app->response->format = Response::FORMAT_JSON;
 
-        $manchester = $this->getManchesterStats();  // Ajusta para tua lógica real
+        $manchester = $this->getManchesterStats();
         $evolucaoLabels = $this->getEvolucaoLabels();
         $evolucaoData = $this->getEvolucaoData();
 

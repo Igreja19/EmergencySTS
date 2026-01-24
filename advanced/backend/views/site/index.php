@@ -131,17 +131,6 @@ if ($isMedico && !$isAdmin) {
             </div>
             <?php if ($isAdmin): ?>
                 <div class="col-lg-3 col-sm-6">
-                    <a href="<?= Url::to(['/pulseira/index']) ?>" style="text-decoration: none; color: inherit;">
-                        <div class="card card-kpi red text-center">
-                            <div class="icon"><i class="bi bi-people-fill"></i></div>
-                            <div class="value"><?= (int)$stats["ativas"] ?></div>
-                            <div class="label">Pacientes em espera</div>
-                        </div>
-                    </a>
-                </div>
-            <?php endif ?>
-            <?php if ($isAdmin): ?>
-                <div class="col-lg-3 col-sm-6">
                     <a href="<?= Url::to(['/user-profile/index']) ?>" style="text-decoration: none; color: inherit;">
                         <div class="card card-kpi blue text-center">
                             <div class="icon"><i class="bi bi-person-badge"></i></div>

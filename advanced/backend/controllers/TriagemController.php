@@ -122,6 +122,15 @@ class TriagemController extends Controller
                 $pulseira->save(false);
             }
 
+            if ($triagemExistente->userprofile_id) {
+                Notificacao::enviar(
+                    $triagemExistente->userprofile_id,
+                    'Pulseira Atribuída',
+                    'A triagem foi concluída. Aguarde pelo médico.',
+                    'Triagem'
+                );
+            }
+
                 // Guardar triagem (UPDATE)
                 $triagemExistente->save(false);
 
