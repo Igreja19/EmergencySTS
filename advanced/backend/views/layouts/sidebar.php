@@ -12,6 +12,8 @@ $roleNames = array_keys($roles);
 $isAdmin      = in_array('admin', $roleNames);
 $isMedico     = in_array('medico', $roleNames);
 $isEnfermeiro = in_array('enfermeiro', $roleNames);
+
+$this->registerCssFile(Yii::$app->request->baseUrl . '/css/layouts/sidebar.css');
 ?>
 
 <aside class="main-sidebar sidebar-dark-primary elevation-4">

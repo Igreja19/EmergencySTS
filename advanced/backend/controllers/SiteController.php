@@ -207,7 +207,6 @@ class SiteController extends Controller
         if ($isAdmin) {
             $stats['totalUtilizadores'] = User::find()
                 ->where(['status' => 10])
-                ->andWhere(['<>', 'id', Yii::$app->user->id])
                 ->count();
 
             $stats['totalConsultas'] = Consulta::find()->count();
