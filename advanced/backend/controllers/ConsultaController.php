@@ -10,6 +10,7 @@ use common\models\Consulta;
 use common\models\ConsultaSearch;
 use common\models\Triagem;
 use yii\data\ActiveDataProvider;
+use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -25,7 +26,7 @@ class ConsultaController extends Controller
             [
                 // CONTROLO DE ACESSO
                 'access' => [
-                    'class' => \yii\filters\AccessControl::class,
+                    'class' => AccessControl::class,
                     'only' => ['index','view','create','update','delete','chart-data', 'historico', 'encerrar'],
                     'rules' => [
                         [

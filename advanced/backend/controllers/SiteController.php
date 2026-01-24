@@ -12,7 +12,10 @@ use common\models\Pulseira;
 use common\models\Triagem;
 use common\models\User;
 use Yii;
+use yii\filters\AccessControl;
+use yii\filters\VerbFilter;
 use yii\web\Controller;
+use yii\web\ErrorAction;
 use yii\web\Response;
 
 /**
@@ -27,7 +30,7 @@ class SiteController extends Controller
     {
         return [
             'access' => [
-                'class' => \yii\filters\AccessControl::class,
+                'class' => AccessControl::class,
                 'only' => ['index', 'logout'],
                 'rules' => [
 
@@ -47,7 +50,7 @@ class SiteController extends Controller
                 ],
             ],
             'verbs' => [
-                'class' => \yii\filters\VerbFilter::class,
+                'class' => VerbFilter::class,
                 'actions' => [
                     'logout' => ['post'],
                 ],
@@ -62,7 +65,7 @@ class SiteController extends Controller
     {
         return [
             'error' => [
-                'class' => \yii\web\ErrorAction::class,
+                'class' => ErrorAction::class,
             ],
         ];
     }
@@ -89,7 +92,7 @@ class SiteController extends Controller
             'triagensPendentes' => Pulseira::find()
                 ->where(['prioridade' => 'Pendente'])
                 ->count(),
-            'salasDisponiveis' => 4, // podes ajustar se tiveres tabela de salas
+            'salasDisponiveis' => 4,
             'salasTotal' => 6,
         ];
 
@@ -134,7 +137,7 @@ class SiteController extends Controller
 
         $pacientes = Triagem::find()
             ->joinWith([
-                'userprofile.user', // Faz JOIN das duas tabelas
+                'userprofile.user',
                 'pulseira'
             ])
             ->where(['in', 'pulseira.status', ['Em espera', 'Em atendimento']])
@@ -238,7 +241,6 @@ class SiteController extends Controller
 
             $userId = Yii::$app->user->id;
 
-            // Histórico de login
             $history = new LoginHistory();
             $history->user_id = $userId;
             $history->ip = Yii::$app->request->userIP;
@@ -248,7 +250,6 @@ class SiteController extends Controller
             return $this->goBack();
         }
 
-        // Credenciais válidas mas sem permissões
         if ($model->acessoRestrito) {
             return $this->redirect(['/site/acesso-restrito']);
         }
