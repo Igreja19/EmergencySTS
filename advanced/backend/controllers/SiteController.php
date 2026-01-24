@@ -78,6 +78,7 @@ class SiteController extends Controller
     public function actionIndex()
     {
         $user = Yii::$app->user->identity;
+        // Usamos o authManager para verificar as permissões corretamente
         $isAdmin = Yii::$app->authManager->checkAccess($user->id, 'admin');
         $isEnfermeiro = Yii::$app->authManager->checkAccess($user->id, 'enfermeiro');
         $isMedico = Yii::$app->authManager->checkAccess($user->id, 'medico');
@@ -86,12 +87,13 @@ class SiteController extends Controller
             'espera' => Pulseira::find()->where(['status' => 'Em espera'])->count(),
             'ativas' => Pulseira::find()->where(['status' => 'Em atendimento'])->count(),
             'atendidosHoje' => Consulta::find()
-                ->where(['estado' => 'Encerrada'])
+                ->where(['estado' => Consulta::ESTADO_ENCERRADA]) // Usando a constante do modelo
                 ->andWhere(['between', 'data_encerramento', date('Y-m-d 00:00:00'), date('Y-m-d 23:59:59')])
                 ->count(),
             'triagensPendentes' => Pulseira::find()
                 ->where(['prioridade' => 'Pendente'])
                 ->count(),
+            'totalUtilizadores' => User::find()->count(), // CORREÇÃO: Chave que faltava para a View
             'salasDisponiveis' => 4,
             'salasTotal' => 6,
         ];
@@ -110,8 +112,7 @@ class SiteController extends Controller
         $evolucaoData = [];
 
         if ($dataFiltro) {
-
-            // Apenas 1 dia
+            // Apenas 1 dia solicitado via filtro
             $inicio = $dataFiltro . ' 00:00:00';
             $fim    = $dataFiltro . ' 23:59:59';
 
@@ -119,10 +120,8 @@ class SiteController extends Controller
             $evolucaoData[] = Triagem::find()
                 ->where(['between', 'datatriagem', $inicio, $fim])
                 ->count();
-
         } else {
-
-            // Últimos 7 dias
+            // Últimos 7 dias por defeito
             for ($i = 6; $i >= 0; $i--) {
                 $dia = date('Y-m-d', strtotime("-$i days"));
                 $evolucaoLabels[] = date('d/m', strtotime($dia));
@@ -131,7 +130,7 @@ class SiteController extends Controller
                     ->where(['between', 'datatriagem', $dia . ' 00:00:00', $dia . ' 23:59:59'])
                     ->count();
 
-                $evolucaoData[] = $count;
+                $evolucaoData[] = (int)$count;
             }
         }
 
@@ -160,9 +159,7 @@ class SiteController extends Controller
 
         $notificacoes = [];
         if (!Yii::$app->user->isGuest && Yii::$app->user->identity->userprofile) {
-
             $userprofileId = Yii::$app->user->identity->userprofile->id;
-
             $notificacoes = Notificacao::find()
                 ->where([
                     'lida' => 0,
@@ -175,7 +172,6 @@ class SiteController extends Controller
         }
 
         $logins = [];
-
         if ($isAdmin) {
             $logins = LoginHistory::find()
                 ->joinWith('user')
@@ -196,7 +192,7 @@ class SiteController extends Controller
             'isAdmin'        => $isAdmin,
             'isEnfermeiro'   => $isEnfermeiro,
             'isMedico'       => $isMedico,
-            'logins' => $logins,
+            'logins'         => $logins,
         ]);
     }
 

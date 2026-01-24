@@ -81,9 +81,12 @@ class PulseiraController extends Controller
 
         $progressPct = 0;
         if ($priority !== 'Pendente') {
-            if ($totalAguardarPrioridade > 1) {
-                $progressPct = (($totalAguardarPrioridade - $position) / ($totalAguardarPrioridade - 1)) * 100;
-                $progressPct = max(0, min(100, round($progressPct)));
+            $tempoMaximoDesejado = $maxByPriority[$priority] ?? 60;
+
+            if ($tempoMaximoDesejado > 0) {
+                $progressPct = ($tempoDecorridoMin / $tempoMaximoDesejado) * 100;
+
+                $progressPct = max(5, min(100, round($progressPct)));
             } else {
                 $progressPct = 100;
             }

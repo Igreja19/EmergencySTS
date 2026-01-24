@@ -269,32 +269,39 @@ class ConsultaController extends Controller
 
         $query = Consulta::find()
             ->where(['estado' => Consulta::ESTADO_ENCERRADA])
+            ->with(['userprofile', 'medico'])
             ->orderBy(['data_encerramento' => SORT_DESC]);
 
         $medicos = [];
 
-        // Admin
         if ($user->can('admin')) {
-            $medicoAssignments = Yii::$app->authManager->getUserIdsByRole('medico');
+            $medicoUserIds = Yii::$app->authManager->getUserIdsByRole('medico');
+
             $medicos = UserProfile::find()
-                ->where(['user_id' => $medicoAssignments])
+                ->where(['user_id' => $medicoUserIds])
                 ->all();
 
             $filtroMedicoId = Yii::$app->request->get('medico');
-            if ($filtroMedicoId) {
-                $query->andWhere(['medicouserprofile_id' => $filtroMedicoId]);
+
+            $query->andFilterWhere(['medicouserprofile_id' => $filtroMedicoId]);
+        }
+        elseif ($user->can('medico')) {
+            $userProfile = $user->identity->userprofile;
+            if ($userProfile) {
+                $query->andWhere(['medicouserprofile_id' => $userProfile->id]);
+            } else {
+                $query->andWhere(['0=1']);
             }
         }
-        // Médico
-        else if ($user->can('medico')) {
-            if ($user->identity->userprofile) {
-                $query->andWhere(['medicouserprofile_id' => $user->identity->userprofile->id]);
-            }
+        else {
+            $query->andWhere(['0=1']);
         }
 
-        $dataProvider = new ActiveDataProvider([
+        $dataProvider = new \yii\data\ActiveDataProvider([
             'query' => $query,
-            'pagination' => ['pageSize' => 10],
+            'pagination' => [
+                'pageSize' => 10,
+            ],
         ]);
 
         return $this->render('historico', [
@@ -443,7 +450,6 @@ class ConsultaController extends Controller
             return $this->redirect(['view', 'id' => $consulta->id]);
         }
 
-        // Prescrição associada à consulta
         $prescricao = $consulta->prescricao;
         if (!$prescricao) {
             Yii::$app->session->setFlash(
@@ -453,32 +459,37 @@ class ConsultaController extends Controller
             return $this->redirect(['view', 'id' => $consulta->id]);
         }
 
-        // 👨‍⚕️ Médico
         $medicoNome = $consulta->medico_nome ?? 'Profissional de Saúde';
 
-        // MPDF
         $mpdf = new \Mpdf\Mpdf([
             'default_font_size' => 12,
-            'default_font' => 'dejavusans'
+            'default_font'      => 'dejavusans',
         ]);
+
+        $css = file_get_contents(
+            Yii::getAlias('@frontend/web/css/consulta/pdf.css')
+        );
+        $mpdf->WriteHTML($css, \Mpdf\HTMLParserMode::HEADER_CSS);
 
         $html = $this->renderPartial('pdf', [
             'consulta'   => $consulta,
             'prescricao' => $prescricao,
-            'medicoNome' => $medicoNome
+            'medicoNome' => $medicoNome,
         ]);
 
         if (ob_get_length()) {
-            ob_end_clean(); // 🔥 MUITO IMPORTANTE
+            ob_end_clean();
         }
 
-        $mpdf->WriteHTML($html);
+        $mpdf->WriteHTML($html, \Mpdf\HTMLParserMode::HTML_BODY);
 
         return $mpdf->Output(
             "Consulta_{$consulta->id}.pdf",
             \Mpdf\Output\Destination::DOWNLOAD
         );
+
     }
+
 
     protected function findModel($id)
     {

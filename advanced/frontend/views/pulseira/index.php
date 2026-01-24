@@ -18,52 +18,46 @@ if (!$pulseira) {
 }
 
 $cores = [
-        'Vermelho' => '#dc3545',
+        'Vermelha' => '#dc3545',
         'Laranja'  => '#fd7e14',
-        'Amarelo'  => '#ffc107',
+        'Amarela'  => '#ffc107',
         'Verde'    => '#198754',
         'Azul'     => '#0d6efd',
         'Pendente' => '#6c757d',
 ];
 
-$corBg = $cores[$pulseira->prioridade] ?? '#6c757d';
-
-$corTexto = ($pulseira->prioridade === 'Amarelo') ? '#000000' : '#ffffff';
-
+$cor = $cores[$pulseira->prioridade] ?? '#6c757d';
+$corTexto = ($pulseira->prioridade === 'Amarela') ? '#000000' : '#ffffff';
 ?>
-
 
 <div class="container py-5">
     <h5 class="fw-bold text-success mb-2">Tempo de Espera Estimado</h5>
     <p class="text-muted">Consulta do seu estado na fila de atendimento</p>
 
     <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 main-status-card position-relative">
-
         <div class="d-flex justify-content-between align-items-start position-relative">
             <div>
                 <small class="text-muted">O seu número de triagem</small>
                 <h2 class="fw-bold m-0"><?= Html::encode($pulseira->codigo) ?></h2>
             </div>
 
-            <!-- Cor da pulseira -->
-            <div class="selo position-absolute top-0 end-0 mt-2 me-3 d-flex align-items-center justify-content-center fw-bold text-uppercase" style="background-color: <?= $cor ?>;">
+            <div class="selo position-absolute top-0 end-0 mt-2 me-3 d-flex align-items-center justify-content-center fw-bold text-uppercase"
+                 style="background-color: <?= $cor ?>; color: <?= $corTexto ?>; padding: 5px 15px; border-radius: 20px;">
                 <?= strtoupper(Html::encode($pulseira->prioridade ?? 'PENDENTE')) ?>
             </div>
         </div>
 
         <hr class="my-3">
 
-        <!-- Barra de progresso -->
         <div class="mt-3 position-relative">
             <div class="barra progress rounded-pill triage-track" style="height: 14px; overflow: hidden;">
                 <div class="progress-bar progress-bar-striped progress-bar-animated" style="
-                             width: <?= min(100, (int)$progressPct) ?>%;
-                             background: linear-gradient(90deg, <?= $cor ?>, <?= $cor ?>cc);
-                             box-shadow: 0 0 10px <?= $cor ?>80;
-                             ">
+                        width: <?= min(100, (int)$progressPct) ?>%;
+                        background: linear-gradient(90deg, <?= $cor ?>, <?= $cor ?>cc);
+                        box-shadow: 0 0 10px <?= $cor ?>80;
+                        ">
                 </div>
             </div>
-
             <div class="small text-muted text-end mt-1">
                 <?= (int)$progressPct ?>%
             </div>
@@ -78,11 +72,10 @@ $corTexto = ($pulseira->prioridade === 'Amarelo') ? '#000000' : '#ffffff';
             <?php endif; ?>
         </div>
 
-        <!-- Nome do utilizador -->
         <div class="mt-3">
             <span class="text-muted">Utilizador:</span>
             <span class="fw-semibold <?= $utilizadorNome === 'Desconhecido' ? 'text-secondary' : 'text-dark' ?>">
-                <?= Html::encode($utilizadorNome ?? 'Desconhecido') ?>
+                <?= Html::encode($utilizadorNome) ?>
             </span>
         </div>
     </div>
@@ -110,35 +103,30 @@ $corTexto = ($pulseira->prioridade === 'Amarelo') ? '#000000' : '#ffffff';
                     <div class="small text-muted"><?= date('H:i', strtotime($item->tempoentrada)) ?></div>
                 </div>
 
-                <?php if (strcasecmp($item->status, 'Em atendimento') === 0): ?>
-                    <span class="badge bg-success-subtle text-success border border-success px-3 py-2">Em atendimento</span>
-                <?php elseif (strcasecmp($item->status, 'Em espera') === 0): ?>
-                    <span class="badge bg-warning-subtle text-dark border border-warning px-3 py-2">Em espera</span>
-                <?php else: ?>
-                    <span class="badge bg-secondary-subtle text-secondary border border-secondary px-3 py-2">Atendido</span>
-                <?php endif; ?>
+                <span class="badge <?= strcasecmp($item->status, 'Em atendimento') === 0 ? 'bg-success' : 'bg-warning text-dark' ?> px-3 py-2">
+                    <?= Html::encode($item->status) ?>
+                </span>
             </div>
         <?php endforeach; ?>
     </div>
 
-    <!-- ESTATÍSTICAS -->
     <div class="row g-3 text-center">
         <div class="col-md-4">
             <div class="card border-0 shadow-sm rounded-4 py-3">
                 <div class="fw-bold fs-4"><?= (int)$totalAguardar ?></div>
-                <div class="text-muted small">Utilizadores a Aguardar</div>
+                <div class="text-muted small">A Aguardar</div>
             </div>
         </div>
         <div class="col-md-4">
             <div class="card border-0 shadow-sm rounded-4 py-3">
                 <div class="fw-bold fs-4"><?= (int)$tempoMedio ?> min</div>
-                <div class="text-muted small">Tempo Médio de Espera</div>
+                <div class="text-muted small">Espera Média</div>
             </div>
         </div>
         <div class="col-md-4">
             <div class="card border-0 shadow-sm rounded-4 py-3">
                 <div class="fw-bold fs-5"><?= Html::encode($afluencia) ?></div>
-                <div class="text-muted small">Nível de Afluência</div>
+                <div class="text-muted small">Afluência</div>
             </div>
         </div>
     </div>
