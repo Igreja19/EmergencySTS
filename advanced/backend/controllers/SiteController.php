@@ -78,7 +78,6 @@ class SiteController extends Controller
     public function actionIndex()
     {
         $user = Yii::$app->user->identity;
-        // Usamos o authManager para verificar as permissões corretamente
         $isAdmin = Yii::$app->authManager->checkAccess($user->id, 'admin');
         $isEnfermeiro = Yii::$app->authManager->checkAccess($user->id, 'enfermeiro');
         $isMedico = Yii::$app->authManager->checkAccess($user->id, 'medico');
@@ -87,13 +86,13 @@ class SiteController extends Controller
             'espera' => Pulseira::find()->where(['status' => 'Em espera'])->count(),
             'ativas' => Pulseira::find()->where(['status' => 'Em atendimento'])->count(),
             'atendidosHoje' => Consulta::find()
-                ->where(['estado' => Consulta::ESTADO_ENCERRADA]) // Usando a constante do modelo
+                ->where(['estado' => Consulta::ESTADO_ENCERRADA])
                 ->andWhere(['between', 'data_encerramento', date('Y-m-d 00:00:00'), date('Y-m-d 23:59:59')])
                 ->count(),
             'triagensPendentes' => Pulseira::find()
                 ->where(['prioridade' => 'Pendente'])
                 ->count(),
-            'totalUtilizadores' => User::find()->count(), // CORREÇÃO: Chave que faltava para a View
+            'totalUtilizadores' => User::find()->count(),
             'salasDisponiveis' => 4,
             'salasTotal' => 6,
         ];
@@ -112,7 +111,6 @@ class SiteController extends Controller
         $evolucaoData = [];
 
         if ($dataFiltro) {
-            // Apenas 1 dia solicitado via filtro
             $inicio = $dataFiltro . ' 00:00:00';
             $fim    = $dataFiltro . ' 23:59:59';
 
