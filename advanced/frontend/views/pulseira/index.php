@@ -32,13 +32,11 @@ $corTexto = ($pulseira->prioridade === 'Amarelo') ? '#000000' : '#ffffff';
 
 ?>
 
-
 <div class="container py-5">
     <h5 class="fw-bold text-success mb-2">Tempo de Espera Estimado</h5>
     <p class="text-muted">Consulta do seu estado na fila de atendimento</p>
 
     <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 main-status-card position-relative">
-
         <div class="d-flex justify-content-between align-items-start position-relative">
             <div>
                 <small class="text-muted">O seu número de triagem</small>
@@ -63,7 +61,6 @@ $corTexto = ($pulseira->prioridade === 'Amarelo') ? '#000000' : '#ffffff';
                              ">
                 </div>
             </div>
-
             <div class="small text-muted text-end mt-1">
                 <?= (int)$progressPct ?>%
             </div>
@@ -82,7 +79,7 @@ $corTexto = ($pulseira->prioridade === 'Amarelo') ? '#000000' : '#ffffff';
         <div class="mt-3">
             <span class="text-muted">Utilizador:</span>
             <span class="fw-semibold <?= $utilizadorNome === 'Desconhecido' ? 'text-secondary' : 'text-dark' ?>">
-                <?= Html::encode($utilizadorNome ?? 'Desconhecido') ?>
+                <?= Html::encode($utilizadorNome) ?>
             </span>
         </div>
     </div>
@@ -110,13 +107,9 @@ $corTexto = ($pulseira->prioridade === 'Amarelo') ? '#000000' : '#ffffff';
                     <div class="small text-muted"><?= date('H:i', strtotime($item->tempoentrada)) ?></div>
                 </div>
 
-                <?php if (strcasecmp($item->status, 'Em atendimento') === 0): ?>
-                    <span class="badge bg-success-subtle text-success border border-success px-3 py-2">Em atendimento</span>
-                <?php elseif (strcasecmp($item->status, 'Em espera') === 0): ?>
-                    <span class="badge bg-warning-subtle text-dark border border-warning px-3 py-2">Em espera</span>
-                <?php else: ?>
-                    <span class="badge bg-secondary-subtle text-secondary border border-secondary px-3 py-2">Atendido</span>
-                <?php endif; ?>
+                <span class="badge <?= strcasecmp($item->status, 'Em atendimento') === 0 ? 'bg-success' : 'bg-warning text-dark' ?> px-3 py-2">
+                    <?= Html::encode($item->status) ?>
+                </span>
             </div>
         <?php endforeach; ?>
     </div>
@@ -126,19 +119,19 @@ $corTexto = ($pulseira->prioridade === 'Amarelo') ? '#000000' : '#ffffff';
         <div class="col-md-4">
             <div class="card border-0 shadow-sm rounded-4 py-3">
                 <div class="fw-bold fs-4"><?= (int)$totalAguardar ?></div>
-                <div class="text-muted small">Utilizadores a Aguardar</div>
+                <div class="text-muted small">A Aguardar</div>
             </div>
         </div>
         <div class="col-md-4">
             <div class="card border-0 shadow-sm rounded-4 py-3">
                 <div class="fw-bold fs-4"><?= (int)$tempoMedio ?> min</div>
-                <div class="text-muted small">Tempo Médio de Espera</div>
+                <div class="text-muted small">Espera Média</div>
             </div>
         </div>
         <div class="col-md-4">
             <div class="card border-0 shadow-sm rounded-4 py-3">
                 <div class="fw-bold fs-5"><?= Html::encode($afluencia) ?></div>
-                <div class="text-muted small">Nível de Afluência</div>
+                <div class="text-muted small">Afluência</div>
             </div>
         </div>
     </div>

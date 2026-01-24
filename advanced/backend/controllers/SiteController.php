@@ -78,10 +78,6 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        if (Yii::$app->user->isGuest) {
-            return $this->redirect(['/site/login']);
-        }
-
         $user = Yii::$app->user->identity;
 
         $isAdmin = Yii::$app->authManager->checkAccess($user->id, 'admin');
@@ -128,7 +124,7 @@ class SiteController extends Controller
         }
 
         $stats = [
-            'espera' => $countEspera, // <--- Aqui usamos o valor calculado em cima
+            'espera' => $countEspera,
             'ativas' => Pulseira::find()->where(['status' => 'Em atendimento'])->count(),
             'atendidosHoje' => Consulta::find()
                 ->where(['estado' => 'Encerrada'])
@@ -141,7 +137,6 @@ class SiteController extends Controller
             'salasTotal' => 6,
         ];
 
-        // Manchester
         $manchester = [
             'vermelho' => Pulseira::find()->where(['prioridade' => 'Vermelho'])->count(),
             'laranja'  => Pulseira::find()->where(['prioridade' => 'Laranja'])->count(),
@@ -187,14 +182,21 @@ class SiteController extends Controller
             ->asArray()
             ->all();
 
-        if ($user->userprofile) {
+        $notificacoes = [];
+        if (!Yii::$app->user->isGuest && Yii::$app->user->identity->userprofile) {
+            $userprofileId = Yii::$app->user->identity->userprofile->id;
             $notificacoes = Notificacao::find()
-                ->where(['lida' => 0, 'userprofile_id' => $user->userprofile->id])
+                ->where([
+                    'lida' => 0,
+                    'userprofile_id' => $userprofileId,
+                ])
                 ->orderBy(['dataenvio' => SORT_DESC])
                 ->limit(5)
                 ->asArray()
                 ->all();
         }
+
+        $logins = [];
 
         if ($isAdmin) {
             $stats['totalUtilizadores'] = User::find()

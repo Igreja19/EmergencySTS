@@ -112,42 +112,35 @@ class ConsultaController extends Controller
     public function actionPdf($id)
     {
         $consulta = $this->findModel($id);
-        $triagem  = $consulta->triagem ?? null;
-
-        $html = $this->renderPartial('pdf', [
-            'consulta' => $consulta,
-            'triagem'  => $triagem,
-        ]);
-
-        $cssPath = Yii::getAlias('@frontend/web/css/consulta/pdf.css');
-        $css = file_exists($cssPath) ? file_get_contents($cssPath) : '';
+        $prescricao = $consulta->prescricao;
+        $medicoNome = $consulta->medico_nome ?? 'Profissional de Saúde';
 
         $mpdf = new \Mpdf\Mpdf([
-            'mode'        => 'utf-8',
-            'format'      => 'A4',
-            'orientation' => 'P',
-            'default_font'=> 'dejavusans',
+            'default_font_size' => 12,
+            'default_font' => 'dejavusans',
         ]);
 
-        $mpdf->SetTitle('Relatório da Consulta #' . $consulta->id);
+        $css = file_get_contents(
+            Yii::getAlias('@frontend/web/css/consulta/pdf.css')
+        );
+        $mpdf->WriteHTML($css, \Mpdf\HTMLParserMode::HEADER_CSS);
 
-        if (!empty($css)) {
-            $mpdf->WriteHTML($css, \Mpdf\HTMLParserMode::HEADER_CSS);
+        // HTML
+        $html = $this->renderPartial('pdf', [
+            'consulta'   => $consulta,
+            'prescricao' => $prescricao,
+            'medicoNome' => $medicoNome,
+        ]);
+
+        if (ob_get_length()) {
+            ob_end_clean();
         }
 
         $mpdf->WriteHTML($html, \Mpdf\HTMLParserMode::HTML_BODY);
 
-        $mpdf->SetHTMLFooter(
-            '<div style="text-align:center;color:#6b7280;font-size:10px;">
-            Página {PAGENO} de {nbpg}
-        </div>'
+        return $mpdf->Output(
+            "Consulta_{$consulta->id}.pdf",
+            \Mpdf\Output\Destination::DOWNLOAD
         );
-
-        $mpdf->Output(
-            'Relatorio_Consulta_' . $consulta->id . '.pdf',
-            'D'
-        );
-
-        Yii::$app->end();
     }
 }

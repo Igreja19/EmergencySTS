@@ -240,3 +240,45 @@ body {
     padding-left: 35px !important;
     font-size: 0.88rem !important;
 }
+
+.brand-link.modern-brand {
+    padding: 1.2rem 1rem !important;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    transition: all 0.3s ease;
+}
+
+.brand-logo-container {
+    background: white;
+    padding: 5px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    margin-right: 12px;
+}
+
+.brand-image-modern {
+    height: 32px;
+    width: auto;
+    object-fit: contain;
+}
+
+.brand-text-modern {
+    font-size: 1.25rem !important;
+    font-weight: 500 !important;
+    color: white !important;
+    letter-spacing: 0.5px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.text-bold-sts {
+    font-weight: 800;
+    color: var(--brand-2);
+}
+
+.brand-link.modern-brand:hover {
+    background: rgba(255, 255, 255, 0.05);
+}

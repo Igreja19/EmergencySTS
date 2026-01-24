@@ -16,36 +16,32 @@ $isEnfermeiro = in_array('enfermeiro', $roleNames);
 
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
 
-    <a href="<?= Url::to(['/site/index']) ?>" class="brand-link">
-        <img src="<?= Yii::$app->request->baseUrl ?>/img/logo.png"
-             alt="EmergencySTS"
-             class="brand-image img-circle elevation-3"
-             style="opacity:.9">
-        <span class="brand-text font-weight-light">EmergencySTS</span>
+    <a href="<?= Url::to(['/site/index']) ?>" class="brand-link modern-brand border-0">
+        <div class="brand-logo-container">
+            <img src="<?= Yii::$app->request->baseUrl ?>/img/logo.png"
+                 alt="EmergencySTS"
+                 class="brand-image-modern">
+        </div>
+        <span class="brand-text-modern">EmergencySTS</span>
     </a>
 
     <div class="sidebar">
-        <nav class="mt-2">
+        <nav class="mt-3">
             <?php
             echo Menu::widget([
                     'options' => [
-                            'class' => 'nav nav-pills nav-sidebar flex-column',
+                            'class' => 'nav nav-pills nav-sidebar flex-column nav-child-indent', // Adicionei nav-child-indent
                             'data-widget' => 'treeview',
                             'role' => 'menu',
                             'data-accordion' => 'false'
                     ],
                     'items' => [
-
-                        // DASHBOARD
                             [
                                     'label' => 'Dashboard',
                                     'icon' => 'tachometer-alt',
                                     'url' => ['/site/index'],
                                     'options' => ['class' => 'is-dashboard'],
-                                    'visible' => !Yii::$app->user->isGuest,
                             ],
-
-                        // UTILIZADORES (Admin)
                             [
                                     'label' => 'Utilizadores',
                                     'icon' => 'users',
@@ -53,7 +49,6 @@ $isEnfermeiro = in_array('enfermeiro', $roleNames);
                                     'options' => ['class' => 'is-users'],
                                     'visible' => $isAdmin,
                             ],
-                        // PULSEIRAS
                             [
                                     'label' => 'Pulseiras',
                                     'icon' => 'id-card',
@@ -61,8 +56,6 @@ $isEnfermeiro = in_array('enfermeiro', $roleNames);
                                     'options' => ['class' => 'is-pulseira'],
                                     'visible' => $isAdmin || $isEnfermeiro,
                             ],
-
-                        // TRIAGEM
                             [
                                     'label' => 'Triagem',
                                     'icon' => 'stethoscope',
@@ -70,28 +63,16 @@ $isEnfermeiro = in_array('enfermeiro', $roleNames);
                                     'options' => ['class' => 'is-triagem'],
                                     'visible' => $isAdmin || $isEnfermeiro,
                             ],
-
-                        // CONSULTAS (agora com submenu)
                             [
                                     'label' => 'Consultas',
                                     'icon' => 'notes-medical',
                                     'options' => ['class' => 'is-consulta'],
                                     'visible' => $isAdmin || $isMedico,
                                     'items' => [
-                                            [
-                                                    'label' => 'Todas as Consultas',
-                                                    'icon' => 'angle-right',
-                                                    'url' => ['/consulta/index'],
-                                            ],
-                                            [
-                                                    'label' => 'Histórico',
-                                                    'icon' => 'history text-info',
-                                                    'url' => ['/consulta/historico'],
-                                            ],
+                                            ['label' => 'Todas as Consultas', 'icon' => 'circle', 'url' => ['/consulta/index']],
+                                            ['label' => 'Histórico', 'icon' => 'history', 'url' => ['/consulta/historico']],
                                     ],
                             ],
-
-                        // PRESCRIÇÕES
                             [
                                     'label' => 'Prescrições',
                                     'icon' => 'prescription-bottle-alt',
@@ -99,8 +80,6 @@ $isEnfermeiro = in_array('enfermeiro', $roleNames);
                                     'options' => ['class' => 'is-prescricao'],
                                     'visible' => $isAdmin || $isMedico,
                             ],
-
-                        // MEDICAMENTOS
                             [
                                     'label' => 'Medicamentos',
                                     'icon' => 'capsules',
@@ -108,36 +87,26 @@ $isEnfermeiro = in_array('enfermeiro', $roleNames);
                                     'options' => ['class' => 'is-medicamento'],
                                     'visible' => $isAdmin || $isMedico,
                             ],
-
-                        // NOTIFICAÇÕES
                             [
                                     'label' => 'Notificações',
                                     'icon' => 'bell',
                                     'url' => ['/notificacao/index'],
                                     'options' => ['class' => 'is-notificacao'],
-                                    'visible' => $isAdmin || $isMedico || $isEnfermeiro,
                             ],
-
-                        // PERFIL
                             [
-                                    'label' => 'Perfil',
-                                    'icon'  => 'user-cog',
+                                    'label' => 'Meu Perfil',
+                                    'icon'  => 'user-circle',
                                     'url'   => ['/user-profile/meu-perfil'],
                                     'options' => ['class' => 'is-perfil'],
-                                    'visible' => !Yii::$app->user->isGuest,
                             ],
-
-                        // LOGOUT
                             [
                                     'label' => 'Sair',
                                     'icon' => 'sign-out-alt',
                                     'url' => ['/site/logout'],
-                                    'visible' => !Yii::$app->user->isGuest,
-                                    'template' => '
-                            <a href="{url}" data-method="post" class="nav-link logout-link d-flex align-items-center">
-                                <i class="nav-icon fas fa-sign-out-alt me-2"></i>
-                                <span class="logout-text">Sair</span>
-                            </a>',
+                                    'template' => '<a href="{url}" data-method="post" class="nav-link logout-link mt-2">
+                                        <i class="nav-icon fas fa-sign-out-alt"></i>
+                                        <p>{label}</p>
+                                       </a>',
                                     'options' => ['class' => 'is-sair'],
                             ],
                     ],
@@ -145,5 +114,4 @@ $isEnfermeiro = in_array('enfermeiro', $roleNames);
             ?>
         </nav>
     </div>
-
 </aside>

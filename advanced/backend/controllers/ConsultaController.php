@@ -5,6 +5,7 @@ namespace backend\controllers;
 use common\models\Notificacao;
 use common\models\Prescricaomedicamento;
 use common\models\UserProfile;
+use Mpdf\HTMLParserMode;
 use Mpdf\Mpdf;
 use Yii;
 use common\models\Consulta;
@@ -270,32 +271,39 @@ class ConsultaController extends Controller
 
         $query = Consulta::find()
             ->where(['estado' => Consulta::ESTADO_ENCERRADA])
+            ->with(['userprofile', 'medico'])
             ->orderBy(['data_encerramento' => SORT_DESC]);
 
         $medicos = [];
 
-        // Admin
         if ($user->can('admin')) {
-            $medicoAssignments = Yii::$app->authManager->getUserIdsByRole('medico');
+            $medicoUserIds = Yii::$app->authManager->getUserIdsByRole('medico');
+
             $medicos = UserProfile::find()
-                ->where(['user_id' => $medicoAssignments])
+                ->where(['user_id' => $medicoUserIds])
                 ->all();
 
             $filtroMedicoId = Yii::$app->request->get('medico');
-            if ($filtroMedicoId) {
-                $query->andWhere(['medicouserprofile_id' => $filtroMedicoId]);
+
+            $query->andFilterWhere(['medicouserprofile_id' => $filtroMedicoId]);
+        }
+        elseif ($user->can('medico')) {
+            $userProfile = $user->identity->userprofile;
+            if ($userProfile) {
+                $query->andWhere(['medicouserprofile_id' => $userProfile->id]);
+            } else {
+                $query->andWhere(['0=1']);
             }
         }
-        // Médico
-        else if ($user->can('medico')) {
-            if ($user->identity->userprofile) {
-                $query->andWhere(['medicouserprofile_id' => $user->identity->userprofile->id]);
-            }
+        else {
+            $query->andWhere(['0=1']);
         }
 
-        $dataProvider = new ActiveDataProvider([
+        $dataProvider = new \yii\data\ActiveDataProvider([
             'query' => $query,
-            'pagination' => ['pageSize' => 10],
+            'pagination' => [
+                'pageSize' => 10,
+            ],
         ]);
 
         return $this->render('historico', [
@@ -309,43 +317,39 @@ class ConsultaController extends Controller
     {
         $model = $this->findModel($id);
 
-        // 1. Verificação: Não pode encerrar sem prescrição
+        // Não pode encerrar sem prescrição
         if (empty($model->prescricoes)) {
             Yii::$app->session->setFlash(
                 'error',
                 'Não é possível encerrar a consulta sem pelo menos uma prescrição.'
             );
-            return $this->redirect(['index']); // Ou 'historico', conforme a tua preferência
+            return $this->redirect(['index']);
         }
 
-        // 2. Atualizar Estado e Data
         $model->estado = Consulta::ESTADO_ENCERRADA;
         $model->data_encerramento = date('Y-m-d H:i:s');
 
-        // 3. Atribuir Médico (Usuário Logado)
+        // Médico
         if (Yii::$app->user && Yii::$app->user->identity->userprofile) {
+
             $medicoUser = Yii::$app->user->identity;
             $medicoProfile = $medicoUser->userprofile;
 
             $model->medicouserprofile_id = $medicoProfile->id;
 
-            // Define o nome do médico
+            // Nome do perfil OU username do user
             $model->medico_nome = $medicoProfile->nome
                 ?: $medicoUser->username
                     ?: 'Profissional de Saúde';
         }
 
-        // 4. Guardar Alterações
-        if ($model->save(false)) {
+        $model->save(false);
 
-            // ==========================================================
-            // A. ATUALIZAR PULSEIRA
-            // ==========================================================
-            if ($model->triagem && $model->triagem->pulseira) {
-                $pulseira = $model->triagem->pulseira;
-                $pulseira->status = 'Atendido';
-                $pulseira->save(false);
-            }
+        if ($model->triagem && $model->triagem->pulseira) {
+            $pulseira = $model->triagem->pulseira;
+            $pulseira->status = 'Atendido';
+            $pulseira->save(false);
+        }
 
             // ==========================================================
             // B. NOTIFICAR O PACIENTE (Dono da consulta)
@@ -399,11 +403,7 @@ class ConsultaController extends Controller
                 Yii::warning("Falha MQTT (Encerrar Consulta): " . $e->getMessage());
             }
 
-            Yii::$app->session->setFlash('success', 'Consulta encerrada com sucesso!');
-        } else {
-            Yii::$app->session->setFlash('error', 'Ocorreu um erro ao tentar encerrar a consulta.');
-        }
-
+        Yii::$app->session->setFlash('success', 'Consulta encerrada com sucesso!');
         return $this->redirect(['index']);
     }
 
@@ -499,26 +499,29 @@ class ConsultaController extends Controller
             return $this->redirect(['view', 'id' => $consulta->id]);
         }
 
-        // 👨‍⚕️ Médico
         $medicoNome = $consulta->medico_nome ?? 'Profissional de Saúde';
 
-        // MPDF
-        $mpdf = new Mpdf([
+        $mpdf = new \Mpdf\Mpdf([
             'default_font_size' => 12,
             'default_font' => 'dejavusans'
         ]);
 
+        $css = file_get_contents(
+            Yii::getAlias('@frontend/web/css/consulta/pdf.css')
+        );
+        $mpdf->WriteHTML($css, \Mpdf\HTMLParserMode::HEADER_CSS);
+
         $html = $this->renderPartial('pdf', [
             'consulta'   => $consulta,
             'prescricao' => $prescricao,
-            'medicoNome' => $medicoNome
+            'medicoNome' => $medicoNome,
         ]);
 
         if (ob_get_length()) {
-            ob_end_clean(); // 🔥 MUITO IMPORTANTE
+            ob_end_clean();
         }
 
-        $mpdf->WriteHTML($html);
+        $mpdf->WriteHTML($html, HTMLParserMode::HTML_BODY);
 
         return $mpdf->Output(
             "Consulta_{$consulta->id}.pdf",
