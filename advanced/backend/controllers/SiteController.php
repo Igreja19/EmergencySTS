@@ -79,7 +79,6 @@ class SiteController extends Controller
     public function actionIndex()
     {
         $user = Yii::$app->user->identity;
-
         $isAdmin = Yii::$app->authManager->checkAccess($user->id, 'admin');
         $isEnfermeiro = Yii::$app->authManager->checkAccess($user->id, 'enfermeiro');
         $isMedico = Yii::$app->authManager->checkAccess($user->id, 'medico');
@@ -129,6 +128,7 @@ class SiteController extends Controller
             'atendidosHoje' => Consulta::find()
                 ->where(['estado' => Consulta::ESTADO_ENCERRADA])
                 ->where(['estado' => 'Encerrada'])
+                ->where(['estado' => Consulta::ESTADO_ENCERRADA]) // Usando a constante do modelo
                 ->andWhere(['between', 'data_encerramento', date('Y-m-d 00:00:00'), date('Y-m-d 23:59:59')])
                 ->count(),
             'triagensPendentes' => Pulseira::find()
