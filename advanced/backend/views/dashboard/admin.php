@@ -74,7 +74,7 @@ if (line) {
                 y: {
                 beginAtZero: true,
                 ticks: {
-                    precision: 0   // 👈 garante números inteiros
+                    precision: 0
             }
         }
     }
@@ -93,35 +93,6 @@ if (line) {
             <i class="bi bi-heart-pulse-fill"></i>
             <span>EmergencySTS</span>
         </div>
-    </div>
-
-    <!-- KPIs -->
-    <div class="row g-3 mb-4">
-
-        <div class="col-sm-4">
-            <div class="card card-kpi red text-center">
-                <div class="icon"><i class="bi bi-people-fill"></i></div>
-                <div class="value"><?= $stats['espera'] ?></div>
-                <div class="label">Pacientes em espera</div>
-            </div>
-        </div>
-
-        <div class="col-sm-4">
-            <div class="card card-kpi orange text-center">
-                <div class="icon"><i class="bi bi-activity"></i></div>
-                <div class="value"><?= $stats['ativas'] ?></div>
-                <div class="label">Triagens ativas</div>
-            </div>
-        </div>
-
-        <div class="col-sm-4">
-            <div class="card card-kpi green text-center">
-                <div class="icon"><i class="bi bi-heart-pulse"></i></div>
-                <div class="value"><?= $stats['atendidosHoje'] ?></div>
-                <div class="label">Atendidos hoje</div>
-            </div>
-        </div>
-
     </div>
 
     <!-- GRÁFICOS -->

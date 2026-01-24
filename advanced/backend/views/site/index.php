@@ -8,6 +8,8 @@
 /** @var array $ultimas */
 
 use yii\helpers\Html;
+use yii\helpers\StringHelper;
+use yii\helpers\Url;
 use yii\web\View;
 use common\helpers\UserAgentHelper;
 
@@ -97,6 +99,14 @@ function badgePrio(string $prio): string {
     $cls = $map[$prio] ?? "bg-secondary";
     return "<span class=\"badge badge-prio {$cls}\">{$prio}</span>";
 }
+
+if ($isMedico && !$isAdmin) {
+    $urlDestino = ['/consulta/create'];
+} elseif ($isEnfermeiro && !$isAdmin) {
+    $urlDestino = ['/triagem/index'];
+} elseif ($isAdmin) {
+    $urlDestino = ['/triagem/index'];
+}
 ?>
 
 <!--DASHBOARD-->
@@ -113,37 +123,45 @@ function badgePrio(string $prio): string {
         <!-- KPIs -->
         <div class="row g-3 mb-4 justify-content-center">
             <div class="col-lg-3 col-sm-6">
-                <div class="card card-kpi red text-center">
-                    <div class="icon"><i class="bi bi-people-fill"></i></div>
-                    <div class="value"><?= (int)$stats["espera"] ?></div>
-                    <div class="label">Pacientes em espera</div>
-                </div>
+                <a href="<?= Url::to($urlDestino) ?>" style="text-decoration: none; color: inherit;">
+                    <div class="card card-kpi red text-center">
+                        <div class="icon"><i class="bi bi-people-fill"></i></div>
+                        <div class="value"><?= (int)$stats["espera"] ?></div>
+                        <div class="label">Pacientes em espera</div>
+                    </div>
+                </a>
             </div>
             <?php if ($isAdmin): ?>
                 <div class="col-lg-3 col-sm-6">
-                    <div class="card card-kpi orange text-center">
-                        <div class="icon"><i class="bi bi-activity"></i></div>
-                        <div class="value"><?= (int)$stats["ativas"] ?></div>
-                        <div class="label">Triagens ativas</div>
-                    </div>
+                    <a href="<?= Url::to(['/pulseira/index']) ?>" style="text-decoration: none; color: inherit;">
+                        <div class="card card-kpi orange text-center">
+                            <div class="icon"><i class="bi bi-activity"></i></div>
+                            <div class="value"><?= (int)$stats["ativas"] ?></div>
+                            <div class="label">Triagens ativas</div>
+                        </div>
+                    </a>
                 </div>
             <?php endif ?>
-            <?php if ($isEnfermeiro): ?>
+            <?php if ($isAdmin): ?>
                 <div class="col-lg-3 col-sm-6">
-                    <div class="card card-kpi orange text-center">
-                        <div class="icon"><i class="bi bi-activity"></i></div>
-                        <div class="value"><?= (int)$stats["triagensPendentes"] ?></div>
-                        <div class="label">Triagens Pendentes</div>
-                    </div>
+                    <a href="<?= Url::to(['/user-profile/index']) ?>" style="text-decoration: none; color: inherit;">
+                        <div class="card card-kpi orange text-center">
+                            <div class="icon"><i class="bi bi-person-badge"></i></div>
+                            <div class="value"><?= (int)$stats["totalUtilizadores"] ?></div>
+                            <div class="label">Utilizadores</div>
+                        </div>
+                    </a>
                 </div>
             <?php endif ?>
             <?php if ($isMedico || $isAdmin): ?>
                 <div class="col-lg-3 col-sm-6">
-                    <div class="card card-kpi green text-center">
-                        <div class="icon"><i class="bi bi-heart-pulse"></i></div>
-                        <div class="value"><?= (int)$stats["atendidosHoje"] ?></div>
-                        <div class="label">Atendidos hoje</div>
-                    </div>
+                    <a href="<?= Url::to(['/consulta/historico']) ?>" style="text-decoration: none; color: inherit;">
+                        <div class="card card-kpi green text-center">
+                            <div class="icon"><i class="bi bi-heart-pulse"></i></div>
+                            <div class="value"><?= (int)$stats["atendidosHoje"] ?></div>
+                            <div class="label">Atendidos hoje</div>
+                        </div>
+                    </a>
                 </div>
             <?php endif ?>
         </div>
@@ -207,38 +225,6 @@ function badgePrio(string $prio): string {
                             <td><?= Html::encode($l['user']['username'] ?? '-') ?></td>
                             <td><?= Html::encode($l['ip'] ?? '-') ?></td>
                             <td class="small"><?= UserAgentHelper::format($l["user_agent"]) ?></td>
-                        </tr>
-                    <?php endforeach; endif; ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    <?php endif; ?>
-    <?php if ($isMedico): ?>
-        <!-- Tabela Pacientes -->
-        <div class="card shadow-sm p-3 table-modern mb-4">
-            <h6 class="mb-3">Pacientes em Espera</h6>
-
-            <div class="table-responsive">
-                <table class="table align-middle mb-0">
-                    <thead>
-                    <tr>
-                        <th>Código</th>
-                        <th>Nome</th>
-                        <th>Motivo</th>
-                        <th>Estado</th>
-                    </tr>
-                    </thead>
-
-                    <tbody>
-                    <?php if (empty($pacientes)): ?>
-                        <tr><td colspan="4" class="text-center text-muted">Nenhum registo encontrado</td></tr>
-                    <?php else: foreach ($pacientes as $p): ?>
-                        <tr>
-                            <td><?= Html::encode($p["pulseira"]["codigo"] ?? "-") ?></td>
-                            <td><?= Html::encode($p["userprofile"]["nome"] ?? "-") ?></td>
-                            <td><?= Html::encode($p["motivoconsulta"] ?? "-") ?></td>
-                            <td><?= Html::encode($p["pulseira"]["status"] ?? "-") ?></td>
                         </tr>
                     <?php endforeach; endif; ?>
                     </tbody>

@@ -12,7 +12,10 @@ use common\models\Pulseira;
 use common\models\Triagem;
 use common\models\User;
 use Yii;
+use yii\filters\AccessControl;
+use yii\filters\VerbFilter;
 use yii\web\Controller;
+use yii\web\ErrorAction;
 use yii\web\Response;
 
 /**
@@ -27,7 +30,7 @@ class SiteController extends Controller
     {
         return [
             'access' => [
-                'class' => \yii\filters\AccessControl::class,
+                'class' => AccessControl::class,
                 'only' => ['index', 'logout'],
                 'rules' => [
 
@@ -47,7 +50,7 @@ class SiteController extends Controller
                 ],
             ],
             'verbs' => [
-                'class' => \yii\filters\VerbFilter::class,
+                'class' => VerbFilter::class,
                 'actions' => [
                     'logout' => ['post'],
                 ],
@@ -62,7 +65,7 @@ class SiteController extends Controller
     {
         return [
             'error' => [
-                'class' => \yii\web\ErrorAction::class,
+                'class' => ErrorAction::class,
             ],
         ];
     }
@@ -92,6 +95,7 @@ class SiteController extends Controller
                 ->count(),
             'salasDisponiveis' => 4, // podes ajustar se tiveres tabela de salas
             'salasTotal' => 6,
+            'totalUtilizadores' => User::find()->count(),
         ];
 
         // ===== Contagem por prioridade (Manchester) =====
@@ -156,10 +160,12 @@ class SiteController extends Controller
         // ===== Últimas triagens =====
         $ultimas = Triagem::find()
             ->joinWith(['userprofile', 'pulseira'])
+            ->where(['<>', 'pulseira.prioridade', 'Pendente'])
             ->orderBy(['id' => SORT_DESC])
             ->limit(5)
             ->asArray()
             ->all();
+
 
         // ===== Notificações (apenas do utilizador autenticado, não lidas) =====
         $notificacoes = [];

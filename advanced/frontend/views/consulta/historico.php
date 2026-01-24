@@ -36,23 +36,24 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/consulta/historico.cs
         // 🔹 prioridade vem da pulseira
         $prioridade = $c->triagem->pulseira->prioridade ?? 'Pendente';
 
-        $badgeClasses = [
-                'Vermelho' => 'danger',
-                'Laranja'  => 'laranja',
-                'Amarelo'  => 'warning',
-                'Verde'    => 'success',
-                'Azul'     => 'primary',
-                'Pendente' => 'secondary',
-        ];
+        $bgHex = match ($prioridade) {
+            'Vermelho' => '#dc3545', // Vermelho Bootstrap
+            'Laranja'  => '#fd7e14', // Laranja
+            'Amarelo'  => '#ffc107', // Amarelo
+            'Verde'    => '#198754', // Verde
+            'Azul'     => '#0d6efd', // Azul
+            'Pendente' => '#6c757d', // Cinzento
+            default    => '#6c757d',
+        };
 
-        $badgeClass = $badgeClasses[$prioridade] ?? 'secondary';
+        $textHex = ($prioridade === 'Amarelo') ? '#000000' : '#ffffff';
         ?>
 
         <div class="card shadow-sm border-0 rounded-4 mb-3 p-3">
             <div class="d-flex justify-content-between align-items-start flex-wrap">
                 <div>
                     <h6 class="fw-semibold mb-1">
-                        <span class="badge bg-<?= $badgeClass ?>">
+                        <span class="badge" style="background-color: <?= $bgHex ?>; color: <?= $textHex ?>;">
                             <?= Html::encode($prioridade) ?>
                         </span>
 

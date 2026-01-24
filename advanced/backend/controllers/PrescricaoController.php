@@ -32,8 +32,14 @@ class PrescricaoController extends Controller
                             'actions' => ['error', 'login'],
                         ],
                         [
+                            'actions' => ['index','view','create','update','chart-data'],
                             'allow' => true,
-                            'roles' => ['admin', 'medico', 'enfermeiro'],
+                            'roles' => ['admin','medico'],
+                        ],
+                        [
+                            'actions' => ['delete'],
+                            'allow' => true,
+                            'roles' => ['admin'],
                         ],
                     ],
                     'denyCallback' => function () {

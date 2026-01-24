@@ -6,6 +6,7 @@ use yii\bootstrap5\Html;
 use yii\helpers\Url;
 
 /** @var yii\web\View $this */
+/** @var array $doutores */
 
 $this->title = 'EmergencySTS | Sistema de Triagem';
 ?>
@@ -207,66 +208,39 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
 
 <!-- MÉDICOS -->
 <div class="container py-5">
-    <div class="text-center mb-5">
-        <span class="border border-secondary text-secondary px-3 py-1 rounded-pill fw-semibold">Médicos</span>
-        <h1 class="fw-bold mt-3">Os Nossos Médicos Experientes</h1>
-    </div>
+    <div class="container-xxl py-5">
+        <div class="container">
+            <div class="text-center mx-auto mb-5" style="max-width: 600px;">
+                <p class="d-inline-block border rounded-pill py-1 px-4">Doutores</p>
+                <h1>Nossos Especialistas</h1>
+            </div>
 
-    <div class="row g-4">
-        <div class="col-md-3">
-            <a href="<?= Yii::$app->urlManager->createUrl(['doutor/view', 'id' => 1]) ?>" class="text-decoration-none text-dark">
-                <div class="card border-0 shadow-sm doctor-card">
-                    <div class="position-relative overflow-hidden">
-                        <img src="<?= yii::getAlias("@web/"). 'img/doctor1.jpg'?>" class="card-img-top" alt="Dr. João Silva">
+            <div class="row g-4">
+                <?php foreach ($doutores as $id => $doc): ?>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="team-item position-relative rounded overflow-hidden shadow-sm h-100">
+                            <div class="overflow-hidden">
+                                <?= Html::img('@web/img/' . $doc['photo'], [
+                                        'class' => 'img-fluid',
+                                        'alt' => $doc['name'],
+                                        'style' => 'width: 100%; height: 250px; object-fit: cover;'
+                                ]) ?>
+                            </div>
+                            <div class="p-4 mt-n5">
+                                <div class="bg-light text-center p-4">
+                                    <h5 class="fw-bold"><?= Html::encode($doc['name']) ?></h5>
+                                    <span class="text-primary"><?= Html::encode($doc['speciality']) ?></span>
+                                    <hr>
+                                    <p class="small text-muted mb-0"><?= Html::encode($doc['bio']) ?></p>
+                                    <div class="mt-3">
+                                        <small><i class="bi bi-envelope-fill me-2"></i><?= Html::encode($doc['email']) ?></small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body text-center">
-                        <h5 class="card-title fw-bold mb-1">Dr. João Silva</h5>
-                        <p class="text-muted mb-0">Emergências</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        <div class="col-md-3">
-            <a href="<?= Yii::$app->urlManager->createUrl(['doutor/view', 'id' => 2]) ?>" class="text-decoration-none text-dark">
-                <div class="card border-0 shadow-sm doctor-card">
-                    <div class="position-relative overflow-hidden">
-                        <img src="<?= yii::getAlias("@web/"). 'img/doctor2.jpg'?>" class="card-img-top" alt="Dra. Marta Costa">
-                    </div>
-                    <div class="card-body text-center">
-                        <h5 class="card-title fw-bold mb-1">Dra. Marta Costa</h5>
-                        <p class="text-muted mb-0">Pediatria</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        <div class="col-md-3">
-            <a href="<?= Yii::$app->urlManager->createUrl(['doutor/view', 'id' => 3]) ?>" class="text-decoration-none text-dark">
-                <div class="card border-0 shadow-sm doctor-card">
-                    <div class="position-relative overflow-hidden">
-                        <img src="<?= yii::getAlias("@web/"). 'img/doctor3.jpg'?>" class="card-img-top" alt="Dra. Inês Duarte">
-                    </div>
-                    <div class="card-body text-center">
-                        <h5 class="card-title fw-bold mb-1">Dra. Inês Duarte</h5>
-                        <p class="text-muted mb-0">Cardiologia</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        <div class="col-md-3">
-            <a href="<?= Yii::$app->urlManager->createUrl(['doutor/view', 'id' => 4]) ?>" class="text-decoration-none text-dark">
-                <div class="card border-0 shadow-sm doctor-card">
-                    <div class="position-relative overflow-hidden">
-                        <img src="<?= yii::getAlias("@web/"). 'img/doctor4.jpg'?>" class="card-img-top" alt="Dr. Ricardo Matos">
-                    </div>
-                    <div class="card-body text-center">
-                        <h5 class="card-title fw-bold mb-1">Dr. Ricardo Matos</h5>
-                        <p class="text-muted mb-0">Neurologia</p>
-                    </div>
-                </div>
-            </a>
+                <?php endforeach; ?>
+            </div>
         </div>
     </div>
 </div>

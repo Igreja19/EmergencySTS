@@ -5,6 +5,8 @@ namespace frontend\controllers;
 use common\models\LoginForm;
 use common\models\User;
 use frontend\models\ContactForm;
+use frontend\models\DoctorCard;
+use frontend\models\DoctorCards;
 use frontend\models\PasswordResetRequestForm;
 use frontend\models\ResendVerificationEmailForm;
 use frontend\models\ResetPasswordForm;
@@ -12,10 +14,12 @@ use frontend\models\SignupForm;
 use frontend\models\VerifyEmailForm;
 use Yii;
 use yii\base\InvalidArgumentException;
+use yii\captcha\CaptchaAction;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\web\BadRequestHttpException;
 use yii\web\Controller;
+use yii\web\ErrorAction;
 
 /**
  * Site controller
@@ -30,12 +34,17 @@ class SiteController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::class,
-                'only' => ['logout', 'signup'],
+                'only' => ['logout', 'signup','index','acesso-restrito'],
                 'rules' => [
                     [
-                        'actions' => ['signup'],
+                        'actions' => ['signup','acesso-restrito'],
                         'allow'   => true,
                         'roles'   => ['?'],
+                    ],
+                    [
+                        'actions' => ['index'],
+                        'allow'   => true,
+                        'roles'   => ['paciente'],
                     ],
                     [
                         'actions' => ['logout'],
@@ -60,10 +69,10 @@ class SiteController extends Controller
     {
         return [
             'error' => [
-                'class' => \yii\web\ErrorAction::class,
+                'class' => ErrorAction::class,
             ],
             'captcha' => [
-                'class'           => \yii\captcha\CaptchaAction::class,
+                'class'           => CaptchaAction::class,
                 'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null,
             ],
         ];
@@ -76,7 +85,11 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        return $this->render('index');
+        $doutores = DoctorCards::getDoutoresFicticios();
+
+        return $this->render('index', [
+            'doutores' => $doutores,
+        ]);
     }
 
     /**
@@ -91,22 +104,23 @@ class SiteController extends Controller
         }
 
         $model = new LoginForm();
+
         $model->scenario = LoginForm::SCENARIO_FRONTEND;
+
         $contaDesativada = false;
 
         if ($model->load(Yii::$app->request->post())) {
 
             $user = User::findOne(['username' => $model->username]);
 
-            // Conta desativada
             if ($user && $user->userprofile && !$user->userprofile->isAtivo()) {
                 $contaDesativada = true;
             }
-            // Tentar login normal
             elseif ($model->login()) {
 
                 $user = Yii::$app->user->identity;
 
+                // (Tua lógica existente: Primeiro Login)
                 if ($user->primeiro_login) {
                     Yii::$app->session->set('firstLogin', true);
                     $user->primeiro_login = 0;
@@ -115,9 +129,13 @@ class SiteController extends Controller
 
                 return $this->goBack();
             }
-            // Login falhou (user/pass errados)
             else {
-                $model->addError('password', 'Incorrect username or password.');
+                if ($model->acessoRestrito) {
+                    return $this->redirect(['/site/acesso-restrito']);
+                }
+                if (!$model->hasErrors()) {
+                    $model->addError('password', 'Incorrect username or password.');
+                }
             }
         }
 
@@ -322,5 +340,23 @@ class SiteController extends Controller
         return $this->render('resendVerificationEmail', [
             'model' => $model,
         ]);
+    }
+    public function actionAcessoRestrito()
+    {
+        $this->layout = 'main-login';
+
+        $this->actionDestroyCookie();
+
+        return $this->render('acesso-restrito');
+    }
+    private function actionDestroyCookie()
+    {
+        $cookies = Yii::$app->response->cookies;
+
+        // frontend identity cookie
+        $cookies->remove('advanced-frontend');
+
+        Yii::$app->user->logout(false);
+        Yii::$app->session->destroy();
     }
 }

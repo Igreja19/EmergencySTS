@@ -47,11 +47,13 @@
                     }
                 }
                 // Se for Paciente a tentar entrar no Backend Web -> Bloqueia
+
                 if (!$temRoleValido) {
                     Yii::$app->user->logout();
                     Yii::$app->response->redirect(['/site/acesso-restrito'])->send();
                     return false;
                 }
+
             }
     
             return true;

@@ -10,6 +10,7 @@ use common\models\Consulta;
 use common\models\ConsultaSearch;
 use common\models\Triagem;
 use yii\data\ActiveDataProvider;
+use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -25,7 +26,7 @@ class ConsultaController extends Controller
             [
                 // CONTROLO DE ACESSO
                 'access' => [
-                    'class' => \yii\filters\AccessControl::class,
+                    'class' => AccessControl::class,
                     'only' => ['index','view','create','update','delete','chart-data', 'historico', 'encerrar'],
                     'rules' => [
                         [
@@ -33,8 +34,14 @@ class ConsultaController extends Controller
                             'actions' => ['error', 'login'],
                         ],
                         [
+                            'actions' => ['index','view','create','update','chart-data', 'historico', 'encerrar'],
                             'allow' => true,
-                            'roles' => ['admin', 'medico', 'enfermeiro'],
+                            'roles' => ['admin', 'medico'],
+                        ],
+                        [
+                            'actions' => ['delete'],
+                            'allow' => true,
+                            'roles' => ['admin'],
                         ],
                     ],
                     'denyCallback' => function () {
@@ -260,16 +267,35 @@ class ConsultaController extends Controller
     // HISTÓRICO DE CONSULTAS
     public function actionHistorico()
     {
-        $medicoAssignments = Yii::$app->authManager->getUserIdsByRole('medico');
+        $user = Yii::$app->user;
 
-        $medicos = UserProfile::find()
-            ->where(['user_id' => $medicoAssignments])
-            ->all();
+        $query = Consulta::find()
+            ->where(['estado' => Consulta::ESTADO_ENCERRADA])
+            ->orderBy(['data_encerramento' => SORT_DESC]);
+
+        $medicos = [];
+
+        // Admin
+        if ($user->can('admin')) {
+            $medicoAssignments = Yii::$app->authManager->getUserIdsByRole('medico');
+            $medicos = UserProfile::find()
+                ->where(['user_id' => $medicoAssignments])
+                ->all();
+
+            $filtroMedicoId = Yii::$app->request->get('medico');
+            if ($filtroMedicoId) {
+                $query->andWhere(['medicouserprofile_id' => $filtroMedicoId]);
+            }
+        }
+        // Médico
+        else if ($user->can('medico')) {
+            if ($user->identity->userprofile) {
+                $query->andWhere(['medicouserprofile_id' => $user->identity->userprofile->id]);
+            }
+        }
 
         $dataProvider = new ActiveDataProvider([
-            'query' => Consulta::find()
-                ->where(['estado' => Consulta::ESTADO_ENCERRADA])
-                ->orderBy(['data_encerramento' => SORT_DESC]),
+            'query' => $query,
             'pagination' => ['pageSize' => 10],
         ]);
 

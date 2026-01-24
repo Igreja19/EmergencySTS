@@ -16,46 +16,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/layouts/navbar.css');
                 <i class="fas fa-bars"></i>
             </a>
         </li>
-
-        <li class="nav-item d-none d-sm-inline-block">
-            <a href="<?= Url::home() ?>" class="nav-link top-link">Dashboard</a>
-        </li>
-
-        <?php if ($isAdmin): ?>
-            <li class="nav-item d-none d-sm-inline-block">
-                <a href="<?= Url::to(['/user-profile/index']) ?>" class="nav-link top-link">Utilizadores</a>
-            </li>
-        <?php endif; ?>
-
-        <?php if ($isAdmin || $isEnfermeiro): ?>
-            <li class="nav-item d-none d-sm-inline-block">
-                <a href="<?= Url::to(['/pulseira/index']) ?>" class="nav-link top-link">Pulseira</a>
-            </li>
-        <?php endif; ?>
-
-        <?php if ($isAdmin || $isEnfermeiro): ?>
-            <li class="nav-item d-none d-sm-inline-block">
-                <a href="<?= Url::to(['/triagem/index']) ?>" class="nav-link top-link">Triagem</a>
-            </li>
-        <?php endif; ?>
-
-        <?php if ($isAdmin || $isMedico): ?>
-            <li class="nav-item d-none d-sm-inline-block">
-                <a href="<?= Url::to(['/consulta/index']) ?>" class="nav-link top-link">Consultas</a>
-            </li>
-        <?php endif; ?>
-
-        <?php if ($isAdmin || $isMedico): ?>
-            <li class="nav-item d-none d-sm-inline-block">
-                <a href="<?= Url::to(['/prescricao/index']) ?>" class="nav-link top-link">Prescrições</a>
-            </li>
-        <?php endif; ?>
-
-        <?php if ($isAdmin || $isMedico): ?>
-            <li class="nav-item d-none d-sm-inline-block">
-                <a href="<?= Url::to(['/medicamento/index']) ?>" class="nav-link top-link">Medicamentos</a>
-            </li>
-        <?php endif; ?>
     </ul>
 
     <!-- RIGHT -->

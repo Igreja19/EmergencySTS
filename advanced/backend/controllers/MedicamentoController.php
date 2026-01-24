@@ -5,6 +5,7 @@ namespace backend\controllers;
 use Yii;
 use common\models\Medicamento;
 use common\models\MedicamentoSearch;
+use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -17,12 +18,18 @@ class MedicamentoController extends Controller
             parent::behaviors(),
             [
                 'access' => [
-                    'class' => \yii\filters\AccessControl::class,
+                    'class' => AccessControl::class,
                     'only' => ['index','view','create','update','delete'],
                     'rules' => [
                         [
+                            'actions' => ['index','view','create','update'],
                             'allow' => true,
-                            'roles' => ['admin', 'medico', 'enfermeiro'],
+                            'roles' => ['admin', 'medico'],
+                        ],
+                        [
+                            'actions' => ['delete'],
+                            'allow' => true,
+                            'roles' => ['admin'],
                         ],
                     ],
                     'denyCallback' => fn() => Yii::$app->response->redirect(['/site/login']),

@@ -19,19 +19,21 @@ $this->title = "Histórico de Consultas";
         <i class="bi bi-clock-history"></i> Histórico de Consultas
     </h3>
 
-    <!-- FILTRO DE MÉDICO -->
-    <form method="get" class="mb-3">
-        <label class="form-label fw-semibold">Filtrar por Médico:</label>
-        <select name="medico" class="form-select" onchange="this.form.submit()">
-            <option value="">— Todos —</option>
-            <?php foreach ($medicos as $m): ?>
-                <option value="<?= $m->id ?>"
-                    <?= Yii::$app->request->get('medico') == $m->id ? 'selected' : '' ?>>
-                    <?= $m->nome ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
-    </form>
+    <!-- Filtro de Médico -->
+    <?php if (Yii::$app->user->can('admin')): ?>
+        <form method="get" class="mb-3">
+            <label class="form-label fw-semibold">Filtrar por Médico:</label>
+            <select name="medico" class="form-select" onchange="this.form.submit()">
+                <option value="">— Todos —</option>
+                <?php foreach ($medicos as $m): ?>
+                    <option value="<?= $m->id ?>"
+                            <?= Yii::$app->request->get('medico') == $m->id ? 'selected' : '' ?>>
+                        <?= $m->nome ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </form>
+    <?php endif; ?>
 
     <div class="card shadow-sm p-3" style="border-radius:12px;">
 

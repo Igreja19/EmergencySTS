@@ -14,15 +14,17 @@ $triagem = $triagem ?? $consulta->triagem ?? null;
 
 $prio = $triagem->pulseira->prioridade ?? 'Pendente';
 
-$badgeClass = match ($prio) {
-    'Vermelho' => 'bg-danger',
-    'Laranja'  => 'bg-warning',
-    'Amarelo'  => 'bg-warning',
-    'Verde'    => 'bg-success',
-    'Azul'     => 'bg-primary',
-    'Pendente' => 'bg-secondary',
-    default    => 'bg-secondary',
+$bgHex = match ($prio) {
+    'Vermelho' => '#dc3545', // Vermelho Bootstrap
+    'Laranja'  => '#fd7e14', // Laranja
+    'Amarelo'  => '#ffc107', // Amarelo
+    'Verde'    => '#198754', // Verde
+    'Azul'     => '#0d6efd', // Azul
+    'Pendente' => '#6c757d', // Cinzento
+    default    => '#6c757d',
 };
+
+$textHex = ($prio === 'Amarelo') ? '#000000' : '#ffffff';
 
 ?>
 <div class="container py-4 consulta-ver">
@@ -31,7 +33,7 @@ $badgeClass = match ($prio) {
         <h4 class="fw-semibold mb-0">
             Consulta #<?= Html::encode($consulta->id) ?>
             <?php if ($prio): ?>
-                <span class="badge <?= $badgeClass ?> align-middle ms-2">
+                <span class="badge align-middle ms-2" style="background-color: <?= $bgHex ?>; color: <?= $textHex ?>;">
                     <?= Html::encode($prio) ?>
                 </span>
             <?php endif; ?>

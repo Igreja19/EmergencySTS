@@ -24,14 +24,17 @@ $logoPath = Yii::getAlias('@frontend/web/img/logo.png');
 // Prioridade
 $prio = $triagem->pulseira->prioridade ?? 'Pendente';
 
-$prioClass = match ($prio) {
-    'Vermelho' => '#dc3545',
-    'Laranja'  => '#fd7e14',
-    'Amarelo'  => '#ffc107',
-    'Verde'    => '#198754',
-    'Azul'     => '#0d6efd',
+$bgHex = match ($prio) {
+    'Vermelho' => '#dc3545', // Vermelho Bootstrap
+    'Laranja'  => '#fd7e14', // Laranja
+    'Amarelo'  => '#ffc107', // Amarelo
+    'Verde'    => '#198754', // Verde
+    'Azul'     => '#0d6efd', // Azul
+    'Pendente' => '#6c757d', // Cinzento
     default    => '#6c757d',
 };
+
+$textHex = ($prio === 'Amarelo') ? '#000000' : '#ffffff';
 ?>
 
 <!DOCTYPE html>
@@ -89,7 +92,7 @@ $prioClass = match ($prio) {
         <tr>
             <th>Prioridade</th>
             <td>
-                 <span class="badge" style="background: <?= $prioClass ?>;"><?= Html::encode($prio) ?> </span>
+                 <span class="badge" style="background-color: <?= $bgHex ?>; color: <?= $textHex ?>;"><?= Html::encode($prio) ?> </span>
             </td>
         </tr>
         <tr>

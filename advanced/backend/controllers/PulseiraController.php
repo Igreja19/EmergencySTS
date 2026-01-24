@@ -27,8 +27,14 @@ class PulseiraController extends Controller
                     'only' => ['index','view','create','update','delete'],
                     'rules' => [
                         [
+                            'actions' => ['index','view','create','update'],
                             'allow' => true,
-                            'roles' => ['admin', 'medico', 'enfermeiro'],
+                            'roles' => ['admin','enfermeiro'],
+                        ],
+                        [
+                            'actions' => ['delete'],
+                            'allow' => true,
+                            'roles' => ['admin'],
                         ],
                     ],
                     'denyCallback' => fn() => Yii::$app->response->redirect(['/site/login']),

@@ -2,6 +2,8 @@
 namespace backend\controllers;
 
 use Yii;
+use yii\filters\AccessControl;
+use yii\filters\VerbFilter;
 use yii\web\Controller;
 use common\models\Pulseira;
 use common\models\Triagem;
@@ -9,6 +11,25 @@ use common\models\Notificacao;
 
 class DashboardController extends Controller
 {
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    [
+                        // Permite acesso às ações do Dashboard apenas a estas roles
+                        'actions' => ['index', 'manchester', 'stats'],
+                        'allow' => true,
+                        'roles' => ['admin', 'medico', 'enfermeiro'],
+                    ],
+                ],
+            ],
+            'verbs' => [
+                'class' => VerbFilter::class,
+            ],
+        ];
+    }
     public function actionIndex()
     {
         $auth = Yii::$app->authManager;

@@ -7,6 +7,7 @@ use common\models\Prescricaomedicamento;
 use common\models\Pulseira;
 use common\models\Triagem;
 use common\models\TriagemSearch;
+use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -21,11 +22,23 @@ class TriagemController extends Controller
             parent::behaviors(),
             [
                 'access' => [
-                    'class' => \yii\filters\AccessControl::class,
+                    'class' => AccessControl::class,
                     'only' => ['index','view','create','update','delete','chart-data'],
                     'rules' => [
-                        ['allow' => true, 'actions' => ['error', 'login']],
-                        ['allow' => true, 'roles' => ['admin', 'medico', 'enfermeiro']],
+                        [
+                            'allow' => true,
+                            'actions' => ['error', 'login']
+                        ],
+                        [
+                            'actions' => ['index','view','create','update','chart-data'],
+                            'allow' => true,
+                            'roles' => ['admin','enfermeiro'],
+                        ],
+                        [
+                            'actions' => ['delete'],
+                            'allow' => true,
+                            'roles' => ['admin'],
+                        ],
                     ],
                     'denyCallback' => fn() => Yii::$app->response->redirect(['/site/login']),
                 ],
