@@ -111,7 +111,7 @@ class Triagem extends \yii\db\ActiveRecord
 
     public function getConsulta()
     {
-        return $this->hasOne(\common\models\Consulta::class, ['triagem_id' => 'id']);
+        return $this->hasOne(Consulta::class, ['triagem_id' => 'id']);
     }
     public function getInicioSintomasFormatado()
     {

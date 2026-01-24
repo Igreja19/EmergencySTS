@@ -5,6 +5,7 @@ namespace backend\controllers;
 use common\models\Notificacao;
 use common\models\Prescricaomedicamento;
 use common\models\UserProfile;
+use Mpdf\Mpdf;
 use Yii;
 use common\models\Consulta;
 use common\models\ConsultaSearch;
@@ -308,56 +309,101 @@ class ConsultaController extends Controller
     {
         $model = $this->findModel($id);
 
-        // Não pode encerrar sem prescrição
+        // 1. Verificação: Não pode encerrar sem prescrição
         if (empty($model->prescricoes)) {
             Yii::$app->session->setFlash(
                 'error',
                 'Não é possível encerrar a consulta sem pelo menos uma prescrição.'
             );
-            return $this->redirect(['index']);
+            return $this->redirect(['index']); // Ou 'historico', conforme a tua preferência
         }
 
+        // 2. Atualizar Estado e Data
         $model->estado = Consulta::ESTADO_ENCERRADA;
         $model->data_encerramento = date('Y-m-d H:i:s');
 
-        // Médico
+        // 3. Atribuir Médico (Usuário Logado)
         if (Yii::$app->user && Yii::$app->user->identity->userprofile) {
-
             $medicoUser = Yii::$app->user->identity;
             $medicoProfile = $medicoUser->userprofile;
 
             $model->medicouserprofile_id = $medicoProfile->id;
 
-            // Nome do perfil OU username do user
+            // Define o nome do médico
             $model->medico_nome = $medicoProfile->nome
                 ?: $medicoUser->username
                     ?: 'Profissional de Saúde';
         }
 
-        $model->save(false);
+        // 4. Guardar Alterações
+        if ($model->save(false)) {
 
-        if ($model->triagem && $model->triagem->pulseira) {
-            $pulseira = $model->triagem->pulseira;
-            $pulseira->status = 'Atendido';
-            $pulseira->save(false);
-        }
+            // ==========================================================
+            // A. ATUALIZAR PULSEIRA
+            // ==========================================================
+            if ($model->triagem && $model->triagem->pulseira) {
+                $pulseira = $model->triagem->pulseira;
+                $pulseira->status = 'Atendido';
+                $pulseira->save(false);
+            }
 
-        try {
-            if (Yii::$app->has('mqtt')) {
-                Yii::$app->mqtt->publish(
-                    "consulta/encerrada/{$model->id}",
-                    json_encode([
-                        "evento" => "consulta_encerrada_backend",
-                        "consulta_id" => $model->id,
-                        "hora" => date('Y-m-d H:i:s')
-                    ])
+            // ==========================================================
+            // B. NOTIFICAR O PACIENTE (Dono da consulta)
+            // ==========================================================
+            if ($model->triagem && $model->triagem->userprofile_id) {
+                \common\models\Notificacao::enviar(
+                    $model->triagem->userprofile_id,
+                    'Consulta Encerrada',
+                    'A sua consulta foi concluída. As melhoras!',
+                    'Consulta'
                 );
             }
-        } catch (\Exception $e) {
-            Yii::warning("Falha MQTT (Encerrar Consulta): " . $e->getMessage());
+
+            // ==========================================================
+            // C. NOTIFICAR TODOS OS ADMINS
+            // ==========================================================
+            // Buscar IDs dos admins
+            $adminUserIds = Yii::$app->authManager->getUserIdsByRole('admin');
+
+            // Buscar os perfis
+            $adminProfiles = \common\models\UserProfile::find()
+                ->where(['user_id' => $adminUserIds])
+                ->all();
+
+            $nomePaciente = $model->triagem ? $model->triagem->userprofile->nome : 'Desconhecido';
+
+            foreach ($adminProfiles as $admin) {
+                \common\models\Notificacao::enviar(
+                    $admin->id,
+                    'Consulta Encerrada pelo Médico',
+                    "A consulta do paciente '{$nomePaciente}' foi encerrada.",
+                    'Geral'
+                );
+            }
+
+            // ==========================================================
+            // D. ENVIAR MQTT (Integração IoT)
+            // ==========================================================
+            try {
+                if (Yii::$app->has('mqtt')) {
+                    Yii::$app->mqtt->publish(
+                        "consulta/encerrada/{$model->id}",
+                        json_encode([
+                            "evento" => "consulta_encerrada_backend",
+                            "consulta_id" => $model->id,
+                            "hora" => date('Y-m-d H:i:s')
+                        ])
+                    );
+                }
+            } catch (\Exception $e) {
+                Yii::warning("Falha MQTT (Encerrar Consulta): " . $e->getMessage());
+            }
+
+            Yii::$app->session->setFlash('success', 'Consulta encerrada com sucesso!');
+        } else {
+            Yii::$app->session->setFlash('error', 'Ocorreu um erro ao tentar encerrar a consulta.');
         }
 
-        Yii::$app->session->setFlash('success', 'Consulta encerrada com sucesso!');
         return $this->redirect(['index']);
     }
 
@@ -385,7 +431,7 @@ class ConsultaController extends Controller
 
         // Libertar TODAS as triagens que usam esta pulseira (segurança extra)
         if ($pulseira) {
-            \common\models\Triagem::updateAll(
+            Triagem::updateAll(
                 ['pulseira_id' => null],
                 ['pulseira_id' => $pulseira->id]
             );
@@ -457,7 +503,7 @@ class ConsultaController extends Controller
         $medicoNome = $consulta->medico_nome ?? 'Profissional de Saúde';
 
         // MPDF
-        $mpdf = new \Mpdf\Mpdf([
+        $mpdf = new Mpdf([
             'default_font_size' => 12,
             'default_font' => 'dejavusans'
         ]);

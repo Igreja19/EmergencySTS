@@ -11,6 +11,7 @@ use common\models\Notificacao;
 use common\models\Pulseira;
 use common\models\Triagem;
 use common\models\User;
+use common\models\UserProfile;
 use Yii;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
@@ -77,13 +78,57 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
+        if (Yii::$app->user->isGuest) {
+            return $this->redirect(['/site/login']);
+        }
+
         $user = Yii::$app->user->identity;
+
         $isAdmin = Yii::$app->authManager->checkAccess($user->id, 'admin');
         $isEnfermeiro = Yii::$app->authManager->checkAccess($user->id, 'enfermeiro');
         $isMedico = Yii::$app->authManager->checkAccess($user->id, 'medico');
 
+        $stats = [];
+        $manchester = [];
+        $evolucaoLabels = [];
+        $evolucaoData = [];
+        $pacientes = [];
+        $ultimas = [];
+        $logins = [];
+        $ultimasConsultas = [];
+        $notificacoes = [];
+
+        $countEspera = 0;
+        $urlDestino = ['/site/index']; // Link padrão
+
+        // MÉDICO
+        if ($isMedico && !$isAdmin) {
+            $countEspera = Pulseira::find()
+                ->where(['status' => 'Em espera'])
+                ->andWhere(['<>', 'prioridade', 'Pendente']) // Tem de ter cor (já triado)
+                ->count();
+
+            $urlDestino = ['/consulta/create'];
+        }
+        // ENFERMEIRO
+        elseif ($isEnfermeiro && !$isAdmin) {
+            $countEspera = Pulseira::find()
+                ->where(['prioridade' => 'Pendente']) // Ainda não foi triado
+                ->count();
+
+            $urlDestino = ['/triagem/index'];
+        }
+        // ADMIN
+        elseif ($isAdmin) {
+            $countEspera = Pulseira::find()
+                ->where(['prioridade' => 'Pendente'])
+                ->count();
+
+            $urlDestino = ['/triagem/index'];
+        }
+
         $stats = [
-            'espera' => Pulseira::find()->where(['status' => 'Em espera'])->count(),
+            'espera' => $countEspera, // <--- Aqui usamos o valor calculado em cima
             'ativas' => Pulseira::find()->where(['status' => 'Em atendimento'])->count(),
             'atendidosHoje' => Consulta::find()
                 ->where(['estado' => 'Encerrada'])
@@ -96,6 +141,7 @@ class SiteController extends Controller
             'salasTotal' => 6,
         ];
 
+        // Manchester
         $manchester = [
             'vermelho' => Pulseira::find()->where(['prioridade' => 'Vermelho'])->count(),
             'laranja'  => Pulseira::find()->where(['prioridade' => 'Laranja'])->count(),
@@ -105,46 +151,29 @@ class SiteController extends Controller
         ];
 
         $dataFiltro = Yii::$app->request->get('dataFiltro');
-
-        $evolucaoLabels = [];
-        $evolucaoData = [];
-
         if ($dataFiltro) {
-
-            // Apenas 1 dia
             $inicio = $dataFiltro . ' 00:00:00';
             $fim    = $dataFiltro . ' 23:59:59';
-
             $evolucaoLabels[] = date('d/m/Y', strtotime($dataFiltro));
             $evolucaoData[] = Triagem::find()
                 ->where(['between', 'datatriagem', $inicio, $fim])
                 ->count();
-
         } else {
-
-            // Últimos 7 dias
             for ($i = 6; $i >= 0; $i--) {
                 $dia = date('Y-m-d', strtotime("-$i days"));
                 $evolucaoLabels[] = date('d/m', strtotime($dia));
-
                 $count = Triagem::find()
                     ->where(['between', 'datatriagem', $dia . ' 00:00:00', $dia . ' 23:59:59'])
                     ->count();
-
                 $evolucaoData[] = $count;
             }
         }
 
+        // Listas de Dados
         $pacientes = Triagem::find()
-            ->joinWith([
-                'userprofile.user',
-                'pulseira'
-            ])
+            ->joinWith(['userprofile.user', 'pulseira'])
             ->where(['in', 'pulseira.status', ['Em espera', 'Em atendimento']])
-            ->andWhere([
-                'user.status' => User::STATUS_ACTIVE,
-                'userprofile.estado' => 1,
-            ])
+            ->andWhere(['user.status' => User::STATUS_ACTIVE])
             ->orderBy(['datatriagem' => SORT_DESC])
             ->limit(10)
             ->asArray()
@@ -158,25 +187,28 @@ class SiteController extends Controller
             ->asArray()
             ->all();
 
-        $notificacoes = [];
-        if (!Yii::$app->user->isGuest && Yii::$app->user->identity->userprofile) {
-
-            $userprofileId = Yii::$app->user->identity->userprofile->id;
-
+        if ($user->userprofile) {
             $notificacoes = Notificacao::find()
-                ->where([
-                    'lida' => 0,
-                    'userprofile_id' => $userprofileId,
-                ])
+                ->where(['lida' => 0, 'userprofile_id' => $user->userprofile->id])
                 ->orderBy(['dataenvio' => SORT_DESC])
                 ->limit(5)
                 ->asArray()
                 ->all();
         }
 
-        $logins = [];
-
         if ($isAdmin) {
+            $stats['totalUtilizadores'] = User::find()
+                ->where(['status' => 10])
+                ->andWhere(['<>', 'id', Yii::$app->user->id])
+                ->count();
+
+            $stats['totalConsultas'] = Consulta::find()->count();
+            $stats['totalPacientes'] = UserProfile::find()->count();
+            $stats['consultasHoje']  = Consulta::find()
+                ->where(['>=', 'data_consulta', date('Y-m-d 00:00:00')])
+                ->andWhere(['<=', 'data_consulta', date('Y-m-d 23:59:59')])
+                ->count();
+
             $logins = LoginHistory::find()
                 ->joinWith('user')
                 ->orderBy(['data_login' => SORT_DESC])
@@ -185,18 +217,46 @@ class SiteController extends Controller
                 ->all();
         }
 
+        if ($isMedico && $user->userprofile) {
+            $stats['minhasConsultas'] = Consulta::find()
+                ->where(['medicouserprofile_id' => $user->userprofile->id])
+                ->count();
+
+            $stats['pacientesAtendidos'] = Consulta::find()
+                ->where(['medicouserprofile_id' => $user->userprofile->id])
+                ->joinWith(['triagem'])
+                ->andWhere(['consulta.estado' => 'Encerrada'])
+                ->count();
+
+            $stats['pendentes'] = Consulta::find()
+                ->where(['medicouserprofile_id' => $user->userprofile->id])
+                ->andWhere(['consulta.estado' => 'Pendente'])
+                ->count();
+
+            $ultimasConsultas = Consulta::find()
+                ->joinWith(['triagem.userprofile'])
+                ->where(['medicouserprofile_id' => $user->userprofile->id])
+                ->andWhere(['consulta.estado' => 'Encerrada'])
+                ->orderBy(['consulta.id' => SORT_DESC])
+                ->limit(5)
+                ->asArray()
+                ->all();
+        }
+
         return $this->render('index', [
-            'stats'          => $stats,
-            'manchester'     => $manchester,
-            'evolucaoLabels' => $evolucaoLabels,
-            'evolucaoData'   => $evolucaoData,
-            'pacientes'      => $pacientes,
-            'ultimas'        => $ultimas,
-            'notificacoes'   => $notificacoes,
-            'isAdmin'        => $isAdmin,
-            'isEnfermeiro'   => $isEnfermeiro,
-            'isMedico'       => $isMedico,
-            'logins' => $logins,
+            'stats'            => $stats,
+            'manchester'       => $manchester,
+            'evolucaoLabels'   => $evolucaoLabels,
+            'evolucaoData'     => $evolucaoData,
+            'pacientes'        => $pacientes,
+            'ultimas'          => $ultimas,
+            'notificacoes'     => $notificacoes,
+            'logins'           => $logins,
+            'ultimasConsultas' => $ultimasConsultas,
+            'urlDestino'       => $urlDestino,
+            'isAdmin'      => $isAdmin,
+            'isEnfermeiro' => $isEnfermeiro,
+            'isMedico'     => $isMedico,
         ]);
     }
 

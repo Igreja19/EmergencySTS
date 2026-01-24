@@ -67,7 +67,7 @@ class Pulseira extends \yii\db\ActiveRecord
      */
     public function getUserprofile()
     {
-        return $this->hasOne(\common\models\UserProfile::class, ['id' => 'userprofile_id']);
+        return $this->hasOne(UserProfile::class, ['id' => 'userprofile_id']);
     }
 
     public function getPaciente()

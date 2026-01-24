@@ -46,7 +46,7 @@ $corTexto = ($pulseira->prioridade === 'Amarelo') ? '#000000' : '#ffffff';
             </div>
 
             <!-- Cor da pulseira -->
-            <div class="selo position-absolute top-0 end-0 mt-2 me-3 d-flex align-items-center justify-content-center fw-bold text-uppercase" style="background-color: <?= $cor ?>;">
+            <div class="selo position-absolute top-0 end-0 mt-2 me-3 d-flex align-items-center justify-content-center fw-bold text-uppercase" style="background-color: <?= $corBg ?>; color: <?= $corTexto ?>;">
                 <?= strtoupper(Html::encode($pulseira->prioridade ?? 'PENDENTE')) ?>
             </div>
         </div>
@@ -58,8 +58,8 @@ $corTexto = ($pulseira->prioridade === 'Amarelo') ? '#000000' : '#ffffff';
             <div class="barra progress rounded-pill triage-track" style="height: 14px; overflow: hidden;">
                 <div class="progress-bar progress-bar-striped progress-bar-animated" style="
                              width: <?= min(100, (int)$progressPct) ?>%;
-                             background: linear-gradient(90deg, <?= $cor ?>, <?= $cor ?>cc);
-                             box-shadow: 0 0 10px <?= $cor ?>80;
+                             background: linear-gradient(90deg, <?= $corBg ?>, <?= $corBg ?>cc);
+                             box-shadow: 0 0 10px <?= $corBg ?>80;
                              ">
                 </div>
             </div>
@@ -74,7 +74,7 @@ $corTexto = ($pulseira->prioridade === 'Amarelo') ? '#000000' : '#ffffff';
                 A sua prioridade ainda não foi atribuída. Aguarde avaliação de um enfermeiro.
             <?php else: ?>
                 Posição <?= (int)$position ?> de <?= (int)$totalAguardarPrioridade ?> na fila de prioridade
-                <strong style="color: <?= $cor ?>;"><?= Html::encode($pulseira->prioridade) ?></strong>.
+                <strong style="background-color: <?= $corBg ?>; color: <?= $corTexto ?>;"><?= Html::encode($pulseira->prioridade) ?></strong>.
             <?php endif; ?>
         </div>
 

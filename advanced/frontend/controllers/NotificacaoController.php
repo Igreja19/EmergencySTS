@@ -32,27 +32,63 @@ class NotificacaoController extends Controller
     }
     public function actionIndex()
     {
-        $naoLidas = Notificacao::find()
-            ->where(['lida' => 0])
+        $user = Yii::$app->user->identity;
+
+        // 1. Verificar se o utilizador e o perfil existem
+        if (!$user || !$user->userprofile) {
+            return $this->redirect(['site/login']);
+        }
+
+        // 2. Definir o filtro base RIGOROSO
+        $queryBase = Notificacao::find()
+            ->where(['userprofile_id' => $user->userprofile->id])
+            ->andWhere([
+                'or',
+                // --- APENAS ESTES 3 TIPOS ---
+
+                // 1. Consulta Encerrada (Procura no título OU mensagem)
+                ['like', 'mensagem', 'Consulta Encerrada'],
+                ['like', 'titulo',   'Consulta Encerrada'],
+
+                // 2. Consulta Iniciada (Procura no título OU mensagem)
+                ['like', 'mensagem', 'Consulta iniciada'],
+                ['like', 'titulo',   'Consulta iniciada'],
+
+                // 3. Pulseira Atribuída (O 'atribu' apanha 'atribuida' e 'atribuída')
+                ['like', 'mensagem', 'Pulseira atribu'],
+                ['like', 'titulo',   'Pulseira atribu'],
+            ]);
+
+        // 3. Clonar e obter as listas (Mantém-se igual)
+        $naoLidasQuery = clone $queryBase;
+        $naoLidas = $naoLidasQuery
+            ->andWhere(['lida' => 0])
             ->orderBy(['dataenvio' => SORT_DESC])
             ->all();
 
-        $lidas = Notificacao::find()
-            ->where(['lida' => 1])
+        $lidasQuery = clone $queryBase;
+        $lidas = $lidasQuery
+            ->andWhere(['lida' => 1])
             ->orderBy(['dataenvio' => SORT_DESC])
             ->limit(50)
             ->all();
 
-        $kpiNaoLidas = Notificacao::countNaoLidas();
-        $kpiHoje = Notificacao::countHoje();
-        $kpiTotal = Notificacao::countTotal();
+        // 4. Calcular KPIs (Mantém-se igual)
+        $kpiNaoLidas = count($naoLidas);
+        $kpiTotal = $queryBase->count();
+
+        $kpiHojeQuery = clone $queryBase;
+        $kpiHoje = $kpiHojeQuery
+            ->andWhere(['>=', 'dataenvio', date('Y-m-d 00:00:00')])
+            ->andWhere(['<=', 'dataenvio', date('Y-m-d 23:59:59')])
+            ->count();
 
         return $this->render('index', [
-            'naoLidas'   => $naoLidas,
-            'lidas'      => $lidas,
-            'kpiNaoLidas'=> $kpiNaoLidas,
-            'kpiHoje'    => $kpiHoje,
-            'kpiTotal'   => $kpiTotal,
+            'naoLidas'    => $naoLidas,
+            'lidas'       => $lidas,
+            'kpiNaoLidas' => $kpiNaoLidas,
+            'kpiHoje'     => $kpiHoje,
+            'kpiTotal'    => $kpiTotal,
         ]);
     }
 
@@ -66,7 +102,7 @@ class NotificacaoController extends Controller
 
     public function actionMarcarComoLida($id)
     {
-        $notificacao = \common\models\Notificacao::findOne($id);
+        $notificacao = Notificacao::findOne($id);
 
         if ($notificacao) {
             $notificacao->lida = 1;

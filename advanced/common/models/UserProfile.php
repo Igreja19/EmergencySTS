@@ -131,7 +131,7 @@ class UserProfile extends \yii\db\ActiveRecord
 
     public function getPulseiras()
     {
-        return $this->hasMany(\common\models\Pulseira::class, ['userprofile_id' => 'id']);
+        return $this->hasMany(Pulseira::class, ['userprofile_id' => 'id']);
     }
 
     public function desativar(): bool

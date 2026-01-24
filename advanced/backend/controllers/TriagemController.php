@@ -2,6 +2,7 @@
 
 namespace backend\controllers;
 
+use common\models\Consulta;
 use common\models\Notificacao;
 use common\models\Prescricaomedicamento;
 use common\models\Pulseira;
@@ -217,7 +218,7 @@ class TriagemController extends Controller
     {
         $triagem = $this->findModel($id);
 
-        $consultas = \common\models\Consulta::find()
+        $consultas = Consulta::find()
             ->where(['triagem_id' => $triagem->id])
             ->all();
 

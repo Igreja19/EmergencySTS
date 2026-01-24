@@ -120,20 +120,22 @@ if ($isMedico && !$isAdmin) {
         <div class="row g-3 mb-4 justify-content-center">
             <div class="col-lg-3 col-sm-6">
                 <a href="<?= Url::to($urlDestino) ?>" style="text-decoration: none; color: inherit;">
-                    <div class="card card-kpi red text-center">
-                        <div class="icon"><i class="bi bi-people-fill"></i></div>
+                    <div class="card card-kpi orange text-center">
+                        <div class="icon"><i class="bi bi-activity"></i></div>
                         <div class="value"><?= (int)$stats["espera"] ?></div>
-                        <div class="label">Pacientes em espera</div>
+                        <div class="label">
+                            <?= ($isMedico && !$isAdmin) ? 'Consultas Pendentes' : 'Triagens Pendentes' ?>
+                        </div>
                     </div>
                 </a>
             </div>
             <?php if ($isAdmin): ?>
                 <div class="col-lg-3 col-sm-6">
                     <a href="<?= Url::to(['/pulseira/index']) ?>" style="text-decoration: none; color: inherit;">
-                        <div class="card card-kpi orange text-center">
-                            <div class="icon"><i class="bi bi-activity"></i></div>
+                        <div class="card card-kpi red text-center">
+                            <div class="icon"><i class="bi bi-people-fill"></i></div>
                             <div class="value"><?= (int)$stats["ativas"] ?></div>
-                            <div class="label">Triagens ativas</div>
+                            <div class="label">Pacientes em espera</div>
                         </div>
                     </a>
                 </div>
@@ -141,7 +143,7 @@ if ($isMedico && !$isAdmin) {
             <?php if ($isAdmin): ?>
                 <div class="col-lg-3 col-sm-6">
                     <a href="<?= Url::to(['/user-profile/index']) ?>" style="text-decoration: none; color: inherit;">
-                        <div class="card card-kpi orange text-center">
+                        <div class="card card-kpi blue text-center">
                             <div class="icon"><i class="bi bi-person-badge"></i></div>
                             <div class="value"><?= (int)$stats["totalUtilizadores"] ?></div>
                             <div class="label">Utilizadores</div>

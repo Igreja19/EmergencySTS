@@ -205,7 +205,7 @@ class UserController extends BaseActiveController
     public function actionTotal()
     {
         // Certifica-te que tens o modelo User importado ou usa o caminho completo
-        $total = \common\models\User::find()->count();
+        $total = User::find()->count();
 
         return [
             'total' => (int)$total
