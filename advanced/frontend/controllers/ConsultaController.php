@@ -131,15 +131,12 @@ class ConsultaController extends Controller
 
         $mpdf->SetTitle('Relatório da Consulta #' . $consulta->id);
 
-        // CSS
         if (!empty($css)) {
             $mpdf->WriteHTML($css, \Mpdf\HTMLParserMode::HEADER_CSS);
         }
 
-        // HTML
         $mpdf->WriteHTML($html, \Mpdf\HTMLParserMode::HTML_BODY);
 
-        // Rodapé
         $mpdf->SetHTMLFooter(
             '<div style="text-align:center;color:#6b7280;font-size:10px;">
             Página {PAGENO} de {nbpg}

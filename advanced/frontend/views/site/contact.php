@@ -12,7 +12,6 @@ $this->title = 'Contactos';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
-<!-- SEÇÃO HERO -->
 <section class="bg-success text-white text-center rounded-circle py-5 mt-5">
     <div class="container">
         <h1 class="display-5 fw-bold">Contacta-nos</h1>
@@ -20,12 +19,10 @@ $this->params['breadcrumbs'][] = $this->title;
     </div>
 </section>
 
-<!-- SEÇÃO DE CONTACTO -->
 <section class="py-5 bg-light">
     <div class="container">
         <div class="row g-5 align-items-start">
 
-            <!-- FORMULÁRIO DE CONTACTO -->
             <div class="col-lg-7">
                 <div class="card shadow-sm border-0">
                     <div class="card-body p-4">
@@ -74,7 +71,6 @@ $this->params['breadcrumbs'][] = $this->title;
                 </div>
             </div>
 
-            <!-- INFORMAÇÕES DE CONTACTO -->
             <div class="col-lg-5">
                 <div class="bg-white rounded shadow-sm p-4">
                     <h4 class="fw-bold text-success mb-3">Informações de Contacto</h4>

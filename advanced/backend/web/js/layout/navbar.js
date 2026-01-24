@@ -15,7 +15,6 @@ $(document).on('click', '.notif-btn', function (e) {
         </div>
     `);
 
-    // <-- Aqui tratamos como HTML, não JSON
     $.get(url, function (html) {
         console.log("HTML recebido:");
         container.html(html);

@@ -34,14 +34,14 @@ class SiteController extends Controller
                 'only' => ['index', 'logout'],
                 'rules' => [
 
-                    // 🔐 INDEX → apenas admin, medico e enfermeiro
+                    // INDEX → apenas admin, medico e enfermeiro
                     [
                         'actions' => ['index'],
                         'allow' => true,
                         'roles' => ['admin', 'medico', 'enfermeiro'],
                     ],
 
-                    // 🔓 LOGOUT → qualquer utilizador autenticado pode sair
+                    // LOGOUT → qualquer utilizador autenticado pode sair
                     [
                         'actions' => ['logout'],
                         'allow' => true,
@@ -82,7 +82,6 @@ class SiteController extends Controller
         $isEnfermeiro = Yii::$app->authManager->checkAccess($user->id, 'enfermeiro');
         $isMedico = Yii::$app->authManager->checkAccess($user->id, 'medico');
 
-        // ===== Estatísticas principais =====
         $stats = [
             'espera' => Pulseira::find()->where(['status' => 'Em espera'])->count(),
             'ativas' => Pulseira::find()->where(['status' => 'Em atendimento'])->count(),
@@ -93,12 +92,10 @@ class SiteController extends Controller
             'triagensPendentes' => Pulseira::find()
                 ->where(['prioridade' => 'Pendente'])
                 ->count(),
-            'salasDisponiveis' => 4, // podes ajustar se tiveres tabela de salas
+            'salasDisponiveis' => 4,
             'salasTotal' => 6,
-            'totalUtilizadores' => User::find()->count(),
         ];
 
-        // ===== Contagem por prioridade (Manchester) =====
         $manchester = [
             'vermelho' => Pulseira::find()->where(['prioridade' => 'Vermelho'])->count(),
             'laranja'  => Pulseira::find()->where(['prioridade' => 'Laranja'])->count(),
@@ -107,9 +104,6 @@ class SiteController extends Controller
             'azul'     => Pulseira::find()->where(['prioridade' => 'Azul'])->count(),
         ];
 
-        // =================================================================
-        // 🔍 FILTRO DE DATA PARA GRÁFICO DE EVOLUÇÃO DAS TRIAGENS
-        // =================================================================
         $dataFiltro = Yii::$app->request->get('dataFiltro');
 
         $evolucaoLabels = [];
@@ -141,10 +135,9 @@ class SiteController extends Controller
             }
         }
 
-        // ===== Pacientes em triagem =====
         $pacientes = Triagem::find()
             ->joinWith([
-                'userprofile.user', // Faz JOIN das duas tabelas
+                'userprofile.user',
                 'pulseira'
             ])
             ->where(['in', 'pulseira.status', ['Em espera', 'Em atendimento']])
@@ -157,7 +150,6 @@ class SiteController extends Controller
             ->asArray()
             ->all();
 
-        // ===== Últimas triagens =====
         $ultimas = Triagem::find()
             ->joinWith(['userprofile', 'pulseira'])
             ->where(['<>', 'pulseira.prioridade', 'Pendente'])
@@ -166,8 +158,6 @@ class SiteController extends Controller
             ->asArray()
             ->all();
 
-
-        // ===== Notificações (apenas do utilizador autenticado, não lidas) =====
         $notificacoes = [];
         if (!Yii::$app->user->isGuest && Yii::$app->user->identity->userprofile) {
 
@@ -195,7 +185,6 @@ class SiteController extends Controller
                 ->all();
         }
 
-        // ===== Renderiza a view =====
         return $this->render('index', [
             'stats'          => $stats,
             'manchester'     => $manchester,

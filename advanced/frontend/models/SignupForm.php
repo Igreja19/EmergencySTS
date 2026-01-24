@@ -53,14 +53,12 @@ class SignupForm extends Model
             $user->generateAuthKey();
             $user->save(false);
 
-            // Criar automaticamente um perfil associado
             $profile = new \common\models\UserProfile();
             $profile->user_id = $user->id;
             $profile->nome = $this->username;
             $profile->email = $this->email;
             $profile->save(false);
 
-            // the following three lines were added:
             $auth = Yii::$app->authManager;
             $role = $auth->getRole('paciente');
 

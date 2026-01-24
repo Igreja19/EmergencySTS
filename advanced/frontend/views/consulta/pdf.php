@@ -6,10 +6,8 @@ use yii\helpers\Html;
 
 $triagem = $triagem ?? $consulta->triagem ?? null;
 
-// Paciente
 $paciente = $consulta->userprofile;
 
-// Idade
 $idade = '';
 if (!empty($paciente->data_nascimento)) {
     $idade = date_diff(
@@ -18,10 +16,8 @@ if (!empty($paciente->data_nascimento)) {
     )->y;
 }
 
-// Logo
 $logoPath = Yii::getAlias('@frontend/web/img/logo.png');
 
-// Prioridade
 $prio = $triagem->pulseira->prioridade ?? 'Pendente';
 
 $bgHex = match ($prio) {
@@ -50,7 +46,6 @@ $textHex = ($prio === 'Amarelo') ? '#000000' : '#ffffff';
 
 <body>
 
-<!-- HEADER -->
 <div class="header">
     <div class="brand">
         <?php if (file_exists($logoPath)): ?>
@@ -67,7 +62,6 @@ $textHex = ($prio === 'Amarelo') ? '#000000' : '#ffffff';
     </div>
 </div>
 
-<!-- PACIENTE -->
 <div class="card">
     <div class="section-title">Dados do Paciente</div>
     <table>
@@ -77,7 +71,6 @@ $textHex = ($prio === 'Amarelo') ? '#000000' : '#ffffff';
     </table>
 </div>
 
-<!-- CONSULTA -->
 <div class="card">
     <div class="section-title">Consulta</div>
     <table>
@@ -106,7 +99,6 @@ $textHex = ($prio === 'Amarelo') ? '#000000' : '#ffffff';
     </table>
 </div>
 
-<!-- TRIAGEM -->
 <?php if ($triagem): ?>
     <div class="card">
         <div class="section-title">Detalhes da Triagem</div>
@@ -137,7 +129,6 @@ $textHex = ($prio === 'Amarelo') ? '#000000' : '#ffffff';
     </div>
 <?php endif; ?>
 
-<!-- FOOTER -->
 <div class="footer">
     EmergencySTS · Documento gerado automaticamente · <?= date('d/m/Y H:i') ?>
 </div>

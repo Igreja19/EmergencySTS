@@ -8,7 +8,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile/view.css
 \yii\web\YiiAsset::register($this);
 ?>
 
-<!-- Bootstrap Icons -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
 <div class="container py-5">
@@ -35,7 +34,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile/view.css
             </div>
         </div>
 
-        <!-- PERFIL DETALHADO -->
         <?= DetailView::widget([
                 'model' => $model,
                 'options' => ['class' => 'table table-borderless align-middle'],

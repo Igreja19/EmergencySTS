@@ -20,7 +20,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/notificacao/index.css
     <h4 class="fw-semibold mb-1">Notificações</h4>
     <p class="text-muted mb-4">Alertas e atualizações sobre o seu atendimento</p>
 
-    <!-- Estatísticas -->
     <div class="row g-3 mb-4">
         <div class="col-md-4">
             <div class="card shadow-sm border-0 rounded-4 text-center py-3">
@@ -42,7 +41,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/notificacao/index.css
         </div>
     </div>
 
-    <!-- Botão geral -->
     <div class="d-flex justify-content-end mb-3">
         <?= Html::a('Marcar todas como lidas', ['notificacao/marcar-todas-como-lidas'], [
             'class' => 'btn btn-outline-success rounded-pill px-4 fw-semibold',
@@ -50,7 +48,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/notificacao/index.css
         ]) ?>
     </div>
 
-    <!-- Lista de notificações -->
     <div class="lista-notificacoes">
 
         <?php if (!empty($naoLidas)): ?>
@@ -89,7 +86,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/notificacao/index.css
                                     </small>
                                 </div>
                             </div>
-                            <!-- Botão individual -->
                             <?= Html::a('<i class="bi bi-check2-circle me-1"></i> Marcar como lida',
                                 ['notificacao/marcar-como-lida', 'id' => $n->id],
                                 ['class' => 'btn btn-sm btn-outline-success rounded-pill px-3']

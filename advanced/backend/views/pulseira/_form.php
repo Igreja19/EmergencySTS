@@ -10,7 +10,6 @@ use common\models\UserProfile;
 
 $this->registerCssFile(Yii::$app->request->baseUrl . '/css/pulseira/_form.css');
 
-// Buscar pacientes para o CREATE
 $pacientes = UserProfile::find()
         ->select(['nome'])
         ->indexBy('id')

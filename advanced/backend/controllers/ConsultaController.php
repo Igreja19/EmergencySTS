@@ -226,7 +226,6 @@ class ConsultaController extends Controller
 
                 try {
                     if (Yii::$app->has('mqtt')) {
-                        // 1. Consulta Atualizada
                         Yii::$app->mqtt->publish(
                             "consulta/atualizada/{$model->id}",
                             json_encode([
@@ -237,7 +236,6 @@ class ConsultaController extends Controller
                             ])
                         );
 
-                        // 2. Consulta Encerrada (se for o caso)
                         if ($estado === Consulta::ESTADO_ENCERRADA) {
                             Yii::$app->mqtt->publish(
                                 "consulta/encerrada/{$model->id}",
@@ -418,7 +416,7 @@ class ConsultaController extends Controller
             Yii::warning("Falha MQTT (Delete Consulta): " . $e->getMessage());
         }
 
-        // 🔔 Notificação envia para o ADMIN (não para o user criado)
+        // Notificação envia para o ADMIN (não para o user criado)
         $adminProfileId = Yii::$app->user->identity->userprofile->id;
 
         Notificacao::enviar(
@@ -436,7 +434,7 @@ class ConsultaController extends Controller
     {
         $consulta = $this->findModel($id);
 
-        // 🔒 Só permitir PDF se consulta estiver encerrada
+        // Só permitir PDF se consulta estiver encerrada
         if ($consulta->estado !== Consulta::ESTADO_ENCERRADA) {
             Yii::$app->session->setFlash(
                 'error',

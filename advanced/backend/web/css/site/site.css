@@ -7,13 +7,10 @@ html, body {
     overflow-x: hidden;
 }
 
-/* ====================================== */
-/*   FUNDO GRADIENTE SUAVE (LOGIN)        */
-/* ====================================== */
 #background-gradient {
     position: fixed;
     inset: 0;
-    z-index: 0 !important; /* gradiente ao fundo */
+    z-index: 0 !important;
     background: linear-gradient(
             120deg,
             rgba(240, 255, 248, 0.7) 0%,
@@ -45,9 +42,6 @@ html, body {
     100% { background-position: 0% 50%; }
 }
 
-/* ====================================== */
-/*        ADMINLTE FIX Z-INDEX            */
-/* ====================================== */
 .wrapper,
 .content-wrapper {
     position: relative;
@@ -55,9 +49,6 @@ html, body {
     background: transparent !important;
 }
 
-/* ====================================== */
-/*               FOOTER PRETO             */
-/* ====================================== */
 .main-footer.dark {
     background: #000 !important;
     color: #ccc !important;
@@ -77,9 +68,6 @@ html, body {
     color: #fff !important;
 }
 
-/* ====================================== */
-/*           LOGIN CONTAINER              */
-/* ====================================== */
 .login-container {
     display: flex;
     align-items: center;
@@ -93,9 +81,6 @@ html, body {
     filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
 }
 
-/* ====================================== */
-/*               CARTÃO LOGIN             */
-/* ====================================== */
 .login-card {
     background: rgba(255, 255, 255, 0.93);
     border-radius: 24px;
@@ -117,9 +102,6 @@ html, body {
     padding: 3rem 2.5rem;
 }
 
-/* ====================================== */
-/*                 FORM                   */
-/* ====================================== */
 .form-label {
     font-weight: 600;
     color: #198754;
@@ -138,9 +120,6 @@ html, body {
     box-shadow: 0 0 0 0.15rem rgba(25, 135, 84, 0.25);
 }
 
-/* ====================================== */
-/*                  BOTÕES                */
-/* ====================================== */
 .btn-success {
     background: linear-gradient(90deg, #198754 0%, #28a745 100%);
     border: none;
@@ -157,9 +136,6 @@ html, body {
     box-shadow: 0 8px 25px rgba(25, 135, 84, 0.35);
 }
 
-/* ====================================== */
-/*                 ALERTAS                */
-/* ====================================== */
 .alert-light {
     background-color: #f9fff9;
     border-color: #d9f5df;
@@ -184,17 +160,11 @@ html, body {
     box-shadow: 0 6px 18px rgba(25,135,84,0.25);
 }
 
-/* ====================================== */
-/*                ANIMAÇÕES               */
-/* ====================================== */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(25px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* ====================================== */
-/*               RESPONSIVO               */
-/* ====================================== */
 @media (max-width: 576px) {
     .login-card {
         margin: 0 15px;

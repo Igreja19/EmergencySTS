@@ -19,9 +19,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/medicamento/index.css
         <i class="bi bi-capsule"></i> Medicamentos
     </h3>
 
-    <!-- =========================== -->
-    <!--      BARRA DE PESQUISA      -->
-    <!-- =========================== -->
     <div class="search-box">
 
         <?php $form = ActiveForm::begin([
@@ -59,7 +56,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/medicamento/index.css
 
     </div>
 
-    <!-- BOTÃO CRIAR -->
     <p>
         <?= Html::a('<i class="bi bi-plus-circle"></i> Novo Medicamento', ['create'], [
                 'class' => 'btn btn-success',
@@ -67,9 +63,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/medicamento/index.css
         ]) ?>
     </p>
 
-    <!-- =========================== -->
-    <!--           TABELA            -->
-    <!-- =========================== -->
     <?php Pjax::begin(); ?>
 
     <?= GridView::widget([

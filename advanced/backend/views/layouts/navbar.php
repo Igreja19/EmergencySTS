@@ -8,9 +8,7 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/layouts/navbar.css');
 
 <nav class="main-header navbar navbar-expand custom-navbar">
 
-    <!-- LEFT -->
     <ul class="navbar-nav">
-        <!-- Sidebar toggle -->
         <li class="nav-item">
             <a class="nav-link text-white" data-widget="pushmenu" href="#">
                 <i class="fas fa-bars"></i>
@@ -18,34 +16,26 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/layouts/navbar.css');
         </li>
     </ul>
 
-    <!-- RIGHT -->
     <ul class="navbar-nav ms-auto">
 
-        <!-- 🔔 NOTIFICAÇÕES SSE -->
         <?php if ($isAdmin || $isMedico || $isEnfermeiro): ?>
             <li class="nav-item dropdown">
 
-                <!-- Botão da campainha -->
                 <a class="nav-link text-white notif-btn position-relative"
                    href="javascript:void(0)"
                    role="button"
                    data-bs-toggle="dropdown"
                    data-url="<?= Url::to(['/notificacao/lista']) ?>">
                     <i class="far fa-bell"></i>
-                    <!-- aqui depois podemos pôr o badge -->
                 </a>
 
-                <!-- Dropdown -->
                 <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0 shadow-lg"
                      style="width:380px;" data-bs-auto-close="outside">
 
-                    <!-- Cabeçalho -->
                     <div class="notif-header d-flex justify-content-between align-items-center p-2 bg-light border-bottom">
                         <span class="fw-semibold">Notificações</span>
-                        <!-- badge verde inserida via JS -->
                     </div>
 
-                    <!-- Corpo -->
                     <div class="notif-body" style="max-height:260px; overflow-y:auto;">
                         <div class="text-center p-3 text-muted">
                             <i class="fas fa-spinner fa-spin"></i> A carregar...
@@ -54,7 +44,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/layouts/navbar.css');
 
                     <div class="dropdown-divider m-0"></div>
 
-                    <!-- Rodapé -->
                     <a href="<?= Url::to(['/notificacao/index']) ?>"
                        class="dropdown-item dropdown-footer text-success">
                         Ver todas
@@ -66,7 +55,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/layouts/navbar.css');
         <?php endif; ?>
 
 
-        <!-- USER MENU -->
         <li class="nav-item dropdown user-menu">
             <a href="#" class="nav-link dropdown-toggle text-white" data-bs-toggle="dropdown">
                 <i class="far fa-user"></i>

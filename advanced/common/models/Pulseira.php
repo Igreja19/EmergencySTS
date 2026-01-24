@@ -83,9 +83,6 @@ class Pulseira extends \yii\db\ActiveRecord
         return $this->hasOne(Triagem::class, ['pulseira_id' => 'id']);
     }
 
-    /**
-     *  Texto formatado da prioridade com ícone
-     */
     public function getPrioridadeComCor()
     {
         $cores = [
@@ -133,9 +130,7 @@ class Pulseira extends \yii\db\ActiveRecord
         // Permite usar ?expand=triagem,paciente
         return ['triagem', 'paciente', 'userprofile'];
     }
-    /**
-     * Envia notificação MQTT após criar uma nova pulseira
-     */
+
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
@@ -145,7 +140,6 @@ class Pulseira extends \yii\db\ActiveRecord
         }
 
         try {
-            //Mensagem para o PACIENTE
             $payloadPaciente = [
                 'id' => $this->id,
                 'codigo' => $this->codigo,
@@ -161,7 +155,6 @@ class Pulseira extends \yii\db\ActiveRecord
             $topicoPaciente = "notificacao/paciente/{$this->userprofile_id}";
             Yii::$app->mqtt->publish($topicoPaciente, json_encode($payloadPaciente));
 
-            //Mensagem para o ENFERMEIRO
             $payloadEnfermeiro = [
                 'id' => $this->id,
                 'codigo' => $this->codigo,

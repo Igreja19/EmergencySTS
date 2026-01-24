@@ -208,13 +208,8 @@ class SiteController extends Controller
             // Criar utilizador
             $user = $model->signup();
             if ($user) {
-
-                // ==============================
-                // RBAC — ATRIBUIÇÃO DA ROLE PACIENTE
-                // ==============================
                 $auth = Yii::$app->authManager;
 
-                // Obter role paciente (não criar várias vezes)
                 $pacienteRole = $auth->getRole('paciente');
                 if ($pacienteRole === null) {
                     $pacienteRole = $auth->createRole('paciente');
@@ -222,14 +217,10 @@ class SiteController extends Controller
                     $auth->add($pacienteRole);
                 }
 
-                // Só atribuir se ainda não tiver
                 if ($auth->getAssignment('paciente', $user->id) === null) {
                     $auth->assign($pacienteRole, $user->id);
                 }
 
-                // ==============================
-                // REDIRECIONAR PARA LOGIN
-                // ==============================
                 Yii::$app->session->setFlash(
                     'success',
                     'Conta criada com sucesso! Faça login para continuar.'

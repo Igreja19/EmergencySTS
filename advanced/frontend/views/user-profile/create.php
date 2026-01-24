@@ -11,8 +11,6 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="userprofile-create">
 
-    <?php // Removido o título visível no frontend ?>
-
     <?= $this->render('_form', [
             'model' => $model,
     ]) ?>

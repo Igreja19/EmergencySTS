@@ -1,7 +1,6 @@
 .acoes {
     text-align:center;
 }
-/* === FORMULÁRIO DE TRIAGEM === */
 .triagem-form {
     background: #fff;
     border-radius: 20px;
@@ -35,7 +34,6 @@
     box-shadow: 0 0 0 0.15rem rgba(25, 135, 84, 0.25);
 }
 
-/* Botões principais */
 .btn-save {
     background: linear-gradient(90deg, #198754 0%, #28a745 100%);
     color: #fff;
@@ -65,7 +63,6 @@
     color: #495057;
 }
 
-/* === TABELA DE TRIAGEM === */
 .card-table {
     background: #fff;
     border-radius: 20px;
@@ -74,7 +71,6 @@
     margin-bottom: 25px;
 }
 
-/* Botão “Nova Triagem” */
 .btn-new {
     background: linear-gradient(90deg, #198754 0%, #28a745 100%);
     color: #fff !important;
@@ -90,7 +86,6 @@
     opacity: 0.9;
 }
 
-/* === Estilo da tabela moderna === */
 .table-modern {
     width: 100%;
     border-collapse: separate;
@@ -100,7 +95,6 @@
     line-height: 1.6;
 }
 
-/* Cabeçalho verde com texto preto */
 .table-modern thead tr {
     background-color: #198754 !important;
     color: #000 !important;
@@ -114,7 +108,6 @@
     vertical-align: middle !important;
 }
 
-/* Links do cabeçalho */
 .table-modern th a {
     color: #000 !important;
     text-decoration: none;
@@ -123,7 +116,6 @@
     text-decoration: underline;
 }
 
-/* Corpo da tabela */
 .table-modern td {
     padding: 12px 15px;
     color: #000 !important;
@@ -131,18 +123,15 @@
     vertical-align: middle !important;
 }
 
-/* Linhas alternadas */
 .table-modern tbody tr:nth-child(even) td {
     background-color: #f8f9fa !important;
 }
 
-/* Hover */
 .table-modern tbody tr:hover td {
     background-color: #eef8f1 !important;
     transition: background-color 0.2s ease-in-out;
 }
 
-/* === Centralização vertical e horizontal === */
 .table-modern td,
 .table-modern th {
     vertical-align: middle !important;
@@ -152,7 +141,6 @@
     vertical-align: middle !important;
 }
 
-/* === Botões de ação circulares sólidos === */
 .btn-action {
     display: inline-flex !important;
     align-items: center !important;
@@ -169,7 +157,6 @@
     line-height: 1;
 }
 
-/* Cores sólidas */
 .btn-view {
     background-color: #0d6efd !important; /* azul */
 }
@@ -180,7 +167,6 @@
     background-color: #dc3545 !important; /* vermelho */
 }
 
-/* Hover com leve escurecimento */
 .btn-view:hover {
     background-color: #0b5ed7 !important;
 }
@@ -191,18 +177,15 @@
     background-color: #bb2d3b !important;
 }
 
-/* Ícones centralizados e brancos */
 .btn-action i {
     color: #fff !important;
     font-size: 1rem;
 }
 
-/* Animação hover */
 .btn-action:hover {
     transform: scale(1.08);
 }
 
-/* === Formulário de pesquisa === */
 .triagem-search {
     background: #fff;
     border-radius: 12px;
@@ -226,7 +209,6 @@
     padding: 8px 18px;
 }
 
-/* === Responsividade === */
 @media (max-width: 768px) {
     .table-modern th,
     .table-modern td {

@@ -31,7 +31,6 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
 
 ?>
 
-<!-- HERO SECTION -->
 <section class="hero">
     <div class="hero-left">
         <div class="hero-content">
@@ -62,7 +61,6 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
     </div>
 </section>
 
-<!-- TRIAGEM -->
 <section id="triagem" class="py-5 bg-white">
     <div class="container text-center">
         <h2 class="text-success mb-5">Triagem em Tempo Real</h2>
@@ -111,7 +109,6 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
     </div>
 </section>
 
-<!-- SOBRE -->
 <section id="sobre-nos" class="py-5">
     <div class="container">
         <div class="row align-items-center g-5">
@@ -142,7 +139,6 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
     </div>
 </section>
 
-<!-- PORQUE ESCOLHER-NOS -->
 <div class="container-fluid1" style="background-color: #198754;">
     <div class="container py-4">
         <div class="row g-5 align-items-center">
@@ -206,7 +202,6 @@ $this->title = 'EmergencySTS | Sistema de Triagem';
     </div>
 </div>
 
-<!-- MÉDICOS -->
 <div class="container py-5">
     <div class="container-xxl py-5">
         <div class="container">

@@ -33,10 +33,8 @@ $this->registerCssFile(Yii::getAlias('@web') . '/css/adminlte-custom.css?v=1.2',
 <body class="hold-transition login-page" style="background: transparent !important; overflow: hidden;">
 <?php $this->beginBody() ?>
 
-<!-- 🌿 Fundo Animado -->
 <div id="background-gradient"></div>
 
-<!-- 🔹 Container do conteúdo -->
 <main class="login-container d-flex align-items-center justify-content-center" style="z-index: 10; position: relative;">
     <?= $content ?>
 </main>

@@ -37,10 +37,8 @@ $corTexto = ($pulseira->prioridade === 'Amarelo') ? '#000000' : '#ffffff';
     <h5 class="fw-bold text-success mb-2">Tempo de Espera Estimado</h5>
     <p class="text-muted">Consulta do seu estado na fila de atendimento</p>
 
-    <!-- CARD PRINCIPAL -->
     <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 main-status-card position-relative">
 
-        <!-- Cabeçalho com número e selo -->
         <div class="d-flex justify-content-between align-items-start position-relative">
             <div>
                 <small class="text-muted">O seu número de triagem</small>
@@ -48,8 +46,7 @@ $corTexto = ($pulseira->prioridade === 'Amarelo') ? '#000000' : '#ffffff';
             </div>
 
             <!-- Cor da pulseira -->
-            <div class="selo position-absolute top-0 end-0 mt-2 me-3 d-flex align-items-center justify-content-center fw-bold text-uppercase"
-                 style="background-color: <?= $corBg ?>; color: <?= $corTexto ?>;">
+            <div class="selo position-absolute top-0 end-0 mt-2 me-3 d-flex align-items-center justify-content-center fw-bold text-uppercase" style="background-color: <?= $cor ?>;">
                 <?= strtoupper(Html::encode($pulseira->prioridade ?? 'PENDENTE')) ?>
             </div>
         </div>
@@ -61,8 +58,8 @@ $corTexto = ($pulseira->prioridade === 'Amarelo') ? '#000000' : '#ffffff';
             <div class="barra progress rounded-pill triage-track" style="height: 14px; overflow: hidden;">
                 <div class="progress-bar progress-bar-striped progress-bar-animated" style="
                              width: <?= min(100, (int)$progressPct) ?>%;
-                             background: linear-gradient(90deg, <?= $corBg ?>, <?= $corBg ?>cc);
-                             box-shadow: 0 0 10px <?= $corBg ?>80;
+                             background: linear-gradient(90deg, <?= $cor ?>, <?= $cor ?>cc);
+                             box-shadow: 0 0 10px <?= $cor ?>80;
                              ">
                 </div>
             </div>
@@ -72,13 +69,12 @@ $corTexto = ($pulseira->prioridade === 'Amarelo') ? '#000000' : '#ffffff';
             </div>
         </div>
 
-        <!-- Legenda da fila -->
         <div class="small text-muted mb-1 mt-3">
             <?php if ($pulseira->prioridade === 'Pendente'): ?>
                 A sua prioridade ainda não foi atribuída. Aguarde avaliação de um enfermeiro.
             <?php else: ?>
                 Posição <?= (int)$position ?> de <?= (int)$totalAguardarPrioridade ?> na fila de prioridade
-                <strong style="background-color: <?= $corBg ?>; color: <?= $corTexto ?>;"><?= Html::encode($pulseira->prioridade) ?></strong>.
+                <strong style="color: <?= $cor ?>;"><?= Html::encode($pulseira->prioridade) ?></strong>.
             <?php endif; ?>
         </div>
 
@@ -91,7 +87,6 @@ $corTexto = ($pulseira->prioridade === 'Amarelo') ? '#000000' : '#ffffff';
         </div>
     </div>
 
-    <!-- FILA -->
     <h6 class="fw-bold text-success mb-3">
         <i class="bi bi-people me-2"></i>Fila de Atendimento
     </h6>

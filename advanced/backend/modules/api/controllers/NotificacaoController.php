@@ -12,8 +12,6 @@ class NotificacaoController extends BaseActiveController
     public $modelClass = 'common\models\Notificacao';
     public $enableCsrfValidation = false;
 
-    // NOTA: behaviors() removido porque herda do BaseActiveController
-
     public function actions()
     {
         $actions = parent::actions();
@@ -21,15 +19,10 @@ class NotificacaoController extends BaseActiveController
         return $actions;
     }
 
-    /**
-     * LISTAR NOTIFICAÇÕES
-     * GET api/notificacao/list
-     */
     public function actionList()
     {
         $user = Yii::$app->user->identity;
 
-        // Validação extra de segurança
         if (!$user || !$user->userprofile) {
             return ['status' => 'error', 'message' => 'Perfil não encontrado'];
         }
@@ -39,7 +32,6 @@ class NotificacaoController extends BaseActiveController
             ->orderBy(['id' => SORT_DESC])
             ->all();
 
-        // MQTT Seguro (Notificação de leitura de lista)
         $mqttEnabled = Yii::$app->params['mqtt_enabled'] ?? true;
         if ($mqttEnabled && isset(Yii::$app->mqtt)) {
             try {
@@ -64,10 +56,6 @@ class NotificacaoController extends BaseActiveController
         ];
     }
 
-    /**
-     * MARCAR COMO LIDA
-     * POST api/notificacao/ler/{id}
-     */
     public function actionLer($id)
     {
         $user = Yii::$app->user->identity;
@@ -78,7 +66,6 @@ class NotificacaoController extends BaseActiveController
 
         $notificacao = Notificacao::findOne($id);
 
-        // Garante que a notificação pertence ao utilizador logado
         if (!$notificacao || $notificacao->userprofile_id != $user->userprofile->id) {
             throw new NotFoundHttpException("Notificação não encontrada ou não pertence a este utilizador.");
         }
@@ -86,7 +73,6 @@ class NotificacaoController extends BaseActiveController
         $notificacao->lida = 1;
         $notificacao->save(false);
 
-        // MQTT Seguro
         $mqttEnabled = Yii::$app->params['mqtt_enabled'] ?? true;
         if ($mqttEnabled && isset(Yii::$app->mqtt)) {
             try {

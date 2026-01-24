@@ -22,7 +22,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/notificacao/index.css
         <?php endif; ?>
     </div>
 
-    <!-- 🔵 NOTIFICAÇÕES NÃO LIDAS -->
     <div class="mb-4">
         <h5 class="fw-bold mb-3 text-success">
             <i class="bi bi-dot"></i> Não Lidas
@@ -59,7 +58,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/notificacao/index.css
 
     <hr>
 
-    <!-- 🟣 NOTIFICAÇÕES LIDAS -->
     <div class="mt-4">
         <h5 class="fw-bold mb-3 text-secondary">
             <i class="bi bi-check2-all"></i> Lidas

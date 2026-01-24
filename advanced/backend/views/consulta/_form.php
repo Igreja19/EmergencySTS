@@ -23,9 +23,6 @@ $isNew = $model->isNewRecord;
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <!-- ===================== -->
-    <!-- DADOS PRINCIPAIS -->
-    <!-- ===================== -->
     <div class="section-title mb-3">
         <i class="bi bi-info-circle-fill text-success me-2"></i>
         <span class="fw-semibold text-success">Informações da Consulta</span>
@@ -54,9 +51,6 @@ $isNew = $model->isNewRecord;
 
     </div>
 
-    <!-- ===================== -->
-    <!-- TRIAGEM + PACIENTE -->
-    <!-- ===================== -->
     <div class="section-title mt-4 mb-3">
         <i class="bi bi-person-fill text-success me-2"></i>
         <span class="fw-semibold text-success">Dados do Paciente</span>
@@ -92,9 +86,6 @@ $isNew = $model->isNewRecord;
         </div>
     </div>
 
-    <!-- UPDATE -->
-
-    <!-- OBSERVAÇÕES -->
     <?php if (!$isNew): ?>
 
         <div class="section-title mt-4 mb-3">
@@ -107,7 +98,6 @@ $isNew = $model->isNewRecord;
             'placeholder' => 'Registe aqui notas importantes...'
              ])->label(false) ?>
 
-        <!-- PRESCRIÇÃO -->
         <div class="mt-3">
 
             <?php if (!$model->prescricao): ?>
@@ -135,7 +125,6 @@ $isNew = $model->isNewRecord;
 
     <?php endif; ?>
 
-    <!-- BOTÕES -->
     <div class="d-flex justify-content-end mt-4 gap-2">
         <?= Html::submitButton(
                 '<i class="bi bi-check2-circle me-1"></i>Guardar',

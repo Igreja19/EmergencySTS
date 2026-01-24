@@ -32,9 +32,6 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <hr>
 
-    <!-- ======================== -->
-    <!-- DADOS DA CONSULTA -->
-    <!-- ======================== -->
     <div class="mb-4">
         <div class="section-title">
             <i class="bi bi-clipboard2-pulse"></i> Dados da Consulta
@@ -66,9 +63,6 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
     </div>
 
-    <!-- ======================== -->
-    <!-- DADOS DO PACIENTE -->
-    <!-- ======================== -->
     <div class="mb-4">
         <div class="section-title">
             <i class="bi bi-person-lines-fill"></i> Dados do Paciente
@@ -104,9 +98,6 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
     </div>
 
-    <!-- ======================== -->
-    <!-- OBSERVAÇÕES -->
-    <!-- ======================== -->
     <div class="mb-4">
         <div class="section-title">
             <i class="bi bi-journal-text"></i> Observações
@@ -117,9 +108,6 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
     </div>
 
-    <!-- ======================== -->
-    <!-- PRESCRIÇÕES -->
-    <!-- ======================== -->
     <div>
         <div class="section-title">
             <i class="bi bi-capsule-pill"></i> Prescrições

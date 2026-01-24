@@ -1,4 +1,3 @@
-/* ===== EmergencySTS Theme (alinhado ao frontend HTMLCodex) ===== */
 :root{
     --brand: #198754;
     --brand-2: #22c55e;
@@ -13,12 +12,10 @@
 body { color: var(--text); }
 h1,h2,h3,h4 { color: var(--heading); letter-spacing:.2px; }
 
-/* Navbar e Sidebar */
 .navbar-white.navbar-light { border-bottom: 1px solid rgba(0,0,0,.05); }
 .brand-link { border-bottom: 1px solid rgba(255,255,255,.08); }
 .brand-link .brand-text { font-weight:600; letter-spacing:.2px; }
 
-/* Botões, cards, caixas */
 .card, .info-box, .small-box, .btn, .modal-content {
     border-radius: var(--radius) !important;
 }
@@ -31,7 +28,6 @@ h1,h2,h3,h4 { color: var(--heading); letter-spacing:.2px; }
 
 a, .btn-link { color: var(--brand); }
 
-/* Conteúdo */
 .content-header {
     position: sticky;
     top: 0;
@@ -41,12 +37,10 @@ a, .btn-link { color: var(--brand); }
 }
 .content-header .container-fluid { padding-top:.5rem; padding-bottom:.5rem; }
 
-/* Tabelas */
 .table { font-size: .95rem; }
 .table th { white-space: nowrap; }
 .table td { vertical-align: middle; }
 
-/* Sidebar */
 .nav-sidebar .nav-link.active {
     background: linear-gradient(90deg, var(--brand) 0%, var(--brand-2) 100%);
     color:#fff !important;
@@ -60,13 +54,11 @@ a, .btn-link { color: var(--brand); }
     color:#fff !important;
 }
 
-/* Badges */
 .badge {
     border-radius: 999px;
     padding: .35rem .55rem;
 }
 
-/* Login */
 .login-page { background: var(--bg-soft); }
 .login-page .card {
     border-radius: 1.25rem;
@@ -74,22 +66,10 @@ a, .btn-link { color: var(--brand); }
 }
 .login-logo a { color: var(--brand); }
 
-/* Dark mode */
-.dark-mode body { color: #cbd5e1; }
-.dark-mode .content-header { background: rgba(15,23,42,.6); }
-.dark-mode .nav-sidebar .nav-link:hover {
-    background: rgba(255,255,255,.08);
-}
-.dark-mode .nav-sidebar .nav-link.active {
-    background: linear-gradient(90deg, #059669 0%, #10b981 100%);
-}
-
-/* Pesquisas */
 .main-header .form-control {
     border-radius: .75rem;
 }
 
-/* Header fixo */
 .sticky-header {
     position: sticky;
     top: 0;
@@ -103,7 +83,6 @@ a, .btn-link { color: var(--brand); }
     box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
 }
 
-/* NAVBAR PREMIUM */
 .custom-navbar {
     background: linear-gradient(90deg, #128e55, #208756);
     height: 68px;
@@ -114,7 +93,6 @@ a, .btn-link { color: var(--brand); }
     box-shadow: 0 4px 14px rgba(0,0,0,0.18);
 }
 
-/* LINKS */
 .custom-navbar .top-link {
     color: #e9ffe9 !important;
     font-weight: 600;
@@ -131,7 +109,6 @@ a, .btn-link { color: var(--brand); }
     color: #ffffff !important;
 }
 
-/* Ícones */
 .custom-navbar .nav-link i {
     color: white !important;
     font-size: 20px;
@@ -142,20 +119,14 @@ a, .btn-link { color: var(--brand); }
     opacity: 0.85;
 }
 
-/* User menú */
 .custom-navbar .navbar-nav .nav-link {
     color: white !important;
 }
-
-/* ========================================================== */
-/* 🔔 NOTIFICAÇÕES (COMPATÍVEL COM NAVBAR SSE)                */
-/* ========================================================== */
 
 .notif-btn {
     position: relative;
 }
 
-/* Badge vermelha (criada via JS) */
 .notif-btn .notif-badge {
     position: absolute;
     top: 2px;
@@ -169,7 +140,6 @@ a, .btn-link { color: var(--brand); }
     box-shadow: 0 0 6px rgba(0,0,0,0.3);
 }
 
-/* Dropdown de notificações */
 .notif-header {
     font-weight: 600;
     font-size: 15px;
@@ -184,7 +154,6 @@ a, .btn-link { color: var(--brand); }
     overflow-y: auto;
 }
 
-/* Cada item */
 .notif-item {
     display: flex;
     padding: 10px 14px;
@@ -198,18 +167,16 @@ a, .btn-link { color: var(--brand); }
     background: rgba(25,135,84,.08);
 }
 
-/* Ícone do item */
 .notif-item .notif-icon i {
     font-size: 20px;
     color: var(--brand);
 }
 
-/* Título */
 .notif-title {
     font-weight: 600;
     font-size: 14px;
 }
-/* REMOVER FUNDO BRANCO DO BOTÃO DE NOTIFICAÇÃO */
+
 .custom-navbar .notif-btn {
     background: transparent !important;
     box-shadow: none !important;
@@ -221,7 +188,6 @@ a, .btn-link { color: var(--brand); }
     border-radius: 12px !important;
 }
 
-/* Ícone sempre branco (corrigir override do AdminLTE) */
 .custom-navbar .notif-btn i {
     color: #ffffff !important;
 }

@@ -23,21 +23,18 @@
     overflow: hidden;
 }
 
-/* Cabeçalho verde */
 .table-modern thead tr {
     background: linear-gradient(90deg, #198754 0%, #28a745 100%);
     color: #fff;
     text-align: center;
 }
 
-/* Links no cabeçalho */
 .table-modern th a {
     color: #fff !important;
     text-decoration: none;
     font-weight: 600;
 }
 
-/* 🔹 Texto preto nas células */
 .table-modern td,
 .table-modern th {
     color: #212529 !important;
@@ -48,7 +45,6 @@
     vertical-align: middle;
 }
 
-/* Badges de prioridade */
 .badge-prio {
     padding: 6px 10px;
     border-radius: 8px;
@@ -61,7 +57,6 @@
 .badge-Verde    { background-color: #198754; }
 .badge-Azul     { background-color: #0d6efd; }
 
-/* Botões de ação */
 .btn-action {
     border-radius: 10px;
     padding: 6px 10px;
@@ -73,7 +68,6 @@
 .btn-delete { background:#dc3545; color:#fff; }
 .btn-action:hover { opacity: .85; }
 
-/* Botão "Novo" */
 .btn-new {
     background: linear-gradient(90deg, #198754 0%, #28a745 100%);
     color: #fff;

@@ -13,7 +13,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/dashboard/medico.css'
         Painel do Médico
     </h1>
 
-    <!-- CARDS SUPERIORES -->
     <div class="row g-4 mb-4">
 
         <div class="col-md-4">

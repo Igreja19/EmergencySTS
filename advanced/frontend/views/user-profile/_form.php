@@ -9,7 +9,6 @@ $this->title = $model->isNewRecord ? 'Criar Perfil' : 'Editar Perfil';
 $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile/_form.css');
 ?>
 
-<!-- Bootstrap Icons -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
 <div class="profile-page d-flex align-items-center justify-content-center min-vh-100 py-5">
@@ -29,16 +28,13 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile/_form.cs
                 'options' => ['class' => 'needs-validation'],
         ]); ?>
 
-        <!-- 🔥 MOSTRAR ERROS DE VALIDAÇÃO -->
         <?= $form->errorSummary($model, [
                 'class' => 'alert alert-danger mb-4',
         ]); ?>
 
-        <!-- IDs escondidos -->
         <?= $form->field($model, 'id')->hiddenInput()->label(false) ?>
         <?= $form->field($model, 'user_id')->hiddenInput()->label(false) ?>
 
-        <!-- DADOS PESSOAIS -->
         <h6 class="fw-bold text-success mt-2 mb-3">Dados Pessoais</h6>
 
         <div class="row g-3 mb-3">
@@ -115,7 +111,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/user-profile/_form.cs
             </div>
         </div>
 
-        <!-- BOTÕES -->
         <div class="d-flex justify-content-between align-items-center mt-4">
             <a href="<?= Yii::$app->urlManager->createUrl(['user-profile/view', 'id' => $model->id ?: 0]) ?>"
                class="btn btn-outline-secondary">

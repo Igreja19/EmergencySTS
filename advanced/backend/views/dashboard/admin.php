@@ -15,10 +15,8 @@ $this->registerCssFile('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font
 $this->registerCssFile(Yii::$app->request->baseUrl . '/css/layouts/sidebar.css');
 $this->registerCssFile(Yii::$app->request->baseUrl . '/css/dashboard/admin.css');
 
-/* ===== Chart.js ===== */
 $this->registerJsFile('https://cdn.jsdelivr.net/npm/chart.js', ['position' => \yii\web\View::POS_END]);
 
-/* ===== GRÁFICOS ===== */
 $this->registerJs('
 
 // DONUT

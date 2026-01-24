@@ -75,7 +75,6 @@ class UserProfileController extends Controller
      */
     public function actionCreate($user_id = null)
     {
-        // 1️⃣ Verificar se o utilizador já tem perfil
         if (!Yii::$app->user->isGuest) {
             $profile = UserProfile::find()->where(['user_id' => Yii::$app->user->id])->one();
             if ($profile !== null) {
@@ -85,14 +84,12 @@ class UserProfileController extends Controller
 
         $model = new UserProfile();
 
-        // 2️⃣ Preencher user_id (via GET ou sessão)
         if ($user_id !== null) {
             $model->user_id = $user_id;
         } elseif (!Yii::$app->user->isGuest) {
             $model->user_id = Yii::$app->user->identity->id;
         }
 
-        // 3️⃣ POST → load + save
         if ($model->load(Yii::$app->request->post())) {
 
             if ($model->save()) {
@@ -102,7 +99,6 @@ class UserProfileController extends Controller
             Yii::error($model->errors, 'userprofile_save_errors');
         }
 
-        // 4️⃣ Mostrar formulário
         return $this->render('create', [
             'model' => $model,
         ]);
@@ -140,13 +136,10 @@ class UserProfileController extends Controller
     {
         $model = $this->findModel($id);
 
-        // Guarda o ID do utilizador logado
         $currentUserId = Yii::$app->user->id;
 
-        // Apaga o perfil
         $model->delete();
 
-        // Se o perfil apagado pertencer ao utilizador autenticado, faz logout
         if ($model->user_id == $currentUserId) {
             $user = \common\models\User::findOne($model->user_id);
             if ($user) {
@@ -156,7 +149,6 @@ class UserProfileController extends Controller
             return $this->redirect(['site/index']);
         }
 
-        // Caso contrário, redireciona normalmente
         return $this->redirect(['index']);
     }
 

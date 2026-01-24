@@ -66,7 +66,6 @@ class Prescricao extends \yii\db\ActiveRecord
     public function beforeSave($insert)
     {
         if ($insert) {
-            // Se quiser preencher automaticamente
             // $this->dataprescricao = date('Y-m-d H:i:s');
         }
 

@@ -15,8 +15,6 @@ class PacienteController extends BaseActiveController // <--- Herança segura
     public $modelClass = 'common\models\UserProfile';
     public $enableCsrfValidation = false;
 
-    // NOTA: behaviors() removido porque herda do BaseActiveController
-
     /**
      * Autoriza POST, PUT e PATCH na ação update.
      */
@@ -41,14 +39,11 @@ class PacienteController extends BaseActiveController // <--- Herança segura
     // Admin pode tudo
     if ($user->can('admin')) return;
 
-    // Staff (Médico/Enfermeiro) pode ver e listar, mas não apagar
     if ($user->can('medico') || $user->can('enfermeiro')) {
         if (in_array($action, ['index', 'view', 'perfil'])) return;
         if ($action === 'create' || $action === 'delete') throw new ForbiddenHttpException();
-        // Update: Enfermeiros/Médicos podem editar dados do paciente? Se não, bloquear aqui.
     }
 
-    // PACIENTE (Onde está o risco)
     if ($user->can('paciente')) {
         // Apenas permite ver/editar o PRÓPRIO perfil
         if (in_array($action, ['view', 'update', 'perfil'])) {
@@ -62,21 +57,17 @@ class PacienteController extends BaseActiveController // <--- Herança segura
             return;
         }
         
-        // Paciente não pode fazer 'index' (ver lista de todos) nem 'create' nem 'delete'
         throw new ForbiddenHttpException("Ação não permitida para pacientes.");
     }
 }
 
-    // GET /api/paciente (index)
     public function actionIndex()
     {
-        // --- SEGURANÇA: Bloquear acesso a pacientes ---
         if (Yii::$app->user->can('paciente')) {
             throw new ForbiddenHttpException("Acesso negado.");
         }
 
         
-        // Filtragem por NIF (código existente)
         $nif = Yii::$app->request->get('nif');
         if (!empty($nif)) {
             $paciente = UserProfile::find()->where(['nif' => $nif])->asArray()->one();
@@ -94,7 +85,6 @@ class PacienteController extends BaseActiveController // <--- Herança segura
         return ['total' => count($pacientes), 'data' => $pacientes];
     }
 
-    // GET /api/paciente/perfil
     public function actionPerfil()
     {
         $userId = Yii::$app->user->id;
@@ -147,7 +137,6 @@ class PacienteController extends BaseActiveController // <--- Herança segura
             $tx->commit();
             Yii::$app->response->statusCode = 201;
 
-            // MQTT Seguro
             $mqttEnabled = Yii::$app->params['mqtt_enabled'] ?? true;
             if ($mqttEnabled && isset(Yii::$app->mqtt)) {
                 try {
@@ -174,11 +163,8 @@ class PacienteController extends BaseActiveController // <--- Herança segura
         }
     }
 
-
-    // POST /api/paciente/update?id=X
     public function actionUpdate($id)
     {
-        //  Procurar perfil (pelo user_id ou id)
         $profile = UserProfile::findOne(['user_id' => $id]);
         if (!$profile) {
             $profile = UserProfile::findOne($id);
@@ -190,10 +176,8 @@ class PacienteController extends BaseActiveController // <--- Herança segura
 
         $this->checkAccess('update', $profile);
 
-        // Ler JSON diretamente
         $dados = Yii::$app->request->getBodyParams();
 
-        // Suporte legacy
         if (isset($dados['Paciente'])) {
             $dados = array_merge($dados, $dados['Paciente']);
         }
@@ -215,10 +199,8 @@ class PacienteController extends BaseActiveController // <--- Herança segura
             }
         }
 
-        // Guardar
         if ($profile->save()) {
 
-            // MQTT Seguro
             $mqttEnabled = Yii::$app->params['mqtt_enabled'] ?? true;
             if ($mqttEnabled && isset(Yii::$app->mqtt)) {
                 try {

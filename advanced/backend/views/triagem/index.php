@@ -43,7 +43,6 @@ $this->registerCssFile(Yii::$app->request->baseUrl . '/css/triagem/index.css');
                                         return "<span class='badge bg-secondary px-3 py-2' style='font-size:14px;'>Pendente</span>";
                                     }
 
-                                    // ✔️ Com pulseira → prioridade real
                                     $prioridade = $m->pulseira->prioridade;
 
                                     $cores = [

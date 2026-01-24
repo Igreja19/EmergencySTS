@@ -33,7 +33,6 @@ class PulseiraSearch extends Pulseira
 
     public function beforeValidate()
     {
-        // Ignora os defaults da Pulseira
         return true;
     }
 
@@ -54,12 +53,10 @@ class PulseiraSearch extends Pulseira
             ])
             ->andWhere(['!=', 'pulseira.prioridade', 'Pendente']);
 
-        // DataProvider
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
 
-        // 🔹 Ordenação personalizada Manchester (mantida)
         $dataProvider->sort->attributes['prioridade'] = [
             'asc' => [
                 new Expression("FIELD(pulseira.prioridade, 'Azul', 'Verde', 'Amarelo', 'Laranja', 'Vermelho')")
@@ -69,19 +66,16 @@ class PulseiraSearch extends Pulseira
             ],
         ];
 
-        // 🔹 Ordenação padrão
         $dataProvider->setSort([
             'defaultOrder' => ['id' => SORT_DESC],
         ]);
 
-        // ← carregar filtros
         $this->load($params);
 
         if (!$this->validate()) {
             return $dataProvider;
         }
 
-        // === Filtros adicionais (mantidos, mas prefixados corretamente) ===
         $query->andFilterWhere([
             'pulseira.id' => $this->id,
         ]);
@@ -90,7 +84,6 @@ class PulseiraSearch extends Pulseira
             ->andFilterWhere(['like', 'pulseira.prioridade', $this->prioridade])
             ->andFilterWhere(['like', 'pulseira.status', $this->status]);
 
-        // 🔥 Filtro de data CORRIGIDO (igual ao das consultas)
         if (!empty($this->tempoentrada)) {
             $query->andWhere([
                 'between',
