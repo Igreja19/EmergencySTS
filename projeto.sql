@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Jan 24, 2026 at 08:50 PM
+-- Generation Time: Jan 24, 2026 at 10:04 PM
 -- Server version: 8.4.7
 -- PHP Version: 8.3.28
 
@@ -46,6 +46,7 @@ INSERT INTO `auth_assignment` (`item_name`, `user_id`, `created_at`) VALUES
 ('enfermeiro', '14', 1769269612),
 ('enfermeiro', '15', 1769269607),
 ('enfermeiro', '18', 1769269401),
+('enfermeiro', '50', 1769288509),
 ('medico', '38', 1769267645),
 ('medico', '39', 1769267638),
 ('medico', '40', 1766587286),
@@ -358,88 +359,91 @@ CREATE TABLE IF NOT EXISTS `notificacao` (
   `userprofile_id` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_notificacao_userprofile_id` (`userprofile_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=86 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=89 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `notificacao`
 --
 
 INSERT INTO `notificacao` (`id`, `titulo`, `mensagem`, `tipo`, `dataenvio`, `lida`, `userprofile_id`) VALUES
-(11, 'Triagem registada', 'Foi registada uma nova triagem para o paciente paciente.', 'Consulta', '2025-11-26 12:29:46', 0, 11),
-(12, 'Prioridade Laranja', 'O paciente paciente encontra-se em prioridade Laranja.', 'Prioridade', '2025-11-26 12:29:46', 0, 11),
-(13, 'Triagem registada', 'Foi registada uma nova triagem para o paciente teste2.', 'Consulta', '2025-11-26 12:36:30', 0, 20),
-(14, 'Triagem registada', 'Foi registada uma nova triagem para o paciente paciente3.', 'Consulta', '2025-11-26 12:53:43', 0, 22),
-(15, 'Consulta retomada', 'A consulta foi retomada.', 'Consulta', '2025-11-27 15:21:54', 0, 9),
-(16, 'Consulta retomada', 'A consulta foi retomada.', 'Consulta', '2025-11-27 15:22:01', 0, 9),
-(17, 'Consulta retomada', 'A consulta foi retomada.', 'Consulta', '2025-11-27 15:22:27', 0, 9),
-(18, 'Consulta iniciada', 'A sua consulta foi iniciada.', 'Consulta', '2025-11-27 15:44:11', 0, 20),
-(19, 'Nova prescrição', 'Foi emitida uma nova prescrição para o paciente teste2.', 'Consulta', '2025-11-27 15:45:03', 0, 20),
-(20, 'Consulta retomada', 'A consulta foi retomada.', 'Consulta', '2025-11-27 15:45:23', 0, 20),
-(21, 'Nova prescrição', 'Foi emitida uma nova prescrição para o paciente paciente2.', 'Consulta', '2025-11-27 16:06:20', 0, 21),
-(22, 'Nova prescrição', 'Foi emitida uma nova prescrição para o paciente paciente2.', 'Consulta', '2025-11-27 16:58:38', 0, 21),
-(23, 'Prescrição atualizada', 'A prescrição do paciente paciente2 foi atualizada.', 'Consulta', '2025-11-27 17:01:38', 0, 21),
-(24, 'Pulseira atribuída', 'Foi criada uma nova pulseira pendente para o paciente paciente.', 'Consulta', '2025-11-27 17:08:01', 0, 11),
-(25, 'Consulta retomada', 'A consulta foi retomada.', 'Consulta', '2025-11-28 10:29:41', 0, 21),
-(26, 'Consulta encerrada', 'A sua consulta foi encerrada.', 'Consulta', '2025-11-28 10:29:47', 0, 21),
-(27, 'Consulta encerrada', 'A sua consulta foi encerrada.', 'Consulta', '2025-11-28 10:43:31', 0, 21),
-(28, 'Consulta encerrada', 'A sua consulta foi encerrada.', 'Consulta', '2025-11-28 10:52:42', 0, 10),
-(29, 'Triagem registada', 'Foi registada uma nova triagem para o paciente paciente4.', 'Consulta', '2025-12-02 14:30:16', 0, 30),
-(30, 'Consulta retomada', 'A consulta foi retomada.', 'Consulta', '2025-12-03 11:06:00', 0, 20),
-(31, 'Consulta encerrada', 'A sua consulta foi encerrada.', 'Consulta', '2025-12-03 11:52:06', 0, 20),
-(32, 'Consulta iniciada', 'A sua consulta foi iniciada.', 'Consulta', '2025-12-03 11:52:42', 0, 11),
-(33, 'Nova prescrição', 'Foi emitida uma nova prescrição para o paciente paciente.', 'Consulta', '2025-12-03 12:11:51', 0, 11),
-(34, 'Prescrição atualizada', 'A prescrição do paciente paciente foi atualizada.', 'Consulta', '2025-12-03 12:12:14', 0, 11),
-(35, 'Prescrição atualizada', 'A prescrição do paciente paciente foi atualizada.', 'Consulta', '2025-12-03 12:15:58', 0, 11),
-(36, 'Prescrição atualizada', 'A prescrição do paciente paciente foi atualizada.', 'Consulta', '2025-12-03 12:22:49', 0, 11),
-(37, 'Prescrição atualizada', 'A prescrição do paciente paciente foi atualizada.', 'Consulta', '2025-12-03 13:36:38', 0, 11),
-(38, 'Consulta retomada', 'A consulta foi retomada.', 'Consulta', '2025-12-03 13:36:45', 0, 11),
-(39, 'Nova prescrição', 'Foi emitida uma nova prescrição para o paciente paciente.', 'Consulta', '2025-12-03 13:37:40', 0, 11),
-(40, 'Prescrição atualizada', 'A prescrição do paciente paciente foi atualizada.', 'Consulta', '2025-12-03 13:37:49', 0, 11),
-(41, 'Prescrição atualizada', 'A prescrição do paciente paciente foi atualizada.', 'Consulta', '2025-12-03 13:38:24', 0, 11),
-(42, 'Nova prescrição', 'Foi emitida uma nova prescrição para o paciente paciente.', 'Consulta', '2025-12-03 13:42:06', 0, 11),
-(43, 'Prescrição atualizada', 'A prescrição do paciente paciente foi atualizada.', 'Consulta', '2025-12-03 13:42:13', 0, 11),
-(44, 'Prescrição atualizada', 'A prescrição do paciente paciente foi atualizada.', 'Consulta', '2025-12-03 13:42:16', 0, 11),
-(45, 'Consulta retomada', 'A consulta foi retomada.', 'Consulta', '2025-12-03 13:42:21', 0, 11),
-(46, 'Consulta encerrada', 'A sua consulta foi encerrada.', 'Consulta', '2025-12-03 13:44:19', 0, 11),
-(47, 'Consulta iniciada', 'A sua consulta foi iniciada.', 'Consulta', '2025-12-03 15:43:47', 0, 30),
-(48, 'Nova prescrição', 'Foi emitida uma nova prescrição para o paciente paciente4.', 'Consulta', '2025-12-03 15:44:18', 0, 30),
-(49, 'Consulta retomada', 'A consulta foi retomada.', 'Consulta', '2025-12-03 15:44:25', 0, 30),
-(50, 'Prescrição atualizada', 'A prescrição do paciente paciente4 foi atualizada.', 'Consulta', '2025-12-04 15:56:51', 0, 30),
-(51, 'Prescrição atualizada', 'A prescrição do paciente paciente4 foi atualizada.', 'Consulta', '2025-12-04 15:56:58', 0, 30),
-(52, 'Consulta retomada', 'A consulta foi retomada.', 'Consulta', '2025-12-04 15:57:05', 0, 30),
-(53, 'Consulta encerrada', 'A sua consulta foi encerrada.', 'Consulta', '2025-12-04 15:57:15', 0, 30),
-(54, 'Consulta iniciada', 'A sua consulta foi iniciada.', 'Consulta', '2025-12-04 16:25:20', 0, 22),
-(55, 'Nova prescrição', 'Foi emitida uma nova prescrição para o paciente paciente3.', 'Consulta', '2025-12-04 16:48:04', 0, 22),
-(56, 'Prescrição atualizada', 'A prescrição do paciente paciente3 foi atualizada.', 'Consulta', '2025-12-04 16:52:47', 0, 22),
-(57, 'Prescrição atualizada', 'A prescrição do paciente paciente3 foi atualizada.', 'Consulta', '2025-12-04 17:06:13', 0, 22),
-(58, 'Consulta retomada', 'A consulta foi retomada.', 'Consulta', '2025-12-04 17:06:15', 0, 22),
-(59, 'Consulta encerrada', 'A sua consulta foi encerrada.', 'Consulta', '2025-12-04 17:07:34', 0, 22),
-(60, 'Consulta iniciada', 'A sua consulta foi iniciada.', 'Consulta', '2025-12-04 17:10:54', 0, 8),
-(61, 'Nova prescrição', 'Foi emitida uma nova prescrição para o paciente henrique.', 'Consulta', '2025-12-04 17:11:02', 0, 8),
-(62, 'Consulta retomada', 'A consulta foi retomada.', 'Consulta', '2025-12-04 17:11:04', 0, 8),
-(63, 'Consulta encerrada', 'A sua consulta foi encerrada.', 'Consulta', '2025-12-04 17:11:12', 0, 8),
-(64, 'Utilizador ativado', 'A conta paciente4 foi ativada.', 'Geral', '2025-12-19 10:49:20', 0, 13),
-(65, 'Novo utilizador criado', 'Foi criada uma nova conta: medico2', 'Geral', '2025-12-24 13:32:44', 0, 13),
-(66, 'Novo utilizador criado', 'Foi criada uma nova conta: medico3', 'Geral', '2025-12-24 14:41:08', 0, 13),
-(67, 'Novo utilizador criado', 'Foi criada uma nova conta: medico3', 'Geral', '2025-12-24 14:51:10', 0, 13),
-(68, 'Consulta eliminada', 'A \'Consulta #17\' foi apagada do histórico.', 'Geral', '2025-12-24 15:10:13', 0, 13),
-(69, 'Consulta eliminada', 'A \'Consulta #16\' foi apagada do histórico.', 'Geral', '2025-12-24 15:10:15', 0, 13),
-(70, 'Consulta eliminada', 'A \'Consulta #18\' foi apagada do histórico.', 'Geral', '2025-12-28 11:36:05', 0, 13),
-(71, 'Consulta eliminada', 'A \'Consulta #20\' foi apagada do histórico.', 'Geral', '2025-12-28 11:42:56', 0, 13),
-(72, 'Novo utilizador criado', 'Foi criada uma nova conta: paciente5', 'Geral', '2025-12-30 09:24:32', 0, 13),
-(73, 'Novo utilizador criado', 'Foi criada uma nova conta: paciente6', 'Geral', '2025-12-30 09:44:06', 0, 13),
-(74, 'Utilizador eliminado', 'A conta paciente6 foi eliminada.', 'Geral', '2025-12-30 09:44:09', 0, 13),
-(75, 'Utilizador eliminado', 'A conta paciente5 foi eliminada.', 'Geral', '2025-12-30 09:44:59', 0, 13),
-(76, 'Novo utilizador criado', 'Foi criada uma nova conta: paciente5', 'Geral', '2025-12-30 09:45:54', 0, 13),
-(77, 'Utilizador eliminado', 'A conta paciente5 foi eliminada.', 'Geral', '2025-12-30 09:53:51', 0, 13),
-(78, 'Consulta eliminada', 'A \'Consulta #23\' foi apagada do histórico.', 'Geral', '2025-12-30 10:03:33', 0, 13),
-(79, 'Consulta eliminada', 'A \'Consulta #21\' foi apagada do histórico.', 'Geral', '2025-12-30 10:09:27', 0, 13),
-(80, 'Novo utilizador criado', 'Foi criada uma nova conta: paciente5', 'Geral', '2025-12-30 10:12:20', 0, 13),
-(81, 'Utilizador ativado', 'A conta paciente4 foi ativada.', 'Geral', '2026-01-02 20:53:19', 0, 13),
-(82, 'Utilizador ativado', 'A conta paciente4 foi ativada.', 'Geral', '2026-01-02 20:53:26', 0, 13),
-(83, 'Utilizador ativado', 'A conta paciente51 foi ativada.', 'Geral', '2026-01-17 14:31:09', 0, 13),
-(84, 'Utilizador ativado', 'A conta paciente51 foi ativada.', 'Geral', '2026-01-17 14:31:24', 0, 13),
-(85, 'Utilizador ativado', 'A conta paciente4 foi ativada.', 'Geral', '2026-01-21 19:16:16', 0, 13);
+(11, 'Triagem registada', 'Foi registada uma nova triagem para o paciente paciente.', 'Consulta', '2025-11-26 12:29:46', 1, 11),
+(12, 'Prioridade Laranja', 'O paciente paciente encontra-se em prioridade Laranja.', 'Prioridade', '2025-11-26 12:29:46', 1, 11),
+(13, 'Triagem registada', 'Foi registada uma nova triagem para o paciente teste2.', 'Consulta', '2025-11-26 12:36:30', 1, 20),
+(14, 'Triagem registada', 'Foi registada uma nova triagem para o paciente paciente3.', 'Consulta', '2025-11-26 12:53:43', 1, 22),
+(15, 'Consulta retomada', 'A consulta foi retomada.', 'Consulta', '2025-11-27 15:21:54', 1, 9),
+(16, 'Consulta retomada', 'A consulta foi retomada.', 'Consulta', '2025-11-27 15:22:01', 1, 9),
+(17, 'Consulta retomada', 'A consulta foi retomada.', 'Consulta', '2025-11-27 15:22:27', 1, 9),
+(18, 'Consulta iniciada', 'A sua consulta foi iniciada.', 'Consulta', '2025-11-27 15:44:11', 1, 20),
+(19, 'Nova prescrição', 'Foi emitida uma nova prescrição para o paciente teste2.', 'Consulta', '2025-11-27 15:45:03', 1, 20),
+(20, 'Consulta retomada', 'A consulta foi retomada.', 'Consulta', '2025-11-27 15:45:23', 1, 20),
+(21, 'Nova prescrição', 'Foi emitida uma nova prescrição para o paciente paciente2.', 'Consulta', '2025-11-27 16:06:20', 1, 21),
+(22, 'Nova prescrição', 'Foi emitida uma nova prescrição para o paciente paciente2.', 'Consulta', '2025-11-27 16:58:38', 1, 21),
+(23, 'Prescrição atualizada', 'A prescrição do paciente paciente2 foi atualizada.', 'Consulta', '2025-11-27 17:01:38', 1, 21),
+(24, 'Pulseira atribuída', 'Foi criada uma nova pulseira pendente para o paciente paciente.', 'Consulta', '2025-11-27 17:08:01', 1, 11),
+(25, 'Consulta retomada', 'A consulta foi retomada.', 'Consulta', '2025-11-28 10:29:41', 1, 21),
+(26, 'Consulta encerrada', 'A sua consulta foi encerrada.', 'Consulta', '2025-11-28 10:29:47', 1, 21),
+(27, 'Consulta encerrada', 'A sua consulta foi encerrada.', 'Consulta', '2025-11-28 10:43:31', 1, 21),
+(28, 'Consulta encerrada', 'A sua consulta foi encerrada.', 'Consulta', '2025-11-28 10:52:42', 1, 10),
+(29, 'Triagem registada', 'Foi registada uma nova triagem para o paciente paciente4.', 'Consulta', '2025-12-02 14:30:16', 1, 30),
+(30, 'Consulta retomada', 'A consulta foi retomada.', 'Consulta', '2025-12-03 11:06:00', 1, 20),
+(31, 'Consulta encerrada', 'A sua consulta foi encerrada.', 'Consulta', '2025-12-03 11:52:06', 1, 20),
+(32, 'Consulta iniciada', 'A sua consulta foi iniciada.', 'Consulta', '2025-12-03 11:52:42', 1, 11),
+(33, 'Nova prescrição', 'Foi emitida uma nova prescrição para o paciente paciente.', 'Consulta', '2025-12-03 12:11:51', 1, 11),
+(34, 'Prescrição atualizada', 'A prescrição do paciente paciente foi atualizada.', 'Consulta', '2025-12-03 12:12:14', 1, 11),
+(35, 'Prescrição atualizada', 'A prescrição do paciente paciente foi atualizada.', 'Consulta', '2025-12-03 12:15:58', 1, 11),
+(36, 'Prescrição atualizada', 'A prescrição do paciente paciente foi atualizada.', 'Consulta', '2025-12-03 12:22:49', 1, 11),
+(37, 'Prescrição atualizada', 'A prescrição do paciente paciente foi atualizada.', 'Consulta', '2025-12-03 13:36:38', 1, 11),
+(38, 'Consulta retomada', 'A consulta foi retomada.', 'Consulta', '2025-12-03 13:36:45', 1, 11),
+(39, 'Nova prescrição', 'Foi emitida uma nova prescrição para o paciente paciente.', 'Consulta', '2025-12-03 13:37:40', 1, 11),
+(40, 'Prescrição atualizada', 'A prescrição do paciente paciente foi atualizada.', 'Consulta', '2025-12-03 13:37:49', 1, 11),
+(41, 'Prescrição atualizada', 'A prescrição do paciente paciente foi atualizada.', 'Consulta', '2025-12-03 13:38:24', 1, 11),
+(42, 'Nova prescrição', 'Foi emitida uma nova prescrição para o paciente paciente.', 'Consulta', '2025-12-03 13:42:06', 1, 11),
+(43, 'Prescrição atualizada', 'A prescrição do paciente paciente foi atualizada.', 'Consulta', '2025-12-03 13:42:13', 1, 11),
+(44, 'Prescrição atualizada', 'A prescrição do paciente paciente foi atualizada.', 'Consulta', '2025-12-03 13:42:16', 1, 11),
+(45, 'Consulta retomada', 'A consulta foi retomada.', 'Consulta', '2025-12-03 13:42:21', 1, 11),
+(46, 'Consulta encerrada', 'A sua consulta foi encerrada.', 'Consulta', '2025-12-03 13:44:19', 1, 11),
+(47, 'Consulta iniciada', 'A sua consulta foi iniciada.', 'Consulta', '2025-12-03 15:43:47', 1, 30),
+(48, 'Nova prescrição', 'Foi emitida uma nova prescrição para o paciente paciente4.', 'Consulta', '2025-12-03 15:44:18', 1, 30),
+(49, 'Consulta retomada', 'A consulta foi retomada.', 'Consulta', '2025-12-03 15:44:25', 1, 30),
+(50, 'Prescrição atualizada', 'A prescrição do paciente paciente4 foi atualizada.', 'Consulta', '2025-12-04 15:56:51', 1, 30),
+(51, 'Prescrição atualizada', 'A prescrição do paciente paciente4 foi atualizada.', 'Consulta', '2025-12-04 15:56:58', 1, 30),
+(52, 'Consulta retomada', 'A consulta foi retomada.', 'Consulta', '2025-12-04 15:57:05', 1, 30),
+(53, 'Consulta encerrada', 'A sua consulta foi encerrada.', 'Consulta', '2025-12-04 15:57:15', 1, 30),
+(54, 'Consulta iniciada', 'A sua consulta foi iniciada.', 'Consulta', '2025-12-04 16:25:20', 1, 22),
+(55, 'Nova prescrição', 'Foi emitida uma nova prescrição para o paciente paciente3.', 'Consulta', '2025-12-04 16:48:04', 1, 22),
+(56, 'Prescrição atualizada', 'A prescrição do paciente paciente3 foi atualizada.', 'Consulta', '2025-12-04 16:52:47', 1, 22),
+(57, 'Prescrição atualizada', 'A prescrição do paciente paciente3 foi atualizada.', 'Consulta', '2025-12-04 17:06:13', 1, 22),
+(58, 'Consulta retomada', 'A consulta foi retomada.', 'Consulta', '2025-12-04 17:06:15', 1, 22),
+(59, 'Consulta encerrada', 'A sua consulta foi encerrada.', 'Consulta', '2025-12-04 17:07:34', 1, 22),
+(60, 'Consulta iniciada', 'A sua consulta foi iniciada.', 'Consulta', '2025-12-04 17:10:54', 1, 8),
+(61, 'Nova prescrição', 'Foi emitida uma nova prescrição para o paciente henrique.', 'Consulta', '2025-12-04 17:11:02', 1, 8),
+(62, 'Consulta retomada', 'A consulta foi retomada.', 'Consulta', '2025-12-04 17:11:04', 1, 8),
+(63, 'Consulta encerrada', 'A sua consulta foi encerrada.', 'Consulta', '2025-12-04 17:11:12', 1, 8),
+(64, 'Utilizador ativado', 'A conta paciente4 foi ativada.', 'Geral', '2025-12-19 10:49:20', 1, 13),
+(65, 'Novo utilizador criado', 'Foi criada uma nova conta: medico2', 'Geral', '2025-12-24 13:32:44', 1, 13),
+(66, 'Novo utilizador criado', 'Foi criada uma nova conta: medico3', 'Geral', '2025-12-24 14:41:08', 1, 13),
+(67, 'Novo utilizador criado', 'Foi criada uma nova conta: medico3', 'Geral', '2025-12-24 14:51:10', 1, 13),
+(68, 'Consulta eliminada', 'A \'Consulta #17\' foi apagada do histórico.', 'Geral', '2025-12-24 15:10:13', 1, 13),
+(69, 'Consulta eliminada', 'A \'Consulta #16\' foi apagada do histórico.', 'Geral', '2025-12-24 15:10:15', 1, 13),
+(70, 'Consulta eliminada', 'A \'Consulta #18\' foi apagada do histórico.', 'Geral', '2025-12-28 11:36:05', 1, 13),
+(71, 'Consulta eliminada', 'A \'Consulta #20\' foi apagada do histórico.', 'Geral', '2025-12-28 11:42:56', 1, 13),
+(72, 'Novo utilizador criado', 'Foi criada uma nova conta: paciente5', 'Geral', '2025-12-30 09:24:32', 1, 13),
+(73, 'Novo utilizador criado', 'Foi criada uma nova conta: paciente6', 'Geral', '2025-12-30 09:44:06', 1, 13),
+(74, 'Utilizador eliminado', 'A conta paciente6 foi eliminada.', 'Geral', '2025-12-30 09:44:09', 1, 13),
+(75, 'Utilizador eliminado', 'A conta paciente5 foi eliminada.', 'Geral', '2025-12-30 09:44:59', 1, 13),
+(76, 'Novo utilizador criado', 'Foi criada uma nova conta: paciente5', 'Geral', '2025-12-30 09:45:54', 1, 13),
+(77, 'Utilizador eliminado', 'A conta paciente5 foi eliminada.', 'Geral', '2025-12-30 09:53:51', 1, 13),
+(78, 'Consulta eliminada', 'A \'Consulta #23\' foi apagada do histórico.', 'Geral', '2025-12-30 10:03:33', 1, 13),
+(79, 'Consulta eliminada', 'A \'Consulta #21\' foi apagada do histórico.', 'Geral', '2025-12-30 10:09:27', 1, 13),
+(80, 'Novo utilizador criado', 'Foi criada uma nova conta: paciente5', 'Geral', '2025-12-30 10:12:20', 1, 13),
+(81, 'Utilizador ativado', 'A conta paciente4 foi ativada.', 'Geral', '2026-01-02 20:53:19', 1, 13),
+(82, 'Utilizador ativado', 'A conta paciente4 foi ativada.', 'Geral', '2026-01-02 20:53:26', 1, 13),
+(83, 'Utilizador ativado', 'A conta paciente51 foi ativada.', 'Geral', '2026-01-17 14:31:09', 1, 13),
+(84, 'Utilizador ativado', 'A conta paciente51 foi ativada.', 'Geral', '2026-01-17 14:31:24', 1, 13),
+(85, 'Utilizador ativado', 'A conta paciente4 foi ativada.', 'Geral', '2026-01-21 19:16:16', 1, 13),
+(86, 'Novo utilizador criado', 'Foi criada uma nova conta: Fabio', 'Geral', '2026-01-24 20:59:49', 1, 13),
+(87, 'Utilizador ativado', 'A conta Fabio foi ativada.', 'Geral', '2026-01-24 21:01:09', 1, 13),
+(88, 'Utilizador ativado', 'A conta Fabio foi ativada.', 'Geral', '2026-01-24 21:01:24', 1, 13);
 
 -- --------------------------------------------------------
 
@@ -519,7 +523,7 @@ CREATE TABLE IF NOT EXISTS `pulseira` (
   `userprofile_id` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_userprofile_pulseira` (`userprofile_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=84 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=85 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `pulseira`
@@ -538,7 +542,8 @@ INSERT INTO `pulseira` (`id`, `codigo`, `prioridade`, `status`, `tempoentrada`, 
 (79, 'F4D8A2F7', 'Laranja', 'Atendido', '2026-01-17 14:42:42', 22),
 (81, '1A2617C0', 'Laranja', 'Atendido', '2026-01-17 15:08:16', 11),
 (82, '1A884777', 'Pendente', 'Em espera', '2026-01-20 18:10:50', 30),
-(83, 'F8281E12', 'Verde', 'Atendido', '2026-01-24 20:47:07', 39);
+(83, 'F8281E12', 'Verde', 'Atendido', '2026-01-24 20:47:07', 39),
+(84, '3CDBF31F', 'Vermelho', 'Em espera', '2026-01-24 21:17:12', 11);
 
 -- --------------------------------------------------------
 
@@ -562,7 +567,7 @@ CREATE TABLE IF NOT EXISTS `triagem` (
   PRIMARY KEY (`id`),
   KEY `fk_pulseira_id` (`pulseira_id`),
   KEY `fk_triagem_userprofile_id` (`userprofile_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=102 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=103 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `triagem`
@@ -581,7 +586,8 @@ INSERT INTO `triagem` (`id`, `motivoconsulta`, `queixaprincipal`, `descricaosint
 (97, 'ewf', 'ewf', 'ewf', '2026-01-17 14:42:00', 4, 'wef', 'wef', '2026-01-17 14:42:42', 22, 79),
 (99, '', '', '', NULL, 0, '', '', '2026-01-17 15:08:16', 11, 81),
 (100, '', '', '', NULL, 0, '', '', '2026-01-20 18:10:50', 30, 82),
-(101, '', '', '', NULL, 0, '', '', '2026-01-24 20:47:07', 39, 83);
+(101, '', '', '', NULL, 0, '', '', '2026-01-24 20:47:07', 39, 83),
+(102, '', '', '', NULL, 0, '', '', '2026-01-24 21:17:12', 11, 84);
 
 -- --------------------------------------------------------
 
@@ -606,7 +612,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   UNIQUE KEY `username` (`username`),
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `password_reset_token` (`password_reset_token`)
-) ENGINE=InnoDB AUTO_INCREMENT=50 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=51 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 --
 -- Dumping data for table `user`
@@ -617,7 +623,6 @@ INSERT INTO `user` (`id`, `username`, `auth_key`, `password_hash`, `password_res
 (14, 'Alfredo', 'MJ6vfKvxKc55si89uS4LFZ8idnQir-V_', '$2y$13$V89G4x2gPrOT.daBle0b9OMAVRg3z5V/lMYgjw5.hyEm0NIoleL1m', NULL, 'alfredo@gmail.com', 10, 1761765484, 1769269470, NULL, 0),
 (15, 'Renato', 'DHU1lrPcz4pIVPwgC6PLwRRBzV6OAzQO', '$2y$13$kLlON8JaHqYPIoQbmCJp/OIkMRIBYt6fIjMbjT0oRfrdmvi53fao2', NULL, 'renato@admin.com', 10, 1761841878, 1769269429, NULL, 0),
 (16, 'Gil', 'pW5Yn4GxUh8BgNglX2ftCiizXcfhbWc3', '$2y$13$/WzBBrgE.NmrxPzoDEYcO.O7kC7oY4UirlkgUFif3I1Ql7wDLHxyy', NULL, 'gil@gmail.com', 10, 1762957973, 1769269446, NULL, 0),
-(17, 'fabio', 'uzFzzNSoXGyx_G6WA_PXA-2XE9XsG2A-', '$2y$13$1H4srvB689klIiVTDDXvveyGhpbV5LITcpj.wXY5ikgtMUFuceO2m', NULL, 'fabio@gmail.com', 10, 1762960888, 1762960953, NULL, 0),
 (18, 'Paulo', 'b3R7Smmh_RItS1EM9ljuvZlRD8vAz3ou', '$2y$13$JXHr5Q0leMCTdNKBMRyoe.9APMMV6qweaYm3WinZwa7VFcbBfUxMa', NULL, 'paulo@gmail.com', 10, 1762961282, 1769269401, NULL, 0),
 (19, 'admin', '1eb4dvYH88w6nwTQQxOx8X4usCN5Vsx9', '$2y$13$c9RoUdyuZeDVhARmt/bLtOc73kvunKc1rFSn.O9.EZW2DtvniKOUi', NULL, 'admin@gmail.com', 10, 1762983420, 1762983426, NULL, 0),
 (25, 'Jose', 'XwqsVZrd-l2Se_x-z3LmJWsR_MW_Vzez', '$2y$13$4Dxl1XDoyn2940SAJqqDfeG1aYWf3TWtNe2vFQSBuJ.jith3Pv6Xu', NULL, 'jose@gmail.com', 10, 1763136144, 1769267769, NULL, 0),
@@ -629,7 +634,8 @@ INSERT INTO `user` (`id`, `username`, `auth_key`, `password_hash`, `password_res
 (38, 'Dinis', 'lNAsnHHNyU_2Aw9tyFltj3GFCECxMNe2', '$2y$13$qvXjCdfCZ8XhNXK385umD.NY3/Gu2hV80nDqzrd4fc69eF1EDDuY6', NULL, 'dinis@gmail.com', 10, 1764868352, 1769267645, NULL, 1),
 (39, 'Alberto', 'y3teXimPkVPWYKsD5E7v7qk83j2Qq6SC', '$2y$13$moT6dBtL1KNKV3GbLZdaJe6at6EEQkEPWBbBb9w.EgDIjmFMGze2q', NULL, 'alberto@gmail.com', 10, 1766583164, 1769267638, NULL, 1),
 (45, 'Gonçalo', 'lFPX8J0tkhNsbsuvxX6X_IVn-2kDsErn', '$2y$13$ZOlDHO0NCEhnpRiAK1ILue8aL8dRqMC1nfgaJONkSAmFAiSU7bQ6O', NULL, 'goncalo@gmail.com', 10, 1766587870, 1769285872, NULL, 1),
-(49, 'Maria', '8UVJwFUAdtxrFA7wTqH-QUK2a6fzMfQq', '$2y$13$qJlj0jbEfMwDGPQvxQogouJKuTwsioKn1Zg0Iz5Ebil.XeBwiwSZy', NULL, 'maria@gmail.com', 10, 1767089540, 1769267528, NULL, 0);
+(49, 'Maria', '8UVJwFUAdtxrFA7wTqH-QUK2a6fzMfQq', '$2y$13$qJlj0jbEfMwDGPQvxQogouJKuTwsioKn1Zg0Iz5Ebil.XeBwiwSZy', NULL, 'maria@gmail.com', 10, 1767089540, 1769267528, NULL, 0),
+(50, 'Fabio', 'olZx_NJhQ1VBzGHOVXGIHitZlTG2ThrI', '$2y$13$y1U0XivKN01ezenHnWXf5erjfXgte/FllymHVK6UtznDUUiXMr2F.', NULL, 'fabio@gmail.com', 10, 1769288389, 1769288484, NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -653,7 +659,7 @@ CREATE TABLE IF NOT EXISTS `userprofile` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`),
   KEY `fk_userprofile_user` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `userprofile`
@@ -675,7 +681,8 @@ INSERT INTO `userprofile` (`id`, `nome`, `email`, `morada`, `nif`, `sns`, `datan
 (32, 'Dinis', 'dinis@gmail.com', 'Rua das Flores, nº72 2445-034', '959595955', '259292929', '2025-12-04', 'M', '964586959', 38, 1),
 (33, 'Alberto', 'alberto@gmail.com', 'Rua das Flores, nº72 2445-034', '987654567', '876543456', '2006-06-06', 'M', '912881283', 39, 1),
 (35, 'Gonçalo', 'goncalo@gmail.com', 'Rua das Flores, nº72 2445-034', '456789098', '456789098', '2004-07-07', 'M', '915429748', 45, 1),
-(39, 'Maria', 'maria@gmail.com', 'Rua das Flores, nº72 2445-0344', '876543256', '876546789', '2025-12-18', 'F', '912881495', 49, 1);
+(39, 'Maria', 'maria@gmail.com', 'Rua das Flores, nº72 2445-0344', '876543256', '876546789', '2025-12-18', 'F', '912881495', 49, 1),
+(40, 'Fabio', 'fabio@gmail.com', 'Gandara', '123456789', '123456789', '1989-02-12', 'M', '935783762', 50, 1);
 
 --
 -- Constraints for dumped tables
