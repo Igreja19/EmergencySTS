@@ -127,12 +127,14 @@ class SiteController extends Controller
             'espera' => $countEspera,
             'ativas' => Pulseira::find()->where(['status' => 'Em atendimento'])->count(),
             'atendidosHoje' => Consulta::find()
+                ->where(['estado' => Consulta::ESTADO_ENCERRADA])
                 ->where(['estado' => 'Encerrada'])
                 ->andWhere(['between', 'data_encerramento', date('Y-m-d 00:00:00'), date('Y-m-d 23:59:59')])
                 ->count(),
             'triagensPendentes' => Pulseira::find()
                 ->where(['prioridade' => 'Pendente'])
                 ->count(),
+            'totalUtilizadores' => User::find()->count(),
             'salasDisponiveis' => 4,
             'salasTotal' => 6,
         ];
@@ -146,6 +148,10 @@ class SiteController extends Controller
         ];
 
         $dataFiltro = Yii::$app->request->get('dataFiltro');
+
+        $evolucaoLabels = [];
+        $evolucaoData = [];
+
         if ($dataFiltro) {
             $inicio = $dataFiltro . ' 00:00:00';
             $fim    = $dataFiltro . ' 23:59:59';

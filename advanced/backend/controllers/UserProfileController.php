@@ -21,17 +21,15 @@ class UserProfileController extends Controller
             'access' => [
                 'class' => AccessControl::class,
                 'rules' => [
-                    // 🔹 Acesso completo (CRUD) para admin, médico e enfermeiro
                     [
                         'allow' => true,
                         'roles' => ['admin', 'medico', 'enfermeiro'],
                     ],
 
-                    // 🔹 Ação "meu-perfil" → qualquer utilizador AUTORIZADO (exceto paciente)
                     [
                         'actions' => ['meu-perfil'],
                         'allow' => true,
-                        'roles' => ['@'], // autenticados
+                        'roles' => ['@'],
                     ],
                 ],
             ],
