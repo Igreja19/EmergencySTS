@@ -1,8 +1,7 @@
 <?php
 
 use kartik\select2\Select2;
-use kartik\select2\Select2Asset;
-Select2Asset::register($this);
+use kartik\widgets\Select2Asset;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
