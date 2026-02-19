@@ -1,10 +1,10 @@
 <?php
 
+use kartik\select2\Select2;
 use kartik\select2\Select2Asset;
 Select2Asset::register($this);
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
-use kartik\select2\Select2;
 
 
 /** @var yii\web\View $this */
