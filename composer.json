@@ -1,0 +1,6 @@
+{
+    "require": {
+        "kartik-v/yii2-widget-select2": "@dev",
+        "kartik-v/yii2-krajee-base": "@dev"
+    }
+}
